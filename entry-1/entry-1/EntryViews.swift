@@ -19,11 +19,7 @@ func formattedDate(_ date: Date) -> String {
 
 struct EntryView: View {
     @Environment(\.managedObjectContext) private var viewContext
-    
-//    @FetchRequest(
-//        entity: Log.entity(),
-//        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
-//    ) var logs: FetchedResults<Log> // should only be 1 log
+    @State private var currentDateFilter = formattedDate(Date())
     @FetchRequest(
         entity: Log.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
@@ -32,30 +28,51 @@ struct EntryView: View {
 
     
     @State private var isShowingEntryCreationView = false
-    
+    @State private var importantEntries: Set<Entry> = []
+
+    @EnvironmentObject var userPreferences: UserPreferences
+
     var body: some View {
-        VStack {
-            Spacer()
-                .frame(height: 30) // Adjust the height
             NavigationView {
                 List {
+                    validateDate()
                     if let firstLog = logs.first, firstLog.relationship.count > 0 {
                         let sortedEntries = Array(firstLog.relationship as! Set<Entry>).sorted { $0.time > $1.time }
                         ForEach(sortedEntries, id: \.self) { entry in
                             Section(header: Text(entry.formattedTime())
-                                .font(.system(size: 14)) // Set the custom size here
                             ) {
                                 Text(entry.content)
+                                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                                    .fontWeight(entry.isImportant ? .semibold : .regular)
+                                    .foregroundColor(importantEntries.contains(entry) ? .yellow : .primary)
+                                    .swipeActions(edge: .leading) {
+                                        Button(action: {
+                                            toggleImportance(entry: entry)
+                                            if importantEntries.contains(entry) {
+                                                importantEntries.remove(entry)
+                                            } else {
+                                                importantEntries.insert(entry)
+                                            }
+                                        }) {
+                                            Label("Important", systemImage: "star.fill")
+                                        }
+                                        .tint(.yellow)
+                                    }
+                            }
+                        }
+                        .onDelete { indexSet in
+                            for index in indexSet {
+                                deleteEntry(entry: sortedEntries[index])
                             }
                         }
                     } else {
-                        Text("Create an entry")
+                        Text("No entries")
                             .foregroundColor(.gray)
                             .italic()
                     }
                 }
-                .font(.custom("serif", size: 15))
-                .navigationBarTitle(currentDate(), displayMode: .inline)
+                .navigationTitle(currentDate())
+//                .navigationBarTitle(currentDate(), displayMode: .inline)
                 .navigationBarItems(trailing:
                                         Button(action: {
                     isShowingEntryCreationView = true
@@ -67,13 +84,41 @@ struct EntryView: View {
                     NewEntryView().environment(\.managedObjectContext, viewContext)
                 }
             }
-        }
+//        }
         
     }
     func currentDate() -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d, yyyy"
         return formatter.string(from: Date())
+    }
+    
+    private func toggleImportance(entry: Entry) {
+          entry.isImportant.toggle()
+          do {
+              try viewContext.save()
+          } catch {
+              print("Error toggling importance: \(error)")
+          }
+      }
+
+      private func deleteEntry(entry: Entry) {
+          let parentLog = entry.relationship
+          parentLog.removeFromRelationship(entry)
+          viewContext.delete(entry)
+          do {
+              try viewContext.save()
+          } catch {
+              print("Error deleting entry: \(error)")
+          }
+      }
+    @ViewBuilder
+    private func validateDate() -> some View {
+        if currentDateFilter != formattedDate(Date()) {
+            Button("Refresh") {
+                currentDateFilter = formattedDate(Date())
+            }
+        }
     }
 }
 
@@ -92,9 +137,9 @@ struct NewEntryView: View {
                 VStack {
                     TextEditor(text: $entryContent)
                         .padding()
-                        .background(RoundedRectangle(cornerRadius: 5).fill(Color.gray.opacity(0.2)))
+                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.gray.opacity(0.15)))
                         .padding()
-                        .background(.indigo)
+//                        .background(.indigo)
                     Button("Save") {
                         let newEntry = Entry(context: viewContext)
                         newEntry.content = entryContent
