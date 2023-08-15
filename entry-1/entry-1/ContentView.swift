@@ -4,6 +4,8 @@ import CoreData
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var selectedIndex = 1
+    @State private var userPreferences = UserPreferences()
+
 
     
     
@@ -16,16 +18,19 @@ struct ContentView: View {
                 }.tag(0)
             
             EntryView()
+                .environmentObject(userPreferences)
                 .environment(\.managedObjectContext, viewContext)
                 .tabItem {
                     Label("Entries", systemImage: "pencil")
                 }.tag(1)
-            Text("Settings Page Here")
+            SettingsView()
+                .environmentObject(userPreferences)
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }.tag(2)
         }
-        .accentColor(.cyan)
+        .accentColor(userPreferences.accentColor)
+        .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
     }
 }
 

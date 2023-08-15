@@ -32,7 +32,8 @@ struct EntryView: View {
 
     
     @State private var isShowingEntryCreationView = false
-    
+    @EnvironmentObject var userPreferences: UserPreferences
+
     var body: some View {
         VStack {
             Spacer()
@@ -43,7 +44,8 @@ struct EntryView: View {
                         let sortedEntries = Array(firstLog.relationship as! Set<Entry>).sorted { $0.time > $1.time }
                         ForEach(sortedEntries, id: \.self) { entry in
                             Section(header: Text(entry.formattedTime())
-                                .font(.system(size: 14)) // Set the custom size here
+//                                .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+////                                .font(Float(userPreferences.fontSize)) // Set the custom size here
                             ) {
                                 Text(entry.content)
                             }
