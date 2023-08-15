@@ -22,6 +22,8 @@
 		34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8085D2A8A183700B9BB5C /* Log+CoreDataProperties.swift */; };
 		34A808612A8AF58800B9BB5C /* EntryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808602A8AF58800B9BB5C /* EntryViews.swift */; };
 		34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808622A8AFBC400B9BB5C /* LogViews.swift */; };
+		34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808682A8B070000B9BB5C /* SettingsView.swift */; };
+		34A8086D2A8C077300B9BB5C /* ExportData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8086C2A8C077300B9BB5C /* ExportData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +63,8 @@
 		34A8085D2A8A183700B9BB5C /* Log+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Log+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		34A808602A8AF58800B9BB5C /* EntryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViews.swift; sourceTree = "<group>"; };
 		34A808622A8AFBC400B9BB5C /* LogViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViews.swift; sourceTree = "<group>"; };
+		34A808682A8B070000B9BB5C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		34A8086C2A8C077300B9BB5C /* ExportData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,9 +119,11 @@
 		34A808272A8A167200B9BB5C /* entry-1 */ = {
 			isa = PBXGroup;
 			children = (
+				34A8086C2A8C077300B9BB5C /* ExportData.swift */,
 				34A808282A8A167200B9BB5C /* entry_1App.swift */,
 				34A8082A2A8A167200B9BB5C /* Persistence.swift */,
 				34A808602A8AF58800B9BB5C /* EntryViews.swift */,
+				34A808682A8B070000B9BB5C /* SettingsView.swift */,
 				34A8082F2A8A167300B9BB5C /* ContentView.swift */,
 				34A808312A8A167800B9BB5C /* Assets.xcassets */,
 				34A808332A8A167800B9BB5C /* entry_1.entitlements */,
@@ -293,6 +299,8 @@
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */,
+				34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */,
+				34A8086D2A8C077300B9BB5C /* ExportData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
