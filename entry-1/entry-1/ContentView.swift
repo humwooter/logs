@@ -1,14 +1,16 @@
 import SwiftUI
 import CoreData
 
+
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var selectedIndex = 1
-    @State private var userPreferences = UserPreferences()
+    @ObservedObject private var userPreferences = UserPreferences()
 
 
-    
-    
+
+
+
     var body: some View {
         TabView(selection: $selectedIndex) {
             LogsView()
@@ -16,7 +18,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("Logs", systemImage: "book")
                 }.tag(0)
-            
+
             EntryView()
                 .environmentObject(userPreferences)
                 .environment(\.managedObjectContext, viewContext)
@@ -26,7 +28,7 @@ struct ContentView: View {
             SettingsView()
                 .environmentObject(userPreferences)
                 .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    Label("Settings", systemImage: "gearshape")
                 }.tag(2)
         }
         .accentColor(userPreferences.accentColor)

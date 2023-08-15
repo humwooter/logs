@@ -19,14 +19,15 @@ extension Entry {
     @NSManaged public var content: String
     @NSManaged public var time: Date
     @NSManaged public var relationship: Log
+    @NSManaged public var isImportant: Bool
+    @NSManaged public var id: UUID
 
 }
 
 extension Entry : Identifiable {
     func formattedTime() -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: self.time ?? Date())
+        formatter.timeStyle = .short
+        return formatter.string(from: self.time)
     }
-
 }

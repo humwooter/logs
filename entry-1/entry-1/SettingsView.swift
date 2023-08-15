@@ -30,9 +30,10 @@ class UserPreferences: ObservableObject {
     
     init() {
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
-        self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) ?? 16
-        self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "Helvetica"
+        self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) != 0.0 ? CGFloat(UserDefaults.standard.float(forKey: "fontSize")) : CGFloat(16)
+        self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "monospace"
     }
+
 }
 
 extension UserDefaults {
@@ -42,22 +43,24 @@ extension UserDefaults {
     }
     
     func color(forKey key: String) -> Color? {
-        guard let data = data(forKey: key),
-              let color = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIColor
-        else { return nil }
-        return Color(color)
-    }
+         guard let data = data(forKey: key) else { return nil }
+         do {
+             if let color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data) {
+                 return Color(color)
+             }
+         } catch {
+             print("Error unarchiving color: \(error)")
+         }
+         return nil
+     }
 }
 
 struct SettingsView: View {
     @EnvironmentObject var userPreferences: UserPreferences
-    let fonts = ["Default", "Helvetica", "monospace", "serif"]
-    
-    
+    let fonts = ["Helvetica Neue", "Times New Roman", "Courier New", "AmericanTypewriter", "Bradley Hand"]
+
+
     var body: some View {
-        VStack {
-            Spacer()
-                .frame(height: 30) // Adjust the height
             NavigationView {
                 Form {
                     Section(header: Text("Accent Color")) {
@@ -76,8 +79,7 @@ struct SettingsView: View {
                 }
                 .navigationTitle("Settings")
                 .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                .accentColor(userPreferences.accentColor)
             }
-        }
     }
 }
-    
