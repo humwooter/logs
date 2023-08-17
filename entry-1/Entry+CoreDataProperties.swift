@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
 
 extension Entry {
@@ -19,14 +20,20 @@ extension Entry {
     @NSManaged public var content: String
     @NSManaged public var time: Date
     @NSManaged public var relationship: Log
+    @NSManaged public var buttons: [Bool]
+    @NSManaged public var id: UUID
+    @NSManaged public var color: UIColor
+    @NSManaged public var image: String
+
+
+//    @NSManaged public var activatedButtons: [Bool]
 
 }
 
 extension Entry : Identifiable {
     func formattedTime() -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: self.time ?? Date())
+        formatter.timeStyle = .short
+        return formatter.string(from: self.time)
     }
-
 }
