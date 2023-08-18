@@ -19,6 +19,8 @@ extension Log {
     @NSManaged public var day: String
     @NSManaged public var id: UUID
     @NSManaged public var relationship: NSSet
+    @NSManaged public var recentlyDeleted: NSSet
+
 
 }
 
