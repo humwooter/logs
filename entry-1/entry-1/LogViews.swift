@@ -66,6 +66,13 @@ struct LogDetailView: View {
                         Spacer() // Push the image to the right
         
                     }
+                    if let imageData = entry.imageContent {
+                      if let image = UIImage(data: imageData) {
+                        Image(uiImage: image)
+                          .resizable()
+                          .scaledToFit()
+                      }
+                    }
                 }
 //                .listRowBackground(backgroundColor(entry: entry))
             }
