@@ -24,16 +24,27 @@ extension Entry {
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor
     @NSManaged public var image: String
+    @NSManaged public var imageContent: String?
 
-
-//    @NSManaged public var activatedButtons: [Bool]
-
-}
-
-extension Entry : Identifiable {
-    func formattedTime() -> String {
+    func formattedTime(debug: String) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
         return formatter.string(from: self.time)
     }
+//    func formattedTime_2(debug: String) -> String {
+//        print("\(debug)")
+//        print("entered formatted time")
+//        print("entry is: \(self)")
+//        print("entry.time = \(self.time)")
+//        let formatter = DateFormatter()
+//        formatter.dateFormat = "E, MMM d"
+//        return formatter.string(from: self.time)
+//    }
+
+    
+
+}
+
+extension Entry : Identifiable {
+
 }
