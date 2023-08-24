@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		345E99142A8F3A5A004A81E2 /* Glass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E99132A8F3A5A004A81E2 /* Glass.swift */; };
+		345E99162A90A7A6004A81E2 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E99152A90A7A6004A81E2 /* SpeechRecognizer.swift */; };
+		345E99182A90DE35004A81E2 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E99172A90DE35004A81E2 /* ImagePicker.swift */; };
+		345E991A2A90E1FC004A81E2 /* TextViewWithImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E99192A90E1FC004A81E2 /* TextViewWithImage.swift */; };
+		345E991C2A9312E3004A81E2 /* OldEntryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E991B2A9312E3004A81E2 /* OldEntryViews.swift */; };
+		345E991E2A93FB71004A81E2 /* ImportData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E991D2A93FB71004A81E2 /* ImportData.swift */; };
 		34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808282A8A167200B9BB5C /* entry_1App.swift */; };
 		34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8082A2A8A167200B9BB5C /* Persistence.swift */; };
 		34A808302A8A167300B9BB5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8082F2A8A167300B9BB5C /* ContentView.swift */; };
@@ -24,6 +29,10 @@
 		34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808622A8AFBC400B9BB5C /* LogViews.swift */; };
 		34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808682A8B070000B9BB5C /* SettingsView.swift */; };
 		34A8086D2A8C077300B9BB5C /* ExportData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8086C2A8C077300B9BB5C /* ExportData.swift */; };
+		34C43AFC2A976A34005C1296 /* FLAnimatedImage in Frameworks */ = {isa = PBXBuildFile; productRef = 34C43AFB2A976A34005C1296 /* FLAnimatedImage */; };
+		34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C43AFD2A976B6E005C1296 /* GifView.swift */; };
+		34C43B002A97745D005C1296 /* UIImage+Gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C43AFF2A97745D005C1296 /* UIImage+Gif.swift */; };
+		34C43B082A977EA1005C1296 /* Giffy in Frameworks */ = {isa = PBXBuildFile; productRef = 34C43B072A977EA1005C1296 /* Giffy */; };
 		34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30252A8DDF13006A70B8 /* Extensions.swift */; };
 /* End PBXBuildFile section */
@@ -47,6 +56,11 @@
 
 /* Begin PBXFileReference section */
 		345E99132A8F3A5A004A81E2 /* Glass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Glass.swift; sourceTree = "<group>"; };
+		345E99152A90A7A6004A81E2 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		345E99172A90DE35004A81E2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
+		345E99192A90E1FC004A81E2 /* TextViewWithImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithImage.swift; sourceTree = "<group>"; };
+		345E991B2A9312E3004A81E2 /* OldEntryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldEntryViews.swift; sourceTree = "<group>"; };
+		345E991D2A93FB71004A81E2 /* ImportData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportData.swift; sourceTree = "<group>"; };
 		34A808252A8A167200B9BB5C /* entry-1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "entry-1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		34A808282A8A167200B9BB5C /* entry_1App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = entry_1App.swift; sourceTree = "<group>"; };
 		34A8082A2A8A167200B9BB5C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -67,6 +81,8 @@
 		34A808622A8AFBC400B9BB5C /* LogViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViews.swift; sourceTree = "<group>"; };
 		34A808682A8B070000B9BB5C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		34A8086C2A8C077300B9BB5C /* ExportData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportData.swift; sourceTree = "<group>"; };
+		34C43AFD2A976B6E005C1296 /* GifView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifView.swift; sourceTree = "<group>"; };
+		34C43AFF2A97745D005C1296 /* UIImage+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Gif.swift"; sourceTree = "<group>"; };
 		34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
 		34FD30252A8DDF13006A70B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -76,6 +92,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34C43B082A977EA1005C1296 /* Giffy in Frameworks */,
+				34C43AFC2A976A34005C1296 /* FLAnimatedImage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,6 +146,7 @@
 				34A8082A2A8A167200B9BB5C /* Persistence.swift */,
 				34A808602A8AF58800B9BB5C /* EntryViews.swift */,
 				34A808682A8B070000B9BB5C /* SettingsView.swift */,
+				345E991D2A93FB71004A81E2 /* ImportData.swift */,
 				34A8082F2A8A167300B9BB5C /* ContentView.swift */,
 				34A808312A8A167800B9BB5C /* Assets.xcassets */,
 				34A808332A8A167800B9BB5C /* entry_1.entitlements */,
@@ -136,6 +155,12 @@
 				34A808622A8AFBC400B9BB5C /* LogViews.swift */,
 				34FD30252A8DDF13006A70B8 /* Extensions.swift */,
 				345E99132A8F3A5A004A81E2 /* Glass.swift */,
+				345E99152A90A7A6004A81E2 /* SpeechRecognizer.swift */,
+				345E99172A90DE35004A81E2 /* ImagePicker.swift */,
+				345E99192A90E1FC004A81E2 /* TextViewWithImage.swift */,
+				345E991B2A9312E3004A81E2 /* OldEntryViews.swift */,
+				34C43AFD2A976B6E005C1296 /* GifView.swift */,
+				34C43AFF2A97745D005C1296 /* UIImage+Gif.swift */,
 			);
 			path = "entry-1";
 			sourceTree = "<group>";
@@ -181,6 +206,10 @@
 			dependencies = (
 			);
 			name = "entry-1";
+			packageProductDependencies = (
+				34C43AFB2A976A34005C1296 /* FLAnimatedImage */,
+				34C43B072A977EA1005C1296 /* Giffy */,
+			);
 			productName = "entry-1";
 			productReference = 34A808252A8A167200B9BB5C /* entry-1.app */;
 			productType = "com.apple.product-type.application";
@@ -253,6 +282,10 @@
 				Base,
 			);
 			mainGroup = 34A8081C2A8A167200B9BB5C;
+			packageReferences = (
+				34C43AFA2A976A34005C1296 /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
+				34C43B062A977EA1005C1296 /* XCRemoteSwiftPackageReference "Giffy" */,
+			);
 			productRefGroup = 34A808262A8A167200B9BB5C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -300,14 +333,21 @@
 				34A808612A8AF58800B9BB5C /* EntryViews.swift in Sources */,
 				34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */,
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
+				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
+				345E99162A90A7A6004A81E2 /* SpeechRecognizer.swift in Sources */,
 				34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */,
 				34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */,
+				34C43B002A97745D005C1296 /* UIImage+Gif.swift in Sources */,
 				34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */,
+				345E991C2A9312E3004A81E2 /* OldEntryViews.swift in Sources */,
+				345E991E2A93FB71004A81E2 /* ImportData.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
 				34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */,
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */,
+				345E99182A90DE35004A81E2 /* ImagePicker.swift in Sources */,
 				34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */,
+				345E991A2A90E1FC004A81E2 /* TextViewWithImage.swift in Sources */,
 				34A8086D2A8C077300B9BB5C /* ExportData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -469,6 +509,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = NSMicrophoneUsageDescription;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = NSPhotoLibraryUsageDescription;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = NSSpeechRecognitionUsageDescription;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -507,6 +550,9 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = NSMicrophoneUsageDescription;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = NSPhotoLibraryUsageDescription;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = NSSpeechRecognitionUsageDescription;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -662,6 +708,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		34C43AFA2A976A34005C1296 /* XCRemoteSwiftPackageReference "FLAnimatedImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Flipboard/FLAnimatedImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		34C43B062A977EA1005C1296 /* XCRemoteSwiftPackageReference "Giffy" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tfmart/Giffy.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		34C43AFB2A976A34005C1296 /* FLAnimatedImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34C43AFA2A976A34005C1296 /* XCRemoteSwiftPackageReference "FLAnimatedImage" */;
+			productName = FLAnimatedImage;
+		};
+		34C43B072A977EA1005C1296 /* Giffy */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34C43B062A977EA1005C1296 /* XCRemoteSwiftPackageReference "Giffy" */;
+			productName = Giffy;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */ = {

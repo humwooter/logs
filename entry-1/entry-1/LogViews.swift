@@ -66,6 +66,21 @@ struct LogDetailView: View {
                         Spacer() // Push the image to the right
         
                     }
+
+                    
+                    if entry.imageContent != "" {
+                        if let filename = entry.imageContent {
+                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            let fileURL = documentsDirectory.appendingPathComponent(filename)
+                            AsyncImage(url: fileURL) { image in
+                                image.resizable()
+                                    .scaledToFit()
+                            }
+                        placeholder: {
+                            ProgressView()
+                        }
+                        }
+                    }
                 }
 //                .listRowBackground(backgroundColor(entry: entry))
             }
