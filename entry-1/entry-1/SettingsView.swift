@@ -111,8 +111,11 @@ struct SettingsView: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     let fonts = ["Helvetica Neue", "Times New Roman", "Courier New", "American Typewriter", "Bradley Hand", "Cochin", "Noteworthy Light", "Papyrus Condensed", "PartyLetPlain", "SnellRoundhand", "Superclarendon Regular", "SavoyeLetPlain", "Menlo Regular", "Marker Felt Thin", "Marker Felt Wide", "Gill Sans", "Copperplate Light", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Bodoni 72 Oldstyle Book", "Forgotten Futurist Regular"]
     
-    let systemImages = [ "folder.fill", "staroflife", "star.fill", "heart.fill", "exclamationmark", "lightbulb", "gamecontroller.fill", "figure.run", "leaf.fill", "figure.mind.and.body", "book.fill", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "paintpalette.fill", "moon.stars.fill", "wind.snow", "lizard.fill", "dollarsign", "sun.min", "sun.min.fill", "sun.max.fill", "power", "eye.fill", "circle"]
+    let systemImages = [ "folder.fill", "staroflife", "star.fill", "heart.fill", "exclamationmark", "lightbulb", "gamecontroller.fill", "figure.run", "leaf.fill", "figure.mind.and.body", "book.fill", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "paintpalette.fill", "moon.stars.fill", "wind.snow", "lizard.fill", "bird.fill", "dollarsign", "sun.min", "sun.min.fill", "sun.max.fill", "power", "eye.fill", "circle"]
     @State var advancedSettings = false
+    @State private var isExportDocumentPickerPresented = false
+    @State private var isImportDocumentPickerPresented = false
+    @State private var selectedURL: URL?
 
     
     var body: some View {
@@ -137,7 +140,15 @@ struct SettingsView: View {
                 Section(header: Text("Export Data")) {
                     
                     Button(action: exportData) {
-                        Label("Export Data", systemImage: "arrow.down.doc") // Added icon here
+                        Label("Export Data", systemImage: "arrow.up.doc") // Added icon here
+                    }
+                    .sheet(isPresented: $isExportDocumentPickerPresented) {
+                    }
+                }
+                Section(header: Text("Import Data")) {
+                    Button(action: importData) {
+                        Label("Import Data", systemImage: "arrow.down.doc")
+
                     }
                 }
                 
@@ -210,6 +221,38 @@ struct SettingsView: View {
            let rootViewController = windowScene.windows.first?.rootViewController {
             exporter.exportDataToJson(from: rootViewController)
         }
+    }
+    
+    func documentPicker(_ picker: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+
+      if let selectedFileURL = urls.first {
+        
+        do {
+          let jsonData = try Data(contentsOf: selectedFileURL)
+        let importer = ImportData(viewContext: viewContext)
+          importer.importFromJson(jsonData)
+          
+        } catch {
+          print("Error converting URL to Data: \(error)")
+        }
+
+      }
+
+    }
+
+    func importData() {
+        
+        print("entered import data ")
+
+      let importer = ImportData(viewContext: viewContext)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            importer.presentDocumentPicker(from: rootViewController)
+        }
+        print("exited import data ")
+
+      
     }
     
     private func foregroundColor() -> Color {

@@ -30,6 +30,7 @@ extension Log {
 ////        guard let time = entry.time, let content = entry.content else { return }
 //        self.entries.append(entry)
 //    }
+    
 
     @objc(addRelationshipObject:)
     @NSManaged public func addToRelationship(_ value: Entry)
