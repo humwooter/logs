@@ -29,6 +29,7 @@ extension Entry {
     @NSManaged public var color: UIColor
     @NSManaged public var image: String
     @NSManaged public var imageContent: String?
+    @NSManaged public var isHidden: Bool
 
     func formattedTime(debug: String) -> String {
         let formatter = DateFormatter()

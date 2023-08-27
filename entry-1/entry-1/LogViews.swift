@@ -60,7 +60,6 @@ struct LogDetailView: View {
                             }
                             Text(entry.content)
                                 .fontWeight(entry.buttons.filter{$0}.count > 0 ? .bold : .regular)
-                            //    .foregroundColor(foregroundColor(entry: entry, background: UIColor(backgroundColor(entry: entry))))
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
                         }
                         Spacer() // Push the image to the right
@@ -68,17 +67,35 @@ struct LogDetailView: View {
                     }
 
                     
+                    
                     if entry.imageContent != "" {
                         if let filename = entry.imageContent {
                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                             let fileURL = documentsDirectory.appendingPathComponent(filename)
-                            AsyncImage(url: fileURL) { image in
-                                image.resizable()
-                                    .scaledToFit()
+                            let data = try? Data(contentsOf: fileURL)
+                            
+                            
+                            if let data = data, isGIF(data: data) {
+
+                              let imageView = AnimatedImageView(url: fileURL)
+                              
+                                let asyncImage = UIImage(data: data)
+                              
+                                let height = asyncImage!.size.height
+                              
+                                AnimatedImageView(url: fileURL).scaledToFit()
+
+
+                              // Add imageView
+                            } else {
+                                AsyncImage(url: fileURL) { image in
+                                    image.resizable()
+                                        .scaledToFit()
+                                }
+                            placeholder: {
+                                ProgressView()
                             }
-                        placeholder: {
-                            ProgressView()
-                        }
+                            }
                         }
                     }
                 }

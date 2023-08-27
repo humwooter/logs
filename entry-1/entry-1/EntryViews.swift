@@ -64,6 +64,7 @@ class MarkedEntries: ObservableObject {
 
 struct TextView : View {
     @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var userPreferences: UserPreferences
     @ObservedObject var entry : Entry
     @Binding var editingContent : String
     @Binding var isEditing : Bool
@@ -83,11 +84,26 @@ struct TextView : View {
                         ZStack(alignment: .topTrailing) {
                             VStack {
                                 Spacer()
-                                    .frame(height: 15)
-                                Text(entry.content)
-                                    .foregroundColor(foregroundColor(entry: entry, background: entry.color)) //to determinw whether black or white
-                                    .fontWeight(entry.buttons.filter{$0}.count > 0 ? .semibold : .regular)
-                                    .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                                    .frame(height: 20)
+                                
+                                
+                                
+                                if entry.isHidden {
+                                    Text(entry.content)
+                                        .foregroundColor(foregroundColor(entry: entry, background: entry.color))
+                                    
+                                        .fontWeight(!entry.buttons.contains(true) ? .semibold : .regular)
+                                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                                        .blur(radius: 10)
+
+                                }
+                                else {
+                                    Text(entry.content)
+                                        .foregroundColor(foregroundColor(entry: entry, background: entry.color))
+                                    
+                                        .fontWeight(!entry.buttons.contains(true) ? .semibold : .regular)
+                                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                                }
                                 
                                 
                                 if entry.imageContent != "" {
@@ -95,8 +111,6 @@ struct TextView : View {
                                         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                                         let fileURL = documentsDirectory.appendingPathComponent(filename)
                                         let data = try? Data(contentsOf: fileURL)
-//                                        let height = UIImage(data: data!)?.size.height
-//                                        let width = UIImage(data: data!)?.size.width
                                         
                                         
                                         if let data = data, isGIF(data: data) {
@@ -107,11 +121,8 @@ struct TextView : View {
                                           
                                             let height = asyncImage!.size.height
                                           
-//                                            VStack {
                                             AnimatedImageView(url: fileURL).scaledToFit()
-//                                                .frame(height: geo.size.height)
-//                                                .scaledToFit()
-//                                            }.scaledToFit()
+
 
                                           // Add imageView
                                         } else {
@@ -129,24 +140,19 @@ struct TextView : View {
                                 
                                 
                             }
-//                            .padding(10)
                             
                             VStack {
-//                                Spacer()
-//                                    .frame(.vertical, 3)
+
                                 Image(systemName: "ellipsis")
                                     .foregroundColor(foregroundColor(entry: entry, background: entry.color).opacity(0.15)) //to determinw whether black or white
                                     .font(.custom("serif", size: 20))
                                     .onTapGesture {
-                                        //                                        withAnimation() {
                                         vibration_heavy.impactOccurred()
                                         isEditing.toggle()
-                                        focusField.toggle()
+//                                        focusField.toggle()
                                         editingContent = entry.content
-                                        //                                        }
                                     }
-                                //                                Spacer()
-                                //                                    .frame(height: 10)
+
                             }
                             .padding(10)
                             
@@ -157,7 +163,7 @@ struct TextView : View {
                     if isEditing {
                         VStack() {
                             VStack {
-                                HStack {
+                                HStack(spacing: 20) {
                                     Image(systemName: "xmark") // Cancel button
                                         .onTapGesture {
                                             vibration_heavy.impactOccurred()
@@ -165,6 +171,12 @@ struct TextView : View {
                                         }
                                     Spacer()
                                     
+                                    Image(systemName: "eye.fill")
+                                        .onTapGesture {
+                                            vibration_heavy.impactOccurred()
+                                            hideEntry()
+                                        }
+                                        .foregroundColor(entry.isHidden ? userPreferences.accentColor : foregroundColor(entry: entry, background: entry.color))
                                     
                                     PhotosPicker(selection:$selectedItem, matching: .images) {
                                         Image(systemName: "photo.fill")
@@ -196,19 +208,20 @@ struct TextView : View {
                                 .foregroundColor(foregroundColor(entry: entry, background: entry.color)) //to determinw whether black or white
                                 
                             }
-                            //                            .padding(.vertical, 14) // add back some padding
                             
                             
                             VStack {
-                                //                                Spacer()
-                                //                                    .frame(height: 20)
                                 TextField(entry.content, text: $editingContent, axis: .vertical)
                                     .fixedSize(horizontal: false, vertical: true)
-                                    .focused($focusField)
                                     .onSubmit {
                                         finalizeEdit()
                                     }
                                     .foregroundColor(foregroundColor(entry: entry, background: entry.color)).opacity(0.6) //to determinw whether black or white
+                                    .onTapGesture {
+                                        focusField.toggle()
+                                    }
+                                    .focused($focusField)
+
                                 
                                 if entry.imageContent != nil && entry.imageContent != "" {
                                     if let filename = entry.imageContent {
@@ -220,22 +233,7 @@ struct TextView : View {
                                                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                                 let data = try? Data(contentsOf: fileURL)
-                                                
-                                                //                                                if let data = data, isGIF(data: data) {
-                                                //                                                    ZStack(alignment: .topLeading) {
-                                                //                                                        Giffy(filePath: fileURL).scaledToFit()
-                                                //                                                            .fixedSize(horizontal: false, vertical: false)
-                                                //
-                                                //                                                        Image(systemName: "minus.circle") // Cancel button
-                                                //                                                            .foregroundColor(.red).opacity(0.8)
-                                                //                                                            .onTapGesture {
-                                                //                                                                vibration_medium.impactOccurred()
-                                                //                                                                deleteImage() // Function to discard changes
-                                                //                                                            }
-                                                //                                                    }
-                                                //
-                                                //
-                                                //                                                } else {
+                            
                                                 AsyncImage(url: fileURL) { phase in
                                                     switch phase {
                                                     case .success(let image):
@@ -270,10 +268,15 @@ struct TextView : View {
                 }
             }
             
-            .listRowBackground(backgroundColor(entry: entry))
         }
     }
     
+    func hideEntry () {
+        if entry.isHidden == nil {
+            entry.isHidden = false
+        }
+        entry.isHidden.toggle()
+    }
     func finalizeEdit() {
         // Code to finalize the edit
         entry.content = editingContent
@@ -286,6 +289,12 @@ struct TextView : View {
         focusField = false
     }
     
+    func getDefaultColor(entry: Entry) -> Color {
+        if colorScheme == .dark {
+            return .white
+        }
+        return .black
+    }
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content
         isEditing = false // Exit the editing mode
@@ -318,8 +327,16 @@ struct TextView : View {
     private func foregroundColor(entry: Entry, background: UIColor) -> Color {
         
         let color = colorScheme == .dark ? Color.white : Color.black
-        if (entry.buttons.filter{$0}.count == 0) {
-            return color
+//        if (entry.color == UIColor(.black) || entry.color == UIColor(.black)) {
+//            return color
+//        }
+   
+//        if (entry.buttons.filter{$0}.count == 0) {
+//            return color
+//        }
+//        print("background Color: \(background)")
+        if !entry.buttons.contains(true) {
+            return getDefaultColor(entry: entry)
         }
         
         var red: CGFloat = 0
@@ -330,26 +347,9 @@ struct TextView : View {
         background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+        print("brigtness value: \(brightness)")
         
         return brightness > 0.5 ? Color.black : Color.white
-    }
-    private func backgroundColor(entry: Entry) -> Color {
-        let opacity_val = colorScheme == .dark ? 0.90 : 0.75
-        
-        if entry.buttons.count < 5 {
-            print("true")
-            entry.buttons = [true, false, false, false, false]
-        }
-        
-        for index in 0..<5 {
-            if entry.buttons[index] {
-                return Color(entry.color).opacity(opacity_val)
-            }
-        }
-        
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        entry.color = colorScheme == .dark ? UIColor(Color.white) : UIColor(Color.black)
-        return Color(color)
     }
 }
 
@@ -371,7 +371,6 @@ struct EntryRowView: View {
     
     @State private var engine: CHHapticEngine?
     @State private var editingContent = ""
-    @FocusState private var focusField: Bool
     
     
     var body : some View {
@@ -383,6 +382,7 @@ struct EntryRowView: View {
                 .environmentObject(userPreferences)
                 .environment(\.managedObjectContext, viewContext)
                 .listRowBackground(backgroundColor(entry: entry))
+
                 .swipeActions(edge: .leading) {
                     ForEach(0..<userPreferences.activatedButtons.count, id: \.self) { index in
                         if userPreferences.activatedButtons[index] {
@@ -404,28 +404,18 @@ struct EntryRowView: View {
         
     }
     
-    func finalizeEdit() {
-        // Code to finalize the edit
-        entry.content = editingContent
-        do {
-            try viewContext.save()
-        } catch {
-            print("Error updating entry content: \(error)")
-        }
-        isEditing = false
-        focusField = false
-    }
+    
     
     private func activateButton(entry: Entry, index: Int) {
-        if (index+1 > entry.buttons.count) {
-            entry.buttons = [false, false, false, false, false]
-            entry.buttons[index] = true
-        }
-        else {
+//        if (index+1 > entry.buttons.count) {
+//            entry.buttons = [false, false, false, false, false]
+//            entry.buttons[index] = true
+//        }
+//        else {
             let val : Bool = !entry.buttons[index] //this is what it means to toggle
             entry.buttons = [false, false, false, false, false]
             entry.buttons[index] = val
-        }
+//        }
         entry.color = UIColor(userPreferences.selectedColors[index])
         entry.image = userPreferences.selectedImages[index]
         print("URL from inside activate button \(entry.imageContent)")
@@ -436,6 +426,7 @@ struct EntryRowView: View {
             if entry.buttons[index] == true {
                 markedEntries.button_entries[index].insert(entry)
             } else {
+                entry.color = colorScheme == .dark ? UIColor(.black) : UIColor(.white)
                 markedEntries.button_entries[index].remove(entry)
             }
         } catch {
@@ -445,10 +436,10 @@ struct EntryRowView: View {
     
     private func foregroundColor(entry: Entry, background: UIColor) -> Color {
         
-        let color = colorScheme == .dark ? Color.white : Color.black
-        if (entry.buttons.filter{$0}.count == 0) {
-            return color
-        }
+//        if !entry.buttons.contains(true) {
+////            entry.color = color
+//            return Color(.clear)
+//        }
         
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -463,21 +454,17 @@ struct EntryRowView: View {
     }
     private func backgroundColor(entry: Entry) -> Color {
         let opacity_val = colorScheme == .dark ? 0.90 : 0.75
-        
-        if entry.buttons.count < 5 {
-            print("true")
-            entry.buttons = [true, false, false, false, false]
-        }
-        
-        for index in 0..<5 {
-            if entry.buttons[index] {
-                return Color(entry.color).opacity(opacity_val)
-            }
-        }
-        
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        entry.color = colorScheme == .dark ? UIColor(Color.white) : UIColor(Color.black)
-        return Color(color)
+//        let font_color = colorScheme == .dark ? Color(.white) : Color(.black)
+
+
+        if !entry.buttons.contains(true) {
+//            entry.color = color
+            return Color(color)
+        }
+
+        print("Color(entry.color).opacity(opacity_val): \(Color(entry.color).opacity(opacity_val))")
+        return Color(entry.color).opacity(opacity_val)
     }
 }
 
@@ -494,7 +481,6 @@ struct EntryView: View {
     
     
     @FetchRequest(entity: Entry.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]) var entries : FetchedResults<Entry>
-    @FocusState private var focusField: Bool
     
     
     @State private var isShowingEntryCreationView = false
@@ -586,6 +572,9 @@ struct EntryView: View {
             .onAppear {
                 validateDate()
             }
+//            .onChange(of: colorScheme, perform: { newValue in
+//                viewContext.refreshAllObjects()
+//            })
             
             .navigationTitle(currentTime_2(date: Date()))
             .navigationBarItems(trailing:
@@ -607,28 +596,26 @@ struct EntryView: View {
         
     }
     private func activateButton(entry: Entry, index: Int) {
-        if (index+1 > entry.buttons.count) {
-            entry.buttons = [false, false, false, false, false]
-            entry.buttons[index] = true
-        }
-        else {
+
             let val : Bool = !entry.buttons[index] //this is what it means to toggle
             entry.buttons = [false, false, false, false, false]
             entry.buttons[index] = val
-        }
         entry.color = UIColor(userPreferences.selectedColors[index])
         entry.image = userPreferences.selectedImages[index]
         print("URL from inside activate button \(entry.imageContent)")
         
-        //        entry.imageContent = []
+        if entry.buttons[index] == true {
+            markedEntries.button_entries[index].insert(entry)
+        } else {
+//            entry.color = colorScheme == .dark ? UIColor(.white) : UIColor(.black)
+            print("color: \(entry.color)")
+            markedEntries.button_entries[index].remove(entry)
+        }
+        
         
         do {
             try viewContext.save()
-            if entry.buttons[index] == true {
-                markedEntries.button_entries[index].insert(entry)
-            } else {
-                markedEntries.button_entries[index].remove(entry)
-            }
+
         } catch {
             print("Error toggling button \(index+1): \(error)")
         }
@@ -836,23 +823,14 @@ struct NewEntryView: View {
                         if filename != "" {
                             newEntry.imageContent = filename
                         }
-                        //                        let imageData: Data = selectedImage.compactMap { $0.pngData() }
-                        
-                        //                        if selectedData != nil {
-                        //                            newEntry.imageContent = filename
-                        ////                            newEntry.imageContent = selectedData
-                        //
-                        //                        }
-                        //                        else {
-                        //                            newEntry.imageContent = ""
-                        //                        }
-                        
+ 
                         newEntry.content = entryContent
                         newEntry.time = Date()
                         newEntry.buttons = [false, false, false, false, false]
                         newEntry.color = UIColor(color)
                         newEntry.image = "star.fill"
                         newEntry.id = UUID()
+                        newEntry.isHidden = false
                         
                         // Fetch the log with the appropriate day
                         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()

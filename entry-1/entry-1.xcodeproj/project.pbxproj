@@ -83,6 +83,7 @@
 		34A8086C2A8C077300B9BB5C /* ExportData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportData.swift; sourceTree = "<group>"; };
 		34C43AFD2A976B6E005C1296 /* GifView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifView.swift; sourceTree = "<group>"; };
 		34C43AFF2A97745D005C1296 /* UIImage+Gif.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Gif.swift"; sourceTree = "<group>"; };
+		34C43B972A9B19AA005C1296 /* entry_ 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 2.xcdatamodel"; sourceTree = "<group>"; };
 		34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
 		34FD30252A8DDF13006A70B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -745,6 +746,7 @@
 		34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				34C43B972A9B19AA005C1296 /* entry_ 2.xcdatamodel */,
 				34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */,
 			);
 			currentVersion = 34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */;
