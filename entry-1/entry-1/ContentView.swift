@@ -10,45 +10,17 @@ struct ContentView: View {
     @ObservedObject private var userPreferences = UserPreferences()
 //    @State private var isUnlocked = false
 
-
-//    var body: some View {
-//        VStack {
-//            if (userPreferences.isUnlocked || !userPreferences.showLockScreen) {
-//                TabView(selection: $selectedIndex) {
-//                    LogsView()
-//                        .environment(\.managedObjectContext, viewContext)
-//                        .environmentObject(userPreferences)
-//                        .tabItem {
-//                            Label("Logs", systemImage: "book")
-//                        }.tag(0)
-//
-//                    EntryView()
-//                        .environmentObject(userPreferences)
-//                        .environment(\.managedObjectContext, viewContext)
-//                        .tabItem {
-//                            Label("Entries", systemImage: "pencil")
-//                        }.tag(1)
-//                    SettingsView()
-//                        .environmentObject(userPreferences)
-//                        .environment(\.managedObjectContext, viewContext)
-//                        .tabItem {
-//                            Label("Settings", systemImage: "gearshape")
-//                        }.tag(2)
-//                }
-//                .accentColor(userPreferences.accentColor)
-//                .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
-//            }
-//            else {
-//                Text("Locked")
-//            }
-//        }.onAppear(perform: authenticate)
-//    }
     
     
     var body: some View {
         VStack {
             if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                Text("Locked")
+                Button {
+                    authenticate()
+                } label: {
+                    Label("Locked", systemImage: "lock")
+                }
+
             }
             else {
                 TabView(selection: $selectedIndex) {
@@ -73,6 +45,7 @@ struct ContentView: View {
                         }.tag(2)
                 }
                 .accentColor(userPreferences.accentColor)
+                .background(userPreferences.backgroundColor)
                 .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             }
 

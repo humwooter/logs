@@ -37,6 +37,11 @@ class UserPreferences: ObservableObject {
             UserDefaults.standard.setColor(color: accentColor, forKey: "accentColor")
         }
     }
+    @Published var backgroundColor: Color {
+        didSet {
+            UserDefaults.standard.setColor(color: backgroundColor, forKey: "backgroundColor")
+        }
+    }
     
     @Published var showLockScreen: Bool  {
         didSet {
@@ -65,6 +70,7 @@ class UserPreferences: ObservableObject {
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [.yellow, .cyan, .pink, .green, .indigo]
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
+        self.backgroundColor = Color(.clear)
     }
 }
 
@@ -124,6 +130,7 @@ struct SettingsView: View {
                 Section(header: Text("Accent Color")) {
                     ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                 }
+
                 Section(header: Text("Font Size")) {
                     Slider(value: $userPreferences.fontSize, in: 10...30, step: 1, label: { Text("Font Size") })
                 }
