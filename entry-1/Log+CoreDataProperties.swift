@@ -24,13 +24,7 @@ extension Log {
 
 }
 
-// MARK: Generated accessors for relationship
 extension Log {
-//    func addToEntries(_ entry: Entry) {
-////        guard let time = entry.time, let content = entry.content else { return }
-//        self.entries.append(entry)
-//    }
-    
 
     @objc(addRelationshipObject:)
     @NSManaged public func addToRelationship(_ value: Entry)

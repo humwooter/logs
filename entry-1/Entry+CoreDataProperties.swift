@@ -17,9 +17,6 @@ extension Entry {
         return NSFetchRequest<Entry>(entityName: "Entry")
     }
 
-    enum CodingKeys: String, CodingKey {
-      case id, content, time, buttons, color, image
-    }
     
     @NSManaged public var content: String
     @NSManaged public var time: Date
@@ -29,6 +26,7 @@ extension Entry {
     @NSManaged public var color: UIColor
     @NSManaged public var image: String
     @NSManaged public var imageContent: String?
+    @NSManaged public var isHidden: Bool
 
     func formattedTime(debug: String) -> String {
         let formatter = DateFormatter()
