@@ -37,6 +37,7 @@
 		34C43B9D2A9DC428005C1296 /* OldEntryViews-2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C43B9C2A9DC428005C1296 /* OldEntryViews-2.swift */; };
 		34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30252A8DDF13006A70B8 /* Extensions.swift */; };
+		4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		34C43B9C2A9DC428005C1296 /* OldEntryViews-2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OldEntryViews-2.swift"; sourceTree = "<group>"; };
 		34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
 		34FD30252A8DDF13006A70B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAsyncImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,6 +191,7 @@
 			children = (
 				345E991B2A9312E3004A81E2 /* OldEntryViews.swift */,
 				34C43AFD2A976B6E005C1296 /* GifView.swift */,
+				4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */,
 				34A8082F2A8A167300B9BB5C /* ContentView.swift */,
 				34A808602A8AF58800B9BB5C /* EntryViews.swift */,
 				34973C182AB7E8E3003C8902 /* EntryContentViews.swift */,
@@ -363,6 +366,7 @@
 				34973C192AB7E8E3003C8902 /* EntryContentViews.swift in Sources */,
 				34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */,
 				34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */,
+				4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */,
 				34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */,
 				345E991C2A9312E3004A81E2 /* OldEntryViews.swift in Sources */,
 				345E991E2A93FB71004A81E2 /* ImportData.swift in Sources */,

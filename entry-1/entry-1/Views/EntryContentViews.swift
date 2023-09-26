@@ -59,7 +59,7 @@ struct EditingView: View {
                                 vibration_heavy.impactOccurred()
                                 hideEntry()
                             }
-//                            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme)).opacity(0.1)
+
                     }
                     
                     PhotosPicker(selection:$selectedItem, matching: .images) {
@@ -71,22 +71,9 @@ struct EditingView: View {
                         Task {
                             if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                                 if entry.imageContent != nil && entry.imageContent != "" {
-                                    entry.deleteImage(coreDataManager: coreDataManager) //clear previous image data only if it exists
+                                    entry.deleteImage(coreDataManager: coreDataManager)
                                 }
-                                selectedData = data
-                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                let uniqueFilename = UUID().uuidString + ".png"
-                                let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                
-                                do {
-                                    print("file URL from photoPicker: \(fileURL)")
-                                    try data.write(to: fileURL)
-                                } catch {
-                                    print("Error saving image file: \(error)")
-                                }
-                                entry.imageContent = uniqueFilename
-                                print("entry from PhotoPicker: \(entry)")
-                                return
+                                entry.saveImage(data: data, coreDataManager: coreDataManager)
                             }
                         }
                     }
@@ -97,14 +84,7 @@ struct EditingView: View {
                             Task {
                                 if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
                                     entry.deleteImage(coreDataManager: coreDataManager)
-                                    selectedData = data
-                                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                    let uniqueFilename = UUID().uuidString + ".png"
-                                    let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                    try? data.write(to: fileURL)
-                                    entry.imageContent = uniqueFilename
-                                    print("entry from PhotoPicker: \(entry)")
-                                    return
+                                    entry.saveImage(data: data, coreDataManager: coreDataManager)
                                 }
                             }
                         }
@@ -128,7 +108,7 @@ struct EditingView: View {
             }
             
             VStack {
-                TextField(entry.content, text: $editingContent, axis: .vertical)
+                TextField(!entry.content.isEmpty ? entry.content : "Start typing here...", text: $editingContent, axis: .vertical)
                     .fixedSize(horizontal: false, vertical: true)
                     .onSubmit {
                         finalizeEdit()
@@ -259,9 +239,9 @@ struct NotEditingView: View {
                                 
                                 let imageView = AnimatedImageView(url: fileURL)
                                 
-                                let asyncImage = UIImage(data: data)
-                                
-                                let height = asyncImage!.size.height
+                                //                                let asyncImage = UIImage(data: data)
+                                //
+                                //                                let height = asyncImage!.size.height
                                 
                                 AnimatedImageView(url: fileURL).scaledToFit()
                                     .blur(radius:10)
@@ -269,14 +249,15 @@ struct NotEditingView: View {
                                 
                                 // Add imageView
                             } else {
-                                AsyncImage(url: fileURL) { image in
-                                    image.resizable()
-                                        .scaledToFit()
-                                        .blur(radius:10)
-                                }
-                            placeholder: {
-                                ProgressView()
-                            }
+                                CustomAsyncImageView(url: fileURL).scaledToFit()
+                                //                                AsyncImage(url: fileURL) { image in
+                                //                                    image.resizable()
+                                //                                        .scaledToFit()
+                                //                                        .blur(radius:10)
+                                //                                }
+                                //                            placeholder: {
+                                //                                ProgressView()
+                                //                            }
                             }
                         }
                     }
@@ -309,13 +290,15 @@ struct NotEditingView: View {
                                 
                                 // Add imageView
                             } else {
-                                AsyncImage(url: fileURL) { image in
-                                    image.resizable()
-                                        .scaledToFit()
-                                }
-                            placeholder: {
-                                ProgressView()
-                            }
+                                CustomAsyncImageView(url: fileURL).scaledToFit()
+                                
+                                //                                AsyncImage(url: fileURL) { image in
+                                //                                    image.resizable()
+                                //                                        .scaledToFit()
+                                //                                }
+                                //                            placeholder: {
+                                //                                ProgressView()
+                                //                            }
                             }
                         }
                     }
@@ -324,25 +307,25 @@ struct NotEditingView: View {
                 
             }
             
-//            VStack {
-//
-//                Image(systemName: "ellipsis")
-//                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme).opacity(0.15)) //to determinw whether black or white
-//                    .font(.custom("serif", size: 20))
-//                    .onTapGesture {
-//                        withAnimation {
-//                            isEditing = true
-//                            editingContent = entry.content
-//                            vibration_heavy.impactOccurred()
-//                            //                                            focusField = true
-//
-//                        }
-//
-//
-//                    }
-//
-//            }
-//            .padding(10)
+            //            VStack {
+            //
+            //                Image(systemName: "ellipsis")
+            //                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme).opacity(0.15)) //to determinw whether black or white
+            //                    .font(.custom("serif", size: 20))
+            //                    .onTapGesture {
+            //                        withAnimation {
+            //                            isEditing = true
+            //                            editingContent = entry.content
+            //                            vibration_heavy.impactOccurred()
+            //                            //                                            focusField = true
+            //
+            //                        }
+            //
+            //
+            //                    }
+            //
+            //            }
+            //            .padding(10)
             
             
         }
@@ -366,13 +349,21 @@ struct EditingEntryView: View {
     @State private var showPhotos = false
     @State private var selectedData: Data?
     @State private var showCamera = false
+    @State private var isListening = false
+    
+    
+    @State private var speechRecognizer = SFSpeechRecognizer()
+    @State private var recognitionTask: SFSpeechRecognitionTask?
+    @State private var audioEngine = AVAudioEngine()
     
     var body : some View {
         NavigationView {
             VStack {
                 ScrollView(showsIndicators: false) {
-                    TextField(entry.content, text: $editingContent, axis: .vertical)
+                    TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
                         .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
+                        .padding()
                         .onSubmit {
                             finalizeEdit()
                         }
@@ -382,7 +373,8 @@ struct EditingEntryView: View {
                         }
                         .focused($focusField)
                     
-                    
+                    Spacer()
+
                     if entry.imageContent != "" {
                         if let filename = entry.imageContent {
                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -406,13 +398,7 @@ struct EditingEntryView: View {
                                 }
                             } else {
                                 ZStack(alignment: .topLeading) {
-                                    AsyncImage(url: fileURL) { image in
-                                        image.resizable()
-                                            .scaledToFit()
-                                    }
-                                placeholder: {
-                                    ProgressView()
-                                }
+                                    CustomAsyncImageView(url: fileURL).scaledToFit()
                                     Image(systemName: "minus.circle") // Cancel button
                                         .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
                                         .foregroundColor(.red).opacity(0.8)
@@ -431,28 +417,22 @@ struct EditingEntryView: View {
                 }
                 
                 
-                Spacer()
                 HStack(spacing: 25) {
+                    Button(action: startOrStopRecognition) {
+                        Image(systemName: "mic.fill")
+                            .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
+                            .font(.custom("serif", size: 24))
+                    }
                     
                     Spacer()
-                    if (entry.isHidden) {
-                        Image(systemName: "eye.slash.fill").font(.custom("serif", size: 24))
-                            .onTapGesture {
-                                vibration_heavy.impactOccurred()
-                                hideEntry()
-                            }
-                            .foregroundColor(userPreferences.accentColor)
-                        
-                    }
-                    else {
-                        Image(systemName: "eye.fill").font(.custom("serif", size: 24))
-                            .onTapGesture {
-                                vibration_heavy.impactOccurred()
-                                hideEntry()
-                            }
-                            .foregroundColor(colorScheme == .dark ? Color.white : Color.black).opacity(0.1)
-                    }
+                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.custom("serif", size: 24))
+                        .onTapGesture {
+                            vibration_heavy.impactOccurred()
+                            entry.isHidden.toggle()
+                        }
+                        .foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
                     
+         
                     PhotosPicker(selection:$selectedItem, matching: .images) {
                         Image(systemName: "photo.fill")
                             .symbolRenderingMode(.multicolor)
@@ -464,20 +444,7 @@ struct EditingEntryView: View {
                                 if entry.imageContent != nil && entry.imageContent != "" {
                                     entry.deleteImage(coreDataManager: coreDataManager)
                                 }
-                                selectedData = data
-                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                let uniqueFilename = UUID().uuidString + ".png"
-                                let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                
-                                do {
-                                    print("file URL from photoPicker: \(fileURL)")
-                                    try data.write(to: fileURL)
-                                } catch {
-                                    print("Error saving image file: \(error)")
-                                }
-                                entry.imageContent = uniqueFilename
-                                print("entry from PhotoPicker: \(entry)")
-                                return
+                                entry.saveImage(data: data, coreDataManager: coreDataManager)
                             }
                         }
                     }
@@ -488,14 +455,7 @@ struct EditingEntryView: View {
                             Task {
                                 if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
                                     entry.deleteImage(coreDataManager: coreDataManager)
-                                    selectedData = data
-                                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                    let uniqueFilename = UUID().uuidString + ".png"
-                                    let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                    try? data.write(to: fileURL)
-                                    entry.imageContent = uniqueFilename
-                                    print("entry from PhotoPicker: \(entry)")
-                                    return
+                                    entry.saveImage(data: data, coreDataManager: coreDataManager)
                                 }
                             }
                         }
@@ -504,12 +464,12 @@ struct EditingEntryView: View {
                             showCamera = true
                         }
                 }
-//                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme))
+                //                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme))
                 .padding(.vertical)
                 
                 
             }
-            .padding(.horizontal)
+            .padding(.horizontal, 30)
             .navigationBarTitle("Editing Entry")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -519,7 +479,7 @@ struct EditingEntryView: View {
                         focusField = false
                     } label: {
                         Text("Done")
-//                        Image(systemName: "checkmark")
+                        //                        Image(systemName: "checkmark")
                             .font(.custom("serif", size: 16))
                     }
                     
@@ -536,12 +496,7 @@ struct EditingEntryView: View {
             }
         }
     }
-    func hideEntry () {
-        if entry.isHidden == nil {
-            entry.isHidden = false
-        }
-        entry.isHidden.toggle()
-    }
+    
     
     func finalizeEdit() {
         // Code to finalize the edit
@@ -559,6 +514,42 @@ struct EditingEntryView: View {
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content
         isEditing = false // Exit the editing mode
+    }
+    
+    
+    func startRecognition() {
+        let audioSession = AVAudioSession.sharedInstance()
+        try? audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+        let recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
+        let inputNode = audioEngine.inputNode
+        
+        // Remove existing taps if any
+        inputNode.removeTap(onBus: 0)
+        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, _ in
+            if let result = result {
+                entry.content = result.bestTranscription.formattedString
+            }
+        }
+        
+        inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputNode.outputFormat(forBus: 0)) { (buffer: AVAudioPCMBuffer, _) in
+            recognitionRequest.append(buffer)
+        }
+        audioEngine.prepare()
+        try? audioEngine.start()
+    }
+    
+    func stopRecognition() {
+        audioEngine.stop()
+        recognitionTask?.cancel()
+    }
+    func startOrStopRecognition() {
+        isListening.toggle()
+        if isListening {
+            startRecognition()
+        }
+        else {
+            stopRecognition()
+        }
     }
     
 }

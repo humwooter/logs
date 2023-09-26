@@ -127,18 +127,10 @@ struct TextView : View {
                                       primaryButton: .destructive(Text("Delete")) {
                                     Entry.deleteEntry(entry: entry, coreDataManager: coreDataManager)
                                     refresh.needsRefresh.toggle()
-                                    
-                                    
-//                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
-
                                       },
                                       secondaryButton: .cancel())
                             }
-//                    }
-                    
-//                    if isEditing {
-////                        EditingView(entry: entry, editingContent: $editingContent, isEditing: $isEditing).environmentObject(coreDataManager).environmentObject(userPreferences)
-//                    }
+
                 }
                 .onChange(of: isEditing) { newValue in
                     if newValue {
@@ -147,6 +139,7 @@ struct TextView : View {
                 }
                 .sheet(isPresented: $isEditing) {
                     EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
+                        .foregroundColor(userPreferences.accentColor)
                 }
 
                 
@@ -220,56 +213,6 @@ struct TextView : View {
             isEditing = false // Exit the editing mode
         }
         
-        
-        
-//        func deleteImage() {
-//            let mainContext = coreDataManager.viewContext
-//            if let filename = entry.imageContent {
-//                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//                let fileURL = documentsDirectory.appendingPathComponent(filename)
-//                do {
-//                    print("file URL from deleteImage: \(fileURL)")
-//                    try FileManager.default.removeItem(at: fileURL)
-//                } catch {
-//                    print("Error deleting image file: \(error)")
-//                }
-//            }
-//
-//            entry.imageContent = ""
-//
-//            do {
-//                try mainContext.save()
-//            } catch let error as NSError {
-//                print("Could not save. \(error), \(error.userInfo)")
-//            }
-//        }
-//    func deleteImage() {
-//        let mainContext = coreDataManager.viewContext
-//        if let filename = entry.imageContent {
-//            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//            let fileURL = documentsDirectory.appendingPathComponent(filename)
-//            
-//            // Check if file exists before attempting to delete
-//            if FileManager.default.fileExists(atPath: fileURL.path) {
-//                do {
-//                    print("file URL from deleteImage: \(fileURL)")
-//                    try FileManager.default.removeItem(at: fileURL)
-//                } catch {
-//                    print("Error deleting image file: \(error)")
-//                }
-//            } else {
-//                print("File does not exist at path: \(fileURL.path)")
-//            }
-//        }
-//        
-//        entry.imageContent = ""
-//        
-//        do {
-//            try mainContext.save()
-//        } catch let error as NSError {
-//            print("Could not save. \(error), \(error.userInfo)")
-//        }
-//    }
         
     }
 
@@ -526,6 +469,7 @@ struct TextView : View {
                     NewEntryView()
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
+                        .foregroundColor(userPreferences.accentColor)
                     
                 }
                 //            .onAppear {
@@ -630,7 +574,6 @@ struct TextView : View {
         @State private var audioEngine = AVAudioEngine()
         @State private var isListening = false
         @State private var isImagePickerPresented = false
-        @State private var micImage = "mic"
         //    @State private var selectedImage: UIImage? = nil
         @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
         
@@ -643,6 +586,7 @@ struct TextView : View {
         @State private var filename = ""
         @State private var imageData : Data?
         @State private var imageIsAnimated = false
+        @State private var isHidden = false
         //    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         //    let fileURL = documentsDirectory.appendingPathComponent("imageContent.png")
         
@@ -654,64 +598,77 @@ struct TextView : View {
         var body: some View {
             NavigationView {
                 VStack {
-                    TextEditor(text: $entryContent)
-                        .overlay(
-                            HStack(spacing: 15) {
-                                Spacer()
-                                Button(action: startOrStopRecognition) {
-                                    Image(systemName: "mic.fill")
-                                        .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
-                                        .font(.custom("serif", size: 24))
-                                }
-                                
-                                
-                                PhotosPicker(selection:$selectedItem, matching: .images) {
-                                    Image(systemName: "photo.fill")
-                                        .foregroundColor(Color.oppositeColor(of: userPreferences.accentColor))
-                                        .font(.custom("serif", size: 24))
-                                    
-                                }
-                                .onChange(of: selectedItem) { _ in
-                                    Task {
-                                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                            //                                        imageData = data
-                                            if isGIF(data: data) {
-                                                selectedData = data
-                                                imageIsAnimated = true
-                                            }
-                                            else {
-                                                selectedData = nil
-                                                imageIsAnimated = false
-                                            }
-                                            selectedImage = UIImage(data: data)
-                                            //                                        selectedData = data
-                                            print("imageData: \(imageData)")
-                                        }
-                                    }
-                                }
-                                Button(action: {
-                                    AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
-                                        if response {
-                                            isCameraPresented = true
-                                        } else {
-                                            
-                                        }
-                                    }
-                                }) {
-                                    Image(systemName: "camera.fill")
-                                        .foregroundColor(Color.oppositeColor(of: userPreferences.accentColor))
-                                        .font(.custom("serif", size: 24))
-                                }
-                                
-                            }, alignment: .bottomTrailing
-                        )
+                    TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
                         .padding()
+
+
+//                    TextEditor(text: $entryContent.isEmpty ? "Start typing here ..." : $entryContent)
+                    Spacer()
+
                     
                     if let image = selectedImage {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit()
+                            .aspectRatio(contentMode: .fit)
+//                            .frame(width: 200, height: 200) // Adjust the size as needed
+                            .frame(maxWidth: .infinity, maxHeight: 150)
+
+                            .background(Color.black)
+                    }
+                    
+                    HStack(spacing: 25) {
+                        Button(action: startOrStopRecognition) {
+                            Image(systemName: "mic.fill")
+                                .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
+                                .font(.custom("serif", size: 24))
+                        }
+                        Spacer()
                         
+                        Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.custom("serif", size: 24))
+                            .onTapGesture {
+                                vibration_heavy.impactOccurred()
+                                isHidden.toggle()
+                            }
+                            .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
+               
+                        
+                        
+                        PhotosPicker(selection:$selectedItem, matching: .images) {
+                            Image(systemName: "photo.fill")
+                                .font(.custom("serif", size: 24))
+                            
+                        }
+                        .onChange(of: selectedItem) { _ in
+                            Task {
+                                if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+                                    if isGIF(data: data) {
+                                        selectedData = data
+                                        imageIsAnimated = true
+                                    }
+                                    else {
+                                        selectedData = nil
+                                        imageIsAnimated = false
+                                    }
+                                    selectedImage = UIImage(data: data)
+                                }
+                            }
+                        }
+                        Button(action: {
+                            AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
+                                if response {
+                                    isCameraPresented = true
+                                } else {
+                                    
+                                }
+                            }
+                        }) {
+                            Image(systemName: "camera.fill")
+                                .font(.custom("serif", size: 24))
+                        }
+                        .padding(.vertical)
+//                                .padding(.horizontal)
                     }
                     
                 }
@@ -719,9 +676,18 @@ struct TextView : View {
                     ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
                     
                 }
-                
+                .padding(.horizontal, 30)
                 .navigationBarTitle("New Entry")
                 .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button {
+                            vibration_heavy.impactOccurred()
+                            presentationMode.wrappedValue.dismiss()
+                        } label: {
+                            Image(systemName: "arrow.backward")
+                                .font(.custom("serif", size: 16))
+                        }
+                    }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!

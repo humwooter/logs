@@ -520,13 +520,14 @@ struct LogDetailView: View {
                                 
                                 // Add imageView
                             } else {
-                                AsyncImage(url: fileURL) { image in
-                                    image.resizable()
-                                        .scaledToFit()
-                                }
-                            placeholder: {
-                                ProgressView()
-                            }
+                                CustomAsyncImageView(url: fileURL).scaledToFit()
+//                                AsyncImage(url: fileURL) { image in
+//                                    image.resizable()
+//                                        .scaledToFit()
+//                                }
+//                            placeholder: {
+//                                ProgressView()
+//                            }
                             }
                         }
                     }

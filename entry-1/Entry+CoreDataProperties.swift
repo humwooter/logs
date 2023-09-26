@@ -12,11 +12,11 @@ import SwiftUI
 
 
 extension Entry {
-
+    
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Entry> {
         return NSFetchRequest<Entry>(entityName: "Entry")
     }
-
+    
     
     @NSManaged public var content: String
     @NSManaged public var time: Date
@@ -27,7 +27,7 @@ extension Entry {
     @NSManaged public var image: String
     @NSManaged public var imageContent: String?
     @NSManaged public var isHidden: Bool
-
+    
     func formattedTime(debug: String) -> String {
         let formatter = DateFormatter()
         formatter.timeStyle = .short
@@ -38,6 +38,10 @@ extension Entry {
     func deleteImage(coreDataManager: CoreDataManager) {
         let mainContext = coreDataManager.viewContext
         if let filename = self.imageContent {
+            if filename.isEmpty {
+                print("Filename is empty, no image to delete.")
+                return
+            }
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentsDirectory.appendingPathComponent(filename)
             
@@ -60,57 +64,6 @@ extension Entry {
             print("Could not save. \(error), \(error.userInfo)")
         }
     }
-    
-//    func deleteEntry(coreDataManager: CoreDataManager) {
-//        print("entered delete entry")
-//        let mainContext = coreDataManager.viewContext
-//        mainContext.performAndWait {
-//
-//            let parentLog = self.relationship
-//
-//            //remove from log relationship
-//            parentLog.removeFromRelationship(self)
-//            print("removed from log")
-//
-//            //delete image
-//            self.deleteImage(coreDataManager: coreDataManager)
-//            print("deleted image")
-//
-//            mainContext.delete(self)
-//            print("deleted entry")
-//
-//            do {
-//                try mainContext.save()
-//            } catch {
-//                print("Failed to save main context: \(error)")
-//            }
-//        }
-//    }
-    
-//    static func deleteEntry(_ entry: Entry, coreDataManager: CoreDataManager) {
-//        print("1")
-//        let mainContext = coreDataManager.viewContext
-//        mainContext.performAndWait {
-//            print("2")
-//            let parentLog = entry.relationship
-//            print("3")
-//            // Now perform the entry deletion
-//            parentLog.removeFromRelationship(entry)
-//            print("4")
-//            // Delete image
-//            entry.deleteImage(coreDataManager: coreDataManager)
-//
-//print("5")
-//            mainContext.delete(entry)
-//
-//            do {
-//                try mainContext.save()
-//                print("6")
-//            } catch {
-//                print("Failed to save main context: \(error)")
-//            }
-//        }
-//    }
     
     static func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
         let mainContext = coreDataManager.viewContext
@@ -141,11 +94,40 @@ extension Entry {
             }
         }
     }
-
     
-
+    func hideEntry () {
+        if self.isHidden == nil {
+            self.isHidden = false
+        }
+        self.isHidden.toggle()
+    }
+    
+    func saveImage(data: Data, coreDataManager: CoreDataManager) {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let uniqueFilename = UUID().uuidString + ".png"
+        let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
+        
+        do {
+            print("file URL from saveImage: \(fileURL)")
+            try data.write(to: fileURL)
+        } catch {
+            print("Error saving image file: \(error)")
+        }
+        
+        self.imageContent = uniqueFilename
+        print("entry from saveImage: \(self)")
+        
+        let mainContext = coreDataManager.viewContext
+        do {
+            try mainContext.save()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }
+    }
+    
+    
 }
 
 extension Entry : Identifiable {
-
+    
 }
