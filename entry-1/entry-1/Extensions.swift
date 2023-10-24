@@ -27,6 +27,8 @@ extension UIColor {
         return hexString
     }
     
+
+    
     convenience init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int = UInt64()
@@ -123,6 +125,24 @@ extension Color {
         
         return Color(oppositeColor)
     }
+    
+    static func complementaryColor(of color: Color) -> Color {
+        let uiColor = UIColor(color)
+        var hue: CGFloat = 0
+        var saturation: CGFloat = 0
+        var brightness: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+
+        // Shift hue by 180 degrees
+        let newHue = (hue + 0.5).truncatingRemainder(dividingBy: 1)
+        
+        let complementaryUIColor = UIColor(hue: newHue, saturation: saturation, brightness: brightness, alpha: alpha)
+        
+        return Color(complementaryUIColor)
+    }
+
 }
 
 
@@ -143,6 +163,6 @@ extension Date {
 
 extension URL {
     static var documentsDirectory: URL {
-        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     }
 }

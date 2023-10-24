@@ -31,10 +31,8 @@ final class CoreDataManager: ObservableObject {
     }
     
   lazy var backgroundContext: NSManagedObjectContext = {
-      
     // Create a background context with private queue
       let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-//      context.parent = persistentContainer.viewContext
     // Set persistent store coordinator
     context.persistentStoreCoordinator = persistentContainer.persistentStoreCoordinator
     
@@ -87,7 +85,6 @@ func mergeChanges(from context: NSManagedObjectContext) {
   }
   
   // MARK: - Convenience Core Data Fetch Methods
-  
   func fetch<T: NSManagedObject>(request: NSFetchRequest<T>) -> [T] {
 
     do {

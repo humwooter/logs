@@ -37,6 +37,14 @@ extension Log {
 
     @objc(removeRelationship:)
     @NSManaged public func removeFromRelationship(_ values: NSSet)
+    
+    @objc 
+    static func dayDidChange() {
+        print("ENTERED DAY DID CHANEG")
+        // Here we can do our cleanup and refresh the fetch request
+        deleteOldEntries()
+        // FetchRequest will automatically reload since the underlying data changes
+    }
 
 }
 

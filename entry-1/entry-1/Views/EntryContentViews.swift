@@ -70,9 +70,9 @@ struct EditingView: View {
                     .onChange(of: selectedItem) { _ in
                         Task {
                             if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                if entry.imageContent != nil && entry.imageContent != "" {
-                                    entry.deleteImage(coreDataManager: coreDataManager)
-                                }
+//                                if entry.imageContent != nil && entry.imageContent != "" {
+//                                    entry.deleteImage(coreDataManager: coreDataManager)
+//                                }
                                 entry.saveImage(data: data, coreDataManager: coreDataManager)
                             }
                         }
@@ -83,7 +83,7 @@ struct EditingView: View {
                         .onChange(of: selectedImage) { _ in
                             Task {
                                 if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                                    entry.deleteImage(coreDataManager: coreDataManager)
+//                                    entry.deleteImage(coreDataManager: coreDataManager)
                                     entry.saveImage(data: data, coreDataManager: coreDataManager)
                                 }
                             }
@@ -249,7 +249,10 @@ struct NotEditingView: View {
                                 
                                 // Add imageView
                             } else {
-                                CustomAsyncImageView(url: fileURL).scaledToFit()
+                                if imageExists(at: fileURL) {
+                                    CustomAsyncImageView(url: fileURL).scaledToFit()                                    .blur(radius:10)
+
+                                }
                                 //                                AsyncImage(url: fileURL) { image in
                                 //                                    image.resizable()
                                 //                                        .scaledToFit()
@@ -290,7 +293,9 @@ struct NotEditingView: View {
                                 
                                 // Add imageView
                             } else {
-                                CustomAsyncImageView(url: fileURL).scaledToFit()
+                                if imageExists(at: fileURL) {
+                                    CustomAsyncImageView(url: fileURL).scaledToFit()
+                                }
                                 
                                 //                                AsyncImage(url: fileURL) { image in
                                 //                                    image.resizable()
@@ -363,15 +368,16 @@ struct EditingEntryView: View {
                     TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
                         .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
-                        .padding()
                         .onSubmit {
                             finalizeEdit()
                         }
-                    //                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme)).opacity(0.6) //to determinw whether black or white
                         .onTapGesture {
                             focusField = true
                         }
                         .focused($focusField)
+                        .padding(.vertical, 30)
+//                        .padding(.horizontal, 20)
+
                     
                     Spacer()
 
@@ -421,11 +427,13 @@ struct EditingEntryView: View {
                     Button(action: startOrStopRecognition) {
                         Image(systemName: "mic.fill")
                             .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
-                            .font(.custom("serif", size: 24))
+                            .font(.system(size: 20))
                     }
                     
                     Spacer()
-                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.custom("serif", size: 24))
+                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20))
+
+
                         .onTapGesture {
                             vibration_heavy.impactOccurred()
                             entry.isHidden.toggle()
@@ -435,26 +443,25 @@ struct EditingEntryView: View {
          
                     PhotosPicker(selection:$selectedItem, matching: .images) {
                         Image(systemName: "photo.fill")
-                            .symbolRenderingMode(.multicolor)
-                            .font(.custom("serif", size: 24))
+                            .font(.system(size: 20))
                     }
                     .onChange(of: selectedItem) { _ in
                         Task {
                             if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                if entry.imageContent != nil && entry.imageContent != "" {
-                                    entry.deleteImage(coreDataManager: coreDataManager)
-                                }
+//                                if entry.imageContent != nil && entry.imageContent != "" {
+//                                    entry.deleteImage(coreDataManager: coreDataManager)
+//                                }
                                 entry.saveImage(data: data, coreDataManager: coreDataManager)
                             }
                         }
                     }
                     
                     Image(systemName: "camera.fill")
-                        .font(.custom("serif", size: 24))
+                        .font(.system(size: 20))
                         .onChange(of: selectedImage) { _ in
                             Task {
                                 if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                                    entry.deleteImage(coreDataManager: coreDataManager)
+//                                    entry.deleteImage(coreDataManager: coreDataManager)
                                     entry.saveImage(data: data, coreDataManager: coreDataManager)
                                 }
                             }
@@ -464,12 +471,13 @@ struct EditingEntryView: View {
                             showCamera = true
                         }
                 }
-                //                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme))
                 .padding(.vertical)
+//                .padding(.horizontal, 15)
                 
                 
             }
-            .padding(.horizontal, 30)
+            .padding(.horizontal, 20)
+//            .padding(.horizontal, 30)
             .navigationBarTitle("Editing Entry")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -479,8 +487,9 @@ struct EditingEntryView: View {
                         focusField = false
                     } label: {
                         Text("Done")
-                        //                        Image(systemName: "checkmark")
-                            .font(.custom("serif", size: 16))
+                            .font(.system(size: 15))
+                            .foregroundColor(userPreferences.accentColor)
+
                     }
                     
                 }
@@ -490,7 +499,7 @@ struct EditingEntryView: View {
                         cancelEdit() // Function to discard changes
                     } label: {
                         Image(systemName: "arrow.backward")
-                            .font(.custom("serif", size: 16))
+                            .font(.system(size: 15))
                     }
                 }
             }

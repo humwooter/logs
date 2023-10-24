@@ -59,11 +59,6 @@ public class Entry: NSManagedObject, Codable {
         time = try values.decodeIfPresent(Date.self, forKey: .time) ?? Date()
         buttons = try values.decodeIfPresent([Bool].self, forKey: .buttons) ?? [false, false, false, false, false]
         
-//        if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
-//            color = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorData) as? UIColor ?? UIColor.clear
-//        } else {
-//            color = UIColor.clear
-//        }
         
         if let colorString = try values.decodeIfPresent(String.self, forKey: .color) {
             color = UIColor(hex: colorString)

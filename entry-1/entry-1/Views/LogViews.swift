@@ -12,69 +12,9 @@ import CoreData
 import UniformTypeIdentifiers
 
 
-//func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
-//    let mainContext = coreDataManager.viewContext
-//    mainContext.performAndWait {
-//        let filename = entry.imageContent
-//        let parentLog = entry.relationship
-//
-//        // Fetch the entry in the main context
-//        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-//        fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
-//        do {
-//            let fetchedEntries = try mainContext.fetch(fetchRequest)
-//            guard let entryToDeleteInContext = fetchedEntries.first else {
-//                print("Failed to fetch entry in main context")
-//                return
-//            }
-//
-//            print("Entry being deleted: \(entry)")
-//            // Now perform the deletion
-//            entry.imageContent = nil
-//            parentLog.removeFromRelationship(entry)
-//            mainContext.delete(entryToDeleteInContext)
-//            try mainContext.save()
-//            if let filename = filename {
-//                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//                let fileURL = documentsDirectory.appendingPathComponent(filename)
-//
-//                do {
-//                    // Delete file
-//                    try FileManager.default.removeItem(at: fileURL)
-//                } catch {
-//                    // Handle file deletion errors
-//                    print("Failed to delete file: \(error)")
-//                }
-//            }
-//
-//        } catch {
-//            print("Failed to fetch entry in main context: \(error)")
-//        }
-//    }
-//}
-
-
 
 @MainActor
 struct LogsView: View {
-    //    @Environment(\.managedObjectContext) private var viewContext
-    //    @EnvironmentObject var userPreferences: UserPreferences
-    //
-    //    @FetchRequest(
-    //        entity: Log.entity(),
-    //        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
-    //    ) var logs: FetchedResults<Log>
-    
-    //    var body: some View {
-    //        NavigationView {
-    //            List(logs, id: \.self) { log in
-    //                NavigationLink(destination: LogDetailView(log: log).environmentObject(userPreferences)) {
-    //                    Text(log.day)
-    //                }
-    //            }
-    //            .navigationTitle("Logs")
-    //        }
-    //    }
     @EnvironmentObject var coreDataManager: CoreDataManager
     @EnvironmentObject var userPreferences: UserPreferences
     @State private var selectedTimeframe: String = "By Day"
@@ -92,8 +32,26 @@ struct LogsView: View {
     
     @FetchRequest(
         entity: Log.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
+        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
     ) var logs: FetchedResults<Log>
+    
+    @State private var startDate: Date = Date()
+    @State private var endDate: Date = Date()
+    
+    
+    func updateDateRange() {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        
+        let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
+        
+        if let earliestDate = dateLogs.min(),
+           let latestDate = dateLogs.max() {
+            startDate = earliestDate
+            endDate = latestDate
+        }
+    }
+    
     
     // LogsView
     var body: some View {
@@ -120,11 +78,19 @@ struct LogsView: View {
                             Alert(title: Text("Delete log"),
                                   message: Text("Are you sure you want to delete this log? This action cannot be undone."),
                                   primaryButton: .destructive(Text("Delete")) {
-                                      deleteLog(log: logToDelete)
-                                  },
+                                deleteLog(log: logToDelete)
+                            },
                                   secondaryButton: .cancel())
-                        }                    }
-
+                        }
+                        NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                            HStack {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                Text("Recently Deleted")
+                            }
+                        }
+                    }
+                    
                     .listStyle(.insetGrouped)
                     .navigationTitle("Logs")
                     
@@ -134,27 +100,27 @@ struct LogsView: View {
                             NavigationLink(destination: LogsByMonthView(logs: monthsGrouped()[month]!, month: month)) {
                                 Text("Month of \(month)")
                             }
-//                            .contextMenu {
-//                                Button(action: {
-//                                    showingDeleteConfirmation = true
-//                                    logToDelete = log
-//                                }) {
-//                                    Text("Delete")
-//                                    Image(systemName: "trash")
-//                                }
-//                            }
+                            
                         }
                         .alert(isPresented: $showingDeleteConfirmation) {
                             Alert(title: Text("Delete log"),
                                   message: Text("Are you sure you want to delete this log? This action cannot be undone."),
                                   primaryButton: .destructive(Text("Delete")) {
-                                      deleteLog(log: logToDelete)
-                                  },
+                                deleteLog(log: logToDelete)
+                            },
                                   secondaryButton: .cancel())
+                        }
+                        NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                            HStack {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                Text("Recently Deleted")
+                            }
                         }
                     }
                     .listStyle(.insetGrouped)
                     .navigationTitle("Logs")
+                    
                 }
                 
                 
@@ -164,9 +130,45 @@ struct LogsView: View {
                             DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
                         }
                         
+                        if selectedTimeframe == "By Day" {
+                            
+                            NavigationLink(destination:
+                                            DatePickerView(date: $startDate, title: "Start Date")
+                                .datePickerStyle(GraphicalDatePickerStyle())
+                            ) {
+                                HStack {
+                                    Image(systemName: "calendar")
+                                        .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
+                                    Text("Start Date")
+                                    Spacer()
+                                    Text(formattedDate(startDate))
+                                        .opacity(0.6)
+                                }                        }
+                            
+                            NavigationLink(destination:
+                                            DatePickerView(date: $endDate, title: "End Date")
+                                .datePickerStyle(GraphicalDatePickerStyle())
+                            ) {
+                                HStack {
+                                    Image(systemName: "calendar")
+                                        .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
+                                    Text("End Date")
+                                    Spacer()
+                                    Text(formattedDate(endDate))
+                                        .opacity(0.6)
+                                }
+                            }
+                        }
+                        
+                        
+                        
                         ForEach(filteredLogs(), id: \.self) { log in
                             NavigationLink(destination: LogDetailView(log: log).environmentObject(userPreferences)) {
-                                Text(log.day)
+                                HStack {
+                                    Image(systemName: "book")
+                                        .foregroundColor(userPreferences.accentColor)
+                                    Text(log.day)
+                                }
                             }
                             .contextMenu {
                                 Button(role: .destructive, action: {
@@ -183,38 +185,44 @@ struct LogsView: View {
                             Alert(title: Text("Delete log"),
                                   message: Text("Are you sure you want to delete this log? This action cannot be undone."),
                                   primaryButton: .destructive(Text("Delete")) {
-                                      deleteLog(log: logToDelete)
-                                  },
+                                deleteLog(log: logToDelete)
+                            },
                                   secondaryButton: .cancel())
                         }
                         
+                        NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                            HStack {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                Text("Recently Deleted")
+                            }
+                        }
+                        
                     }
-
+                    
                     .listStyle(.insetGrouped)
                     .navigationTitle("Logs")
                 }
-            }
-            .navigationBarItems(trailing:
-                                    Button(action: {
-                Task {
-                    pdfURL = await render()
-                    isExporting = true
+            }.font(.system(size: userPreferences.fontSize))
+            
+                .fileExporter(isPresented: $isExporting, document: PDFDocument(pdfURL: pdfURL), contentType: .pdf) { result in
+                    switch result {
+                    case .success(let url):
+                        print("File successfully saved at \(url)")
+                    case .failure(let error):
+                        print("Failed to save file: \(error)")
+                    }
                 }
-            }, label: {
-                Image(systemName: "square.and.arrow.up.circle.fill")
-                    .font(.system(size: 16))
-            })
-            )
-            .fileExporter(isPresented: $isExporting, document: PDFDocument(pdfURL: pdfURL), contentType: .pdf) { result in
-                switch result {
-                case .success(let url):
-                    print("File successfully saved at \(url)")
-                case .failure(let error):
-                    print("Failed to save file: \(error)")
-                }
-            }
         }
     }
+    
+    func DatePickerView(date: Binding<Date>, title: String) -> some View {
+        List {
+            DatePicker("Start Date", selection: date, displayedComponents: .date)
+        }
+        .navigationTitle(title)
+    }
+
     
     func filteredLogs() -> [Log] {
         print("Entered filtered logs!")
@@ -228,8 +236,12 @@ struct LogsView: View {
         switch selectedTimeframe {
         case "By Day":
             // Return all logs as they are already sorted by day in FetchRequest
-            filtered = Array(logs)
-            print("Filtered: \(filtered)")
+            return logs.filter { log in
+                if let logDate = dateFormatter.date(from: log.day) {
+                    return logDate >= startDate && logDate <= endDate
+                }
+                return false
+            }
             
         case "By Week":
             // Filter logs by the current week
@@ -312,37 +324,20 @@ struct LogsView: View {
         return months
     }
     
-//    private func deleteLog(at offsets: IndexSet) {
-//        for index in offsets {
-//            let log = logs[index]
-//            if let entries = log.relationship as? Set<Entry> {
-//                for entry in entries {
-//                    coreDataManager.viewContext.delete(entry)
-//                }
-//            }
-//            coreDataManager.viewContext.delete(log)
-//        }
-//
-//        do {
-//            try coreDataManager.viewContext.save()
-//        } catch {
-//            let nsError = error as NSError
-//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//        }
-//    }
+    
     
     private func deleteLog(log: Log?) {
         guard let log = log else { return }
         if let entries = log.relationship as? Set<Entry> {
             for entry in entries {
-//                coreDataManager.viewContext.delete(entry)
-                Entry.deleteEntry(entry: entry, coreDataManager: coreDataManager)
-
+                //                coreDataManager.viewContext.delete(entry)
+                deleteEntry(entry: entry, coreDataManager: coreDataManager)
+                
                 
             }
         }
         coreDataManager.viewContext.delete(log)
-
+        
         do {
             try coreDataManager.viewContext.save()
         } catch {
@@ -377,7 +372,7 @@ struct LogsView: View {
         return pdfData as Data
     }
     
-
+    
     func render() async -> URL {
         let logsByDay = Dictionary(grouping: filteredLogs(), by: { $0.day })
         let sortedDays = logsByDay.keys.sorted()
@@ -435,33 +430,99 @@ struct LogsView: View {
 struct LogsByWeekView: View {
     var logs: [Log]
     var week: String
+    @EnvironmentObject var userPreferences: UserPreferences
+    
     
     var body: some View {
         List(logs, id: \.self) { log in
             NavigationLink(destination: LogDetailView(log: log)) {
-                Text(log.day)
+                HStack {
+                    Image(systemName: "book")
+                        .foregroundColor(userPreferences.accentColor)
+                    Text(log.day)
+                }
             }
         }
         .navigationTitle("Week of \(week)")
+        .font(.system(size: userPreferences.fontSize))
+        
     }
 }
 struct LogsByMonthView: View {
     var logs: [Log]
     var month: String
+    @EnvironmentObject var userPreferences: UserPreferences
     
     var body: some View {
         List(logs, id: \.self) { log in
             NavigationLink(destination: LogDetailView(log: log)) {
-                Text(log.day)
-            }
+                HStack {
+                    Image(systemName: "book")
+                        .foregroundColor(userPreferences.accentColor)
+                    Text(log.day)
+                }            }
         }
         .navigationTitle("\(month)")
+        .font(.system(size: userPreferences.fontSize))
     }
 }
 
 
 
 
+struct EntryDetailView: View {
+    @Environment(\.colorScheme) var colorScheme
+    let entry: Entry
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text(formattedTime(time: entry.time))
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                        Spacer()
+                        if (entry.buttons.filter{$0}.count > 0 ) {
+                            Image(systemName: entry.image).tag(entry.image)
+                                .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme))
+                        }
+                    }
+                    Text(entry.content)
+                        .fontWeight(entry.buttons.filter{$0}.count > 0 ? .bold : .regular)
+                        .foregroundColor(colorScheme == .dark ? .white : .black)
+                        .contextMenu {
+                            Button(action: {
+                                UIPasteboard.general.string = entry.content ?? ""
+                                print("entry color : \(entry.color)")
+                            }) {
+                                Text("Copy Message")
+                                Image(systemName: "doc.on.doc")
+                            }
+                        }
+                }
+                Spacer() // Push the image to the right
+            }
+            if entry.imageContent != "" {
+                if let filename = entry.imageContent {
+                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let fileURL = documentsDirectory.appendingPathComponent(filename)
+                    let data = try? Data(contentsOf: fileURL)
+                    if let data = data, isGIF(data: data) {
+                        let imageView = AnimatedImageView(url: fileURL)
+                        let asyncImage = UIImage(data: data)
+                        let height = asyncImage!.size.height
+                        AnimatedImageView(url: fileURL).scaledToFit()
+                    } else {
+                        if imageExists(at: fileURL) {
+                            CustomAsyncImageView(url: fileURL).scaledToFit()
+                        }
+                    }
+                }
+            }
+        }.padding(.vertical, 5)
+    }
+}
 
 
 struct LogDetailView: View {
@@ -473,68 +534,89 @@ struct LogDetailView: View {
     
     var body: some View {
         if let entries = log.relationship as? Set<Entry>, !entries.isEmpty {
-            List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack {
-                        VStack(alignment: .leading) {
-                            HStack {
-                                Text(formattedTime(entry.time))
-                                    .font(.footnote)
-                                    .foregroundColor(.gray)
-                                Spacer()
-                                if (entry.buttons.filter{$0}.count > 0 ) {
-                                    Image(systemName: entry.image).tag(entry.image)
-                                        .frame(width: 15, height: 15)
-                                        .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme))
-                                    //                                        .foregroundStyle(.red, .green, .blue, .purple)
-                                }
-                                
-                            }
-                            Text(entry.content)
-                                .fontWeight(entry.buttons.filter{$0}.count > 0 ? .bold : .regular)
-                                .foregroundColor(colorScheme == .dark ? .white : .black)
-                        }
-                        Spacer() // Push the image to the right
-                        
-                    }
-                    
-                    
-                    
-                    if entry.imageContent != "" {
-                        if let filename = entry.imageContent {
-                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            let fileURL = documentsDirectory.appendingPathComponent(filename)
-                            let data = try? Data(contentsOf: fileURL)
-                            
-                            
-                            if let data = data, isGIF(data: data) {
-                                
-                                let imageView = AnimatedImageView(url: fileURL)
-                                
-                                let asyncImage = UIImage(data: data)
-                                
-                                let height = asyncImage!.size.height
-                                
-                                AnimatedImageView(url: fileURL).scaledToFit()
-                                
-                                
-                                // Add imageView
-                            } else {
-                                CustomAsyncImageView(url: fileURL).scaledToFit()
-//                                AsyncImage(url: fileURL) { image in
-//                                    image.resizable()
-//                                        .scaledToFit()
-//                                }
-//                            placeholder: {
-//                                ProgressView()
-//                            }
-                            }
-                        }
-                    }
+            Section {
+                List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
+                    EntryDetailView(entry: entry)
                 }
-                //                .listRowBackground(backgroundColor(entry: entry))
+                .onAppear(perform: {
+                    print("LOG detailz: \(log)")
+                })
+                // List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
+                //     VStack(alignment: .leading, spacing: 5) {
+                //         HStack {
+                //             VStack(alignment: .leading) {
+                //                 HStack {
+                //                     Text(formattedTime(time: entry.time))
+                //                         .font(.footnote)
+                //                         .foregroundColor(.gray)
+                //                     Spacer()
+                //                     if (entry.buttons.filter{$0}.count > 0 ) {
+                //                         Image(systemName: entry.image).tag(entry.image)
+                //                             .frame(width: 15, height: 15)
+                //                             .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme))
+                //                         //                                        .foregroundStyle(.red, .green, .blue, .purple)
+                //                     }
+                
+                //                 }
+                //                 Text(entry.content)
+                //                     .fontWeight(entry.buttons.filter{$0}.count > 0 ? .bold : .regular)
+                //                     .foregroundColor(colorScheme == .dark ? .white : .black)
+                //                     .contextMenu {
+                
+                //                         Button(action: {
+                //                             UIPasteboard.general.string = entry.content ?? ""
+                //                         }) {
+                //                             Text("Copy Message")
+                //                             Image(systemName: "doc.on.doc")
+                //                         }
+                //                     }
+                //             }
+                //             Spacer() // Push the image to the right
+                
+                //         }
+                
+                
+                
+                //         if entry.imageContent != "" {
+                //             if let filename = entry.imageContent {
+                //                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                //                 let fileURL = documentsDirectory.appendingPathComponent(filename)
+                //                 let data = try? Data(contentsOf: fileURL)
+                
+                
+                //                 if let data = data, isGIF(data: data) {
+                
+                //                     let imageView = AnimatedImageView(url: fileURL)
+                
+                //                     let asyncImage = UIImage(data: data)
+                
+                //                     let height = asyncImage!.size.height
+                
+                //                     AnimatedImageView(url: fileURL).scaledToFit()
+                
+                
+                //                     // Add imageView
+                //                 } else {
+                //                     if imageExists(at: fileURL) {
+                //                         CustomAsyncImageView(url: fileURL).scaledToFit()
+                //                     }
+                
+                //                     //                                AsyncImage(url: fileURL) { image in
+                //                     //                                    image.resizable()
+                //                     //                                        .scaledToFit()
+                //                     //                                }
+                //                     //                            placeholder: {
+                //                     //                                ProgressView()
+                //                     //                            }
+                //                 }
+                //             }
+                //         }
+                //     }
+                //     //                .listRowBackground(backgroundColor(entry: entry))
+                // }
+                .listStyle(.automatic)
             }
-            .listStyle(.automatic)
+            
             
             .navigationBarTitleDisplayMode(.inline)
         } else {
@@ -543,14 +625,85 @@ struct LogDetailView: View {
         }
     }
     
-    func formattedTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
+    //    func formattedTime(_ date: Date) -> String {
+    //        let formatter = DateFormatter()
+    //        formatter.timeStyle = .short
+    //        return formatter.string(from: date)
+    //    }
     
 }
 
+
+
+
+//struct RecentlyDeletedView: View {
+//
+//    @EnvironmentObject var coreDataManager: CoreDataManager
+//
+//    @EnvironmentObject var userPreferences: UserPreferences
+//
+//    @State private var searchText = ""
+//
+//    @FetchRequest(
+//        entity: Entry.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
+//        predicate: NSPredicate(format: "isRemoved == %@", NSNumber(value: true))
+//    ) var removedEntries: FetchedResults<Entry>
+//
+//    //    var filteredEntries: FetchedResults<Entry> {
+//    //      let calendar = Calendar.current
+//    //      let startDate = calendar.startOfDay(for: Date())
+//    //      let endDate = startDate.addingTimeInterval(86400 * 30) // 30 days
+//    //
+//    //      return removedEntries.filter { entry in
+//    //        return entry.date >= startDate && entry.date < endDate
+//    //      }
+//    //    }
+//
+//    var body: some View {
+//        List {
+//            ForEach(removedEntries, id: \.self) { entry in
+//                    EntryDetailView(entry: entry)
+//            }
+//        }
+//        .listStyle(.automatic)
+//        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)).font(.system(size: userPreferences.fontSize))
+//        .navigationTitle("Recently Deleted")
+//    }
+//}
+
+struct RecentlyDeletedView: View {
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var userPreferences: UserPreferences
+    @State private var searchText = ""
+    
+    @FetchRequest(
+        entity: Entry.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
+        predicate: NSPredicate(format: "isRemoved == %@", NSNumber(value: true))
+    ) var removedEntries: FetchedResults<Entry>
+    
+    var filteredEntries: [Entry] {
+        if searchText.isEmpty {
+            return Array(removedEntries)
+        } else {
+            return removedEntries.filter { $0.content.lowercased().contains(searchText.lowercased()) }
+        }
+    }
+    
+    var body: some View {
+        List {
+            ForEach(filteredEntries, id: \.self) { entry in
+                Section(header: Text("\(formattedDate(entry.time))")) {
+                    EntryDetailView(entry: entry)
+                }
+            }
+        }
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
+        .font(.system(size: UIFont.systemFontSize))
+        .navigationTitle("Recently Deleted")
+    }
+}
 
 struct LogDetailView_PDF : View {
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -566,7 +719,7 @@ struct LogDetailView_PDF : View {
                     HStack {
                         VStack(alignment: .leading) {
                             HStack {
-                                Text(formattedTime(entry.time))
+                                Text(formattedTime(time: entry.time))
                                     .font(.footnote)
                                     .foregroundColor(.gray)
                                 Spacer()
@@ -581,6 +734,7 @@ struct LogDetailView_PDF : View {
                             Text(entry.content)
                                 .fontWeight(entry.buttons.filter{$0}.count > 0 ? .bold : .regular)
                                 .foregroundColor(colorScheme == .dark ? .white : .black)
+                            
                         }
                         Spacer() // Push the image to the right
                         
@@ -600,21 +754,21 @@ struct LogDetailView_PDF : View {
                             }
                             
                             
-//                            if let data = data, isGIF(data: data) {
-//
-//                                let imageView = AnimatedImageView(url: fileURL)
-//
-//                                let asyncImage = UIImage(data: data)
-//
-//                                let height = asyncImage!.size.height
-//
-//                                AnimatedImageView(url: fileURL).scaledToFit()
-//
-//
-//                                // Add imageView
-//                            } else {
-//                                UIImage(data: data)
-//                            }
+                            //                            if let data = data, isGIF(data: data) {
+                            //
+                            //                                let imageView = AnimatedImageView(url: fileURL)
+                            //
+                            //                                let asyncImage = UIImage(data: data)
+                            //
+                            //                                let height = asyncImage!.size.height
+                            //
+                            //                                AnimatedImageView(url: fileURL).scaledToFit()
+                            //
+                            //
+                            //                                // Add imageView
+                            //                            } else {
+                            //                                UIImage(data: data)
+                            //                            }
                         }
                     }
                 }
@@ -629,11 +783,11 @@ struct LogDetailView_PDF : View {
         }
     }
     
-    func formattedTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: date)
-    }
+    //    func formattedTime(_ date: Date) -> String {
+    //        let formatter = DateFormatter()
+    //        formatter.timeStyle = .short
+    //        return formatter.string(from: date)
+    //    }
     
 }
 //struct PDFDocument: View {
@@ -669,4 +823,5 @@ struct PDFDocument: FileDocument {
         return .init(regularFileWithContents: data)
     }
 }
+
 
