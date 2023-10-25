@@ -235,13 +235,15 @@ struct LogsView: View {
         
         switch selectedTimeframe {
         case "By Day":
-            // Return all logs as they are already sorted by day in FetchRequest
             return logs.filter { log in
                 if let logDate = dateFormatter.date(from: log.day) {
-                    return logDate >= startDate && logDate <= endDate
+                    let startOfDay = Calendar.current.startOfDay(for: startDate)
+                    let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
+                    return logDate >= startOfDay && logDate <= endOfDay
                 }
                 return false
             }
+
             
         case "By Week":
             // Filter logs by the current week

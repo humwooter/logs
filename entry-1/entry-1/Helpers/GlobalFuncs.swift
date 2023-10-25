@@ -7,7 +7,34 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
+func textColor(for backgroundColor: UIColor) -> Color {
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    backgroundColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    
+    let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+    
+    return brightness > 0.5 ? Color.black : Color.white
+}
+
+func isColorLight(_ color: Color) -> Bool {
+    let uiColor = UIColor(color)
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    
+    let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+    
+    return brightness > 0.5
+}
 public func imageExists(at url: URL) -> Bool {
     return FileManager.default.fileExists(atPath: url.path)
 }
@@ -123,14 +150,15 @@ func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
     }
 }
 
-func deleteOldEntries() { //only deletes old deleted entroes
+//removes entries that are older than 10 days old
+func deleteOldEntries() {
     let tenDaysAgo = Calendar.current.date(byAdding: .day, value: -10, to: Date())
     
     let mainContext = CoreDataManager.shared.viewContext
     let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
     fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
         NSPredicate(format: "isRemoved == %@", NSNumber(value: true)),
-        NSPredicate(format: "time > %@", tenDaysAgo! as CVarArg)
+        NSPredicate(format: "time < %@", tenDaysAgo! as CVarArg)
     ])
     
     do {

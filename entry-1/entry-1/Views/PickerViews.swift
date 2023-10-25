@@ -21,15 +21,15 @@ struct ButtonDashboard: View {
         VStack {
 
             Spacer()
-            Text("BUTTON DASHBOARD")
+            Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3))
                 .bold()
             Spacer()
-            HStack(alignment: .center, spacing: 45) {
+            HStack(alignment: .center, spacing: 20) {
                 ForEach(0..<3, id: \.self) { index in
                     buttonSection(index: index)
                 }
             }
-            HStack(alignment: .center, spacing: 45) {
+            HStack(alignment: .center, spacing: 20) {
                 ForEach(3..<5, id: \.self) { index in
                     buttonSection(index: index)
                 }
@@ -40,15 +40,48 @@ struct ButtonDashboard: View {
     
     @ViewBuilder
     private func buttonSection(index: Int) -> some View {
-        Section {
-            VStack(alignment: .center) {
-                Text("Button \(index + 1)")
-                    .multilineTextAlignment(.center)
-                ToggleButton(isOn: $userPreferences.activatedButtons[index], color: userPreferences.selectedColors[index])
+        VStack {
+            ZStack {
+
+                Rectangle()
+//                    .background(.white).opacity(0.03)
+                    .fill(
+                        RadialGradient(
+                            gradient: Gradient(
+                                colors: userPreferences.activatedButtons[index] ?
+                                    [userPreferences.selectedColors[index], .clear] :
+                                    [.white, .clear]
+                            ),
+                            center: .center,
+                            startRadius: 200,
+                            endRadius: 0
+                        )
+                        )
+                    .frame(width: 82, height: 82)
+
+                    .opacity(userPreferences.activatedButtons[index] ? 1 : 0.3)
+                    .cornerRadius(50)
+                    .shadow(radius: 5)
+                    
+
+
+                VStack(alignment: .center, spacing: 2) {
+                    if (userPreferences.activatedButtons[index]) {
+                        Image(systemName: userPreferences.selectedImages[index]).fontWeight(.bold)
+                            .foregroundColor(userPreferences.selectedColors[index])
+                            .padding(.vertical, 5)
+                    }
+                    ToggleButton(isOn: $userPreferences.activatedButtons[index], color: userPreferences.selectedColors[index])
+                }
             }
+            Text("Stamp \(index + 1)")
+                .font(.caption) // Smaller font to save space
         }
     }
+
+
 }
+
 
 
 
@@ -56,15 +89,26 @@ struct IconPicker: View {
     @Binding var selectedImage: String
     @Binding var selectedColor: Color
     @Binding var accentColor: Color
-    
+    @State private var searchText = ""
+
     
     var buttonIndex: Int
     var inputCategories: [String: [String]]
+    let gridLayout: [GridItem] = [
+        .init(.flexible(), spacing: 10),
+        .init(.flexible(), spacing: 10),
+        .init(.flexible(), spacing: 10),
+
+        .init(.flexible(), spacing: 10)
+
+    ]
+
 
     
     
     var body: some View {
-        Section(header: Text("Button \(buttonIndex + 1)")) {
+        
+        Section(header: Text("Stamp \(buttonIndex + 1)")) {
             NavigationLink(destination: imageListView()) {
                 HStack {
                     Text(selectedImage)
@@ -73,35 +117,69 @@ struct IconPicker: View {
 
                 }
             }
-        }
+            ColorPicker("Stamp Color", selection: $selectedColor)
 
+        }
     }
     
     func imageListView() -> some View {
-        List {
-            ForEach(inputCategories.keys.sorted(), id: \.self) { category in
-                Section(header: Text(category).bold()) {
-                    ForEach(inputCategories[category]!, id: \.self) { image in
-                        HStack {
-                            Image(systemName: image).foregroundColor(selectedColor)
-                            Text(image)
-                            Spacer()
-                            if image == selectedImage {
-                                Image(systemName: "checkmark").foregroundColor(accentColor)
+        ScrollView {
+                ForEach(inputCategories.keys.sorted(), id: \.self) { category in
+                    let filteredImages = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
+                    if (!filteredImages.isEmpty) {
+                        // Display the category header
+                        Text(category)
+                            .bold()
+                            .font(.headline)
+                            .padding(.top, 10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 10) // Left padding for alignment
+                        
+                        LazyVGrid(columns: gridLayout, spacing: 10) {
+                            
+                            
+                            // Display images for the category
+                            ForEach(filteredImages, id: \.self) { image in
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(selectedImage != image ? Color(UIColor.secondarySystemBackground).opacity(1) : selectedColor)
+                                        .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
+                                    
+                                    HStack {
+                                        Image(systemName: image)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 20, height: 20)  // Adjust width and height as needed
+                                            .foregroundColor(
+                                                selectedImage != image
+                                                ? selectedColor
+                                                : textColor(for: UIColor(selectedColor))
+                                            )
+                                    }
+                                    .foregroundColor(
+                                        selectedImage != image
+                                        ? textColor(for: UIColor.secondarySystemBackground)
+                                        : textColor(for: UIColor(selectedColor))
+                                    )
+                                }
+                                .onTapGesture {
+                                    if (selectedImage != image) {
+                                        vibration_medium.prepare()
+                                        vibration_medium.impactOccurred()
+                                        self.selectedImage = image
+                                    }
+                                }
                             }
                         }
-//                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            self.selectedImage = image
-                        }
                     }
-                }
             }
+            .padding(.horizontal, 10) // Horizontal padding for the entire grid
         }
         .navigationTitle("Button \(buttonIndex + 1)")
+        .searchable(text: $searchText)
+
 
     }
-
 }
 
 struct FontPicker: View {
@@ -109,6 +187,7 @@ struct FontPicker: View {
     @Binding var selectedFontSize: CGFloat
     @Binding var accentColor: Color
     var inputCategories: [String: [String]]
+    @State private var searchText = ""
 
     
     
@@ -131,21 +210,30 @@ struct FontPicker: View {
     func fontListView() -> some View {
         List {
             ForEach(inputCategories.keys.sorted(), id: \.self) { category in
-                Section(header: Text(category).bold()) {
-                    ForEach(inputCategories[category]!, id: \.self) { font in
-                        HStack {
-                            Text(font)
-                                .font(.custom(font, size: selectedFontSize))
-                            Spacer()
-                            if selectedFont == font {
-                                Image(systemName: "checkmark").foregroundColor(accentColor)
+                let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
+                if (!filteredFonts.isEmpty) {
+                    
+                    Section(header: Text(category).bold()) {
+                        ForEach(filteredFonts, id: \.self) { font in
+                            
+                            HStack {
+                                Text(font)
+                                    .font(.custom(font, size: selectedFontSize))
+                                Spacer()
+                                if selectedFont == font {
+                                    Image(systemName: "checkmark").foregroundColor(accentColor)
+                                }
+                                
+                                
                             }
-
-            
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            self.selectedFont = font
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if (selectedFont != font) {
+                                    vibration_medium.prepare()
+                                    vibration_medium.impactOccurred()
+                                    self.selectedFont = font
+                                }
+                            }
                         }
                     }
                 }
@@ -153,7 +241,7 @@ struct FontPicker: View {
       
         }
         .navigationTitle("Font Type")
-
+        .searchable(text: $searchText)
     }
 
 }

@@ -18,9 +18,6 @@ import FLAnimatedImage
 //import Giffy
 
 
-let vibration_heavy = UIImpactFeedbackGenerator(style: .heavy)
-let vibration_light = UIImpactFeedbackGenerator(style: .light)
-let vibration_medium = UIImpactFeedbackGenerator(style: .medium)
 
 
 
@@ -704,7 +701,7 @@ struct NewEntryView: View {
         newEntry.color = UIColor(color)
         newEntry.image = "star.fill"
         newEntry.id = UUID()
-        newEntry.isHidden = false
+        newEntry.isHidden = isHidden
         newEntry.isRemoved = false
         
         // Fetch the log with the appropriate day

@@ -83,45 +83,57 @@ class UserPreferences: ObservableObject {
         self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "seif"
         self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
-        self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [.yellow, .cyan, .pink, .green, .indigo]
+//        self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [.complementaryColor(of: .pink), .cyan, .complementaryColor(of: .red), .green, .indigo]
+        self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "FFEFC2"), Color(hex: "FFB1FF"), Color(hex: "C8FFFF"), Color(hex: "C2FFCB"), Color(hex: "928CFF")]
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
         self.backgroundColor = Color(.clear)
     }
 }
 
+
 extension UserDefaults {
     
     func saveColors(colors: [Color], forKey key: String) {
-        let colorStrings = colors.map { $0.description }
-        UserDefaults.standard.set(colorStrings, forKey: key)
+        let uiColors = colors.map { UIColor($0) }
+        let data = uiColors.compactMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
+        UserDefaults.standard.set(data, forKey: key)
     }
     
     func loadColors(forKey key: String) -> [Color]? {
         guard let data = array(forKey: key) as? [Data] else { return nil }
-        return data.compactMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? Color }
+        let uiColors = data.compactMap { data -> UIColor? in
+            do {
+                return try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data)
+            } catch {
+                print("Failed to unarchive UIColor: \(error)")
+                return nil
+            }
+        }
+        return uiColors.map { Color($0) }
     }
     
     func setColor(color: Color, forKey key: String) {
         let uiColor = UIColor(color)
-        //         if let uiColor = UIColor(color) { // Assuming there's a UIColor initializer that takes a Color
         do {
             let data = try NSKeyedArchiver.archivedData(withRootObject: uiColor, requiringSecureCoding: false)
             set(data, forKey: key)
         } catch {
             print("Error archiving color: \(error)")
         }
-        //         }
     }
-    //    func setColors(colors: [Color], forKey key: String) {
-    //
-    //    }
     
     func color(forKey key: String) -> Color? {
-        guard let data = data(forKey: key),
-              let uiColor = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIColor
-        else { return nil }
+        guard let data = data(forKey: key) else { return nil }
         
-        return Color(uiColor) // Assuming there's a Color initializer that takes a UIColor
+        do {
+            if let uiColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data) {
+                return Color(uiColor) // Assuming there's a Color initializer that takes a UIColor
+            }
+        } catch {
+            print("Failed to unarchive UIColor: \(error)")
+        }
+        
+        return nil
     }
 }
 
@@ -138,9 +150,7 @@ struct SettingsView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
-    
-//    let fonts = ["Helvetica Neue", "Times New Roman", "Courier New", "American Typewriter", "Bradley Hand", "Cochin", "Noteworthy Light", "Papyrus Condensed", "PartyLetPlain", "SnellRoundhand", "Superclarendon Regular", "SavoyeLetPlain", "Menlo Regular", "Marker Felt Thin", "Marker Felt Wide", "Gill Sans", "Copperplate Light", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Bodoni 72 Oldstyle Book", "Forgotten Futurist Regular"]
-    
+        
     let fontCategories: [String: [String]] = [
         "Traditional": ["Helvetica Neue", "Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Impact", "Arial Rounded MT Bold"],
         "Monospace": ["Courier New", "STIX Two Math", "Skia"],
@@ -154,12 +164,17 @@ struct SettingsView: View {
 
     
     let imageCategories: [String: [String]] = [
-        "Shapes": ["circle", "staroflife", "star.fill", "heart.fill"],
-        "Symbols": ["folder.fill", "exclamationmark", "lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power"],
-        "Animals": ["bird.fill", "lizard.fill"],
-        "Nature": ["leaf.fill", "moon.stars.fill", "wind.snow", "sun.max.fill", "drop.fill"],
-        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill"],
-        "Currency": ["dollarsign"]
+        "Shapes": ["circle", "staroflife", "star.fill", "heart.fill", "bolt.heart.fill"],
+        "Symbols": ["folder.fill", "exclamationmark", "lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "brain.filled.head.profile", "house.fill", "arcade.stick.console"],
+        "Body": ["brain", "ear.fill", "mustache.fill", "hand.raised.fill"],
+        "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "ladybug.fill", "fish.fill"],
+        "Nature": ["leaf.fill", "moon.stars.fill", "sun.haze.circle.fill", "wind.snow", "sun.max.fill", "drop.fill", "globe.asia.australia.fill"],
+        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard"],
+        "Commerce": ["bag.fill", "cart.fill", "creditcard.fill", "giftcard.fill", "dollarsign"],
+        "Sleep": ["bed.double.fill"],
+        "Emotions" : ["face.smiling.inverse", "hand.thumbsup.fill", "hands.thumbsdown.fill", "hands.and.sparkles.fill"],
+        "Transportation": ["car.fill", "bus.fill", "tram.fill", "ferry.fill", "sailboat.fill", "bicycle", "scooter"],
+        "Other" : ["drop.halfull", "swirl.circle.righthalf.filled", "lightspectrum.horizontal", "camera.circle.fill", "camera.macro", "camera.macro.circle.fill", "camera.aperture", "books.vertical.fill"]
     ]
     
     @State var advancedSettings = false
