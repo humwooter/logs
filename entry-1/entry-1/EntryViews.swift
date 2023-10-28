@@ -14,8 +14,8 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-import SwiftyGif
-import Giffy
+//import SwiftyGif
+//import Giffy
 
 
 let vibration_heavy = UIImpactFeedbackGenerator(style: .heavy)
@@ -23,36 +23,6 @@ let vibration_light = UIImpactFeedbackGenerator(style: .light)
 let vibration_medium = UIImpactFeedbackGenerator(style: .medium)
 
 
-func isGIF(data: Data) -> Bool {
-    return data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) || data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
-}
-
-func formattedDate(_ date: Date) -> String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "MM/dd/yyyy"
-    return dateFormatter.string(from: date)
-}
-
-func oppositeColor(of color: Color) -> Color {
-    // Extract the RGB components
-    let uiColor = UIColor(color)
-    var red: CGFloat = 0
-    var green: CGFloat = 0
-    var blue: CGFloat = 0
-    var alpha: CGFloat = 0
-    uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-    
-    // Calculate the opposite color by subtracting each component from 1
-    let oppositeColor = UIColor(red: 1 - red, green: 1 - green, blue: 1 - blue, alpha: alpha)
-    
-    return Color(oppositeColor)
-}
-
-func currentTime_2(date: Date) -> String {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "EEEE, MMM d"
-    return formatter.string(from: date)
-}
 
 
 class MarkedEntries: ObservableObject {
@@ -60,301 +30,167 @@ class MarkedEntries: ObservableObject {
     
 }
 
-
+class Refresh: ObservableObject {
+    @Published var needsRefresh: Bool = false
+}
 
 struct TextView : View {
-    @Environment(\.managedObjectContext) private var viewContext
+    @ObservedObject private var refresh: Refresh = Refresh()
+    // @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    
+    @EnvironmentObject var userPreferences: UserPreferences
     @ObservedObject var entry : Entry
-    @Binding var editingContent : String
-    @Binding var isEditing : Bool
+    
+    @State private var editingContent : String = ""
+    @State private var isEditing : Bool = false
+    
     @State private var engine: CHHapticEngine?
     @FocusState private var focusField: Bool
     @Environment(\.colorScheme) var colorScheme
     @State private var selectedItem : PhotosPickerItem?
+    @State private var showingDeleteConfirmation = false
+    
+    @State private var selectedImage : UIImage?
+    
     @State private var showPhotos = false
+    @State private var selectedData: Data?
+    @State private var showCamera = false
+    
     
     
     var body : some View {
         if (!entry.isFault) {
-            Section(header: Text(entry.formattedTime(debug: "from entry row view")).font(.system(size: UIFont.systemFontSize))) {
+            Section(header: Text(formattedTime(time: entry.time)).font(.system(size: UIFont.systemFontSize))) {
                 VStack {
-                    
-                    if !isEditing {
-                        ZStack(alignment: .topTrailing) {
-                            VStack {
-                                Spacer()
-                                    .frame(height: 15)
-                                Text(entry.content)
-                                    .foregroundColor(foregroundColor(entry: entry, background: entry.color)) //to determinw whether black or white
-                                    .fontWeight(entry.buttons.filter{$0}.count > 0 ? .semibold : .regular)
-                                    .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                                
-                                
-                                if entry.imageContent != "" {
-                                    if let filename = entry.imageContent {
-                                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                        let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                        let data = try? Data(contentsOf: fileURL)
-//                                        let height = UIImage(data: data!)?.size.height
-//                                        let width = UIImage(data: data!)?.size.width
-                                        
-                                        
-                                        if let data = data, isGIF(data: data) {
-
-                                          let imageView = AnimatedImageView(url: fileURL)
-                                          
-                                            let asyncImage = UIImage(data: data)
-                                          
-                                            let height = asyncImage!.size.height
-                                          
-//                                            VStack {
-                                            AnimatedImageView(url: fileURL).scaledToFit()
-//                                                .frame(height: geo.size.height)
-//                                                .scaledToFit()
-//                                            }.scaledToFit()
-
-                                          // Add imageView
-                                        } else {
-                                            AsyncImage(url: fileURL) { image in
-                                                image.resizable()
-                                                    .scaledToFit()
-                                            }
-                                        placeholder: {
-                                            ProgressView()
-                                        }
-                                        }
-                                    }
+                    //                    if !isEditing {
+                    NotEditingView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
+                        .contextMenu {
+                            Button(action: {
+                                withAnimation {
+                                    isEditing = true
                                 }
-                                
-                                
-                                
+                            }) {
+                                Text("Edit")
+                                Image(systemName: "pencil")
+                                    .foregroundColor(userPreferences.accentColor)
                             }
-//                            .padding(10)
                             
-                            VStack {
-//                                Spacer()
-//                                    .frame(.vertical, 3)
-                                Image(systemName: "ellipsis")
-                                    .foregroundColor(foregroundColor(entry: entry, background: entry.color).opacity(0.15)) //to determinw whether black or white
-                                    .font(.custom("serif", size: 20))
-                                    .onTapGesture {
-                                        //                                        withAnimation() {
-                                        vibration_heavy.impactOccurred()
-                                        isEditing.toggle()
-                                        focusField.toggle()
-                                        editingContent = entry.content
-                                        //                                        }
-                                    }
-                                //                                Spacer()
-                                //                                    .frame(height: 10)
+                            Button(action: {
+                                UIPasteboard.general.string = entry.content ?? ""
+                            }) {
+                                Text("Copy Message")
+                                Image(systemName: "doc.on.doc")
                             }
-                            .padding(10)
                             
+//                            Button(role: .destructive, action: {
+//                             showingDeleteConfirmation = true
+//                            }) {
+//                                Text("Delete")
+//                                Image(systemName: "trash")
+//                                    .foregroundColor(.red)
+//                            }
                             
                         }
-                        
-                    }
-                    if isEditing {
-                        VStack() {
-                            VStack {
-                                HStack {
-                                    Image(systemName: "xmark") // Cancel button
-                                        .onTapGesture {
-                                            vibration_heavy.impactOccurred()
-                                            cancelEdit() // Function to discard changes
-                                        }
-                                    Spacer()
-                                    
-                                    
-                                    PhotosPicker(selection:$selectedItem, matching: .images) {
-                                        Image(systemName: "photo.fill")
-                                            .symbolRenderingMode(.multicolor)
-                                            .font(.custom("serif", size: 16))
-                                    }
-                                    .onChange(of: selectedItem) { _ in
-                                        Task {
-                                            if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                                let uniqueFilename = UUID().uuidString + ".png"
-                                                let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                                try? data.write(to: fileURL)
-                                                entry.imageContent = uniqueFilename
-                                                return
-                                            }
-                                        }
-                                    }
-                                    
-                                    
-                                    Image(systemName: "checkmark")
-                                        .onTapGesture {
-                                            withAnimation() {
-                                                vibration_heavy.impactOccurred()
-                                                finalizeEdit()
-                                            }
-                                        }
-                                }
-                                .foregroundColor(foregroundColor(entry: entry, background: entry.color)) //to determinw whether black or white
-                                
-                            }
-                            //                            .padding(.vertical, 14) // add back some padding
-                            
-                            
-                            VStack {
-                                //                                Spacer()
-                                //                                    .frame(height: 20)
-                                TextField(entry.content, text: $editingContent, axis: .vertical)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                    .focused($focusField)
-                                    .onSubmit {
-                                        finalizeEdit()
-                                    }
-                                    .foregroundColor(foregroundColor(entry: entry, background: entry.color)).opacity(0.6) //to determinw whether black or white
-                                
-                                if entry.imageContent != nil && entry.imageContent != "" {
-                                    if let filename = entry.imageContent {
-                                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                        let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                        
-                                        if entry.imageContent != "" {
-                                            if let filename = entry.imageContent {
-                                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                                let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                                let data = try? Data(contentsOf: fileURL)
-                                                
-                                                //                                                if let data = data, isGIF(data: data) {
-                                                //                                                    ZStack(alignment: .topLeading) {
-                                                //                                                        Giffy(filePath: fileURL).scaledToFit()
-                                                //                                                            .fixedSize(horizontal: false, vertical: false)
-                                                //
-                                                //                                                        Image(systemName: "minus.circle") // Cancel button
-                                                //                                                            .foregroundColor(.red).opacity(0.8)
-                                                //                                                            .onTapGesture {
-                                                //                                                                vibration_medium.impactOccurred()
-                                                //                                                                deleteImage() // Function to discard changes
-                                                //                                                            }
-                                                //                                                    }
-                                                //
-                                                //
-                                                //                                                } else {
-                                                AsyncImage(url: fileURL) { phase in
-                                                    switch phase {
-                                                    case .success(let image):
-                                                        ZStack(alignment: .topLeading) {
-                                                            image.resizable().scaledToFit()
-                                                            Image(systemName: "minus.circle") // Cancel button
-                                                                .foregroundColor(.red).opacity(0.8)
-                                                                .onTapGesture {
-                                                                    vibration_medium.impactOccurred()
-                                                                    deleteImage() // Function to discard changes
-                                                                }
-                                                        }
-                                                    case .failure:
-                                                        Text("Failed to load image")
-                                                    case .empty:
-                                                        ProgressView()
-                                                    @unknown default:
-                                                        EmptyView()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        
-                                    }
-                                }
-                            }
-                            
+                        .alert(isPresented: $showingDeleteConfirmation) {
+                            Alert(title: Text("Delete entry"),
+                                  message: Text("Are you sure you want to delete this entry? This action cannot be undone."),
+                                  primaryButton: .destructive(Text("Delete")) {
+                                deleteEntry(entry: entry)
+//                                coreDataManager.viewContext.performAndWait {
+//                                    deleteEntry(entry: entry)
+//                                }
+//                                refresh.needsRefresh.toggle()
+//                                refresh.needsRefresh.toggle()
+                            },
+                                  secondaryButton: .cancel())
                         }
-                        
-                    }
                     
                 }
+                .onChange(of: isEditing) { newValue in
+                    if newValue {
+                        editingContent = entry.content
+                    }
+                }
+                .sheet(isPresented: $isEditing) {
+                    EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+                
             }
-            
-            .listRowBackground(backgroundColor(entry: entry))
         }
+    }
+    
+    func deleteEntry(entry: Entry) {
+        let mainContext = coreDataManager.viewContext
+        mainContext.performAndWait {
+            let filename = entry.imageContent
+            let parentLog = entry.relationship
+            
+            
+            // Fetch the entry in the main context
+            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
+            do {
+                let fetchedEntries = try mainContext.fetch(fetchRequest)
+                guard let entryToDeleteInContext = fetchedEntries.first else {
+                    print("Failed to fetch entry in main context")
+                    return
+                }
+                
+                print("Entry being deleted: \(entryToDeleteInContext)")
+                // Now perform the deletion
+                
+//                if imageExists(at: URL.documentsDirectory.appendingPathComponent(entry.imageContent!)) {
+//                    entry.deleteImage(coreDataManager: coreDataManager)
+//                }
+//
+//                parentLog.removeFromRelationship(entryToDeleteInContext)
+//                mainContext.delete(entryToDeleteInContext)
+//                try mainContext.save()
+                
+                parentLog.removeFromRelationship(entry)
+                entryToDeleteInContext.isRemoved = true
+                try mainContext.save()
+                
+            } catch {
+                print("Failed to fetch entry in main context: \(error)")
+            }
+        }
+    }
+    
+    func hideEntry () {
+        if entry.isHidden == nil {
+            entry.isHidden = false
+        }
+        entry.isHidden.toggle()
     }
     
     func finalizeEdit() {
         // Code to finalize the edit
-        entry.content = editingContent
-        do {
-            try viewContext.save()
-        } catch {
-            print("Error updating entry content: \(error)")
+        let mainContext = coreDataManager.viewContext
+        mainContext.performAndWait {
+            entry.content = editingContent
+            
+            // Save the context
+            coreDataManager.save(context: mainContext)
         }
         isEditing = false
-        focusField = false
     }
+    
     
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content
         isEditing = false // Exit the editing mode
     }
     
-    func deleteImage() {
-        if let filename = entry.imageContent {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let fileURL = documentsDirectory.appendingPathComponent(filename)
-            do {
-                print("file URL from deleteImage: \(fileURL)")
-                try FileManager.default.removeItem(at: fileURL)
-            } catch {
-                print("Error deleting image file: \(error)")
-            }
-        }
-        
-        entry.imageContent = ""
-        
-        
-        do {
-            try viewContext.save()
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
-        }
-    }
     
-    
-    
-    private func foregroundColor(entry: Entry, background: UIColor) -> Color {
-        
-        let color = colorScheme == .dark ? Color.white : Color.black
-        if (entry.buttons.filter{$0}.count == 0) {
-            return color
-        }
-        
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        
-        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        
-        let brightness = (red * 299 + green * 587 + blue * 114) / 1000
-        
-        return brightness > 0.5 ? Color.black : Color.white
-    }
-    private func backgroundColor(entry: Entry) -> Color {
-        let opacity_val = colorScheme == .dark ? 0.90 : 0.75
-        
-        if entry.buttons.count < 5 {
-            print("true")
-            entry.buttons = [true, false, false, false, false]
-        }
-        
-        for index in 0..<5 {
-            if entry.buttons[index] {
-                return Color(entry.color).opacity(opacity_val)
-            }
-        }
-        
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        entry.color = colorScheme == .dark ? UIColor(Color.white) : UIColor(Color.black)
-        return Color(color)
-    }
 }
 
 struct EntryRowView: View {
-    @Environment(\.managedObjectContext) private var viewContext
+    // @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var coreDataManager: CoreDataManager
     @ObservedObject var entry: Entry
     
     @State private var isShowingEntryCreationView = false
@@ -364,25 +200,25 @@ struct EntryRowView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var selectedEntry: Entry?
     @State private var showDeleteAlert = false
-    //    @State private var entryToDelete: Entry?
     @State private var editingEntry: Entry?
-    @State private var isEditing = false
     
     
     @State private var engine: CHHapticEngine?
-    @State private var editingContent = ""
-    @FocusState private var focusField: Bool
+    //        @State private var editingContent = ""
     
     
     var body : some View {
         if (!entry.isFault) {
             //            Section(header: Text(entry.formattedTime(debug: "from entry row view")).font(.system(size: UIFont.systemFontSize))) {
             
-            TextView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
+            TextView(entry: entry)
+            
+            //                    .id(isEditing)
             //                .listRowInsets(EdgeInsets()) // remove default row spacing
                 .environmentObject(userPreferences)
-                .environment(\.managedObjectContext, viewContext)
-                .listRowBackground(backgroundColor(entry: entry))
+                .environmentObject(coreDataManager)
+                .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme))
+            
                 .swipeActions(edge: .leading) {
                     ForEach(0..<userPreferences.activatedButtons.count, id: \.self) { index in
                         if userPreferences.activatedButtons[index] {
@@ -404,88 +240,41 @@ struct EntryRowView: View {
         
     }
     
-    func finalizeEdit() {
-        // Code to finalize the edit
-        entry.content = editingContent
-        do {
-            try viewContext.save()
-        } catch {
-            print("Error updating entry content: \(error)")
-        }
-        isEditing = false
-        focusField = false
-    }
+    
     
     private func activateButton(entry: Entry, index: Int) {
-        if (index+1 > entry.buttons.count) {
-            entry.buttons = [false, false, false, false, false]
-            entry.buttons[index] = true
-        }
-        else {
+        let mainContext = coreDataManager.viewContext
+        mainContext.performAndWait {
             let val : Bool = !entry.buttons[index] //this is what it means to toggle
             entry.buttons = [false, false, false, false, false]
             entry.buttons[index] = val
-        }
-        entry.color = UIColor(userPreferences.selectedColors[index])
-        entry.image = userPreferences.selectedImages[index]
-        print("URL from inside activate button \(entry.imageContent)")
-        //        entry.imageContent = []
-        
-        do {
-            try viewContext.save()
+            entry.color = UIColor(userPreferences.selectedColors[index])
+            entry.image = userPreferences.selectedImages[index]
+            print("URL from inside activate button \(entry.imageContent)")
+            
+            // Save the context
+            do {
+                try mainContext.save()
+            } catch {
+                print("Failed to save mainContext: \(error)")
+            }
+            
             if entry.buttons[index] == true {
                 markedEntries.button_entries[index].insert(entry)
             } else {
+                entry.color = colorScheme == .dark ? UIColor(.black) : UIColor(.white)
                 markedEntries.button_entries[index].remove(entry)
             }
-        } catch {
-            print("Error toggling button \(index+1): \(error)")
         }
-    }
-    
-    private func foregroundColor(entry: Entry, background: UIColor) -> Color {
-        
-        let color = colorScheme == .dark ? Color.white : Color.black
-        if (entry.buttons.filter{$0}.count == 0) {
-            return color
-        }
-        
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        
-        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        
-        let brightness = (red * 299 + green * 587 + blue * 114) / 1000
-        
-        return brightness > 0.5 ? Color.black : Color.white
-    }
-    private func backgroundColor(entry: Entry) -> Color {
-        let opacity_val = colorScheme == .dark ? 0.90 : 0.75
-        
-        if entry.buttons.count < 5 {
-            print("true")
-            entry.buttons = [true, false, false, false, false]
-        }
-        
-        for index in 0..<5 {
-            if entry.buttons[index] {
-                return Color(entry.color).opacity(opacity_val)
-            }
-        }
-        
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        entry.color = colorScheme == .dark ? UIColor(Color.white) : UIColor(Color.black)
-        return Color(color)
     }
 }
 
 
 
 struct EntryView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-    @State private var currentDateFilter = formattedDate(Date())
+    // @Environment(\.managedObjectContext) private var viewContext
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    @State private var currentDateFilter = Date.formattedDate(time: Date())
     @FetchRequest(
         entity: Log.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
@@ -494,7 +283,6 @@ struct EntryView: View {
     
     
     @FetchRequest(entity: Entry.entity(), sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]) var entries : FetchedResults<Entry>
-    @FocusState private var focusField: Bool
     
     
     @State private var isShowingEntryCreationView = false
@@ -505,16 +293,22 @@ struct EntryView: View {
     @State private var selectedEntry: Entry?
     @State private var showDeleteAlert = false
     //    @State private var entryToDelete: Entry?
+    @State private var showingDeleteConfirmation = false
+    
     @State private var editingEntry: Entry?
-    @State private var isEditing = false
+    //        @State private var isEditing = false
     
     let vibration_heavy = UIImpactFeedbackGenerator(style: .heavy)
     let vibration_light = UIImpactFeedbackGenerator(style: .light)
     @State private var engine: CHHapticEngine?
-    @State private var editingContent = ""
-    //    @State private var editingEntry = false
+    @State private var toBeDeleted: IndexSet?
+    @State private var showingDeleteAlert = false
     
+    init() {
+        NotificationCenter.default.addObserver(self, selector: #selector(Log.dayDidChange), name: .NSCalendarDayChanged, object: nil)
+    }
     
+
     var body: some View {
         NavigationView {
             List {
@@ -529,51 +323,47 @@ struct EntryView: View {
                     
                     
                     ForEach(sortedEntries, id: \.id) { entry in
-                        EntryRowView(entry: entry)
-                            .environmentObject(userPreferences)
-                            .environment(\.managedObjectContext, viewContext)
+                        if (!entry.isFault) {
+                            EntryRowView(entry: entry)
+                                .environmentObject(userPreferences)
+                                .environmentObject(coreDataManager)
+                                .id("\(entry.id)")
+                        }
                     }
+
                     
                     .onDelete { indexSet in
-                        for index in indexSet {
-                            let entryToDelete = sortedEntries[index]
-                            print("Entry to delete: \(entryToDelete)")
-                            
-                            
-                            
-                            // Delete the image file
-                            if let filename = entryToDelete.imageContent {
-                                if entryToDelete.imageContent != "" {
-                                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                    print("file URL from onDelete closure: \(fileURL)")
-                                    
-                                    do {
-                                        try FileManager.default.removeItem(at: fileURL)
-                                    } catch {
-                                        print("Error deleting image file: \(error)")
+                        let mainContext = coreDataManager.viewContext
+                        mainContext.performAndWait {
+                            for index in indexSet {
+                                let entryToDelete = sortedEntries[index]
+                                let parentLog = entryToDelete.relationship
+                                
+                                // Fetch the entry in the main context
+                                let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+                                fetchRequest.predicate = NSPredicate(format: "id == %@", entryToDelete.id as CVarArg)
+                                do {
+                                    let fetchedEntries = try mainContext.fetch(fetchRequest)
+                                    guard let entryToDeleteInContext = fetchedEntries.first else {
+                                        print("Failed to fetch entry in main context")
+                                        return
                                     }
+
+                                    print("Entry being removed: \(entryToDelete)")
+                                    
+                                    // Mark the entry as removed and detach it from the parent log
+                                    entryToDeleteInContext.isRemoved = true
+                                    parentLog.removeFromRelationship(entryToDeleteInContext)
+
+                                    // Save changes
+                                    try mainContext.save()
+
+                                } catch {
+                                    print("Failed to fetch entry in main context: \(error)")
                                 }
                             }
-                            
-                            
-                            entryToDelete.relationship.removeFromRelationship(entryToDelete)
-                            //                            sortedEntries.remove(at: index) //
-                            //                            sortedEntries.removeAll { $0.isDeleted } //
-                            viewContext.delete(entryToDelete)
-                        }
-                        
-                        do {
-                            try viewContext.save()
-                            viewContext.refreshAllObjects()
-                            
-                            print("entry has been deleted")
-                        } catch {
-                            print(error.localizedDescription)
                         }
                     }
-                    
-                    
                     
                 }
                 else {
@@ -583,11 +373,27 @@ struct EntryView: View {
                 }
                 
             }
-            .onAppear {
-                validateDate()
+            .refreshable {
+                let viewContext = coreDataManager.viewContext
+                
+                // Fetch Logs
+                let logsRequest: NSFetchRequest<Log> = Log.fetchRequest()
+                logsRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
+                logsRequest.predicate = NSPredicate(format: "day == %@", formattedDate(Date()))
+                
+                guard let logsFetched = try? viewContext.fetch(logsRequest), let log = logsFetched.first else { return }
+
+                // Fetch Entries for the log
+                let entriesRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+                entriesRequest.sortDescriptors = [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]
+                entriesRequest.predicate = NSPredicate(format: "relationship == %@", log)
+
+                try? viewContext.fetch(entriesRequest)
             }
+
             
-            .navigationTitle(currentTime_2(date: Date()))
+            
+            .navigationTitle(currentDate())
             .navigationBarItems(trailing:
                                     Button(action: {
                 isShowingEntryCreationView = true
@@ -599,115 +405,69 @@ struct EntryView: View {
             
             .sheet(isPresented: $isShowingEntryCreationView) {
                 NewEntryView()
-                    .environment(\.managedObjectContext, viewContext)
+                    .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
+                    .foregroundColor(userPreferences.accentColor)
                 
             }
+
         }
         
     }
+    
+    
+    
     private func activateButton(entry: Entry, index: Int) {
-        if (index+1 > entry.buttons.count) {
-            entry.buttons = [false, false, false, false, false]
-            entry.buttons[index] = true
-        }
-        else {
+        let mainContext = coreDataManager.viewContext
+        mainContext.performAndWait {
             let val : Bool = !entry.buttons[index] //this is what it means to toggle
             entry.buttons = [false, false, false, false, false]
             entry.buttons[index] = val
-        }
-        entry.color = UIColor(userPreferences.selectedColors[index])
-        entry.image = userPreferences.selectedImages[index]
-        print("URL from inside activate button \(entry.imageContent)")
-        
-        //        entry.imageContent = []
-        
-        do {
-            try viewContext.save()
+            entry.color = UIColor(userPreferences.selectedColors[index])
+            entry.image = userPreferences.selectedImages[index]
+            print("URL from inside activate button \(entry.imageContent)")
+            
+            // Save the context
+            do {
+                try mainContext.save()
+            } catch {
+                print("Failed to save mainContext: \(error)")
+            }
+            
             if entry.buttons[index] == true {
                 markedEntries.button_entries[index].insert(entry)
             } else {
+                entry.color = colorScheme == .dark ? UIColor(.black) : UIColor(.white)
                 markedEntries.button_entries[index].remove(entry)
             }
-        } catch {
-            print("Error toggling button \(index+1): \(error)")
         }
     }
     
+
+
     
-    func currentDate() -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        return formatter.string(from: Date())
-    }
-    
-    private func deleteEntry(at offsets: IndexSet, from entries: [Entry]) {
-        
-        for index in offsets {
-            let entryToDelete = entries[index]
-            viewContext.delete(entryToDelete)
-        }
-        
-        do {
-            try viewContext.save()
-        } catch {
-            print(error.localizedDescription)
-        }
+    func deleteRow(at indexSet: IndexSet) {
+        self.toBeDeleted = indexSet           // store rows for delete
+        self.showingDeleteAlert = true
     }
     
     
     private func fetchMarkedEntries() { //fetches important entries before loading the view
-        let fetchRequest_1: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest_1.predicate = NSPredicate(format: "buttons[0] == %@", NSNumber(value: true))
-        
-        let fetchRequest_2: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest_2.predicate = NSPredicate(format: "buttons[1] == %@", NSNumber(value: true))
-        
-        let fetchRequest_3: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest_3.predicate = NSPredicate(format: "buttons[2] == %@", NSNumber(value: true))
-        
-        let fetchRequest_4: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest_4.predicate = NSPredicate(format: "buttons[3] == %@", NSNumber(value: true))
-        
-        let fetchRequest_5: NSFetchRequest<Entry> = Entry.fetchRequest()
-        fetchRequest_5.predicate = NSPredicate(format: "buttons[4] == %@", NSNumber(value: true))
-        
-        
-        
-        
-        do {
-            let button1_entriesArray = try viewContext.fetch(fetchRequest_1)
-            markedEntries.button_entries[0] = Set(button1_entriesArray)
-            
-            let button2_entriesArray = try viewContext.fetch(fetchRequest_2)
-            markedEntries.button_entries[1] = Set(button2_entriesArray)
-            
-            
-            let button3_entriesArray = try viewContext.fetch(fetchRequest_3)
-            markedEntries.button_entries[2] = Set(button3_entriesArray)
-            
-            let button4_entriesArray = try viewContext.fetch(fetchRequest_4)
-            markedEntries.button_entries[3] = Set(button4_entriesArray)
-            
-            
-            let button5_entriesArray = try viewContext.fetch(fetchRequest_5)
-            markedEntries.button_entries[4] = Set(button5_entriesArray)
-        } catch {
-            print("Error fetching marked entries: \(error)")
+        let mainContext = coreDataManager.viewContext
+        mainContext.perform {
+            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+            for index in 0..<5 {
+                fetchRequest.predicate = NSPredicate(format: "buttons[%d] == %@", index, NSNumber(value: true))
+                do {
+                    let entriesArray = try mainContext.fetch(fetchRequest)
+                    markedEntries.button_entries[index] = Set(entriesArray)
+                } catch {
+                    print("Error fetching marked entries: \(error)")
+                }
+            }
         }
     }
     
-    
-    private func deleteEntry(entry: Entry) {
-        let parentLog = entry.relationship
-        parentLog.removeFromRelationship(entry)
-        viewContext.delete(entry)
-        do {
-            try viewContext.save()
-        } catch {
-            print("Error deleting entry: \(error)")
-        }
-    }
     
     @ViewBuilder
     private func validateDate() -> some View {
@@ -718,17 +478,17 @@ struct EntryView: View {
         }
     }
     
-    func finalizeEdit() {
-        // Code to finalize the edit
-        editingEntry?.content = editingContent
+    
+    func check_files() {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         do {
-            try viewContext.save()
+            let fileURLs = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
+            for fileURL in fileURLs {
+                print(fileURL)
+            }
         } catch {
-            print("Error updating entry content: \(error)")
+            print("Error while enumerating files \(documentsDirectory.path): \(error.localizedDescription)")
         }
-        isEditing = false
-        editingEntry = nil
-        
     }
 }
 
@@ -745,18 +505,19 @@ struct NewEntryView: View {
     @State private var audioEngine = AVAudioEngine()
     @State private var isListening = false
     @State private var isImagePickerPresented = false
-    @State private var micImage = "mic"
-    //    @State private var selectedImage: UIImage? = nil
     @State private var sourceType: UIImagePickerController.SourceType = .photoLibrary
-    
-    //    @State private var selectedItems = [PhotosPickerItem]()
-    //    @State private var selectedImages : [UIImage] = []
+    @FocusState private var focusField: Bool
+
+
     @State private var selectedItem : PhotosPickerItem?
     @State private var selectedImage : UIImage?
-    @State private var selectedData: Data?
+    @State private var selectedData: Data? //used for gifs
+    @State private var isCameraPresented = false
     @State private var filename = ""
-    //    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-    //    let fileURL = documentsDirectory.appendingPathComponent("imageContent.png")
+    @State private var imageData : Data?
+    @State private var imageIsAnimated = false
+    @State private var isHidden = false
+
     
     
     
@@ -766,126 +527,198 @@ struct NewEntryView: View {
     var body: some View {
         NavigationView {
             VStack {
-                TextEditor(text: $entryContent)
-                    .overlay(
-                        HStack {
-                            Spacer()
-                            Button(action: startOrStopRecognition) {
-                                Image(systemName: "mic.fill")
-                                    .foregroundColor(isListening ? userPreferences.accentColor : oppositeColor(of: userPreferences.accentColor))
-                                    .font(.custom("serif", size: 24))
-                            }
-                            .padding(.trailing)
-                            PhotosPicker(selection:$selectedItem, matching: .images) {
-                                Image(systemName: "photo.fill")
-                                    .symbolRenderingMode(.multicolor)
-                                    .foregroundColor(oppositeColor(of: userPreferences.accentColor))
-                                    .font(.custom("serif", size: 24))
-                                
-                            }
-                            .onChange(of: selectedItem) { _ in
-                                
-                                Task {
-                                    if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                        let uniqueFilename = UUID().uuidString + ".png"
-                                        let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-                                        try? data.write(to: fileURL)
-                                        filename = uniqueFilename
-                                        //                                            entry.imageContent = uniqueFilename
-                                        return
-                                    }
+                ScrollView(showsIndicators: false) {
+                    TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
+                        .onTapGesture {
+                            focusField = true
+                        }
+                        .focused($focusField)
+                        .padding(.vertical, 30)
+                    //                    .padding(.horizontal, 20)
+                    
+                    
+                    Spacer()
+                    //                ButtonDashboard_2(activatedButtons: $activatedButtons).environmentObject(userPreferences)
+                    //                ImageViewer(selectedImage: selectedImage)
+                    if let image = selectedImage { //add gif support and option to pass by data
+                        ImageViewer(selectedImage: selectedImage)
+                            .contextMenu {
+                                Button(role: .destructive, action: {
+                                    selectedImage = nil
+                                    selectedData = nil
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
                                 }
-                                //                                }
                             }
-                        }, alignment: .bottomTrailing
-                    )
-                    .padding()
-                
-                //                if let imageData = selectedData {
-                //                    if let image = UIImage(data: imageData) {
-                //                        Image(uiImage: image)
-                //                            .resizable()
-                //                            .scaledToFit()
-                //                    }
-                //                }
-                if filename != "" {
-                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                    AsyncImage(url: fileURL) { image in
-                        image.resizable()
-                            .scaledToFit()
+                        //
+                        //                    Image(uiImage: image)
+                        //                        .resizable()
+                        //                        .aspectRatio(contentMode: .fit)
+                        //                    //                            .frame(width: 200, height: 200) // Adjust the size as needed
+                        //                        .frame(maxWidth: .infinity, maxHeight: 150)
+                        //
+                        //                        .background(Color.black)
                     }
-                placeholder: {
-                    ProgressView()
                 }
+                
+                HStack(spacing: 25) {
+                    Button(action: startOrStopRecognition) {
+                        Image(systemName: "mic.fill")
+                            .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
+                            .font(.system(size: 20))
+                    }
+                    Spacer()
+                    
+                    Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20))
+
+                        .onTapGesture {
+                            vibration_heavy.impactOccurred()
+                            isHidden.toggle()
+                        }
+                        .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
+                    
+                    
+                    
+                    PhotosPicker(selection:$selectedItem, matching: .images) {
+                        Image(systemName: "photo.fill")
+                            .font(.system(size: 20))
+
+                    }
+                    .onChange(of: selectedItem) { _ in
+                        Task {
+                            if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+                                if isGIF(data: data) {
+                                    selectedData = data
+                                    selectedImage = UIImage(data: selectedData!)
+                                    imageIsAnimated = true
+                                }
+                                else {
+                                    selectedData = nil
+                                    selectedImage = nil
+                                    imageIsAnimated = false
+                                }
+                                selectedImage = UIImage(data: data)
+                            }
+                        }
+                    }
+                    Button(action: {
+                        AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
+                            if response {
+                                isCameraPresented = true
+                            } else {
+                                
+                            }
+                        }
+                    }) {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 20))
+                    }
+//                    .padding(.vertical)
                 }
+                .padding(.vertical)
+//                .padding(.horizontal, 15)
+                    
                 
             }
+            .sheet(isPresented: $isCameraPresented) {
+                ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
+                
+            }
+            .padding(.horizontal, 20)
+            
+            
+
+//            .padding(.horizontal, 30)
             .navigationBarTitle("New Entry")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
-                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        let fileURL = documentsDirectory.appendingPathComponent("imageContent.png")
-                        
-                        
-                        let color = colorScheme == .dark ? Color.white : Color.black
-                        let newEntry = Entry(context: viewContext)
-                        
-                        if filename != "" {
-                            newEntry.imageContent = filename
-                        }
-                        //                        let imageData: Data = selectedImage.compactMap { $0.pngData() }
-                        
-                        //                        if selectedData != nil {
-                        //                            newEntry.imageContent = filename
-                        ////                            newEntry.imageContent = selectedData
-                        //
-                        //                        }
-                        //                        else {
-                        //                            newEntry.imageContent = ""
-                        //                        }
-                        
-                        newEntry.content = entryContent
-                        newEntry.time = Date()
-                        newEntry.buttons = [false, false, false, false, false]
-                        newEntry.color = UIColor(color)
-                        newEntry.image = "star.fill"
-                        newEntry.id = UUID()
-                        
-                        // Fetch the log with the appropriate day
-                        let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-                        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time))
-                        
-                        do {
-                            let logs = try viewContext.fetch(fetchRequest)
-                            print("LOGS: ", logs)
-                            if let log = logs.first {
-                                log.addToRelationship(newEntry)
-                                newEntry.relationship = log
-                            } else {
-                                // Create a new log if needed
-                                let newLog = Log(context: viewContext)
-                                newLog.day = formattedDate(newEntry.time)
-                                newLog.addToRelationship(newEntry)
-                                newLog.id = UUID()
-                                newEntry.relationship = newLog
-                            }
-                            try viewContext.save()
-                        } catch {
-                            print("Error saving new entry: \(error)")
-                        }
+                        vibration_heavy.impactOccurred()
+
+                     finalizeCreation()
                         presentationMode.wrappedValue.dismiss()
                     }) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 16))
+                        Text("Done")
+                            .font(.system(size: 15))
                             .foregroundColor(userPreferences.accentColor)
+                    }
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        vibration_heavy.impactOccurred()
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Image(systemName: "arrow.backward")
+                            .font(.system(size: 15))
                     }
                 }
             }
         }
     }
+    
+    func finalizeCreation() {
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let uniqueFilename = UUID().uuidString + ".png"
+        let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
+        
+        let color = colorScheme == .dark ? Color.white : Color.black
+        let newEntry = Entry(context: viewContext)
+        
+        
+        
+        if let image = selectedImage {
+            if let data = imageIsAnimated ? selectedData : image.jpegData(compressionQuality: 0.7) {
+                do {
+                    try data.write(to: fileURL)
+                    filename = uniqueFilename
+                    newEntry.imageContent = filename
+                    
+                    print(": \(filename)")
+                    //                                selectedImage = nil // Clear the selectedImage to avoid duplicate writes
+                    
+                } catch {
+                    print("Failed to write: \(error)")
+                }
+            }
+        }
+        
+        newEntry.content = entryContent
+        newEntry.time = Date()
+        newEntry.buttons = [false, false, false, false, false]
+        newEntry.color = UIColor(color)
+        newEntry.image = "star.fill"
+        newEntry.id = UUID()
+        newEntry.isHidden = false
+        newEntry.isRemoved = false
+        
+        // Fetch the log with the appropriate day
+        let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time))
+        
+        do {
+            let logs = try viewContext.fetch(fetchRequest)
+            print("LOGS: ", logs)
+            if let log = logs.first {
+                log.addToRelationship(newEntry)
+                newEntry.relationship = log
+            } else {
+                // Create a new log if needed
+                let newLog = Log(context: viewContext)
+                newLog.day = formattedDate(newEntry.time)
+                newLog.addToRelationship(newEntry)
+                newLog.id = UUID()
+                newEntry.relationship = newLog
+            }
+            try viewContext.save()
+        } catch {
+            print("Error saving new entry: \(error)")
+        }
+    }
+    
     func startRecognition() {
         let audioSession = AVAudioSession.sharedInstance()
         try? audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
@@ -921,7 +754,58 @@ struct NewEntryView: View {
             stopRecognition()
         }
     }
+    func deleteImage() {
+        if filename != "" {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentsDirectory.appendingPathComponent(filename)
+            do {
+                print("file URL from deleteImage: \(fileURL)")
+                try FileManager.default.removeItem(at: fileURL)
+            } catch {
+                print("Error deleting image file: \(error)")
+            }
+        }
+        
+        selectedImage = nil
+        
+        
+        do {
+            try viewContext.save()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
+        }
+    }
+    
 }
 
 
 
+
+struct ImageViewer: View {
+    @State private var isLoading = true
+    var selectedImage: UIImage?
+
+    var body: some View {
+        ZStack {
+            // Image display
+            if let image = selectedImage {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: 150)
+                    .background(Color.black)
+                    .onAppear {
+                        // Image has appeared, so stop showing the progress view
+                        isLoading = false
+                    }
+            }
+
+            // Progress view
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                    .scaleEffect(2)
+            }
+        }
+    }
+}

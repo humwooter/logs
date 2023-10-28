@@ -7,8 +7,16 @@ import LocalAuthentication
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @State private var selectedIndex = 1
+    @State private var indices : [Bool] = [false, true, false]
     @ObservedObject private var userPreferences = UserPreferences()
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
+    
+    
+    @FetchRequest(
+        entity: Log.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
+        predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
+    ) var logs: FetchedResults<Log> // should only be 1 log
 
 //    @State private var isUnlocked = false
 
@@ -31,25 +39,40 @@ struct ContentView: View {
 //                        .environment(\.managedObjectContext, coreDataManager.viewContext)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
+//                        .onTapGesture {
+//                            indices[0].toggle()
+//                        }
                         .tabItem {
-                            Label("Logs", systemImage: "book")
-                        }.tag(0)
+                            Label("Logs", systemImage: "books.vertical.fill")
+//                                .symbolEffect(.bounce.down, value: indices[0])
 
-                    EntryView()
-//                    .environment(\.managedObjectContext, coreDataManager.viewContext)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        // .environment(\.managedObjectContext, viewContext)
-                        .tabItem {
-                            Label("Entries", systemImage: "pencil")
-                        }.tag(1)
+                        }.tag(0)
+                    
+                   
+                    
+                    if let firstLog = logs.first {
+                        
+                        EntryView(log: firstLog)
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                            .tabItem {
+                                Label("Entries", systemImage: "pencil")                                
+                            }.tag(1)
+                    }
+                    
+                    
                     SettingsView()
 //                    .environment(\.managedObjectContext, coreDataManager.viewContext)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
+//                        .onTapGesture {
+//                            indices[2].toggle()
+//                        }
                         // .environment(\.managedObjectContext, viewContext)
                         .tabItem {
                             Label("Settings", systemImage: "gearshape")
+//                                .symbolEffect(.bounce.down, value: indices[2])
+
                         }.tag(2)
                 }
                 .accentColor(userPreferences.accentColor)
@@ -57,33 +80,15 @@ struct ContentView: View {
                 .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             }
 
-        }.onAppear(perform: authenticate)
+        }.onAppear(perform: {
+            createLog(in: coreDataManager.viewContext)
+            deleteOldEntries()
+            authenticate()
+        })
+//        onAppear(perform: authenticate)
     }
     
-//    func authenticate() {
-//        if (userPreferences.showLockScreen) {
-//            print("SHOW LOCK SCREEN")
-//            let context = LAContext()
-//            var error: NSError?
-//
-//            // check whether biometric authentication is possible
-//            if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-//                // it's possible, so go ahead and use it
-//                let reason = "We need to unlock your data."
-//
-//                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
-//                    // authentication has now completed
-//                    if success {
-//                        userPreferences.isUnlocked = true
-//                    } else {
-//                        // there was a problem
-//                    }
-//                }
-//            } else {
-//                // no biometrics
-//            }
-//        }
-//    }
+
     func authenticate() {
         if userPreferences.showLockScreen {
             print("userPreferences.isUnlocked: \(userPreferences.isUnlocked)")
@@ -119,3 +124,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
     }
 }
+

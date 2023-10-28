@@ -14,7 +14,9 @@ struct entry_1App: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)            // ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
+            ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
+
+            // ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
 //            ContentView()
 //                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
