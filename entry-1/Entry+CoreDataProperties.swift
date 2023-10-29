@@ -27,15 +27,19 @@ extension Entry {
     @NSManaged public var image: String
     @NSManaged public var imageContent: String?
     @NSManaged public var isHidden: Bool
+    @NSManaged public var isRemoved: Bool
+    @NSManaged public var stampIndex: Int16
+
     
-    func formattedTime(debug: String) -> String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: self.time)
-    }
+//    func formattedTime(debug: String) -> String {
+//        let formatter = DateFormatter()
+//        formatter.timeStyle = .short
+//        return formatter.string(from: self.time)
+//    }
     
     
     func deleteImage(coreDataManager: CoreDataManager) {
+        print("in delete image")
         let mainContext = coreDataManager.viewContext
         if let filename = self.imageContent {
             if filename.isEmpty {
@@ -48,6 +52,7 @@ extension Entry {
             if FileManager.default.fileExists(atPath: fileURL.path) {
                 do {
                     try FileManager.default.removeItem(at: fileURL)
+                    print("image at \(fileURL) has been deleted")
                 } catch {
                     print("Error deleting image file: \(error)")
                 }
@@ -65,35 +70,35 @@ extension Entry {
         }
     }
     
-    static func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
-        let mainContext = coreDataManager.viewContext
-        mainContext.performAndWait {
-            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
-            do {
-                let fetchedEntries = try mainContext.fetch(fetchRequest)
-                guard let entryToDeleteInContext = fetchedEntries.first else {
-                    print("Failed to fetch entry in main context")
-                    return
-                }
-                print("entry to delete: \(entryToDeleteInContext)")
-                
-                // Delete image
-                entry.deleteImage(coreDataManager: coreDataManager)
-                
-                // Now perform the entry deletion
-                entry.relationship.removeFromRelationship(entryToDeleteInContext)
-                mainContext.delete(entryToDeleteInContext)
-                
-                
-                try mainContext.save()
-                print("DONE!")
-                print("entry to delete: \(entryToDeleteInContext)")
-            } catch {
-                print("Failed to save main context: \(error)")
-            }
-        }
-    }
+//    func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
+//        let mainContext = coreDataManager.viewContext
+//        mainContext.performAndWait {
+//            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//            fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
+//            do {
+//                let fetchedEntries = try mainContext.fetch(fetchRequest)
+//                guard let entryToDeleteInContext = fetchedEntries.first else {
+//                    print("Failed to fetch entry in main context")
+//                    return
+//                }
+//                print("entry to delete: \(entryToDeleteInContext)")
+//                
+//                // Delete image
+//                entry.deleteImage(coreDataManager: coreDataManager)
+//                
+//                // Now perform the entry deletion
+//                entry.relationship.removeFromRelationship(entryToDeleteInContext)
+//                mainContext.delete(entryToDeleteInContext)
+//                
+//                
+//                try mainContext.save()
+//                print("DONE!")
+//                print("entry to delete: \(entryToDeleteInContext)")
+//            } catch {
+//                print("Failed to save main context: \(error)")
+//            }
+//        }
+//    }
     
     func hideEntry () {
         if self.isHidden == nil {
@@ -104,7 +109,7 @@ extension Entry {
     
     func saveImage(data: Data, coreDataManager: CoreDataManager) {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let uniqueFilename = UUID().uuidString + ".png"
+        let uniqueFilename = self.id.uuidString + ".png"
         let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
         
         do {
@@ -124,6 +129,8 @@ extension Entry {
             print("Could not save. \(error), \(error.userInfo)")
         }
     }
+    
+   
     
     
 }

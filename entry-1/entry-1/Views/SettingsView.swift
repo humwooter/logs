@@ -14,102 +14,19 @@ import UniformTypeIdentifiers
 
 
 
-
-class UserPreferences: ObservableObject {
-    
-    @Published var activatedButtons: [Bool] = [true, false, false, false, false] {
-        didSet {
-            UserDefaults.standard.set(activatedButtons, forKey: "activatedButtons")
-        }
-    }
-    
-    @Published var selectedImages: [String] =  ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"] {
-        didSet {
-            UserDefaults.standard.set(selectedImages, forKey: "selectedImages")
-        }
-    }
-    @Published var selectedColors: [Color] = [.yellow, .cyan, .pink, .green, .indigo] {
-        didSet {
-            UserDefaults.standard.saveColors(colors: selectedColors, forKey: "selectedColors")
-        }
-    }
-    
-    @Published var accentColor: Color {
-        didSet {
-            UserDefaults.standard.setColor(color: accentColor, forKey: "accentColor")
-        }
-    }
-    @Published var backgroundColor: Color {
-        didSet {
-            UserDefaults.standard.setColor(color: backgroundColor, forKey: "backgroundColor")
-        }
-    }
-    
-    @Published var showLockScreen: Bool  {
-        didSet {
-            UserDefaults.standard.set(showLockScreen, forKey: "showLockScreen")
-        }
-    }
-    @Published var isUnlocked: Bool = false
-    
-    @Published var fontSize: CGFloat {
-        didSet {
-            UserDefaults.standard.set(fontSize, forKey: "fontSize")
-        }
-    }
-    @Published var fontName: String {
-        didSet {
-            UserDefaults.standard.set(fontName, forKey: "fontName")
-        }
-    }
-    
-    
-    init() {
-        self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
-        self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) != 0.0 ? CGFloat(UserDefaults.standard.float(forKey: "fontSize")) : CGFloat(16)
-        self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "seif"
-        self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]
-        self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
-        self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [.yellow, .cyan, .pink, .green, .indigo]
-        self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
-        self.backgroundColor = Color(.clear)
-    }
+struct TempLog: Decodable {
+    var id: UUID
+    var day: String
+    var relationship: String
 }
 
-extension UserDefaults {
-    
-    func saveColors(colors: [Color], forKey key: String) {
-        let colorStrings = colors.map { $0.description }
-        UserDefaults.standard.set(colorStrings, forKey: key)
-    }
-    
-    func loadColors(forKey key: String) -> [Color]? {
-        guard let data = array(forKey: key) as? [Data] else { return nil }
-        return data.compactMap { try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData($0) as? Color }
-    }
-    
-    func setColor(color: Color, forKey key: String) {
-        let uiColor = UIColor(color)
-        //         if let uiColor = UIColor(color) { // Assuming there's a UIColor initializer that takes a Color
-        do {
-            let data = try NSKeyedArchiver.archivedData(withRootObject: uiColor, requiringSecureCoding: false)
-            set(data, forKey: key)
-        } catch {
-            print("Error archiving color: \(error)")
-        }
-        //         }
-    }
-    //    func setColors(colors: [Color], forKey key: String) {
-    //
-    //    }
-    
-    func color(forKey key: String) -> Color? {
-        guard let data = data(forKey: key),
-              let uiColor = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? UIColor
-        else { return nil }
-        
-        return Color(uiColor) // Assuming there's a Color initializer that takes a UIColor
-    }
+
+func defaultLogsName() -> String {
+    let date = Date()
+    let formatter = DateFormatter()
+    formatter.dateFormat = "M-d-yy"
+    let dateString = formatter.string(from: date)
+    return "logs backup \(dateString)"
 }
 
 
@@ -124,16 +41,44 @@ struct SettingsView: View {
     //    @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var coreDataManager: CoreDataManager
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
-    let fonts = ["Helvetica Neue", "Times New Roman", "Courier New", "American Typewriter", "Bradley Hand", "Cochin", "Noteworthy Light", "Papyrus Condensed", "PartyLetPlain", "SnellRoundhand", "Superclarendon Regular", "SavoyeLetPlain", "Menlo Regular", "Marker Felt Thin", "Marker Felt Wide", "Gill Sans", "Copperplate Light", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Bodoni 72 Oldstyle Book", "Forgotten Futurist Regular"]
     
-    let systemImages = [ "folder.fill", "staroflife", "star.fill", "heart.fill", "exclamationmark", "lightbulb", "gamecontroller.fill", "figure.run", "leaf.fill", "drop.fill", "figure.mind.and.body", "book.fill", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "paintpalette.fill", "moon.stars.fill", "wind.snow", "lizard.fill", "bird.fill", "dollarsign", "sun.max.fill", "power", "eye.fill", "circle"]
+    
+    let fontCategories: [String: [String]] = [
+        "Traditional": ["Helvetica Neue", "Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Impact", "Arial Rounded MT Bold","Superclarendon Regular", ],
+        "Monospace": ["Courier New", "STIX Two Math"],
+        "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin", "BarelyEnough-Regular", "MotleyForces-Regular", "ClickerScript-Regular", "Magiera-Script", "Mueda-City", "SunnySpellsBasic-Regular", "Papyrus Condensed", "Nathan-CondensedRegular", "Lilly", "NjalBold", "Darlin\'Pop"],
+        "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","AlexBrush-Regular", "DancingScript", "stainellascript"],
+        "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "MageScript", "HaraldRunic", "LuciusCipher"],
+        "Other": ["American Typewriter", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Copperplate Light", "PressStartReg", "Barrbar", "PixelDigivolve"],
+        "Unique": ["ShootingStars", "aAnnyeongHaseyo", "Spicy-Chips", "Cute_Aurora_demo", "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme"],
+        "Antique": ["aAnggaranDasar", "IrishUncialfabeta-Bold", "QuaeriteRegnumDei"],
+        "Calligraphy": []
+    ]
+    
+    
+    
+    
+    let imageCategories: [String: [String]] = [
+        "Shapes": ["circle", "staroflife", "star.fill", "heart.fill", "bolt.heart.fill", "heart.slash.fill", "house.fill"],
+        "Symbols": ["folder.fill", "exclamationmark", "checkmark","lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power"],
+        "Human": ["brain", "ear.fill", "mustache.fill", "hand.raised.fill", "brain.filled.head.profile"],
+        "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "ladybug.fill", "fish.fill"],
+        "Nature": ["leaf.fill", "moon.stars.fill", "sun.haze.circle.fill", "wind.snow", "sun.max.fill", "drop.fill", "globe.asia.australia.fill", "camera.macro", "snowflake"],
+        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard" , "clipboard.fill", "figure.yoga", "figure.strengthtraining.traditional"],
+        "Commerce": ["bag.fill", "cart.fill", "creditcard.fill", "giftcard.fill", "dollarsign"],
+        "Sleep": ["bed.double.fill"],
+        "Emotions" : ["face.smiling.inverse", "hand.thumbsup.fill", "hands.thumbsdown.fill", "hands.and.sparkles.fill"],
+        "Transportation": ["car.fill", "bus.fill", "tram.fill", "ferry.fill", "sailboat.fill", "bicycle", "scooter"],
+        "Other" : ["drop.halfull", "swirl.circle.righthalf.filled", "lightspectrum.horizontal", "camera.circle.fill",   "camera.aperture", "books.vertical.fill",  "key.fill", "poweroutlet.type.f", "doc.richtext.fill"],
+        "Special" : ["graduationcap.fill", "backpack.fill"],
+    ]
+    
     @State var advancedSettings = false
     @State private var isExportDocumentPickerPresented = false
     @State private var isImportDocumentPickerPresented = false
     @StateObject var docPickerDelegate = DocumentPickerDelegate()
     
     
-    //    @State private var isExportDocumentPickerPresented = false
     @State private var tempFileURL: URL?
     
     @State private var selectedURL: URL?
@@ -148,24 +93,13 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            List {
                 Section(header: Text("Accent Color")) {
                     ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                 }
                 
-                Section(header: Text("Font Size")) {
-                    Slider(value: $userPreferences.fontSize, in: 10...30, step: 1, label: { Text("Font Size") })
-                }
-                Section(header: Text("Font Family")) {
-                    Picker("Font Type", selection: $userPreferences.fontName) {
-                        ForEach(fonts, id: \.self) { font in
-                            Text(font).tag(font)
-                                .font(.custom(font, size: userPreferences.fontSize))
-                        }
-                    }
-                    .pickerStyle(.navigationLink)
-                    
-                }
+                
+                FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
                 
                 
                 Section(header: Text("Export Data")) {
@@ -176,7 +110,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Export Data", systemImage: "arrow.up.doc")
                     }
-                    .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "default_filename.json") { result in
+                    .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
                         switch result {
                         case .success(let url):
                             print("File successfully saved at \(url)")
@@ -185,6 +119,9 @@ struct SettingsView: View {
                         }
                     }
                     
+                }
+                
+                Section(header: Text("Import Data")) {
                     Button {
                         isImporting = true
                     } label: {
@@ -204,57 +141,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-
                 }
-                
-                
-                
-                //                  Section(header: Text("Import Data")) {
-                //                      Button {
-                //                          isImporting = true
-                //                      } label: {
-                //                          Label("Import Data", systemImage: "arrow.down.doc")
-                //                      }
-                //                      .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
-                //                          switch result {
-                //                          case .success(let url):
-                //                              importData(from: url)
-                //                          case .failure(let error):
-                //                              print("Failed to import file: \(error)")
-                //                          }
-                //                      }
-                //                  }
-                
-                //                Section(header: Text("Export Data")) {
-                //
-                //
-                //                    Button {
-                //                        exportData()
-                //                        print("Export button tapped")
-                //                        isExportDocumentPickerPresented = true
-                //                    } label: {
-                //                        Label("Export Data", systemImage: "arrow.up.doc")
-                //                    }
-                //                    .sheet(isPresented: $isExportDocumentPickerPresented) {
-                //                        if let url = tempFileURL {
-                ////                            print("Presenting DocumentPickerView with url: \(url)") // Debugging statement
-                //                            DocumentPickerView(url: url)
-                //                        } else {
-                ////                            print("Failed to present DocumentPickerView because tempFileURL is nil") // Debugging statement
-                //                        }
-                //                    }
-                //
-                //
-                //
-                //                    Button {
-                //                        isImportDocumentPickerPresented = true
-                //                        importData()
-                //                    } label: {
-                //                        Label("Import Data", systemImage: "arrow.down.doc")
-                //                    }
-                //
-                //                }
-                
                 
                 
                 Section(header: Text("Advanced Settings")) {
@@ -271,48 +158,28 @@ struct SettingsView: View {
                                 }
                             }
                     }
-                    VStack {
-                        //                          Text("(i) You can define up to 5 buttons. Enabling all of them simultaneously may lead to undesired behavior, but you can switch them on or off as you wish.")
-                        //                              .font(.footnote)
-                        //                              .foregroundColor(.gray)
-                        //
-                        Spacer()
-                        Text("BUTTON DASHBOARD")
-                            .bold()
-                        Spacer()
-                        HStack(alignment: .center, spacing: 45) {
-                            ForEach(0..<3, id: \.self) { index in
-                                buttonSection(index: index)
-                            }
-                        }
-                        HStack(alignment: .center, spacing: 45) {
-                            ForEach(3..<5, id: \.self) { index in
-                                buttonSection(index: index)
-                            }
-                        }
-                        Spacer()
+                    
+                    Section(header: Text("Stamp Dasboard")) {
+                        ButtonDashboard().environmentObject(userPreferences)
+                            .listStyle(.automatic)
+
                     }
                     
-                    .frame(maxWidth: .infinity) // Makes the HStacks evenly spaced
-                    ForEach(0..<5, id: \.self) { index in
-                        if userPreferences.activatedButtons[index] {
-                            Section(header: Text("Button \(index + 1)")) {
-                                Picker("Button \(index + 1) Image", selection: $userPreferences.selectedImages[index]) {
-                                    ForEach(systemImages, id: \.self) { image in
-                                        HStack {
-                                            Image(systemName: image).tag(image)
-                                            Text(image)
-                                        }
-                                    }                                }
-                                .pickerStyle(.navigationLink)
-                                
-                                ColorPicker("Button \(index + 1) Color", selection: $userPreferences.selectedColors[index])
-                            }
+                    ForEach(0..<7, id: \.self) { index in
+                        if userPreferences.stamps[index].isActive {
+                            
+                            IconPicker(
+                                selectedImage: $userPreferences.stamps[index].imageName,
+                                selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor,
+                                buttonIndex: index,
+                                inputCategories: imageCategories
+                            )
                         }
                     }
+
                 }
-                
             }
+            .listStyle(.automatic)
             .navigationTitle("Settings")
             .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             .accentColor(userPreferences.accentColor)
@@ -323,7 +190,7 @@ struct SettingsView: View {
     private func exportData() {
         do {
             let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-            let logs = try coreDataManager.viewContext.fetch(fetchRequest)
+            let logs = try coreDataManager.backgroundContext.fetch(fetchRequest)
             
             // Check if logs is not empty
             guard !logs.isEmpty else {
@@ -337,33 +204,7 @@ struct SettingsView: View {
         }
     }
     
-    // Call this function when Import button is tapped
-//    private func importData(from url: URL) {
-//        print("entered import data")
-//        do {
-//            let secureURL = url.startAccessingSecurityScopedResource()
-//            let jsonData = try Data(contentsOf: url)
-//
-//            let decoder = JSONDecoder()
-//            decoder.userInfo[CodingUserInfoKey.managedObjectContext] = coreDataManager.viewContext
-//            let logs = try decoder.decode([Log].self, from: jsonData)
-//
-//            print("logs: \(logs)")
-//            // Now `logs` is an array of `Log` objects that you can use to update your Core Data context
-//            for log in logs {
-//                print("CREATING NEW LOG!!")
-//                let newLog = Log(context: coreDataManager.viewContext)
-//                newLog.id = log.id
-//                newLog.day = log.day
-//                newLog.relationship = log.relationship
-//            }
-//
-//            try coreDataManager.viewContext.save()
-//            url.stopAccessingSecurityScopedResource()
-//        } catch {
-//            print("Failed to import data: \(error)")
-//        }
-//    }
+    
     
     private func importData(from url: URL) async throws {
         print("entered import data")
@@ -375,80 +216,44 @@ struct SettingsView: View {
         
         let jsonData = try Data(contentsOf: url)
         
-        let decoder = JSONDecoder()
-        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = coreDataManager.viewContext
-        let logs = try decoder.decode([Log].self, from: jsonData)
-        
-        coreDataManager.viewContext.performAndWait {
-            do {
-                for log in logs {
-                    let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-                    fetchRequest.predicate = NSPredicate(format: "id == %@", log.id as CVarArg)
-                    
-                    let existingLogs = try coreDataManager.viewContext.fetch(fetchRequest)
-                    
-                    if let existingLog = existingLogs.first {
-                        print("LOG ALREADY EXISTS")
-                        // Update existingLog if needed
-                    } else {
-                        print("CREATING NEW LOG!!")
-                        let newLog = Log(context: coreDataManager.viewContext)
-                        newLog.id = log.id
-                        newLog.day = log.day
-                        newLog.relationship = log.relationship
+        do {
+            if let jsonArray = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]] {
+                
+                coreDataManager.backgroundContext.performAndWait {
+                    do {
+                        for jsonObject in jsonArray {
+                            if let logIdString = jsonObject["id"] as? String, let logId = UUID(uuidString: logIdString) {
+                                print("ID: \(logId)")
+                                
+                                let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+                                fetchRequest.predicate = NSPredicate(format: "id == %@", logId as CVarArg)
+                                
+                                let existingLogs = try coreDataManager.viewContext.fetch(fetchRequest)
+                                
+                                if existingLogs.first != nil {
+                                    print("LOG WITH ID: \(logId) ALREADY EXISTS")
+                                } else {
+                                    if let logData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) {
+                                        let decoder = JSONDecoder()
+                                        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = coreDataManager.viewContext
+                                        let log = try decoder.decode(Log.self, from: logData)
+                                        coreDataManager.viewContext.insert(log)
+                                    }
+                                }
+                            }
+                        }
+                        try coreDataManager.backgroundContext.save()
+                        
+                    } catch {
+                        print("Failed to import data: \(error)")
                     }
                 }
-                
-                try coreDataManager.viewContext.save()
-            } catch {
-                print("Failed to import data: \(error)")
             }
+        } catch {
+            print("Failed to parse JSON: \(error)")
         }
+        
     }
-
-    
-    //    private func importData(from url: URL) {
-    //        do {
-    //            let secureURL = url.startAccessingSecurityScopedResource()
-    //            let jsonData = try Data(contentsOf: url)
-    //
-    //            let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as! [[String: Any]]
-    //
-    //            for log in json {
-    //                let newLog = Log(context: coreDataManager.viewContext)
-    //                newLog.day = log["day"] as? String ?? ""
-    //                newLog.id = UUID(uuidString: log["id"] as? String ?? "") ?? UUID()
-    //
-    //                if let entries = log["entries"] as? [[String: Any]] {
-    //                    for entryJson in entries {
-    //                        let newEntry = Entry(context: coreDataManager.viewContext)
-    //                        newEntry.content = entryJson["content"] as? String ?? ""
-    //                        newEntry.time = entryJson["time"] as? Date ?? Date()
-    //                        newEntry.id = UUID(uuidString: entryJson["id"] as? String ?? "") ?? UUID()
-    //                        newEntry.buttons = entryJson["buttons"] as? [Bool] ?? [false, false, false, false, false]
-    //                        newEntry.color = UIColor(named: entryJson["color"] as? String ?? "white") ?? UIColor(.cyan)
-    //                        newEntry.image = entryJson["image"] as? String ?? ""
-    //                        newEntry.imageContent = entryJson["imageContent"] as? String ?? "" // Add check for imageContent here
-    //
-    //                        newLog.addToRelationship(newEntry)
-    //                    }
-    //                }
-    //            }
-    //
-    //            // Save context
-    //            do {
-    //                try coreDataManager.viewContext.save()
-    //            } catch {
-    //                print("Error saving context: \(error)")
-    //            }
-    //
-    //            url.stopAccessingSecurityScopedResource()
-    //        } catch {
-    //            print("Failed to import data: \(error)")
-    //        }
-    //    }
-    
-    
     
     // UIDocumentPickerDelegate method
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
@@ -490,22 +295,9 @@ struct SettingsView: View {
         }
     }
     
-    func authenticate() {
-        print("entry.buttons: \(userPreferences.activatedButtons)")
-        
+    func authenticate() {        
         if userPreferences.showLockScreen {
             userPreferences.isUnlocked = true //for now
-        }
-    }
-    
-    @ViewBuilder
-    private func buttonSection(index: Int) -> some View {
-        Section {
-            VStack(alignment: .center) {
-                Text("Button \(index + 1)")
-                    .multilineTextAlignment(.center)
-                ToggleButton(isOn: $userPreferences.activatedButtons[index], color: userPreferences.selectedColors[index])
-            }
         }
     }
     
@@ -543,102 +335,3 @@ class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate, ObservableObje
     }
 }
 
-
-// struct DocumentPicker: UIViewControllerRepresentable {
-//     var url: URL
-//     var delegate: UIDocumentPickerDelegate
-
-//     func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-//         let picker = UIDocumentPickerViewController(forExporting: [url])
-//         picker.delegate = delegate
-//         return picker
-//     }
-
-//     func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {
-//         // Nothing to update
-//     }
-// }
-
-struct DocumentPickerView: UIViewControllerRepresentable {
-    var url: URL
-    @Environment(\.presentationMode) var presentationMode
-    
-    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
-        let picker = UIDocumentPickerViewController(forExporting: [url])
-        picker.delegate = context.coordinator
-        return picker
-    }
-    
-    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {
-        // Nothing to update
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator(self)
-    }
-    
-    class Coordinator: NSObject, UIDocumentPickerDelegate {
-        var parent: DocumentPickerView
-        
-        init(_ parent: DocumentPickerView) {
-            self.parent = parent
-        }
-        
-        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-        
-        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
-            parent.presentationMode.wrappedValue.dismiss()
-        }
-    }
-}
-
-
-struct EntryDocument: FileDocument {
-    var entries: [Entry]
-    
-    static var readableContentTypes: [UTType] { [.json] }
-    
-    init(entries: [Entry]) {
-        self.entries = entries
-    }
-    
-    init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents,
-              let entries = try? JSONDecoder().decode([Entry].self, from: data)
-        else {
-            throw CocoaError(.fileReadCorruptFile)
-        }
-        self.entries = entries
-    }
-    
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let data = try JSONEncoder().encode(entries)
-        return .init(regularFileWithContents: data)
-    }
-}
-
-struct LogDocument: FileDocument {
-    var logs: [Log]
-    
-    static var readableContentTypes: [UTType] { [.json] }
-    
-    init(logs: [Log]) {
-        self.logs = logs
-    }
-    
-    init(configuration: ReadConfiguration) throws {
-        guard let data = configuration.file.regularFileContents,
-              let logs = try? JSONDecoder().decode([Log].self, from: data)
-        else {
-            throw CocoaError(.fileReadCorruptFile)
-        }
-        self.logs = logs
-    }
-    
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        let data = try JSONEncoder().encode(logs)
-        return .init(regularFileWithContents: data)
-    }
-}

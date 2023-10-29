@@ -57,17 +57,17 @@ public class Entry: NSManagedObject, Codable {
         id = try values.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
         content = try values.decodeIfPresent(String.self, forKey: .content) ?? ""
         time = try values.decodeIfPresent(Date.self, forKey: .time) ?? Date()
-        buttons = try values.decodeIfPresent([Bool].self, forKey: .buttons) ?? [false, false, false, false, false]
+//        buttons = try values.decodeIfPresent([Bool].self, forKey: .buttons) ?? [false, false, false, false, false]
+        stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex) ?? -1
         
-//        if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
-//            color = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(colorData) as? UIColor ?? UIColor.clear
-//        } else {
-//            color = UIColor.clear
-//        }
         
         if let colorString = try values.decodeIfPresent(String.self, forKey: .color) {
-            color = UIColor(hex: colorString)
+            color = UIColor(Color(hex: colorString))
+            print("\(self.content)")
+            print("color: \(colorString)")
+            print()
         } else {
+            print("couldn't decode color:")
             color = UIColor.clear
         }
         
@@ -97,12 +97,11 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(id, forKey: .id)
         try container.encodeIfPresent(content, forKey: .content)
         try container.encodeIfPresent(time, forKey: .time)
-        try container.encodeIfPresent(buttons, forKey: .buttons)
+//        try container.encodeIfPresent(buttons, forKey: .buttons)
+        try container.encodeIfPresent(stampIndex, forKey: .stampIndex)
 //        try container.encodeIfPresent(color, forKey: .color)
-        
-        // let colorData = try NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: false)
-        // try container.encode(colorData, forKey: .color)
-        try container.encode(color.toHexString(), forKey: .color)
+   
+        try container.encode(Color(color).toHex(), forKey: .color)
         
         try container.encodeIfPresent(image, forKey: .image)
         try container.encodeIfPresent(imageContent, forKey: .imageContent)
@@ -111,7 +110,7 @@ public class Entry: NSManagedObject, Codable {
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, buttons, color, image, imageContent, isHidden
+        case id, time, content, buttons, color, image, imageContent, isHidden, stampIndex
     }
     
 }

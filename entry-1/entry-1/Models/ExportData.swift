@@ -65,7 +65,6 @@ struct ExportData {
                         let jsonEntry: [String: Any] = [
                             "content": entry.content ?? "",
                             "time": entry.time.formatted() ?? "",
-                            "buttons": entry.buttons,
                             "id": entry.id.uuidString ?? UUID().uuidString,
                             "color": entry.color.toHexString() ?? "", // Assuming a method to convert UIColor to Hex
                             "image": entry.image ?? "",
