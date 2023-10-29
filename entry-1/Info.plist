@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SunnySpellsBasicRegular-Yz1Wv.ttf</string>
+		<string>ClickerScript-2djl.ttf</string>
+		<string>MotleyForcesRegular.ttf</string>
+		<string>Auseklis.ttf</string>
+		<string>BarelyEnoughRegular-JRD6o.ttf</string>
+		<string>DancingScript-3j68.ttf</string>
+		<string>MageScript-KpaW.ttf</string>
+		<string>Astrodotbasic.ttf</string>
+		<string>HaraldRunic.ttf</string>
+		<string>StainellaScript.ttf</string>
+		<string>MagieraScript.ttf</string>
+		<string>Barrbar-DOKOR.otf</string>
+		<string>LuciusCipher.ttf</string>
+		<string>PixelDigivolve.ttf</string>
+		<string>MuedaCity.ttf</string>
+		<string>SparkyStonesRegular.ttf</string>
+		<string>SpicyChips.ttf</string>
+		<string>Lilly.ttf</string>
+		<string>Veggieburger.otf</string>
+		<string>CuteAurora.ttf</string>
+		<string>AnnyeongHaseyo-GOKLO.ttf</string>
+		<string></string>
+		<string>NathanCondensedRegular.ttf</string>
+		<string>ShootingStars.ttf</string>
+		<string>AliceInWonderland.ttf</string>
+		<string>QuaeriteRegnumDei.otf</string>
+		<string></string>
+		<string>AnggaranDasar.ttf</string>
+		<string>IrishuncialfabetaBold.ttf</string>
+		<string>GothicStraightFaced</string>
+		<string>NjalBold.otf</string>
+		<string>DarlinPop.ttf</string>
+		<string>TheNightOne.otf</string>
+		<string>Emperialisme.otf</string>
+		<string>Boekopi.otf</string>
+	</array>
+</dict>
+</plist>
