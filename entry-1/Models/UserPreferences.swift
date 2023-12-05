@@ -69,7 +69,7 @@ class UserPreferences: ObservableObject {
     
     @Published var pinColor: Color {
         didSet {
-            UserDefaults.standard.setColor(color: accentColor, forKey: "pinColor")
+            UserDefaults.standard.setColor(color: pinColor, forKey: "pinColor")
         }
     }
     
