@@ -215,13 +215,13 @@ struct NotEditingView: View {
   
             VStack {
                 
-                HStack {
-                    Spacer()
-                    if (entry.color != UIColor.tertiarySystemBackground) {
-//                        RainbowIconView_animated(entry: entry).environmentObject(userPreferences)
-                        Image(systemName: entry.image).foregroundColor(Color(UIColor.tertiarySystemBackground)).padding(.top, 3)
-                    }
-                }.opacity(1)
+//                HStack {
+//                    Spacer()
+//                    if (entry.color != UIColor.tertiarySystemBackground) {
+////                        RainbowIconView_animated(entry: entry).environmentObject(userPreferences)
+//                        Image(systemName: entry.image).foregroundColor(Color(UIColor.tertiarySystemBackground)).padding(.top, 3)
+//                    }
+//                }.opacity(1)
 
                 if entry.isHidden {
                     Text(entry.content)
@@ -329,101 +329,47 @@ struct EditingEntryView: View {
     @State private var recognitionTask: SFSpeechRecognitionTask?
     @State private var audioEngine = AVAudioEngine()
     
-    let bottomID = UUID().uuidString  // Create a unique identifier
+    
 
     
     var body : some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 
                 HStack() {
                     Spacer()
                     if (entry.image != "") {
-                        Image(systemName: entry.image).foregroundColor(Color(entry.color))
+                        Image(systemName: entry.image)
                             .font(.system(size: 15))
-                            .padding(.horizontal, 20)
+                            .padding(.horizontal)
+                        
                     }
                 }
+          
                 
                 ScrollView(.vertical, showsIndicators: true) {
-                    ScrollViewReader { scrollView in
+//                    ScrollViewReader { scrollView in
                         VStack {
                             TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
                                 .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
                                 .onSubmit {
                                     finalizeEdit()
                                 }
-                                .onTapGesture {
-                                    focusField = true
-                                }
-                                .focused($focusField)
+//                                .onTapGesture {
+//                                    focusField = true
+//                                }
+//                                .focused($focusField)
                                 .padding(.vertical, 10)
-                            // Adding an onChange modifier to detect changes in editingContent.
-//                                .onChange(of: editingContent) { _ in
-//                                    // Scroll to the bottom of the TextField to ensure new text pushes old text up.
-//                                    //                                withAnimation {
-//                                    scrollView.scrollTo(bottomID, anchor: .bottom)
-//                                    //                                }
-//                                }
-                          
-                        }                                
-                        .frame(maxHeight: selectedImage == nil ? 0.3*UIScreen.main.bounds.height : 0.15*UIScreen.main.bounds.height)
-                            .id(bottomID)
-                        
-
-
-
-
-
-
-                        // This view acts as an anchor for the ScrollViewReader to scroll to.
-//                        Color.clear
-//                            .id(bottomID) // Assigning an identifiable ID to the bottom anchor.
-
-//                        if entry.imageContent != "" {
-//                            if let filename = entry.imageContent {
-//                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//                                let fileURL = documentsDirectory.appendingPathComponent(filename)
-//                                let data = try? Data(contentsOf: fileURL)
-//                                
-//                                if let data = data, isGIF(data: data) {
-//                                    ZStack(alignment: .topLeading) {
-//                                        AnimatedImageView(url: fileURL).scaledToFit()
-//                                        Image(systemName: "minus.circle") // Cancel button
-//                                            .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                            .foregroundColor(.red).opacity(0.8)
-//                                            .font(.custom("serif", size: 20))
-//                                            .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                            .frame(width:70, height: 70)
-//                                            .background(Color(.black).opacity(0.01))
-//                                            .onTapGesture {
-//                                                vibration_medium.impactOccurred()
-//                                                entry.deleteImage(coreDataManager: coreDataManager)
-//                                            }
-//                                    }
-//                                } else {
-//                                    ZStack(alignment: .topLeading) {
-//                                        CustomAsyncImageView(url: fileURL).scaledToFit()
-//                                        Image(systemName: "minus.circle") // Cancel button
-//                                            .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                            .foregroundColor(.red).opacity(0.8)
-//                                            .font(.custom("serif", size: 20))
-//                                            .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                            .frame(width:70, height: 70)
-//                                            .background(Color(.black).opacity(0.01))
-//                                            .onTapGesture {
-//                                                vibration_medium.impactOccurred()
-//                                                entry.deleteImage(coreDataManager: coreDataManager)
-//                                            }
-//                                    }
-//                                }
-//                            }
-//                        }
-
-                    }.padding(.horizontal, 20)
+                        }
+                            .padding(.horizontal, 20)
          
 
                 }
+                .defaultScrollAnchor(.bottomLeading)
+                .safeAreaInset(edge: .bottom) {
+                    buttonBar()
+                }
+//                .defaultScrollAnchor(.bottomLeading)
 
                 if entry.imageContent != "" {
                     if let filename = entry.imageContent {
@@ -446,24 +392,12 @@ struct EditingEntryView: View {
                                                 .foregroundColor(.red)
                                         }
                                     }
-//                                Image(systemName: "minus.circle") // Cancel button
-//                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                    .foregroundColor(.red).opacity(0.8)
-//                                    .font(.custom("serif", size: 20))
-//                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                    .frame(width:70, height: 70)
-//                                    .background(Color(.black).opacity(0.01))
-//                                    .onTapGesture {
-//                                        vibration_medium.impactOccurred()
-//                                        entry.deleteImage(coreDataManager: coreDataManager)
-//                                    }
                             }
                         } else {
                             ZStack(alignment: .topLeading) {
                                 CustomAsyncImageView(url: fileURL)
                                     .contextMenu {
                                         Button(role: .destructive, action: {
-//                                            vibration_medium.impactOccurred()
                                             withAnimation(.smooth) {
                                                 entry.deleteImage(coreDataManager: coreDataManager)
 
@@ -474,29 +408,17 @@ struct EditingEntryView: View {
                                                 .foregroundColor(.red)
                                         }
                                     }
-//                                Image(systemName: "minus.circle") // Cancel button
-//                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                    .foregroundColor(.red).opacity(0.8)
-//                                    .font(.custom("serif", size: 20))
-//                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-//                                    .frame(width:70, height: 70)
-//                                    .background(Color(.black).opacity(0.01))
-//                                    .onTapGesture {
-//                                        vibration_medium.impactOccurred()
-//                                        entry.deleteImage(coreDataManager: coreDataManager)
-//                                    }
                             }
                         }
                     }
                 }
                 
-                // The buttonBar() is called without changes.
-                buttonBar()
-                
              
             }
-
-//            .padding(.horizontal, 20)
+            .sheet(isPresented: $showCamera) {
+                ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
+                
+            }
             .navigationBarTitle("Editing Entry")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

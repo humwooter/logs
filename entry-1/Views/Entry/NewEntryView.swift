@@ -54,31 +54,33 @@ struct NewEntryView: View {
 
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
-//                GeometryReader { geometry in
-                    
-                    ScrollView(.vertical, showsIndicators: true) {
-                        ScrollViewReader { scrollView in  // Add ScrollViewReader
-                            VStack {
-                                TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
-                                //                                .fixedSize(horizontal: false, vertical: true)
-                                    .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
-                                    .onTapGesture {
-                                        focusField = true
-                                    }
-                                    .focused($focusField)
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal, 20)
-                                
-                            }
-                            .frame(maxHeight: selectedImage == nil ? 0.3*UIScreen.main.bounds.height : 0.15*UIScreen.main.bounds.height)
-
+                ScrollView(.vertical, showsIndicators: true) {
+//                    ScrollViewReader { scrollView in
+                        VStack {
+                            TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+                                .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
+                                .onSubmit {
+                                    finalizeCreation()
+                                }
+//                                .onTapGesture {
+//                                    focusField = true
+//                                }
+//                                .focused($focusField)
+                                .padding(.vertical, 10)
                         }
-                    }
-                    
+                            .padding(.horizontal, 20)
+         
+
+                }
+                .defaultScrollAnchor(.bottomLeading)
+                .safeAreaInset(edge: .bottom) {
+                    buttonBar()
+                }
+
+
                     if let image = selectedImage { //add gif support and option to pass by data
-//                        ImageViewer(selectedImage: selectedImage, imageFrameHeight: 0.15*UIScreen.main.bounds.height)
                         CustomAsyncImageView_uiImage(image: image)
                             .contextMenu {
                                 Button(role: .destructive, action: {
@@ -93,12 +95,8 @@ struct NewEntryView: View {
                             }
                         
                     }
-                    
-                    buttonBar()
-//                }    
-
-                
             }
+
             .sheet(isPresented: $isCameraPresented) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
                 
@@ -197,19 +195,12 @@ struct NewEntryView: View {
             )
         )
         .edgesIgnoringSafeArea(.bottom)
-        
-        
-        
-        //        .overlay(Rectangle().stroke(Color.gray, lineWidth: 1), alignment: .top)
-        
     }
     
     func finalizeCreation() {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let uniqueFilename = UUID().uuidString + ".png"
-        let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
-        
-        let color = colorScheme == .dark ? Color.white : Color.black
+
         let newEntry = Entry(context: viewContext)
         
         
@@ -236,6 +227,8 @@ struct NewEntryView: View {
         newEntry.id = UUID()
         newEntry.isHidden = isHidden
         newEntry.isRemoved = false
+        newEntry.isPinned = false
+        newEntry.isShown = true
         
         // Fetch the log with the appropriate day
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()

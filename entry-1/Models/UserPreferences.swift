@@ -92,18 +92,22 @@ class UserPreferences: ObservableObject {
     
     
     init() {
-        self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? [
-            Stamp(color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),
-            Stamp(color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
-            Stamp(color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
-            Stamp(color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
-            Stamp(color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
-            Stamp(color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
-            Stamp(color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
-        ]
-
-
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
+
+        let initialStamps = [
+              Stamp(color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),
+              Stamp(color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
+              Stamp(color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
+              Stamp(color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
+              Stamp(color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
+              Stamp(color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
+              Stamp(color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
+          ]
+
+        let additionalStamps = Array(repeating: Stamp(color: .indigo, imageName: "pencil", isActive: false), count: 14)
+          self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
+      
+
         self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) != 0.0 ? CGFloat(UserDefaults.standard.float(forKey: "fontSize")) : CGFloat(16)
         self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "serif"
         self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]

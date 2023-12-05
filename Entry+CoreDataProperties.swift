@@ -21,16 +21,17 @@ extension Entry {
     @NSManaged public var content: String
     @NSManaged public var time: Date
     @NSManaged public var relationship: Log
-    @NSManaged public var buttons: [Bool]
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor
     @NSManaged public var image: String
     @NSManaged public var imageContent: String?
     @NSManaged public var isHidden: Bool
+    @NSManaged public var isShown: Bool
+    @NSManaged public var isPinned: Bool
     @NSManaged public var isRemoved: Bool
     @NSManaged public var stampIndex: Int16
+    @NSManaged public var buttons: [Bool]
 
-    
     
     
     func deleteImage(coreDataManager: CoreDataManager) {
@@ -114,6 +115,7 @@ extension Entry {
             print("Fetch error: \(error), \(error.userInfo)")
         }
     }
+    
     
 }
 

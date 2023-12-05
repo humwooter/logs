@@ -8,7 +8,9 @@
         <attribute name="image" optional="YES" attributeType="String"/>
         <attribute name="imageContent" optional="YES" attributeType="String" customClassName="UIImage"/>
         <attribute name="isHidden" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isPinned" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isRemoved" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isShown" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="stampIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="time" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>

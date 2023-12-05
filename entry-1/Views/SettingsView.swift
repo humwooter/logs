@@ -60,11 +60,11 @@ struct SettingsView: View {
     
     let imageCategories: [String: [String]] = [
         "Shapes": ["circle", "staroflife", "star.fill", "heart.fill", "bolt.heart.fill", "heart.slash.fill", "house.fill"],
-        "Symbols": ["folder.fill", "exclamationmark", "checkmark","lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "atom", "compass.drawing", "music.note", "globe.desk.fill"],
+        "Symbols": ["folder.fill", "exclamationmark", "checkmark","lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "atom", "compass.drawing", "music.note", "globe.desk.fill", "envelope.fill"],
         "Human": ["brain", "ear.fill", "mustache.fill", "hand.raised.fill", "brain.filled.head.profile", "shoe.fill"],
-        "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog", "cat", "ladybug.fill", "fish.fill"],
+        "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "ladybug.fill", "fish.fill"],
         "Nature": ["leaf.fill", "moon.stars.fill", "sun.haze.circle.fill", "wind.snow", "sun.max.fill", "drop.fill", "flame", "flame.fill", "tree", "tree.fill", "globe.asia.australia.fill", "camera.macro", "snowflake", "tornado", "cloud.rainbow.half", "mountain.2.fill"],
-        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard" , "clipboard.fill", "figure.yoga", "music.mic", "figure.strengthtraining.traditional", "paintbrush.fill", "pianokeys.inverse", "paintbrush.pointed.fill"],
+        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard" ,  "figure.yoga", "music.mic", "figure.strengthtraining.traditional", "paintbrush.fill", "pianokeys.inverse", "paintbrush.pointed.fill"],
         "Fitness": ["gym.bag.fill", "surfboard.fill", "snowboard.fill", "volleyball.fill", "tennis.racket", "basketball.fill", "baseball.fill", "soccerball", "football", "football.fill"],
         "Commerce": ["bag.fill", "cart.fill", "creditcard.fill", "giftcard.fill", "dollarsign", "basket.fill", "handbag.fill"],
         "Sleep": ["bed.double.fill"],
@@ -84,6 +84,7 @@ struct SettingsView: View {
     @State private var isExportDocumentPickerPresented = false
     @State private var isImportDocumentPickerPresented = false
     @StateObject var docPickerDelegate = DocumentPickerDelegate()
+    @Environment(\.colorScheme) var colorScheme
     
     
     @State private var tempFileURL: URL?
@@ -98,82 +99,109 @@ struct SettingsView: View {
     ) var logs: FetchedResults<Log>
     
     
+    @State private var selectedTab = 0
+    
+    
     var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("Preferences")) {
-                    ColorPicker("Accent Color", selection: $userPreferences.accentColor)
-                    
-                    
-                    
-                    FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
-                }
-                
-                
-                Section(header: Text("Data")) {
-                    Button {
-                        exportData()
-                        print("Export button tapped")
-                        isExporting = true
-                    } label: {
-                        Label("Export Data", systemImage: "arrow.up.doc")
-                    }
-                    .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
-                        switch result {
-                        case .success(let url):
-                            print("File successfully saved at \(url)")
-                        case .failure(let error):
-                            print("Failed to save file: \(error)")
-                        }
-                    }
-                    
+        NavigationStack {
+//            VStack {
+//                Picker("Options", selection: $selectedTab) {
+//                    Text("Preferences").tag(0)
+//                    Text("Stamps").tag(1)
 //                }
-                
-//                Section(header: Text("Import Data")) {
-                    Button {
-                        isImporting = true
-                    } label: {
-                        Label("Import Data", systemImage: "arrow.down.doc")
-                    }
-                    .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
-                        Task {
-                            switch result {
-                            case .success(let url):
-                                do {
-                                    try await importData(from: url)
-                                } catch {
-                                    print("Failed to import data: \(error)")
-                                }
-                            case .failure(let error):
-                                print("Failed to import file: \(error)")
-                            }
-                        }
-                    }
-                }
-                
-                
-                Section(header: Text("Advanced Settings")) {
-                    Toggle("Advanced Settings", isOn: $advancedSettings) // Make sure to add this property to UserPreferences
-                }
-                
-                
-                if advancedSettings {
-                    Section(header: Text("Enable authentication")) {
-                        Toggle("Enable authentication", isOn: $userPreferences.showLockScreen) // Make sure to add this property to UserPreferences
-                            .onChange(of: userPreferences.showLockScreen) { newValue in
-                                if newValue {
-                                    authenticate()
-                                }
-                            }
+//                .pickerStyle(.segmented)
+//                .cornerRadius(10)
+//                .padding()
+//            }
+            List {
+                if selectedTab == 0 {
+                    
+                    Section(header: Text("Preferences")) {
+                        ColorPicker("Accent Color", selection: $userPreferences.accentColor)
+                        
+                        
+                        
+                        FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
                     }
                     
+                    Section(header: Text("Data")) {
+                        HStack {
+                            Spacer()
+                            Button {
+                                exportData()
+                                print("Export button tapped")
+                                isExporting = true
+                            } label: {
+                                Label("BACKUP", systemImage: "arrow.up.doc").fontWeight(.bold)
+                            }
+                            .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
+                                switch result {
+                                case .success(let url):
+                                    print("File successfully saved at \(url)")
+                                case .failure(let error):
+                                    print("Failed to save file: \(error)")
+                                }
+                            }
+                            .buttonStyle(BackupButtonStyle())
+                            .foregroundColor(Color(UIColor.tertiarySystemBackground))
+                            
+                            Spacer()
+                            Button {
+                                isImporting = true
+                            } label: {
+                                Label("RESTORE", systemImage: "arrow.down.doc").fontWeight(.bold)
+                            }
+                            .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
+                                Task {
+                                    switch result {
+                                    case .success(let url):
+                                        do {
+                                            try await importData(from: url)
+                                        } catch {
+                                            print("Failed to import data: \(error)")
+                                        }
+                                    case .failure(let error):
+                                        print("Failed to import file: \(error)")
+                                    }
+                                }
+                            }
+                            .buttonStyle(RestoreButtonStyle())
+                            .foregroundColor(colorScheme == .dark ? .black : .white)
+                            
+                            Spacer()
+                        }
+                        .zIndex(1) // Ensure it lays on top if using ZStack
+                    }
+                    .background(.clear)  // Use a clear background to prevent any visual breaks
+                    
+                    
+                    
+                    Section(header: Text("Advanced Settings")) {
+                        Toggle("Advanced Settings", isOn: $advancedSettings) // Make sure to add this property to UserPreferences
+                    }
+                    
+                    
+                    if advancedSettings {
+                        Section(header: Text("Enable authentication")) {
+                            Toggle("Enable authentication", isOn: $userPreferences.showLockScreen) // Make sure to add this property to UserPreferences
+                                .onChange(of: userPreferences.showLockScreen) { newValue in
+                                    if newValue {
+                                        authenticate()
+                                    }
+                                }
+                        }
+                        
+                    }
+                }
+                
+                
+                if selectedTab == 1 {
                     Section(header: Text("Stamp Dasboard")) {
                         ButtonDashboard().environmentObject(userPreferences)
                             .listStyle(.automatic)
-
+                        
                     }
-                    
-                    ForEach(0..<7, id: \.self) { index in
+                    ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
                         if userPreferences.stamps[index].isActive {
                             
                             IconPicker(
@@ -184,14 +212,51 @@ struct SettingsView: View {
                             )
                         }
                     }
-
                 }
+//                VStack {
+//                    Picker("Options", selection: $selectedTab) {
+//                        Text("Preferences").tag(0)
+//                        Text("Stamps").tag(1)
+//                    }
+//                    .pickerStyle(.segmented)
+//                    .cornerRadius(10)
+//                    .padding()
+//                }
+                
             }
-            .listStyle(.automatic)
             .navigationTitle("Settings")
             .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             .accentColor(userPreferences.accentColor)
+            
+//            HStack {
+//                
+//                
+//              
+//                      }
+//                      .cornerRadius(10) // Match corner radius
+//                      .padding(.horizontal)
+            
+            .safeAreaInset(edge: .top) {
+                Picker("Options", selection: $selectedTab) {
+                    Text("Preferences").padding().tag(0)
+                    Text("Stamps").padding().tag(1)
+                }.foregroundStyle(Color(UIColor.secondarySystemBackground))
+                .background {
+                    ZStack {
+                        Color(UIColor.tertiarySystemBackground)
+//                        userPreferences.accentColor.opacity(0.7)
+                    }
+                }.cornerRadius(5)
+//                .background(userPreferences.accentColor.opacity(0.5)).cornerRadius(5)
+                .pickerStyle(.segmented)
+                .padding(10)
+                .padding(.horizontal, 5)
+                
+            }.background {
+                Color.white.opacity(0.3)
+            }
         }
+        
     }
     
     
@@ -303,7 +368,7 @@ struct SettingsView: View {
         }
     }
     
-    func authenticate() {        
+    func authenticate() {
         if userPreferences.showLockScreen {
             userPreferences.isUnlocked = true //for now
         }
@@ -343,3 +408,30 @@ class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate, ObservableObje
     }
 }
 
+
+
+struct BackupButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(20)
+            .background {
+                LinearGradient(colors: [.cyan, .indigo], startPoint: .leading, endPoint: .trailing)
+            }
+        //            .foregroundColor(colorScheme == .dark ? .white : .black)
+            .clipShape(RoundedRectangle(cornerSize: .init(width: 50, height: 50)))
+            .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
+    }
+}
+
+struct RestoreButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(20)
+            .background {
+                LinearGradient(colors: [.yellow, .red], startPoint: .leading, endPoint: .trailing)
+            }
+        //            .foregroundColor(.white)
+            .clipShape(RoundedRectangle(cornerSize: .init(width: 50, height: 50)))
+            .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
+    }
+}

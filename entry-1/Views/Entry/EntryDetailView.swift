@@ -56,6 +56,18 @@ struct EntryDetailView: View { //used in LogDetailView
                             }, label: {
                                 Label("Share Entry", systemImage: "square.and.arrow.up")
                             })
+                            
+                            Button(action: {
+                                withAnimation {
+                                    entry.isPinned.toggle()
+                                    coreDataManager.save(context: coreDataManager.viewContext)
+                                }
+                            }) {
+                                Text(entry.isPinned ? "Unpin" : "Pin")
+                                Image(systemName: "pin.fill")
+                                    .foregroundColor(.red)
+                              
+                            }
                         }
                 }
                 Spacer() // Push the image to the right
@@ -122,6 +134,10 @@ struct EntryDetailView: View { //used in LogDetailView
             let uiView = uiHostingController.view
             uiView?.bounds = CGRect(origin: .zero, size: targetSize)
             uiView?.drawHierarchy(in: CGRect(origin: .zero, size: targetSize), afterScreenUpdates: true)
+            
+            DispatchQueue.main.async {
+                uiView?.drawHierarchy(in: CGRect(origin: .zero, size: targetSize), afterScreenUpdates: true)
+            }
         }
         img.draw(in: CGRect(origin: .zero, size: targetSize))
         
@@ -130,76 +146,6 @@ struct EntryDetailView: View { //used in LogDetailView
     }
     
 }
-
-
-
-struct EntryDetailView_PDF: View { //used in LogDetailView
-    @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var coreDataManager: CoreDataManager
-    @EnvironmentObject var userPreferences: UserPreferences
-    @State var image: UIImage?
-    @State var shareSheetShown = false
-    let entry: Entry
-    
-    
-    let semaphore = DispatchSemaphore(value: 0)
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text(formattedTime(time: entry.time))
-                            .font(.footnote)
-                            .foregroundColor(.gray)
-                        Spacer()
-                        if (entry.stampIndex  != -1) {
-                            Image(systemName: entry.image).tag(entry.image)
-                                .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-                        }
-                    }
-                    Text(entry.content)
-                        .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil ? .bold : .regular)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
-                    
-                }
-                Spacer() // Push the image to the right
-            }
-            
-            if entry.imageContent != "" {
-                if let filename = entry.imageContent {
-                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                    let data = try? Data(contentsOf: fileURL)
-                    if let data = data {
-                        CustomDataImageView(imageData: data).scaledToFit()
-                    }
-                }
-                
-            }
-            
-        }.padding(.vertical, 5)
-            .sheet(isPresented: $shareSheetShown) {
-                if let entry_uiimage = image {
-                    let entryImage = Image(uiImage: entry_uiimage)
-                    ShareLink(item: entryImage, preview: SharePreview("", image: entryImage))
-                }
-            }
-        
-    }
-    
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -13,96 +13,53 @@ import UIKit
 
 
 
-
-
-//struct ButtonDashboard: View {
-//    @EnvironmentObject var userPreferences: UserPreferences
-//    var body : some View {
-//        VStack {
-//
-//            Spacer()
-//            Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3))
-//                .bold()
-//            Spacer()
-//            HStack(alignment: .center, spacing: 20) {
-//                ForEach(0..<3, id: \.self) { index in
-//                    buttonSection(index: index)
-//                }
-//            }
-//            HStack(alignment: .center, spacing: 20) {
-//                ForEach(3..<5, id: \.self) { index in
-//                    buttonSection(index: index)
-//                }
-//            }
-//            Spacer()
-//        }
-//    }
-//    
-//    @ViewBuilder
-//    private func buttonSection(index: Int) -> some View {
-//        VStack {
-//            ZStack {
-//
-//                Rectangle()
-////                    .background(.white).opacity(0.03)
-//                    .fill(
-//                        RadialGradient(
-//                            gradient: Gradient(
-//                                colors: userPreferences.activatedButtons[index] ?
-//                                    [userPreferences.selectedColors[index], .clear] :
-//                                    [.white, .clear]
-//                            ),
-//                            center: .center,
-//                            startRadius: 200,
-//                            endRadius: 0
-//                        )
-//                        )
-//                    .frame(width: 82, height: 82)
-//
-//                    .opacity(userPreferences.activatedButtons[index] ? 1 : 0.3)
-//                    .cornerRadius(50)
-//                    .shadow(radius: 5)
-//                    
-//
-//
-//                VStack(alignment: .center, spacing: 2) {
-//                    if (userPreferences.activatedButtons[index]) {
-//                        Image(systemName: userPreferences.selectedImages[index]).fontWeight(.bold)
-//                            .foregroundColor(userPreferences.selectedColors[index])
-//                            .padding(.vertical, 5)
-//                    }
-//                    ToggleButton(isOn: $userPreferences.activatedButtons[index], color: userPreferences.selectedColors[index])
-//                }
-//            }
-//            Text("Stamp \(index + 1)")
-//                .font(.caption) // Smaller font to save space
-//        }
-//    }
-//
-//
-//}
-
 struct ButtonDashboard: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @State private var showAlert = false
+    @State private var selectedTab = 0
 
-    var body: some View {
+
+        var body: some View {
+              VStack {
+                  Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
+
+                  dashboardSection(startIndex: selectedTab*7)
+
+                  // TabView at the bottom
+                  TabView(selection: $selectedTab) {
+                      ForEach(0..<3) { tabPage in
+                          Text("") // Placeholder for tab content
+                              .tag(tabPage) // Important to set the tag for selection
+                      }
+                  }
+                  .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                  .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always)) // so that it will show up in light mode against a white background
+
+//
+              }.padding(.top, 35)
+          }
+    
+    
+    @ViewBuilder
+    private func dashboardSection(startIndex: Int) -> some View {
+//        let startIndex = startIndex * 7
         VStack {
             Spacer()
 //            Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
 //            Spacer()
             HStack(alignment: .center, spacing: 20) {
-                ForEach(0..<2, id: \.self) { index in
+                ForEach(startIndex..<startIndex+2, id: \.self) { index in
+                    
                     buttonSection(index: index)
                 }
             }
             HStack(alignment: .center, spacing: 20) {
-                ForEach(2..<5, id: \.self) { index in
+                ForEach(startIndex+2..<startIndex+5, id: \.self) { index in
                     buttonSection(index: index)
                 }
             }
             HStack(alignment: .center, spacing: 20) {
-                ForEach(5..<7, id: \.self) { index in
+                ForEach(startIndex+5..<startIndex+7, id: \.self) { index in
                     buttonSection(index: index)
                 }
             }
@@ -111,9 +68,8 @@ struct ButtonDashboard: View {
         .alert(isPresented: $showAlert) {
              Alert(title: Text("Limit Reached"), message: Text("No more than 4 stamps can be activated at a time."), dismissButton: .default(Text("OK")))
          }
-        .padding()
+        .padding(.top, 20)
     }
-
     
     @ViewBuilder
     private func buttonSection(index: Int) -> some View {
@@ -139,11 +95,11 @@ struct ButtonDashboard: View {
                     .cornerRadius(40)
                     .shadow(radius: stamp.isActive ? 5 : 0)
                 VStack(alignment: .center, spacing: 2) {
-                    if stamp.isActive {
+//                    if stamp.isActive {
                         Image(systemName: stamp.imageName).fontWeight(.bold)
-                            .foregroundColor(stamp.color)
+                        .foregroundColor(stamp.isActive ? stamp.color : .white.opacity(0.2))
                             .padding(.vertical, 5)
-                    }
+//                    }
                     ToggleButton(isOn: Binding(
                                        get: { stamp.isActive },
                                        set: { newValue in
@@ -157,6 +113,9 @@ struct ButtonDashboard: View {
                 }
             }
 //            Text("Stamp \(index + 1)").font(.caption)
+        }
+        .onTapGesture {
+            print("INDEX: \(index)")
         }
     }
 }
@@ -222,6 +181,9 @@ struct IconPicker: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(selectedImage != image ? Color(UIColor.secondarySystemBackground).opacity(1) : selectedColor)
                                         .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
+//                                        .background {
+//                                            LinearGradient(colors: [selectedColor, selectedColor.opacity(0.5)], startPoint: .top, endPoint: .end)
+//                                        }
                                     
                                     HStack {
                                         Image(systemName: image)
@@ -229,6 +191,7 @@ struct IconPicker: View {
                                             .scaledToFit()
                                             .frame(width: 20, height: 20)  // Adjust width and height as needed
                                             .foregroundColor(
+                                                
                                                 selectedImage != image
                                                 ? selectedColor
                                                 : textColor(for: UIColor(selectedColor))

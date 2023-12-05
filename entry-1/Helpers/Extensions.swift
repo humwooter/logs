@@ -227,6 +227,17 @@ extension Date {
         dateFormatter.dateFormat = "MM/dd/yyyy"
         return dateFormatter.string(from: time)
     }
+    
+    func startOfWeek(for date: Date) -> Date {
+        var cal = Calendar.current
+        cal.firstWeekday = 2 // Optional, set first weekday as Monday
+        return cal.date(from: cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date))!
+    }
+    
+    func startOfMonth(for date: Date) -> Date {
+        let calendar = Calendar.current
+        return calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+    }
 }
 
 
@@ -269,3 +280,13 @@ extension View {
 //         }
 //     }
 
+//extension Dictionary where Key == UUID, Value == CGFloat {
+//    subscript(binding key: UUID) -> Binding<CGFloat> {
+//        mutating get {
+//            Binding<CGFloat>(
+//                get: { self[key] ?? 0 },
+//                set: { self[key] = $0 }
+//            )
+//        }
+//    }
+//}

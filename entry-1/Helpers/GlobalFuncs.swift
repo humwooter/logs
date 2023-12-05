@@ -152,3 +152,7 @@ func deleteOldEntries() {
 }
 
 
+func countNewlines(in string: String) -> Int {
+    return string.filter { $0 == "\n" }.count
+}
+

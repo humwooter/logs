@@ -13,3 +13,10 @@ import CoreHaptics
 let vibration_heavy = UIImpactFeedbackGenerator(style: .heavy)
 let vibration_light = UIImpactFeedbackGenerator(style: .light)
 let vibration_medium = UIImpactFeedbackGenerator(style: .medium)
+
+enum SortOption {
+    case timeAscending
+    case timeDescending
+    case image
+    case wordCount
+}

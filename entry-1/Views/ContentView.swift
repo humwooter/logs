@@ -25,7 +25,7 @@ struct ContentView: View {
             else {
                 TabView(selection: $selectedIndex) {
                     LogsView()
-                        // .environment(\.managedObjectContext, viewContext)
+//                         .environment(\.managedObjectContext, viewContext)
 //                        .environment(\.managedObjectContext, coreDataManager.viewContext)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
@@ -33,7 +33,7 @@ struct ContentView: View {
 //                            indices[0].toggle()
 //                        }
                         .tabItem {
-                            Label("Logs", systemImage: "books.vertical.fill")
+                            Label("Logs", systemImage: "book.fill")
 //                                .symbolEffect(.bounce.down, value: indices[0])
 
                         }.tag(0)

@@ -43,52 +43,7 @@ public class Entry: NSManagedObject, Codable {
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
     }
     
-//    required public convenience init(from decoder: Decoder) throws {
-//        guard let context = decoder.userInfo[CodingUserInfoKey.managedObjectContext] as? NSManagedObjectContext else {
-//            throw DecoderConfigurationError.missingManagedObjectContext
-//        }
-//
-//        self.init(context: context)
-//
-//        let values = try decoder.container(keyedBy: CodingKeys.self)
-//        
-//        id = try values.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
-//        content = try values.decodeIfPresent(String.self, forKey: .content) ?? ""
-//        time = try values.decodeIfPresent(Date.self, forKey: .time) ?? Date()
-////        buttons = try values.decodeIfPresent([Bool].self, forKey: .buttons) ?? [false, false, false, false, false]
-//        stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex) ?? -1
-//        
-//        
-//        if let colorString = try values.decodeIfPresent(String.self, forKey: .color) {
-//            print("colorString: \(colorString)")
-//            color = UIColor(Color(hex: colorString))
-//            print("\(self.content)")
-//            print("color: \(colorString)")
-//            print()
-//        } else {
-//            print("couldn't decode color:")
-//            color = UIColor.clear
-//        }
-//        
-//        image = try values.decodeIfPresent(String.self, forKey: .image) ?? ""
-//        
-//        // Check if the imageContent filename exists
-//        if let imageContent = try values.decodeIfPresent(String.self, forKey: .imageContent) {
-//            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-//            let fileURL = documentsDirectory.appendingPathComponent(imageContent)
-//            
-//            if FileManager.default.fileExists(atPath: fileURL.path) {
-//                self.imageContent = imageContent
-//            } else {
-//                print("image file no longer exists")
-//                self.imageContent = ""
-//            }
-//        } else {
-//            self.imageContent = ""
-//        }
-//        
-//        isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false
-//    }
+
     
     public func encode(to encoder: Encoder) throws { // FOR EXPORTING DATA
         print("entry: \(self)")
