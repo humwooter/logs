@@ -119,9 +119,11 @@ struct SettingsView: View {
                     Section(header: Text("Preferences")) {
                         ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                         
-                        
-                        
                         FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
+                        HStack {
+                            Text("Line Spacing")
+                            Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+                        }
                     }
                     
                     Section(header: Text("Data")) {

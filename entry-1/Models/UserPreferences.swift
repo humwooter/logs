@@ -91,6 +91,13 @@ class UserPreferences: ObservableObject {
             UserDefaults.standard.set(fontSize, forKey: "fontSize")
         }
     }
+    
+    @Published var lineSpacing: CGFloat {
+        didSet {
+            UserDefaults.standard.set(lineSpacing, forKey: "lineSpacing")
+        }
+    }
+    
     @Published var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
@@ -117,6 +124,7 @@ class UserPreferences: ObservableObject {
       
 
         self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) != 0.0 ? CGFloat(UserDefaults.standard.float(forKey: "fontSize")) : CGFloat(16)
+        self.lineSpacing = 3.0
         self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "serif"
         self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]

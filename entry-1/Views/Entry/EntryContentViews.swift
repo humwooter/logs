@@ -232,7 +232,7 @@ struct NotEditingView: View {
                         .blur(radius:7)
                         .padding(.vertical, 5)
                         .padding(2)
-                        .lineSpacing(3)
+                        .lineSpacing(userPreferences.lineSpacing)
                     
                     
                     if entry.imageContent != "" {
@@ -267,7 +267,8 @@ struct NotEditingView: View {
                         .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
                         .padding(2)
-                        .lineSpacing(3)
+                        .padding(.vertical, 5)
+                        .lineSpacing(userPreferences.lineSpacing)
 
                     
                     if entry.imageContent != "" {
