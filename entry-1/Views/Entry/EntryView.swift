@@ -126,7 +126,7 @@ struct TextView : View {
                     Spacer()
 
                     if (entry.isPinned) {
-                        Label("", systemImage: "pin.fill").foregroundColor(.red).font(.system(size: UIFont.systemFontSize))
+                        Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor).font(.system(size: UIFont.systemFontSize))
                         
                     }
                     Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor).font(.system(size: UIFont.systemFontSize))
@@ -365,14 +365,9 @@ struct EntryView: View {
         
         NavigationStack {
             List {
-                
-//                if let log = logs.first, log.relationship.count > 0, log.day == formattedDate(Date()) {
-//                    EntriesView(log: log, selectedSortOption: selectedSortOption)
-                    
                     switch selectedSortOption {
                     case .timeAscending:
                         let sortedEntries = entries.sorted { $0.time > $1.time }
-//                        entries.filter { $0.relationship == log }.sorted { $0.time > $1.time }
                
                         ForEach(sortedEntries) { entry in
                             if (!entry.isFault) {

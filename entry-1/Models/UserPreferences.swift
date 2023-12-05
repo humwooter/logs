@@ -66,6 +66,13 @@ class UserPreferences: ObservableObject {
             UserDefaults.standard.setColor(color: accentColor, forKey: "accentColor")
         }
     }
+    
+    @Published var pinColor: Color {
+        didSet {
+            UserDefaults.standard.setColor(color: accentColor, forKey: "pinColor")
+        }
+    }
+    
     @Published var backgroundColor: Color {
         didSet {
             UserDefaults.standard.setColor(color: backgroundColor, forKey: "backgroundColor")
@@ -93,6 +100,7 @@ class UserPreferences: ObservableObject {
     
     init() {
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
+        self.pinColor = UserDefaults.standard.color(forKey: "pinColor") ?? Color.red
 
         let initialStamps = [
               Stamp(color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),

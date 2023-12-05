@@ -191,6 +191,17 @@ struct SettingsView: View {
                                 }
                         }
                         
+                        Section {
+                            ColorPicker("Pin Color", selection: $userPreferences.pinColor)
+                        } header: {
+                            HStack {
+                                Text("Pin Color")
+                                Spacer()
+                                Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
+                            }
+                        }
+
+                        
                     }
                 }
                 
