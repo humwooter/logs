@@ -134,7 +134,7 @@ struct SettingsView: View {
                                 print("Export button tapped")
                                 isExporting = true
                             } label: {
-                                Label("BACKUP", systemImage: "arrow.up.doc").fontWeight(.bold)
+                                Label("BACKUP", systemImage: "arrow.up.doc").fontWeight(.bold).font(.system(size: userPreferences.fontSize))
                             }
                             .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
                                 switch result {
@@ -151,7 +151,7 @@ struct SettingsView: View {
                             Button {
                                 isImporting = true
                             } label: {
-                                Label("RESTORE", systemImage: "arrow.down.doc").fontWeight(.bold)
+                                Label("RESTORE", systemImage: "arrow.down.doc").fontWeight(.bold).font(.system(size: userPreferences.fontSize))
                             }
                             .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
                                 Task {
@@ -426,12 +426,12 @@ class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate, ObservableObje
 struct BackupButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(20)
+            .padding(10)
             .background {
                 LinearGradient(colors: [.cyan, .indigo], startPoint: .leading, endPoint: .trailing)
             }
         //            .foregroundColor(colorScheme == .dark ? .white : .black)
-            .clipShape(RoundedRectangle(cornerSize: .init(width: 50, height: 50)))
+            .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))
             .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
     }
 }
@@ -439,12 +439,12 @@ struct BackupButtonStyle: ButtonStyle {
 struct RestoreButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(20)
+            .padding(10)
             .background {
                 LinearGradient(colors: [.yellow, .red], startPoint: .leading, endPoint: .trailing)
             }
         //            .foregroundColor(.white)
-            .clipShape(RoundedRectangle(cornerSize: .init(width: 50, height: 50)))
+            .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))
             .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
     }
 }

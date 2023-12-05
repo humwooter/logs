@@ -302,6 +302,7 @@ struct NotEditingView: View {
                 
                 
             }
+            .padding(.top, 5)
         }
         
     }
@@ -340,7 +341,7 @@ struct EditingEntryView: View {
                 HStack() {
                     Spacer()
                     if (entry.image != "") {
-                        Image(systemName: entry.image)
+                        Image(systemName: entry.image).foregroundStyle(Color(entry.color))
                             .font(.system(size: 15))
                             .padding(.horizontal)
                         

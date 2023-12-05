@@ -41,6 +41,8 @@ public class Entry: NSManagedObject, Codable {
         image = try values.decodeIfPresent(String.self, forKey: .image)!
         imageContent = try values.decodeIfPresent(String.self, forKey: .imageContent)!
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
+        isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned)!
+
     }
     
 
@@ -59,11 +61,12 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(image, forKey: .image)
         try container.encodeIfPresent(imageContent, forKey: .imageContent)
         try container.encodeIfPresent(isHidden, forKey: .isHidden)
+        try container.encodeIfPresent(isPinned, forKey: .isPinned)
 
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, buttons, color, image, imageContent, isHidden, stampIndex
+        case id, time, content, buttons, color, image, imageContent, isHidden, isPinned, stampIndex
     }
     
 }

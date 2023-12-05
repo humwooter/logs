@@ -128,6 +128,10 @@ struct TextView : View {
                     if (entry.isPinned) {
                         Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor).font(.system(size: UIFont.systemFontSize))
                         
+//                        Image("slime")
+//                            .resizable()
+//                            .frame(width: 25, height: 25)
+//                            .shadow(radius: 1)
                     }
                     Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor).font(.system(size: UIFont.systemFontSize))
                         .contentTransition(.symbolEffect(.replace.offUp))
@@ -370,7 +374,7 @@ struct EntryView: View {
                         let sortedEntries = entries.sorted { $0.time > $1.time }
                
                         ForEach(sortedEntries) { entry in
-                            if (!entry.isFault) {
+                            if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
                                         .environmentObject(userPreferences)
                                         .environmentObject(coreDataManager)
@@ -385,7 +389,7 @@ struct EntryView: View {
                     case .timeDescending:
                         let sortedEntries = entries.sorted { $0.time < $1.time }
                         ForEach(sortedEntries) { entry in
-                            if (!entry.isFault) {
+                            if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
@@ -399,7 +403,7 @@ struct EntryView: View {
                     case .image:
                         let sortedEntries = entries.sorted { $0.image > $1.image }
                         ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && formattedDate(entry.time) == formattedDate(Date())) {
+                            if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
@@ -413,7 +417,7 @@ struct EntryView: View {
                     case .wordCount:
                         let sortedEntries = entries.sorted { $0.content.count > $1.content.count }
                         ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && formattedDate(entry.time) == formattedDate(Date())) {
+                            if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
