@@ -286,5 +286,41 @@ struct FontPicker: View {
         .navigationTitle("Font Type")
         .searchable(text: $searchText)
     }
+    
+}
 
+
+struct BackgroundColorPickerView: View {
+    @Binding var topColor: Color
+    @Binding var bottomColor: Color
+    @State var defaultColor = Color(UIColor.systemGroupedBackground)
+    var body: some View {
+        Section {
+            HStack() {
+                VStack {
+                    ColorPicker("Top Color", selection: $topColor, supportsOpacity: false)
+                    ColorPicker("Bottom Color", selection: $bottomColor, supportsOpacity: false)
+                }
+                .padding()
+                .shadow(radius: 1)
+                
+                
+                LinearGradient(gradient: Gradient(colors: [topColor, bottomColor]), startPoint: .top, endPoint: .bottom)
+                    .frame(height: 100)
+                    .cornerRadius(10)
+                    .shadow(radius: 1)
+            }
+        } header: {
+            HStack {
+                Spacer()
+                Label("Reset to default", systemImage: "gobackward").foregroundStyle(.red)
+                    .onTapGesture {
+                        vibration_light.impactOccurred()
+                        topColor = defaultColor
+                        bottomColor = defaultColor
+                    }
+                    .padding(1)
+            }
+        }
+    }
 }

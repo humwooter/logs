@@ -13,72 +13,76 @@ struct ContentView: View {
     
     
     var body: some View {
-        VStack {
-            if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                Button {
-                    authenticate()
-                } label: {
-                    Label("Locked", systemImage: "lock")
+        
+        TimelineView(MidnightSchedule()) { context in
+            
+            VStack {
+                if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
+                    Button {
+                        authenticate()
+                    } label: {
+                        Label("Locked", systemImage: "lock")
+                    }
+                    
                 }
-
-            }
-            else {
-                TabView(selection: $selectedIndex) {
-                    LogsView()
-//                         .environment(\.managedObjectContext, viewContext)
-//                        .environment(\.managedObjectContext, coreDataManager.viewContext)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-//                        .onTapGesture {
-//                            indices[0].toggle()
-//                        }
-                        .tabItem {
-                            Label("Logs", systemImage: "book.fill")
-//                                .symbolEffect(.bounce.down, value: indices[0])
-
-                        }.tag(0)
-                    
-                   
-                    
-//              if (logs.count != 0) {
+                else {
+                    TabView(selection: $selectedIndex) {
+                        LogsView()
+                        //                         .environment(\.managedObjectContext, viewContext)
+                        //                        .environment(\.managedObjectContext, coreDataManager.viewContext)
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                        //                        .onTapGesture {
+                        //                            indices[0].toggle()
+                        //                        }
+                            .tabItem {
+                                Label("Logs", systemImage: "book.fill")
+                                //                                .symbolEffect(.bounce.down, value: indices[0])
+                                
+                            }.tag(0)
+                        
+                        
+                        
+                        //              if (logs.count != 0) {
                         EntryView()
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {
                                 Label("Entries", systemImage: "pencil")
                             }.tag(1)
-//                    }
-                    
-                    
-                    SettingsView()
-//                    .environment(\.managedObjectContext, coreDataManager.viewContext)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-//                        .onTapGesture {
-//                            indices[2].toggle()
-//                        }
+                        //                    }
+                        
+                        
+                        SettingsView()
+                        //                    .environment(\.managedObjectContext, coreDataManager.viewContext)
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                        //                        .onTapGesture {
+                        //                            indices[2].toggle()
+                        //                        }
                         // .environment(\.managedObjectContext, viewContext)
-                        .tabItem {
-                            Label("Settings", systemImage: "gearshape")
-//                                .symbolEffect(.bounce.down, value: indices[2])
-
-                        }.tag(2)
+                            .tabItem {
+                                Label("Settings", systemImage: "gearshape")
+                                //                                .symbolEffect(.bounce.down, value: indices[2])
+                                
+                            }.tag(2)
+                    }
+                    .accentColor(userPreferences.accentColor)
+                    .background(userPreferences.backgroundColor)
+                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 }
-                .accentColor(userPreferences.accentColor)
-                .background(userPreferences.backgroundColor)
-                .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
-            }
-
-        }.onAppear(perform: {
-            createLog(in: coreDataManager.viewContext)
-            deleteOldEntries()
-            authenticate()
-            for family in UIFont.familyNames.sorted() {
-                let names = UIFont.fontNames(forFamilyName: family)
-                print("Family: \(family) Font names: \(names)")
-            }
-        })
-//        onAppear(perform: authenticate)
+                
+            }.onAppear(perform: {
+                createLog(in: coreDataManager.viewContext)
+                deleteOldEntries()
+                authenticate()
+                for family in UIFont.familyNames.sorted() {
+                    let names = UIFont.fontNames(forFamilyName: family)
+                    print("Family: \(family) Font names: \(names)")
+                }
+            })
+            //        onAppear(perform: authenticate)
+        }
     }
     
 

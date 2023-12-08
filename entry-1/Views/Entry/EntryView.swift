@@ -365,7 +365,10 @@ struct EntryView: View {
     @State private var selectedSortOption: SortOption = .timeAscending
     
     
+    
     var body: some View {
+//        let gradient = LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+
         
         NavigationStack {
             List {
@@ -434,6 +437,17 @@ struct EntryView: View {
                     
                     
                 }
+            .background {
+                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                            .opacity(0.92)
+                            .ignoresSafeArea()
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())
             .navigationBarItems(trailing:
                                     Button(action: {
@@ -489,9 +503,9 @@ struct EntryView: View {
                     Text("No entries")
                         .foregroundColor(.gray)
                         .italic()
-                        .onAppear {
-                            updateFetchRequests()
-                        }
+//                        .onAppear {
+//                            updateFetchRequests()
+//                        }
                     if let log = logs.first {
                         if (log.day != formattedDate(Date())) {
                             ProgressView()

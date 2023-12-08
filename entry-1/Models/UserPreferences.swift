@@ -61,6 +61,13 @@ class UserPreferences: ObservableObject {
         }
     }
     
+    
+    @Published var backgroundColors: [Color] = [Color(UIColor.tertiarySystemBackground)] {
+        didSet {
+            UserDefaults.standard.saveColors(colors: backgroundColors, forKey: "backgroundColors")
+        }
+    }
+    
     @Published var accentColor: Color {
         didSet {
             UserDefaults.standard.setColor(color: accentColor, forKey: "accentColor")
@@ -128,8 +135,9 @@ class UserPreferences: ObservableObject {
         self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "serif"
         self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
-//        self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [.complementaryColor(of: .pink), .cyan, .complementaryColor(of: .red), .green, .indigo]
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "#FFEFC2"), Color(hex: "#FFB1FF"), Color(hex: "#C8FFFF"), Color(hex: "#C2FFCB"), Color(hex: "#928CFF")]
+        self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color(UIColor.tertiarySystemBackground)]
+
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
         self.backgroundColor = Color(.clear)
     }

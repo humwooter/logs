@@ -72,7 +72,7 @@ struct SettingsView: View {
         "Transportation": ["car.fill", "bus.fill", "tram.fill", "ferry.fill", "sailboat.fill", "bicycle", "scooter"],
         "Other" : ["drop.halfull", "swirl.circle.righthalf.filled", "lightspectrum.horizontal", "camera.circle.fill",   "camera.aperture", "books.vertical.fill",  "key.fill", "poweroutlet.type.f", "doc.richtext.fill"],
         "Special" : ["graduationcap.fill", "backpack.fill", "sparkle.magnifyingglass", "theatermasks.fill", "camera.filters", "birthday.cake.fill", "trophy.fill", "timelapse", "puzzlepiece.fill" , "wand.and.rays.inverse", "crown.fill"],
-        "Food" : ["frying.pan.fill", "cup.and.saucer.fill", "wineglass.fill", "carrot", ],
+        "Food" : ["frying.pan.fill", "cup.and.saucer.fill", "wineglass.fill", "carrot", "fork.knife", "waterbottle.fill"],
         "Magic": ["suit.club.fill", "suit.spade.fill", "suit.diamond.fill", "hands.and.sparkles.fill"],
         "Tools": ["wrench.adjustable.fill", "hammer.fill", "eyedropper.halffull", "screwdriver.fill", "wrench.and.screwdriver.fill", "stethoscope", "compass.drawing"],
         "Celebratory" : ["balloon.fill", "fireworks"],
@@ -103,6 +103,7 @@ struct SettingsView: View {
     
     
     var body: some View {
+
         NavigationStack {
 //            VStack {
 //                Picker("Options", selection: $selectedTab) {
@@ -124,6 +125,8 @@ struct SettingsView: View {
                             Text("Line Spacing")
                             Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
                         }
+                        
+                       
                     }
                     
                     Section(header: Text("Data")) {
@@ -192,7 +195,9 @@ struct SettingsView: View {
                                     }
                                 }
                         }
-                        
+                        Section(header: Text("Background Colors")) {
+                            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+                        }
                         Section {
                             ColorPicker("Pin Color", selection: $userPreferences.pinColor)
                         } header: {
@@ -237,6 +242,17 @@ struct SettingsView: View {
 //                }
                 
             }
+            .background {
+                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                            .opacity(0.92)
+                            .ignoresSafeArea()
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
             .navigationTitle("Settings")
             .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             .accentColor(userPreferences.accentColor)

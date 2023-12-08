@@ -38,6 +38,14 @@ struct LogDetailView: View {
                 
                     
                 }
+                .background {
+                    ZStack {
+                        Color.white
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                            .ignoresSafeArea()
+                    }
+                }
+                .scrollContentBackground(.hidden)
                 .onAppear(perform: {
                     print("LOG detailz: \(log)")
                 })

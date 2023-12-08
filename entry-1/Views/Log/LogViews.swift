@@ -137,10 +137,11 @@ struct LogsView: View {
         }
     }
     
-    @State private var showCalendar = false
+    @State private var showCalendar = true
     
     // LogsView
     var body: some View {
+
         NavigationView {
             VStack(spacing: 0) {
                     List {
@@ -199,15 +200,7 @@ struct LogsView: View {
                                         }, label: {
                                             Label("Share Log PDF", systemImage: "square.and.arrow.up")
                                         })
-//                                        Button(action: {
-//                                            let pdfData = createPDFData_entries(entries: Array(_immutableCocoaArray: log.relationship), userPreferences: userPreferences)
-//                                            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("Log - \(log.day).pdf")
-//                                            try? pdfData.write(to: tmpURL)
-//                                            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-//                                            UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-//                                        }, label: {
-//                                            Label("Share Log", systemImage: "square.and.arrow.up")
-//                                        })
+
                                     }
                                 }
                                 .alert(isPresented: $showingDeleteConfirmation) {
@@ -229,6 +222,17 @@ struct LogsView: View {
 
                         
                     }
+                    .background {
+                        if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
+                            ZStack {
+                                Color(UIColor.systemGroupedBackground)
+                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                                    .opacity(0.92)
+                                    .ignoresSafeArea()
+                            }
+                        }
+                    }
+                    .scrollContentBackground(.hidden)
                     .refreshable {
                         updateFetchRequests()
                     }
@@ -269,11 +273,11 @@ struct LogsView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         
-        if let log = logs.first {
-            if (log.day != formattedDate(Date())) {
-                updateFetchRequests()
-            }
-        }
+//        if let log = logs.first {
+//            if (log.day != formattedDate(Date())) {
+//                updateFetchRequests()
+//            }
+//        }
         
         var filtered: [Log] = []
         
@@ -293,50 +297,7 @@ struct LogsView: View {
                 return false
             }
             
-//        case "Charts":
-//            return logs.filter { log in
-//                guard let logDate = dateFormatter.date(from: log.day) else { return false }
-//                for dateComponent in dates {
-//                    if let selectedDate = calendar.date(from: dateComponent) {
-//                        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-//                        let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
-//                        if logDate >= startOfDay && logDate <= endOfDay {
-//                            return true
-//                        }
-//                    }
-//                }
-//                return false
-//            }
-//            
-//            
-//            
-//        case "By Week":
-//            // Filter logs by the current week
-//            let currentWeekStart = startOfWeek(for: Date())
-//            filtered = logs.filter {
-//                guard let logDate = dateFormatter.date(from: $0.day) else { return false }
-//                let logWeekStart = startOfWeek(for: logDate)
-//                return logWeekStart == currentWeekStart
-//            }
-//            
-//        case "By Month":
-//            // Filter logs by the current month
-//            let currentMonthStart = startOfMonth(for: Date())
-//            filtered = logs.filter {
-//                guard let logDate = dateFormatter.date(from: $0.day) else { return false }
-//                let logMonthStart = startOfMonth(for: logDate)
-//                return logMonthStart == currentMonthStart
-//            }
-            
-//        case "By Date":
-//            // Filter logs by selected date
-//            filtered = logs.filter {
-//                guard let logDate = dateFormatter.date(from: $0.day) else { return false }
-//                return Calendar.current.isDate(logDate, inSameDayAs: selectedDate)
-//            }
-            
         default:
-            // Default logic, return all logs
             filtered = Array(logs)
         }
         
@@ -349,43 +310,6 @@ struct LogsView: View {
         let currentDay = formattedDate(Date())
         logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
     }
-    
-    
-    
-//    func weeksGrouped() -> [String: [Log]] {
-//        var weeks: [String: [Log]] = [:]
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MM/dd/yyyy"
-//        
-//        logs.forEach { log in
-//            guard let logDate = dateFormatter.date(from: log.day) else { return }
-//            let weekStart = startOfWeek(for: logDate)
-//            
-//            let weekStr = dateFormatter.string(from: weekStart)
-//            
-//            weeks[weekStr, default: []].append(log)
-//        }
-//        return weeks
-//    }
-//    
-//    
-//    func monthsGrouped() -> [String: [Log]] {
-//        var months: [String: [Log]] = [:]
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MM/dd/yyyy"
-//        let monthDateFormatter = DateFormatter()
-//        monthDateFormatter.dateFormat = "MMMM YYYY"
-//        
-//        logs.forEach { log in
-//            guard let logDate = dateFormatter.date(from: log.day) else { return }
-//            let monthStart = startOfMonth(for: logDate)
-//            
-//            let monthStr = monthDateFormatter.string(from: monthStart)
-//            
-//            months[monthStr, default: []].append(log)
-//        }
-//        return months
-//    }
     
     
     
@@ -431,17 +355,12 @@ struct LogsView: View {
         
         print("HEIGHT FROM VIEW MODIFIER: \(height)")
         let uiHostingController = UIHostingController(rootView: rootView)
-//        let targetSize = uiHostingController.sizeThatFits(in: UIScreen.main.bounds.size)
-        
-        
-        
         // Define lineHeight
         print("userPreferences.fontSize: \(userPreferences.fontSize)")
             let lineHeight: CGFloat = 25 // Example line height
             let entryHeight: CGFloat = 25
             let imageHeight: CGFloat = 250 // Additional height for entries with images. this should be dynamic later
 
-            // Calculate total height based on entries
         var totalHeight: CGFloat = 0
             if let entries = log.relationship as? Set<Entry> { // Cast NSSet to Set<Entry>
                 for entry in entries {
@@ -469,15 +388,7 @@ struct LogsView: View {
                     
                     print("HEIGHT: \(height)")
                     print()
-                    
-//                    totalHeight += height
-
-//
-//                    let estimatedHeightText = estimatedHeight(forText: entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, lineSpacing: 3)
-//                    totalHeight += CGFloat(numberOfNewlines + 1) * lineHeight // +1 to account for the base line
-                    
-//                    totalHeight += entry_view
-                    
+  
                     print("entry.content: \(entry.content)")
                     if entry.imageContent != "" && entry.imageContent != nil {
                         totalHeight += (imageHeight + 50)
