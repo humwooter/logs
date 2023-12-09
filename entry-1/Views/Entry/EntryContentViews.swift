@@ -392,6 +392,7 @@ struct EditingEntryView: View {
             .onAppear {
                 if let filename = entry.imageContent {
                     previousMediaFilename = filename
+                    selectedData = getMediaData(fromFilename: filename)
                 }
             }
             .sheet(isPresented: $showCamera) {
