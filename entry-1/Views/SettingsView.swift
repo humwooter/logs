@@ -44,12 +44,12 @@ struct SettingsView: View {
     
     
     let fontCategories: [String: [String]] = [
-        "Traditional": ["Helvetica Neue", "Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Impact", "Arial Rounded MT Bold","Superclarendon Regular", ],
+        "Traditional": ["Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Impact", "Arial Rounded MT Bold","Superclarendon Regular", ],
         "Monospace": ["Courier New", "STIX Two Math"],
         "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin", "BarelyEnough-Regular", "MotleyForces-Regular", "ClickerScript-Regular", "Magiera-Script", "Mueda-City", "SunnySpellsBasic-Regular", "Papyrus Condensed", "Nathan-CondensedRegular", "Lilly", "NjalBold", "Darlin\'Pop"],
-        "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","AlexBrush-Regular", "DancingScript", "stainellascript"],
+        "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript"],
         "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "MageScript", "HaraldRunic", "LuciusCipher"],
-        "Other": ["American Typewriter", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Copperplate Light", "PressStartReg", "Barrbar", "PixelDigivolve"],
+        "Other": ["American Typewriter", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Copperplate Light",  "Barrbar", "PixelDigivolve"],
         "Unique": ["ShootingStars", "aAnnyeongHaseyo", "Spicy-Chips", "Cute_Aurora_demo", "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme"],
         "Antique": ["aAnggaranDasar", "IrishUncialfabeta-Bold", "QuaeriteRegnumDei"],
         "Calligraphy": []
@@ -243,14 +243,12 @@ struct SettingsView: View {
                 
             }
             .background {
-                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
-                            .opacity(0.92)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
+                            .opacity(0.9)
                             .ignoresSafeArea()
                     }
-                }
             }
             .scrollContentBackground(.hidden)
             .navigationTitle("Settings")

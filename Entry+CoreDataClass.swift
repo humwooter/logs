@@ -32,14 +32,13 @@ public class Entry: NSManagedObject, Codable {
         id = try values.decodeIfPresent(UUID.self, forKey: .id)!
         content = try values.decodeIfPresent(String.self, forKey: .content)!
         time = try values.decodeIfPresent(Date.self, forKey: .time)!
-        buttons = try values.decodeIfPresent([Bool].self, forKey: .buttons)!
 
         if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
             color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor()
         }
 
         image = try values.decodeIfPresent(String.self, forKey: .image)!
-        imageContent = try values.decodeIfPresent(String.self, forKey: .imageContent)!
+        imageContent = try values.decodeIfPresent(String.self, forKey: .imageContent) ?? ""
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
         isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned)!
 
@@ -55,7 +54,6 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(time, forKey: .time)
         try container.encodeIfPresent(stampIndex, forKey: .stampIndex)
    
-//        try container.encode(Color(color).toHex(), forKey: .color)
         try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: true), forKey: .color)
 
         try container.encodeIfPresent(image, forKey: .image)
@@ -66,7 +64,7 @@ public class Entry: NSManagedObject, Codable {
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, buttons, color, image, imageContent, isHidden, isPinned, stampIndex
+        case id, time, content, color, image, imageContent, isHidden, isPinned, stampIndex
     }
     
 }

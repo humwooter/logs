@@ -70,9 +70,6 @@ struct EditingView: View {
                     .onChange(of: selectedItem) { _ in
                         Task {
                             if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-//                                if entry.imageContent != nil && entry.imageContent != "" {
-//                                    entry.deleteImage(coreDataManager: coreDataManager)
-//                                }
                                 entry.saveImage(data: data, coreDataManager: coreDataManager)
                             }
                         }
@@ -83,7 +80,6 @@ struct EditingView: View {
                         .onChange(of: selectedImage) { _ in
                             Task {
                                 if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-//                                    entry.deleteImage(coreDataManager: coreDataManager)
                                     entry.saveImage(data: data, coreDataManager: coreDataManager)
                                 }
                             }
@@ -210,19 +206,9 @@ struct NotEditingView: View {
     
     
     var body : some View {
-        // if !isEditing {
         ZStack(alignment: .topTrailing) {
   
             VStack {
-                
-//                HStack {
-//                    Spacer()
-//                    if (entry.color != UIColor.tertiarySystemBackground) {
-////                        RainbowIconView_animated(entry: entry).environmentObject(userPreferences)
-//                        Image(systemName: entry.image).foregroundColor(Color(UIColor.tertiarySystemBackground)).padding(.top, 3)
-//                    }
-//                }.opacity(1)
-
                 if entry.isHidden {
                     Text(entry.content)
                         .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
@@ -248,9 +234,8 @@ struct NotEditingView: View {
                                 
                                 AnimatedImageView(url: fileURL).scaledToFit()
                                     .blur(radius:10)
+                    
                                 
-                                
-                                // Add imageView
                             } else {
                                 if imageExists(at: fileURL) {
                                     CustomAsyncImageView(url: fileURL).scaledToFit()                                    .blur(radius:10)
@@ -332,6 +317,9 @@ struct EditingEntryView: View {
     @State private var audioEngine = AVAudioEngine()
     
     
+    @State private var previousMediaFilename: String = ""
+    
+    
 
     
     var body : some View {
@@ -350,17 +338,12 @@ struct EditingEntryView: View {
           
                 
                 ScrollView(.vertical, showsIndicators: true) {
-//                    ScrollViewReader { scrollView in
                         VStack {
                             TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
                                 .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
                                 .onSubmit {
                                     finalizeEdit()
                                 }
-//                                .onTapGesture {
-//                                    focusField = true
-//                                }
-//                                .focused($focusField)
                                 .padding(.vertical, 10)
                         }
                             .padding(.horizontal, 20)
@@ -371,51 +354,45 @@ struct EditingEntryView: View {
                 .safeAreaInset(edge: .bottom) {
                     buttonBar()
                 }
-//                .defaultScrollAnchor(.bottomLeading)
 
-                if entry.imageContent != "" {
-                    if let filename = entry.imageContent {
-                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                        let fileURL = documentsDirectory.appendingPathComponent(filename)
-                        let data = try? Data(contentsOf: fileURL)
-                        
-                        if let data = data, isGIF(data: data) {
-                            ZStack(alignment: .topLeading) {
-                                AnimatedImageView(url: fileURL)
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                            withAnimation(.smooth) {
-                                                entry.deleteImage(coreDataManager: coreDataManager)
+                if let data = selectedData {
+                    if isGIF(data: data) {
+                        AnimatedImageView_data(data: data)
+                            .contextMenu {
+                                Button(role: .destructive, action: {
+                                    withAnimation(.smooth) {
+                                        entry.deleteImage(coreDataManager: coreDataManager)
 
-                                            }
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
-                                        }
                                     }
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                }
                             }
-                        } else {
-                            ZStack(alignment: .topLeading) {
-                                CustomAsyncImageView(url: fileURL)
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                            withAnimation(.smooth) {
-                                                entry.deleteImage(coreDataManager: coreDataManager)
+                    } else {
+                        CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                            .contextMenu {
+                                Button(role: .destructive, action: {
+                                    withAnimation(.smooth) {
+                                        entry.deleteImage(coreDataManager: coreDataManager)
 
-                                            }
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
-                                        }
                                     }
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                }
                             }
-                        }
                     }
                 }
                 
              
+            }
+            .onAppear {
+                if let filename = entry.imageContent {
+                    previousMediaFilename = filename
+                }
             }
             .sheet(isPresented: $showCamera) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
@@ -472,9 +449,10 @@ struct EditingEntryView: View {
                        .font(.system(size: 20))
                }
                .onChange(of: selectedItem) { _ in
+                   selectedData = nil
                    Task {
                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                           entry.saveImage(data: data, coreDataManager: coreDataManager)
+                           selectedData = data
                        }
                    }
                }
@@ -482,9 +460,11 @@ struct EditingEntryView: View {
                Image(systemName: "camera.fill")
                    .font(.system(size: 20))
                    .onChange(of: selectedImage) { _ in
+                       selectedData = nil
                        Task {
                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                               entry.saveImage(data: data, coreDataManager: coreDataManager)
+                               entry.deleteImage(coreDataManager: coreDataManager)
+                               selectedData = data
                            }
                        }
                    }
@@ -508,18 +488,22 @@ struct EditingEntryView: View {
     func finalizeEdit() {
         // Code to finalize the edit
         let mainContext = coreDataManager.viewContext
-        mainContext.performAndWait {
-            entry.content = editingContent
-            
-            // Save the context
+        entry.content = editingContent
+        
+        // Save the context
+        if let data = selectedData {
+            entry.saveImage(data: data, coreDataManager: coreDataManager)
+        }
             print("isEditing: \(isEditing)")
             coreDataManager.save(context: mainContext)
-        }
         isEditing = false
     }
     
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content
+        if !previousMediaFilename.isEmpty, let data = getMediaData(fromFilename: previousMediaFilename) { //restore previous media
+            entry.saveImage(data: data, coreDataManager: coreDataManager)
+        }
         isEditing = false // Exit the editing mode
     }
     

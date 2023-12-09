@@ -185,15 +185,12 @@ struct LogsView: View {
                                         }
                                         Button(action: {
                                             Task {
-//                                                coreDataManager.backgroundContext.performAndWait {
                                                 DispatchQueue.main.async {
                                                     let pdfData = createPDFData_log(log: log)
-                                                    
                                                     let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
                                                     try? pdfData.write(to: tmpURL)
                                                     let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
                                                     UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
-                                                    //                                                }
                                                 }
                                             }
                                          
@@ -223,19 +220,19 @@ struct LogsView: View {
                         
                     }
                     .background {
-                        if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
+                        if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground) {
                             ZStack {
                                 Color(UIColor.systemGroupedBackground)
-                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
                                     .opacity(0.92)
                                     .ignoresSafeArea()
                             }
                         }
                     }
                     .scrollContentBackground(.hidden)
-                    .refreshable {
-                        updateFetchRequests()
-                    }
+//                    .refreshable {
+//                        updateFetchRequests()
+//                    }
                     .sheet(isPresented: $shareSheetShown) {
                         if let log_uiimage = image {
                             let logImage = Image(uiImage: log_uiimage)
@@ -273,11 +270,6 @@ struct LogsView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         
-//        if let log = logs.first {
-//            if (log.day != formattedDate(Date())) {
-//                updateFetchRequests()
-//            }
-//        }
         
         var filtered: [Log] = []
         

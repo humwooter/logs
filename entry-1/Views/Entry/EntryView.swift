@@ -438,11 +438,11 @@ struct EntryView: View {
                     
                 }
             .background {
-                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground), userPreferences.backgroundColors[1] != Color(UIColor.systemBackground) {
+                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground) {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
-                            .opacity(0.92)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
+                            .opacity(0.90)
                             .ignoresSafeArea()
                     }
                 }

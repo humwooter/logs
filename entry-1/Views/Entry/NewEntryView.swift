@@ -57,17 +57,13 @@ struct NewEntryView: View {
         NavigationStack {
             VStack {
                 ScrollView(.vertical, showsIndicators: true) {
-//                    ScrollViewReader { scrollView in
                         VStack {
                             TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
                                 .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
                                 .onSubmit {
                                     finalizeCreation()
                                 }
-//                                .onTapGesture {
-//                                    focusField = true
-//                                }
-//                                .focused($focusField)
+
                                 .padding(.vertical, 10)
                         }
                             .padding(.horizontal, 20)
@@ -79,22 +75,37 @@ struct NewEntryView: View {
                     buttonBar()
                 }
 
-
-                    if let image = selectedImage { //add gif support and option to pass by data
-                        CustomAsyncImageView_uiImage(image: image)
+                if let data = selectedData {
+                    if isGIF(data: data) {
+                        AnimatedImageView_data(data: data)
                             .contextMenu {
                                 Button(role: .destructive, action: {
-                                    selectedImage = nil
-                                    selectedData = nil
-                                    imageHeight = 0
+                                    withAnimation(.smooth) {
+                                        selectedData = nil
+                                        imageHeight = 0
+                                    }
                                 }) {
                                     Text("Delete")
                                     Image(systemName: "trash")
                                         .foregroundColor(.red)
                                 }
                             }
-                        
+                    } else {
+                        CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                            .contextMenu {
+                                Button(role: .destructive, action: {
+                                    withAnimation(.smooth) {
+                                        selectedData = nil
+                                        imageHeight = 0
+                                    }
+                                }) {
+                                    Text("Delete")
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                }
+                            }
                     }
+                }
             }
 
             .sheet(isPresented: $isCameraPresented) {
@@ -154,20 +165,11 @@ struct NewEntryView: View {
                 
             }
             .onChange(of: selectedItem) { _ in
+                selectedData = nil
                 Task {
                     if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                        if isGIF(data: data) {
-                            selectedData = data
-                            selectedImage = UIImage(data: selectedData!)
-                            imageHeight = imageFrameHeight
-                            imageIsAnimated = true
-                        }
-                        else {
-                            selectedData = nil
-                            selectedImage = nil
-                            imageIsAnimated = false
-                        }
-                        selectedImage = UIImage(data: data)
+                        selectedData = data
+                        imageHeight = imageFrameHeight
                     }
                 }
             }
@@ -183,7 +185,8 @@ struct NewEntryView: View {
                 Image(systemName: "camera.fill")
                     .font(.system(size: 20))
             }
-            //                    .padding(.vertical)
+            
+            
         }
         .padding(.vertical)
         .padding(.horizontal, 20)
@@ -204,24 +207,20 @@ struct NewEntryView: View {
         let newEntry = Entry(context: viewContext)
         
         
-        
-        if let image = selectedImage {
-            if let data = imageIsAnimated ? selectedData : image.jpegData(compressionQuality: 0.7) {
-                if let savedFilename = saveMedia(data: data, viewContext: viewContext) {
-                    filename = savedFilename
-                    newEntry.imageContent = filename
-                    print(": \(filename)")
-                    // selectedImage = nil // Uncomment this to clear the selectedImage after saving
-                } else {
-                    print("Failed to save media.")
-                }
+        if let data = selectedData {
+            if let savedFilename = saveMedia(data: data, viewContext: viewContext) {
+                filename = savedFilename
+                newEntry.imageContent = filename
+                print(": \(filename)")
+            } else {
+                print("Failed to save media.")
             }
         }
+
         
         newEntry.content = entryContent
         newEntry.time = Date()
         newEntry.stampIndex = -1
-        //        newEntry.buttons = [false, false, false, false, false, false, false]
         newEntry.color = UIColor.tertiarySystemBackground
         newEntry.image = ""
         newEntry.id = UUID()

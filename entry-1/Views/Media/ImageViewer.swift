@@ -41,7 +41,7 @@ struct ImageViewer: View {
 }
 
 
-struct CustomAsyncImageView_uiImage: UIViewRepresentable {
+struct CustomAsyncImageView_uiImage: UIViewRepresentable { //not actually async
     var image: UIImage
     
     func makeUIView(context: Context) -> UIView {

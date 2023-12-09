@@ -41,7 +41,7 @@ struct LogDetailView: View {
                 .background {
                     ZStack {
                         Color.white
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
                             .ignoresSafeArea()
                     }
                 }

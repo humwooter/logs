@@ -75,8 +75,16 @@ extension Entry {
         self.isHidden.toggle()
     }
     
-    func saveImage(data: Data, coreDataManager: CoreDataManager) {
+    func saveImage(data: Data, coreDataManager: CoreDataManager) { //should check whether image exists already first and delete it
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+
+        if let mediaFilename = self.imageContent, !mediaFilename.isEmpty { //deleting existing image
+            let existingURL = documentsDirectory.appendingPathComponent(mediaFilename)
+            if imageExists(at: existingURL) {
+                self.deleteImage(coreDataManager: coreDataManager)
+            }
+        }
+
         let uniqueFilename = self.id.uuidString + ".png"
         let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
         
