@@ -318,6 +318,9 @@ struct EditingEntryView: View {
     
     
     @State private var previousMediaFilename: String = ""
+    @State private var previousMediaData: Data?
+
+
     
     
 
@@ -361,7 +364,9 @@ struct EditingEntryView: View {
                             .contextMenu {
                                 Button(role: .destructive, action: {
                                     withAnimation(.smooth) {
+                                        selectedData = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
+//                                        coreDataManager.save(context: coreDataManager.viewContext)
 
                                     }
                                 }) {
@@ -375,8 +380,9 @@ struct EditingEntryView: View {
                             .contextMenu {
                                 Button(role: .destructive, action: {
                                     withAnimation(.smooth) {
+                                        selectedData = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
-
+//                                        coreDataManager.save(context: coreDataManager.viewContext)
                                     }
                                 }) {
                                     Text("Delete")
@@ -390,9 +396,10 @@ struct EditingEntryView: View {
              
             }
             .onAppear {
-                if let filename = entry.imageContent {
+                if let filename = entry.imageContent, previousMediaFilename.isEmpty {
                     previousMediaFilename = filename
-                    selectedData = getMediaData(fromFilename: filename)
+                    previousMediaData = getMediaData(fromFilename: filename)
+                    selectedData = previousMediaData
                 }
             }
             .sheet(isPresented: $showCamera) {
@@ -404,7 +411,9 @@ struct EditingEntryView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button {
                         vibration_heavy.impactOccurred()
-                        finalizeEdit()
+                        DispatchQueue.main.async {
+                            finalizeEdit()
+                        }
                         focusField = false
                     } label: {
                         Text("Done")
@@ -451,9 +460,11 @@ struct EditingEntryView: View {
                }
                .onChange(of: selectedItem) { _ in
                    selectedData = nil
+                   entry.deleteImage(coreDataManager: coreDataManager)
                    Task {
                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                            selectedData = data
+                           entry.saveImage(data: data, coreDataManager: coreDataManager)
                        }
                    }
                }
@@ -462,10 +473,11 @@ struct EditingEntryView: View {
                    .font(.system(size: 20))
                    .onChange(of: selectedImage) { _ in
                        selectedData = nil
+                       entry.deleteImage(coreDataManager: coreDataManager)
                        Task {
                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                               entry.deleteImage(coreDataManager: coreDataManager)
                                selectedData = data
+                               entry.saveImage(data: data, coreDataManager: coreDataManager)
                            }
                        }
                    }
@@ -486,23 +498,78 @@ struct EditingEntryView: View {
            .edgesIgnoringSafeArea(.bottom)
        }
     
+    
+    
     func finalizeEdit() {
-        // Code to finalize the edit
-        let mainContext = coreDataManager.viewContext
-        entry.content = editingContent
-        
-        // Save the context
-        if let data = selectedData {
-            entry.saveImage(data: data, coreDataManager: coreDataManager)
-        }
-            print("isEditing: \(isEditing)")
-            coreDataManager.save(context: mainContext)
-        isEditing = false
-    }
+          // Code to finalize the edit
+          let mainContext = coreDataManager.viewContext
+          mainContext.performAndWait {
+              entry.content = editingContent
+              
+              // Save the context
+              print("isEditing: \(isEditing)")
+              coreDataManager.save(context: mainContext)
+          }
+          isEditing = false
+      }
+      
+
+//    func finalizeEdit() {
+////        // Code to finalize the edit
+////        let mainContext = coreDataManager.viewContext
+////        entry.content = editingContent
+////
+////        // Save the context
+////        do {
+////            if let data = selectedData {
+////                entry.saveImage(data: data, coreDataManager: coreDataManager)
+////            }
+////            coreDataManager.save(context: mainContext)
+////        }
+//////            print("isEditing: \(isEditing)")
+//////            coreDataManager.save(context: mainContext)
+//////        isEditing = false
+//        ///
+//        ///
+//        ///if let d
+//        ///
+//        entry.content = editingContent
+//        if let data = selectedData {
+//            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//                
+//                if let mediaFilename = entry.imageContent, !mediaFilename.isEmpty { //deleting existing image
+//                    let existingURL = documentsDirectory.appendingPathComponent(mediaFilename)
+//                    if imageExists(at: existingURL) {
+//                        entry.deleteImage(coreDataManager: coreDataManager)
+//                    }
+//                }
+//
+//                let uniqueFilename = entry.id.uuidString + ".png"
+//                let fileURL = documentsDirectory.appendingPathComponent(uniqueFilename)
+//                
+//                do {
+//                    print("file URL from saveImage: \(fileURL)")
+//                    try data.write(to: fileURL)
+//                } catch {
+//                    print("Error saving image file: \(error)")
+//                }
+//                
+//                entry.imageContent = uniqueFilename
+//                print("entry from saveImage: \(entry)")
+//                
+//                let mainContext = coreDataManager.viewContext
+//                do {
+//                    try mainContext.save()
+//                } catch let error as NSError {
+//                    print("Could not save. \(error), \(error.userInfo)")
+//                }
+//        }
+//        isEditing = false
+//    }
     
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content
-        if !previousMediaFilename.isEmpty, let data = getMediaData(fromFilename: previousMediaFilename) { //restore previous media
+        if !previousMediaFilename.isEmpty, let data = previousMediaData { //restore previous media
             entry.saveImage(data: data, coreDataManager: coreDataManager)
         }
         isEditing = false // Exit the editing mode
