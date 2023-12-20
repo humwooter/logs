@@ -174,6 +174,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4A8CBA972B32D8510094E133 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		345E99152A90A7A6004A81E2 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		345E99172A90DE35004A81E2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
@@ -226,6 +239,8 @@
 		4A7264462AEDD0E10099EA84 /* UserPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferences.swift; sourceTree = "<group>"; };
 		4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomAsyncImageView.swift; sourceTree = "<group>"; };
 		4A89FCFC2AC2AE9F0076EAAC /* GlobalFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalFuncs.swift; sourceTree = "<group>"; };
+		4A8CBA842B32D84F0094E133 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4A8CBA862B32D84F0094E133 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		4AA29F682ADB7930009FDD36 /* entry_ 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 3.xcdatamodel"; sourceTree = "<group>"; };
 		4ABBEF862AE7BF71005BD78A /* PickerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerViews.swift; sourceTree = "<group>"; };
 		4ABBEF882AE8EB03005BD78A /* GlobalVars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVars.swift; sourceTree = "<group>"; };
@@ -314,6 +329,7 @@
 				34A808272A8A167200B9BB5C /* entry-1 */,
 				34A8083E2A8A167800B9BB5C /* entry-1Tests */,
 				34A808482A8A167800B9BB5C /* entry-1UITests */,
+				4A8CBA832B32D84F0094E133 /* Frameworks */,
 				34A808262A8A167200B9BB5C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -469,6 +485,15 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		4A8CBA832B32D84F0094E133 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4A8CBA842B32D84F0094E133 /* WidgetKit.framework */,
+				4A8CBA862B32D84F0094E133 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		4ACA37F62ADBBAEA0085C701 /* OldViews */ = {
 			isa = PBXGroup;
 			children = (
@@ -537,6 +562,7 @@
 				34A808212A8A167200B9BB5C /* Sources */,
 				34A808222A8A167200B9BB5C /* Frameworks */,
 				34A808232A8A167200B9BB5C /* Resources */,
+				4A8CBA972B32D8510094E133 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -593,7 +619,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1430;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					34A808242A8A167200B9BB5C = {

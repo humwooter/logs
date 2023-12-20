@@ -133,7 +133,8 @@ struct SettingsView: View {
                 List {
                     if selectedTab == 0 {
                         
-                        Section(header: Text("Preferences")) {
+                        Section(header: Text("Preferences").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        ) {
                             ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                             
                             FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
@@ -145,7 +146,8 @@ struct SettingsView: View {
                             
                         }
                         
-                        Section(header: Text("Data")) {
+                        Section(header: Text("Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        ) {
                             HStack {
                                 Spacer()
                                 Button {
@@ -198,13 +200,15 @@ struct SettingsView: View {
                         
                         
                         
-                        Section(header: Text("Advanced Settings")) {
+                        Section(header: Text("Advanced Settings").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        ) {
                             Toggle("Advanced Settings", isOn: $advancedSettings) // Make sure to add this property to UserPreferences
                         }
                         
                         
                         if advancedSettings {
-                            Section(header: Text("Enable authentication")) {
+                            Section(header: Text("Enable authentication").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            ) {
                                 Toggle("Enable authentication", isOn: $userPreferences.showLockScreen) // Make sure to add this property to UserPreferences
                                     .onChange(of: userPreferences.showLockScreen) { newValue in
                                         if newValue {
@@ -212,14 +216,16 @@ struct SettingsView: View {
                                         }
                                     }
                             }
-                            Section(header: Text("Background Colors")) {
+                            Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            ) {
                                 BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
                             }
                             Section {
                                 ColorPicker("Pin Color", selection: $userPreferences.pinColor)
                             } header: {
                                 HStack {
-                                    Text("Pin Color")
+                                    Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                    
                                     Spacer()
                                     Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
                                 }
@@ -231,7 +237,8 @@ struct SettingsView: View {
                     
                     
                     if selectedTab == 1 {
-                        Section(header: Text("Stamp Dasboard")) {
+                        Section(header: Text("Stamp Dasboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        ) {
                             ButtonDashboard().environmentObject(userPreferences)
                                 .listStyle(.automatic)
                             
@@ -264,7 +271,6 @@ struct SettingsView: View {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
                         LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
-                            .opacity(0.9)
                             .ignoresSafeArea()
                     }
             }
@@ -272,34 +278,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             .accentColor(userPreferences.accentColor)
-            
-//            HStack {
-//                
-//                
-//              
-//                      }
-//                      .cornerRadius(10) // Match corner radius
-//                      .padding(.horizontal)
-            
-//            .safeAreaInset(edge: .top) {
-//                Picker("Options", selection: $selectedTab) {
-//                    Text("Preferences").padding().tag(0)
-//                    Text("Stamps").padding().tag(1)
-//                }.foregroundStyle(Color(UIColor.secondarySystemBackground))
-//                .background {
-//                    ZStack {
-//                        Color(UIColor.tertiarySystemBackground)
-////                        userPreferences.accentColor.opacity(0.7)
-//                    }
-//                }.cornerRadius(5)
-////                .background(userPreferences.accentColor.opacity(0.5)).cornerRadius(5)
-//                .pickerStyle(.segmented)
-//                .padding(10)
-//                .padding(.horizontal, 5)
-//                
-//            }.background {
-//                Color.white.opacity(0.3)
-//            }
+
         }
         
     }
@@ -458,10 +437,10 @@ class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate, ObservableObje
 struct BackupButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(10)
-            .padding(.horizontal, 5)
+            .padding(15)
+            .padding(.horizontal, 10)
             .background {
-                LinearGradient(colors: [.cyan, .indigo], startPoint: .leading, endPoint: .trailing)
+                LinearGradient(colors: [.green, .cyan], startPoint: .leading, endPoint: .trailing)
             }
         //            .foregroundColor(colorScheme == .dark ? .white : .black)
             .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))
@@ -472,10 +451,10 @@ struct BackupButtonStyle: ButtonStyle {
 struct RestoreButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(10)
-            .padding(.horizontal, 5)
+            .padding(15)
+            .padding(.horizontal, 10)
             .background {
-                LinearGradient(colors: [.yellow, .red], startPoint: .leading, endPoint: .trailing)
+                LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
             }
         //            .foregroundColor(.white)
             .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))

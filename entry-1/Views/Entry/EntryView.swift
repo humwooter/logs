@@ -124,8 +124,10 @@ struct TextView : View {
                 }
             } header: {
                 HStack {
-                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").font(.system(size: UIFont.systemFontSize))
-
+                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        
+                        
+                        
                     Label("", systemImage: entry.image).foregroundStyle(Color(entry.color)).font(.system(size: UIFont.systemFontSize))
                     Spacer()
 
@@ -376,7 +378,12 @@ struct EntryView: View {
     
     
     @State private var selectedSortOption: SortOption = .timeAscending
-    
+    init(color: UIColor) {
+     // Large Navigation Title
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: color]
+     // Inline Navigation Title
+     UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.purple]
+   }
     
     
     var body: some View {
@@ -450,13 +457,13 @@ struct EntryView: View {
                 if userPreferences.backgroundColors.first != Color(UIColor.systemGroupedBackground) {
                     ZStack {
                         LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottomTrailing)
-                            .opacity(0.90)
                             .ignoresSafeArea()
                     }
                 }
             }
             .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())
+            
             .navigationBarItems(trailing:
                                     Button(action: {
                 isShowingEntryCreationView = true

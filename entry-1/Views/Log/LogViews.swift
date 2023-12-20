@@ -166,7 +166,8 @@ struct LogsView: View {
                                 
                             } header: {
                                 HStack {
-                                    Text("Dates")
+                                    Text("Dates").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                    
                                     Spacer()
                                     Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)                        
                                         .contentTransition(.symbolEffect(.replace.offUp))
@@ -231,7 +232,6 @@ struct LogsView: View {
                             ZStack {
                                 Color(UIColor.systemGroupedBackground)
                                 LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                                    .opacity(0.92)
                                     .ignoresSafeArea()
                             }
                     }

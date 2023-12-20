@@ -32,7 +32,8 @@ struct RecentlyDeletedView: View {
     var body: some View {
         List {
             ForEach(filteredEntries, id: \.self) { entry in
-                Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))) {
+                Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                ) {
                     EntryDetailView(entry: entry)
                         .contextMenu {
                             Button {

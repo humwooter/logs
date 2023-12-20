@@ -97,7 +97,7 @@ struct ButtonDashboard: View {
                 VStack(alignment: .center, spacing: 2) {
 //                    if stamp.isActive {
                         Image(systemName: stamp.imageName).fontWeight(.bold)
-                        .foregroundColor(stamp.isActive ? stamp.color : .white.opacity(0.2))
+                        .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
                             .padding(.vertical, 5)
 //                    }
                     ToggleButton(isOn: Binding(

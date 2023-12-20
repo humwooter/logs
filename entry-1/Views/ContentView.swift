@@ -44,7 +44,7 @@ struct ContentView: View {
                         
                         
                         //              if (logs.count != 0) {
-                        EntryView()
+                        EntryView(color: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {
