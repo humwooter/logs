@@ -102,6 +102,7 @@ struct SettingsView: View {
     @State private var selectedTab = 0
     
     
+    
     var body: some View {
 
         NavigationStack {
@@ -120,16 +121,7 @@ struct SettingsView: View {
                 .pickerStyle(.segmented)
                 .padding(10)
                 .padding(.horizontal, 5)
-            
-//            VStack {
-//                Picker("Options", selection: $selectedTab) {
-//                    Text("Preferences").tag(0)
-//                    Text("Stamps").tag(1)
-//                }
-//                .pickerStyle(.segmented)
-//                .cornerRadius(10)
-//                .padding()
-//            }
+
                 List {
                     if selectedTab == 0 {
                         

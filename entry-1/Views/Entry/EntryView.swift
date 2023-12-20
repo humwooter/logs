@@ -379,10 +379,8 @@ struct EntryView: View {
     
     @State private var selectedSortOption: SortOption = .timeAscending
     init(color: UIColor) {
-     // Large Navigation Title
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: color]
-     // Inline Navigation Title
-     UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.purple]
+     UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.label]
    }
     
     

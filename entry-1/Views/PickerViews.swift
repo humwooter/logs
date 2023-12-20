@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import CoreData
 import UIKit
+import TipKit
 
 
 
@@ -17,11 +18,21 @@ struct ButtonDashboard: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @State private var showAlert = false
     @State private var selectedTab = 0
+    var customStampTip: CustomStampTip = CustomStampTip()
 
 
         var body: some View {
               VStack {
-                  Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
+                  
+                  HStack {
+                      Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
+//                      TipView(customStampTip, arrowEdge: .bottom)
+//                      Image(systemName: "info.circle.fill")
+//                          .popoverTip(customStampTip, arrowEdge: .top)
+//                          .onTapGesture {
+//                              customStampTip.invalidate(reason: .actionPerformed)
+//                                }
+                  }
 
                   dashboardSection(startIndex: selectedTab*7)
 

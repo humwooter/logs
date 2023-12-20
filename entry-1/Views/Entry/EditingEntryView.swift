@@ -93,6 +93,7 @@ struct EditingEntryView: View {
                                 Button(role: .destructive, action: {
                                     withAnimation(.smooth) {
                                         selectedData = nil
+                                        selectedImage = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
 //                                        coreDataManager.save(context: coreDataManager.viewContext)
 
@@ -109,6 +110,7 @@ struct EditingEntryView: View {
                                 Button(role: .destructive, action: {
                                     withAnimation(.smooth) {
                                         selectedData = nil
+                                        selectedImage = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
 //                                        coreDataManager.save(context: coreDataManager.viewContext)
                                     }

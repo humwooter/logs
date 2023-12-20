@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import TipKit
 
 @main
 struct entry_1App: App {
     // let persistenceController = PersistenceController.shared
     let persistenceController = CoreDataManager.shared
 
+    
+    init() {
+      try? Tips.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)

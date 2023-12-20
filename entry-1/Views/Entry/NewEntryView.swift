@@ -190,18 +190,33 @@ struct NewEntryView: View {
                     }
                 }
             }
-            Button(action: {
-                AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
-                    if response {
-                        isCameraPresented = true
-                    } else {
-                        
+//            Button(action: {
+//                AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
+//                    if response {
+//                        isCameraPresented = true
+//                    } else {
+//                        
+//                    }
+//                }
+//            }) {
+//                Image(systemName: "camera.fill")
+//                    .font(.system(size: 20))
+//            }
+            
+            Image(systemName: "camera.fill")
+                .font(.system(size: 20))
+                .onChange(of: selectedImage) { _ in
+                    selectedData = nil
+                    Task {
+                        if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+                            selectedData = data
+                        }
                     }
                 }
-            }) {
-                Image(systemName: "camera.fill")
-                    .font(.system(size: 20))
-            }
+                .onTapGesture {
+                    vibration_heavy.impactOccurred()
+                    isCameraPresented = true
+                }
             
             
         }
@@ -312,6 +327,7 @@ struct NewEntryView: View {
         }
         
         selectedImage = nil
+        selectedData = nil
         
         
         do {
