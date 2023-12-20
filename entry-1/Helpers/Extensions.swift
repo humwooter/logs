@@ -92,7 +92,7 @@ extension UIColor {
         return brightness > 0.5 ? Color.black : Color.white
     }
     
-    static func foregroundColor(entry: Entry, background: UIColor) -> Color {
+    static func foregroundColor(background: UIColor) -> Color {
         
         var red: CGFloat = 0
         var green: CGFloat = 0

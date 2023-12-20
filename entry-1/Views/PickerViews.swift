@@ -293,7 +293,7 @@ struct FontPicker: View {
 struct BackgroundColorPickerView: View {
     @Binding var topColor: Color
     @Binding var bottomColor: Color
-    @State var defaultColor = Color(UIColor.systemGroupedBackground)
+    @State var defaultColor = Color("BackgroundColor")
     var body: some View {
         Section {
             HStack() {

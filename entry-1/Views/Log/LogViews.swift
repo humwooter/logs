@@ -139,6 +139,14 @@ struct LogsView: View {
     
     @State private var showCalendar = true
     
+    @FetchRequest(
+        entity: Log.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
+        predicate: NSPredicate(format: "day == %@", formattedDate(Date())),
+        animation: nil
+    ) var currentLog: FetchedResults<Log>
+
+    
     // LogsView
     var body: some View {
 
@@ -220,19 +228,20 @@ struct LogsView: View {
                         
                     }
                     .background {
-                        if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground) {
                             ZStack {
                                 Color(UIColor.systemGroupedBackground)
-                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
+                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                                     .opacity(0.92)
                                     .ignoresSafeArea()
                             }
-                        }
+                    }
+                    .onAppear {
+                        updateFetchRequests()
                     }
                     .scrollContentBackground(.hidden)
-//                    .refreshable {
-//                        updateFetchRequests()
-//                    }
+                    .refreshable {
+                        updateFetchRequests()
+                    }
                     .sheet(isPresented: $shareSheetShown) {
                         if let log_uiimage = image {
                             let logImage = Image(uiImage: log_uiimage)
@@ -300,7 +309,14 @@ struct LogsView: View {
     
     func updateFetchRequests() {
         let currentDay = formattedDate(Date())
-        logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
+        currentLog.nsPredicate = NSPredicate(format: "day == %@", currentDay)
+        
+        
+        if currentLog.isEmpty {
+            let newLog = Log(context: coreDataManager.viewContext)
+            newLog.day = currentDay
+            newLog.id = UUID()
+        }
     }
     
     

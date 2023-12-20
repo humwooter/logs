@@ -21,6 +21,7 @@ import FLAnimatedImage
 
 
 
+let timer = MyTimer()
 
 
 class DayChange: ObservableObject {
@@ -116,6 +117,9 @@ struct TextView : View {
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
                                 .foregroundColor(userPreferences.accentColor)
+//                                .presentationDetents([.medium, .large])
+                                .presentationDragIndicator(.hidden)
+
                         }
                 }
             } header: {
@@ -127,11 +131,7 @@ struct TextView : View {
 
                     if (entry.isPinned) {
                         Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor).font(.system(size: UIFont.systemFontSize))
-                        
-//                        Image("slime")
-//                            .resizable()
-//                            .frame(width: 25, height: 25)
-//                            .shadow(radius: 1)
+
                     }
                     Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor).font(.system(size: UIFont.systemFontSize))
                         .contentTransition(.symbolEffect(.replace.offUp))
@@ -359,6 +359,19 @@ struct EntryView: View {
         predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
     ) var entries: FetchedResults<Entry>
 
+//    @FetchRequest var entries: FetchedResults<Entry>
+    @State private var currentTime: Date = Date()
+
+    
+//    init() {
+//        let predicate = NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
+//        let sortDescriptors = [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]
+//        _entries = FetchRequest<Entry>(
+//            entity: Entry.entity(),
+//            sortDescriptors: sortDescriptors,
+//            predicate: predicate
+//        )
+//    }
 
     
     
@@ -367,9 +380,6 @@ struct EntryView: View {
     
     
     var body: some View {
-//        let gradient = LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottom)
-
-        
         NavigationStack {
             List {
                     switch selectedSortOption {
@@ -382,7 +392,6 @@ struct EntryView: View {
                                         .environmentObject(userPreferences)
                                         .environmentObject(coreDataManager)
                                         .id("\(entry.id)")
-//                                }
                             }
                         }
                         
@@ -438,10 +447,9 @@ struct EntryView: View {
                     
                 }
             .background {
-                if userPreferences.backgroundColors[0] != Color(UIColor.systemBackground) {
+                if userPreferences.backgroundColors.first != Color(UIColor.systemGroupedBackground) {
                     ZStack {
-                        Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottomTrailing)
                             .opacity(0.90)
                             .ignoresSafeArea()
                     }
@@ -486,96 +494,38 @@ struct EntryView: View {
                     Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
                 }
             } label: {
-//                                    Image(systemName: "line.3.horizontal.circle.fill")
                 Image(systemName: "arrow.up.arrow.down")
                     .font(.system(size:13))
                 
             }
             )
+            .refreshable(action: {
+                updateFetchRequests()
+            })
             .sheet(isPresented: $isShowingEntryCreationView) {
                 NewEntryView()
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .foregroundColor(userPreferences.accentColor)
+                    .presentationDragIndicator(.hidden)
+
                 
             }
             if entries.count == 0 {
                     Text("No entries")
                         .foregroundColor(.gray)
                         .italic()
-//                        .onAppear {
-//                            updateFetchRequests()
-//                        }
                     if let log = logs.first {
                         if (log.day != formattedDate(Date())) {
                             ProgressView()
-                    
-                            
                         }
                     }
                     
                 }
-                
-//            }
-
-//            .onAppear(perform: {
-//                updateFetchRequests()
-//
-//            })
-
-//            .navigationTitle(entry_1.currentDate())
-//            .navigationBarItems(trailing:
-//                                    Button(action: {
-//                isShowingEntryCreationView = true
-//            }, label: {
-//                Image(systemName: "plus")
-//                    .font(.system(size: 15))
-//            })
-//            )
-//            .navigationBarItems(trailing:
-//                                    Menu {
-//                Button(action: {
-//                    selectedSortOption = .timeAscending
-//                }) {
-//                    Text("Time Ascending")
-//                    Image(systemName: selectedSortOption == .timeAscending ? "checkmark" : "")
-//                }
-//                
-//                Button(action: {
-//                    selectedSortOption = .timeDescending
-//                }) {
-//                    Text("Time Descending")
-//                    Image(systemName: selectedSortOption == .timeDescending ? "checkmark" : "")
-//                }
-//                
-//                Button(action: {
-//                    selectedSortOption = .image
-//                }) {
-//                    Text("Stamp Name")
-//                    Image(systemName: selectedSortOption == .image ? "checkmark" : "")
-//                }
-//                Button(action: {
-//                    selectedSortOption = .wordCount
-//                }) {
-//                    Text("Word Count")
-//                    Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
-//                }
-//            } label: {
-////                                    Image(systemName: "line.3.horizontal.circle.fill")
-//                Image(systemName: "arrow.up.arrow.down")
-//                    .font(.system(size:13))
-//                
-//            }
-//            )
-            
-//            .sheet(isPresented: $isShowingEntryCreationView) {
-//                NewEntryView()
-//                    .environmentObject(coreDataManager)
-//                    .environmentObject(userPreferences)
-//                    .foregroundColor(userPreferences.accentColor)
-//                
-//            }
-            
+        }
+      
+        .onAppear {
+            updateFetchRequests()
         }
         
     }
@@ -585,9 +535,16 @@ struct EntryView: View {
     
     func updateFetchRequests() {
         let currentDay = formattedDate(Date())
+        print("current day: \(currentDay)")
         logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
         if let log = logs.first {
-            entries.nsPredicate = NSPredicate(format: "relationship == %@", log)
+            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
+        }
+        else {
+            let newLog = Log(context: coreDataManager.viewContext)
+            newLog.day = currentDay
+            newLog.id = UUID()
+            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
         }
     }
     

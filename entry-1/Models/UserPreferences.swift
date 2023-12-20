@@ -62,7 +62,7 @@ class UserPreferences: ObservableObject {
     }
     
     
-    @Published var backgroundColors: [Color] = [Color(UIColor.tertiarySystemBackground)] {
+    @Published var backgroundColors: [Color] = [Color(UIColor.systemGroupedBackground), Color(UIColor.systemGroupedBackground)] {
         didSet {
             UserDefaults.standard.saveColors(colors: backgroundColors, forKey: "backgroundColors")
         }

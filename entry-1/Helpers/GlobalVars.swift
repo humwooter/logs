@@ -20,3 +20,5 @@ enum SortOption {
     case image
     case wordCount
 }
+
+

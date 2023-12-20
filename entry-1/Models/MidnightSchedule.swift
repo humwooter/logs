@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 
 
@@ -27,6 +28,26 @@ func generateMidnightDates(startingFrom startDate: Date) -> AnySequence<Date> {
             }
 
             return nextMidnight
+        }
+    }
+}
+
+
+
+class MyTimer {
+    let currentTimePublisher = Timer.publish(every: 1.0, on: .main, in: .default).autoconnect()
+    var midnightAction: (() -> Void)?
+
+    init(midnightAction: (() -> Void)? = nil) {
+        self.midnightAction = midnightAction
+
+        // Set up a subscriber to check for midnight
+        _ = currentTimePublisher.sink { date in
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.hour, .minute, .second], from: date)
+            if components.hour == 0 && components.minute == 0 && components.second == 0 {
+                self.midnightAction?()
+            }
         }
     }
 }

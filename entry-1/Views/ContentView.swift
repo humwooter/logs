@@ -14,7 +14,7 @@ struct ContentView: View {
     
     var body: some View {
         
-        TimelineView(MidnightSchedule()) { context in
+//        TimelineView(MidnightSchedule()) { context in
             
             VStack {
                 if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
@@ -82,7 +82,7 @@ struct ContentView: View {
                 }
             })
             //        onAppear(perform: authenticate)
-        }
+//        }
     }
     
 

@@ -57,23 +57,32 @@ struct NewEntryView: View {
         NavigationStack {
             VStack {
                 ScrollView(.vertical, showsIndicators: true) {
-                        VStack {
-                            TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
-                                .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
-                                .onSubmit {
-                                    finalizeCreation()
-                                }
-
-                                .padding(.vertical, 10)
-                        }
-                            .padding(.horizontal, 20)
-         
+                    VStack {
+                        TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+//                            .toolbar {
+//                                ToolbarItemGroup(placement: .keyboard) {
+//                                    buttonBar()
+//                                }
+//                            }
+//                            .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
+                            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+                            .onSubmit {
+                                finalizeCreation()
+                            }
+                            .padding(.bottom)
+                            .padding(.vertical, 5)
+                          
+                        
+                        
+                    }
 
                 }
-                .defaultScrollAnchor(.bottomLeading)
+                .padding(.horizontal, 20)
+                .defaultScrollAnchor(entryContent.isEmpty ? .topLeading : .bottomLeading)
                 .safeAreaInset(edge: .bottom) {
                     buttonBar()
                 }
+
 
                 if let data = selectedData {
                     if isGIF(data: data) {
@@ -107,12 +116,21 @@ struct NewEntryView: View {
                     }
                 }
             }
-
+            .background {
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                            .opacity(0.92)
+                            .ignoresSafeArea()
+                    }
+            }
             .sheet(isPresented: $isCameraPresented) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
                 
             }
             .navigationBarTitle("New Entry")
+            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -131,7 +149,7 @@ struct NewEntryView: View {
                         vibration_heavy.impactOccurred()
                         presentationMode.wrappedValue.dismiss()
                     } label: {
-                        Image(systemName: "arrow.backward")
+                        Image(systemName: "chevron.left")
                             .font(.system(size: 15))
                     }
                 }
@@ -188,16 +206,10 @@ struct NewEntryView: View {
             
             
         }
-        .padding(.vertical)
+        .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(
-            LinearGradient(
-                gradient: Gradient(colors: [Color.gray.opacity(0.1), Color.clear]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
-        .edgesIgnoringSafeArea(.bottom)
+        .background(Color.white.opacity(0.05))
+
     }
     
     func finalizeCreation() {
