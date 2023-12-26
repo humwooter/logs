@@ -13,6 +13,8 @@ import UniformTypeIdentifiers
 import UIKit
 
 
+let dateFormatter = DateFormatter()
+
 
 struct HeightGetterModifier: ViewModifier {
     var onHeightCalculated: (CGFloat) -> Void
@@ -146,6 +148,7 @@ struct LogsView: View {
         animation: nil
     ) var currentLog: FetchedResults<Log>
 
+    @State var selectedLogs: [Log] = []
     
     // LogsView
     var body: some View {
@@ -162,6 +165,7 @@ struct LogsView: View {
                                         .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
                                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                                         .accentColor(Color.complementaryColor(of: userPreferences.accentColor))
+                                   
                                 }
                                 
                             } header: {
@@ -176,6 +180,12 @@ struct LogsView: View {
                                             showCalendar.toggle()
                                         }
                                 }
+                            }
+                            .onAppear {
+                                let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                                    
+                                
+                                dates.insert(todayComponents)
                             }
 
                             ForEach(filteredLogs(), id: \.self) { log in
@@ -237,20 +247,34 @@ struct LogsView: View {
                     }
                     .onAppear {
                         updateFetchRequests()
+                        
+                        //dates is a set so if the current date exists already then nothing happens
+                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                            
+                        
+                        dates.insert(todayComponents)
                     }
                     .scrollContentBackground(.hidden)
                     .refreshable {
                         updateFetchRequests()
+                        
+                        //dates is a set so if the current date exists already then nothing happens
+                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                            
+                        
+                        dates.insert(todayComponents)
                     }
                     .sheet(isPresented: $shareSheetShown) {
                         if let log_uiimage = image {
-                            let logImage = Image(uiImage: log_uiimage)
+                            let logImage = Image(
+                                uiImage: log_uiimage)
                             ShareLink(item: logImage, preview: SharePreview("", image: logImage))
                         }
                     }
                     .listStyle(.automatic)
                     .navigationTitle("Logs")
-            }.font(.system(size: userPreferences.fontSize))
+            }.font(.system(size: UIFont.systemFontSize))
+
             
                 .fileExporter(isPresented: $isExporting, document: PDFDocument(pdfURL: pdfURL), contentType: .pdf) { result in
                     switch result {
@@ -281,6 +305,7 @@ struct LogsView: View {
         
         
         var filtered: [Log] = []
+        updateFetchRequests()
         
         switch selectedTimeframe {
         case "By Date":
@@ -308,6 +333,9 @@ struct LogsView: View {
 
     
     func updateFetchRequests() {
+        
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+
         let currentDay = formattedDate(Date())
         currentLog.nsPredicate = NSPredicate(format: "day == %@", currentDay)
         
@@ -317,6 +345,7 @@ struct LogsView: View {
             newLog.day = currentDay
             newLog.id = UUID()
         }
+
     }
     
     
@@ -325,10 +354,7 @@ struct LogsView: View {
         guard let log = log else { return }
         if let entries = log.relationship as? Set<Entry> {
             for entry in entries {
-                //                coreDataManager.viewContext.delete(entry)
                 deleteEntry(entry: entry, coreDataManager: coreDataManager)
-                
-                
             }
         }
         coreDataManager.viewContext.delete(log)

@@ -31,11 +31,6 @@ func defaultLogsName() -> String {
 
 
 
-
-
-
-
-
 struct SettingsView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     //    @Environment(\.managedObjectContext) private var viewContext
@@ -126,6 +121,8 @@ struct SettingsView: View {
                     if selectedTab == 0 {
                         
                         Section(header: Text("Preferences").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
                         ) {
                             ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                             
@@ -139,6 +136,8 @@ struct SettingsView: View {
                         }
                         
                         Section(header: Text("Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
                         ) {
                             HStack {
                                 Spacer()
@@ -147,7 +146,12 @@ struct SettingsView: View {
                                     print("Export button tapped")
                                     isExporting = true
                                 } label: {
-                                    Label("BACKUP", systemImage: "arrow.up.doc").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                    VStack(spacing: 2) {
+                                       
+                                        Image(systemName:  "arrow.up.doc")
+                                        
+                                        Text("BACKUP").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                    }
 
                                 }
                                 .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
@@ -165,14 +169,17 @@ struct SettingsView: View {
                                 Button {
                                     isImporting = true
                                 } label: {
-                                    Label("RESTORE", systemImage: "arrow.down.doc").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                    VStack(spacing: 2) {
+                                        Image(systemName:  "arrow.down.doc")
+                                        Text("RESTORE").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                    }
                                 }
                                 .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
                                     Task {
                                         switch result {
                                         case .success(let url):
                                             do {
-                                                try await importData(from: url)
+                                                try await importData(from: url, coreDataManager: coreDataManager)
                                             } catch {
                                                 print("Failed to import data: \(error)")
                                             }
@@ -193,6 +200,8 @@ struct SettingsView: View {
                         
                         
                         Section(header: Text("Advanced Settings").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
                         ) {
                             Toggle("Advanced Settings", isOn: $advancedSettings) // Make sure to add this property to UserPreferences
                         }
@@ -200,6 +209,8 @@ struct SettingsView: View {
                         
                         if advancedSettings {
                             Section(header: Text("Enable authentication").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                .font(.system(size: UIFont.systemFontSize))
+
                             ) {
                                 Toggle("Enable authentication", isOn: $userPreferences.showLockScreen) // Make sure to add this property to UserPreferences
                                     .onChange(of: userPreferences.showLockScreen) { newValue in
@@ -209,6 +220,8 @@ struct SettingsView: View {
                                     }
                             }
                             Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                .font(.system(size: UIFont.systemFontSize))
+
                             ) {
                                 BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
                             }
@@ -216,7 +229,9 @@ struct SettingsView: View {
                                 ColorPicker("Pin Color", selection: $userPreferences.pinColor)
                             } header: {
                                 HStack {
-                                    Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                    Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)                                .font(.system(size: UIFont.systemFontSize))
+
+
                                     
                                     Spacer()
                                     Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
@@ -229,7 +244,9 @@ struct SettingsView: View {
                     
                     
                     if selectedTab == 1 {
-                        Section(header: Text("Stamp Dasboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        Section(header: Text("Stamp Dashboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
                         ) {
                             ButtonDashboard().environmentObject(userPreferences)
                                 .listStyle(.automatic)
@@ -248,21 +265,12 @@ struct SettingsView: View {
                         }
                     }
                 }
-//                VStack {
-//                    Picker("Options", selection: $selectedTab) {
-//                        Text("Preferences").tag(0)
-//                        Text("Stamps").tag(1)
-//                    }
-//                    .pickerStyle(.segmented)
-//                    .cornerRadius(10)
-//                    .padding()
-//                }
-                
+
             }
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .center)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                             .ignoresSafeArea()
                     }
             }
@@ -294,55 +302,8 @@ struct SettingsView: View {
     }
     
     
-    
-    private func importData(from url: URL) async throws {
-        print("entered import data")
-        
-        guard url.startAccessingSecurityScopedResource() else {
-            throw NSError(domain: "Security", code: 1, userInfo: nil)
-        }
-        defer { url.stopAccessingSecurityScopedResource() }
-        
-        let jsonData = try Data(contentsOf: url)
-        
-        do {
-            if let jsonArray = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [[String: Any]] {
-                
-                coreDataManager.backgroundContext.performAndWait {
-                    do {
-                        for jsonObject in jsonArray {
-                            if let logIdString = jsonObject["id"] as? String, let logId = UUID(uuidString: logIdString) {
-                                print("ID: \(logId)")
-                                
-                                let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-                                fetchRequest.predicate = NSPredicate(format: "id == %@", logId as CVarArg)
-                                
-                                let existingLogs = try coreDataManager.viewContext.fetch(fetchRequest)
-                                
-                                if existingLogs.first != nil {
-                                    print("LOG WITH ID: \(logId) ALREADY EXISTS")
-                                } else {
-                                    if let logData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) {
-                                        let decoder = JSONDecoder()
-                                        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = coreDataManager.viewContext
-                                        let log = try decoder.decode(Log.self, from: logData)
-                                        coreDataManager.viewContext.insert(log)
-                                    }
-                                }
-                            }
-                        }
-                        try coreDataManager.backgroundContext.save()
-                        
-                    } catch {
-                        print("Failed to import data: \(error)")
-                    }
-                }
-            }
-        } catch {
-            print("Failed to parse JSON: \(error)")
-        }
-        
-    }
+  
+
     
     // UIDocumentPickerDelegate method
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {

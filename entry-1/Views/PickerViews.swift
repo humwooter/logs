@@ -26,12 +26,6 @@ struct ButtonDashboard: View {
                   
                   HStack {
                       Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
-//                      TipView(customStampTip, arrowEdge: .bottom)
-//                      Image(systemName: "info.circle.fill")
-//                          .popoverTip(customStampTip, arrowEdge: .top)
-//                          .onTapGesture {
-//                              customStampTip.invalidate(reason: .actionPerformed)
-//                                }
                   }
 
                   dashboardSection(startIndex: selectedTab*7)
@@ -77,7 +71,7 @@ struct ButtonDashboard: View {
             Spacer()
         }
         .alert(isPresented: $showAlert) {
-             Alert(title: Text("Limit Reached"), message: Text("No more than 4 stamps can be activated at a time."), dismissButton: .default(Text("OK")))
+             Alert(title: Text("Limit Reached"), message: Text("No more than 3 stamps can be activated at a time."), dismissButton: .default(Text("OK")))
          }
         .padding(.top, 20)
     }
@@ -106,15 +100,13 @@ struct ButtonDashboard: View {
                     .cornerRadius(40)
                     .shadow(radius: stamp.isActive ? 5 : 0)
                 VStack(alignment: .center, spacing: 2) {
-//                    if stamp.isActive {
                         Image(systemName: stamp.imageName).fontWeight(.bold)
                         .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
                             .padding(.vertical, 5)
-//                    }
                     ToggleButton(isOn: Binding(
                                        get: { stamp.isActive },
                                        set: { newValue in
-                                           if userPreferences.stamps.filter({ $0.isActive }).count < 4 || stamp.isActive {
+                                           if userPreferences.stamps.filter({ $0.isActive }).count < 3 || stamp.isActive {
                                                userPreferences.stamps[index].isActive = newValue
                                            } else {
                                                showAlert = true
@@ -123,7 +115,6 @@ struct ButtonDashboard: View {
                                    ), color: stamp.color)
                 }
             }
-//            Text("Stamp \(index + 1)").font(.caption)
         }
         .onTapGesture {
             print("INDEX: \(index)")
@@ -146,13 +137,10 @@ struct IconPicker: View {
         .init(.flexible(), spacing: 10),
         .init(.flexible(), spacing: 10),
         .init(.flexible(), spacing: 10),
-
         .init(.flexible(), spacing: 10)
 
     ]
 
-
-    
     
     var body: some View {
         
@@ -192,9 +180,7 @@ struct IconPicker: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(selectedImage != image ? Color(UIColor.secondarySystemBackground).opacity(1) : selectedColor)
                                         .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
-//                                        .background {
-//                                            LinearGradient(colors: [selectedColor, selectedColor.opacity(0.5)], startPoint: .top, endPoint: .end)
-//                                        }
+
                                     
                                     HStack {
                                         Image(systemName: image)

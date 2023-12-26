@@ -13,58 +13,49 @@ struct ContentView: View {
     
     
     var body: some View {
-        
-//        TimelineView(MidnightSchedule()) { context in
-            
+                    
             VStack {
                 if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                    Button {
-                        authenticate()
-                    } label: {
-                        Label("Locked", systemImage: "lock")
+                    
+                    ZStack {
+                        
+                            Color(UIColor.systemGroupedBackground)
+                            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                                .ignoresSafeArea()
+                        
+                        Button {
+                            authenticate()
+                        } label: {
+                            Label("Locked", systemImage: "lock")
+                                .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
+                        }
                     }
                     
                 }
                 else {
                     TabView(selection: $selectedIndex) {
                         LogsView()
-                        //                         .environment(\.managedObjectContext, viewContext)
-                        //                        .environment(\.managedObjectContext, coreDataManager.viewContext)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
-                        //                        .onTapGesture {
-                        //                            indices[0].toggle()
-                        //                        }
                             .tabItem {
                                 Label("Logs", systemImage: "book.fill")
-                                //                                .symbolEffect(.bounce.down, value: indices[0])
-                                
                             }.tag(0)
                         
                         
                         
-                        //              if (logs.count != 0) {
                         EntryView(color: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {
                                 Label("Entries", systemImage: "pencil")
                             }.tag(1)
-                        //                    }
                         
                         
                         SettingsView()
-                        //                    .environment(\.managedObjectContext, coreDataManager.viewContext)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
-                        //                        .onTapGesture {
-                        //                            indices[2].toggle()
-                        //                        }
-                        // .environment(\.managedObjectContext, viewContext)
                             .tabItem {
                                 Label("Settings", systemImage: "gearshape")
-                                //                                .symbolEffect(.bounce.down, value: indices[2])
-                                
                             }.tag(2)
                     }
                     .accentColor(userPreferences.accentColor)
@@ -81,8 +72,6 @@ struct ContentView: View {
                     print("Family: \(family) Font names: \(names)")
                 }
             })
-            //        onAppear(perform: authenticate)
-//        }
     }
     
 

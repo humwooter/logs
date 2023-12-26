@@ -59,6 +59,8 @@ struct NewEntryView: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack {
                         TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+                            .focused($focusField)
+
 //                            .toolbar {
 //                                ToolbarItemGroup(placement: .keyboard) {
 //                                    buttonBar()
@@ -78,7 +80,7 @@ struct NewEntryView: View {
 
                 }
                 .padding(.horizontal, 20)
-                .defaultScrollAnchor(entryContent.isEmpty ? .topLeading : .bottomLeading)
+                .defaultScrollAnchor(entryContent.isEmpty ? .topLeading : .bottom)
                 .safeAreaInset(edge: .bottom) {
                     buttonBar()
                 }
@@ -137,6 +139,7 @@ struct NewEntryView: View {
                         
                         finalizeCreation()
                         presentationMode.wrappedValue.dismiss()
+                        focusField = false
                     }) {
                         Text("Done")
                             .font(.system(size: 15))
@@ -153,7 +156,12 @@ struct NewEntryView: View {
                     }
                 }
             }
+   
         }
+        .onTapGesture {
+            focusField = true
+        }
+       
     }
     
     @ViewBuilder
@@ -166,9 +174,7 @@ struct NewEntryView: View {
             }
             Spacer()
             
-            Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20))
-            
-                .onTapGesture {
+            Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).onTapGesture {
                     vibration_heavy.impactOccurred()
                     isHidden.toggle()
                 }
@@ -190,18 +196,7 @@ struct NewEntryView: View {
                     }
                 }
             }
-//            Button(action: {
-//                AVCaptureDevice.requestAccess(for: AVMediaType.video) { response in
-//                    if response {
-//                        isCameraPresented = true
-//                    } else {
-//                        
-//                    }
-//                }
-//            }) {
-//                Image(systemName: "camera.fill")
-//                    .font(.system(size: 20))
-//            }
+
             
             Image(systemName: "camera.fill")
                 .font(.system(size: 20))

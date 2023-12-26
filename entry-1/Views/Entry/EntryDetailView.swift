@@ -19,8 +19,8 @@ struct EntryDetailView: View { //used in LogDetailView
     let entry: Entry
     
     
-    let semaphore = DispatchSemaphore(value: 0)
     
+@State var showEntry = true
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
@@ -58,6 +58,28 @@ struct EntryDetailView: View { //used in LogDetailView
                             })
                             
                             Button(action: {
+                                withAnimation(.easeOut) {
+                                    showEntry.toggle()
+                                    entry.isHidden = !showEntry
+                                    coreDataManager.save(context: coreDataManager.viewContext)
+                                }
+
+                            }, label: {
+                                Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+                            })
+                            
+                            if (!((entry.imageContent?.isEmpty) == nil)) {
+                                Button(action: {
+                                    if let filename = entry.imageContent, let image = UIImage(data:  getMediaData(fromFilename: filename)!) {
+                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                    }
+                                }, label: {
+                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                })
+                                
+                            }
+                            
+                            Button(action: {
                                 withAnimation {
                                     entry.isPinned.toggle()
                                     coreDataManager.save(context: coreDataManager.viewContext)
@@ -68,6 +90,8 @@ struct EntryDetailView: View { //used in LogDetailView
                                     .foregroundColor(.red)
                               
                             }
+                            
+               
                         }
                 }
                 Spacer() // Push the image to the right
@@ -92,16 +116,22 @@ struct EntryDetailView: View { //used in LogDetailView
                 }
                 
             }
-            
+
         }.padding(.vertical, 5)
+            .onAppear {
+                showEntry = !entry.isHidden
+            }
+       
             .sheet(isPresented: $shareSheetShown) {
                 if let entry_uiimage = image {
                     let entryImage = Image(uiImage: entry_uiimage)
                     ShareLink(item: entryImage, preview: SharePreview("", image: entryImage))
                 }
             }
+            .blur(radius: showEntry ? 0 : 7)
         
     }
+    
     
     
     func createPDFData_entry(entry: Entry) -> Data {

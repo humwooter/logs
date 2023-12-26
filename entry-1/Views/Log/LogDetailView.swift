@@ -24,6 +24,7 @@ struct LogDetailView: View {
         if let entries = log.relationship as? Set<Entry>, !entries.isEmpty {
             Section {
                 List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
+                    
                     EntryDetailView(entry: entry)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)

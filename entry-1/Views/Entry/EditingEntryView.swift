@@ -63,7 +63,7 @@ struct EditingEntryView: View {
                 ScrollView(.vertical, showsIndicators: true) {
                         VStack {
                             TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
-//                                .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
+                                .focused($focusField)
                                 .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
                                 .onSubmit {
@@ -95,7 +95,6 @@ struct EditingEntryView: View {
                                         selectedData = nil
                                         selectedImage = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
-//                                        coreDataManager.save(context: coreDataManager.viewContext)
 
                                     }
                                 }) {
@@ -112,7 +111,6 @@ struct EditingEntryView: View {
                                         selectedData = nil
                                         selectedImage = nil
                                         entry.deleteImage(coreDataManager: coreDataManager)
-//                                        coreDataManager.save(context: coreDataManager.viewContext)
                                     }
                                 }) {
                                     Text("Delete")
@@ -122,8 +120,6 @@ struct EditingEntryView: View {
                             }
                     }
                 }
-                
-             
             }
             .background {
                     ZStack {
@@ -172,6 +168,9 @@ struct EditingEntryView: View {
                     }
                 }
             }
+        }
+        .onTapGesture {
+            focusField = true
         }
     }
     

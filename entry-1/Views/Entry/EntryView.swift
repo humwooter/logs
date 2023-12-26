@@ -66,7 +66,7 @@ struct TextView : View {
     @State private var showCamera = false
     @State private var shareImage: UIImage? = nil
     
-    
+    @State private var showEntry = true
     
     var body : some View {
         
@@ -93,6 +93,29 @@ struct TextView : View {
                                 Image(systemName: "doc.on.doc")
                             }
                             
+                            
+                            Button(action: {
+                                withAnimation(.easeOut) {
+                                    showEntry.toggle()
+                                    entry.isHidden = !showEntry
+                                    coreDataManager.save(context: coreDataManager.viewContext)
+                                }
+
+                            }, label: {
+                                Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+                            })
+                            
+                            if (!((entry.imageContent?.isEmpty) == nil)) {
+                                Button(action: {
+                                    if let filename = entry.imageContent, let image = UIImage(data:  getMediaData(fromFilename: filename)!) {
+                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                    }
+                                }, label: {
+                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                })
+                                
+                            }
+                            
                             Button(action: {
                                 withAnimation {
                                     entry.isPinned.toggle()
@@ -104,6 +127,7 @@ struct TextView : View {
                                     .foregroundColor(.red)
                               
                             }
+                
                             
                         }
                     
@@ -124,18 +148,18 @@ struct TextView : View {
                 }
             } header: {
                 HStack {
-                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                         
                         
                         
-                    Label("", systemImage: entry.image).foregroundStyle(Color(entry.color)).font(.system(size: UIFont.systemFontSize))
+                    Label("", systemImage: entry.image).foregroundStyle(Color(entry.color))
                     Spacer()
 
                     if (entry.isPinned) {
-                        Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor).font(.system(size: UIFont.systemFontSize))
+                        Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
 
                     }
-                    Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor).font(.system(size: UIFont.systemFontSize))
+                    Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                         .contentTransition(.symbolEffect(.replace.offUp))
 
                         .onTapGesture {
@@ -144,9 +168,13 @@ struct TextView : View {
                                 coreDataManager.save(context: coreDataManager.viewContext)
                         }
                 }
+                .font(.system(size: UIFont.systemFontSize))
             }
-
+            .onAppear {
+                showEntry = !entry.isHidden
+            }
         }
+         
         
     }
     
@@ -260,31 +288,7 @@ struct EntryRowView: View {
         
     }
     
-//    private func activateButton(entry: Entry, index: Int) {
-//         let mainContext = coreDataManager.viewContext
-//         mainContext.performAndWait {
-//             let val : Bool = !entry.buttons[index] //this is what it means to toggle
-////             entry.buttons = [False] * 21
-//             entry.buttons[index] = val
-//             entry.color = UIColor(userPreferences.selectedColors[index])
-//             entry.image = userPreferences.selectedImages[index]
-//             print("URL from inside activate button \(entry.imageContent)")
-//             
-//             // Save the context
-//             do {
-//                 try mainContext.save()
-//             } catch {
-//                 print("Failed to save mainContext: \(error)")
-//             }
-//             
-//             if entry.buttons[index] == true {
-//                 markedEntries.button_entries[index].insert(entry)
-//             } else {
-//                 entry.color = UIColor.tertiarySystemBackground
-//                 markedEntries.button_entries[index].remove(entry)
-//             }
-//         }
-//     }
+
     
     private func activateButton(entry: Entry, index: Int) {
         let mainContext = coreDataManager.viewContext
