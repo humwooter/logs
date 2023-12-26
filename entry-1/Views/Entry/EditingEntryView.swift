@@ -58,66 +58,69 @@ struct EditingEntryView: View {
                         
                     }
                 }
-          
+                
                 
                 ScrollView(.vertical, showsIndicators: true) {
-                        VStack {
-                            TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
-                                .focused($focusField)
-                                .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
-
-                                .onSubmit {
-                                    finalizeEdit()
-                                }
-                                .padding(.bottom)
-                                .padding(.vertical, 5)
-//                                .toolbar {
-//                                    ToolbarItemGroup(placement: .keyboard) {
-//                                        buttonBar()
-//                                    }
-//                                }
-                        }
-         
-
+                    VStack {
+                        TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
+                            .focused($focusField)
+                            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+                        
+                            .onSubmit {
+                                finalizeEdit()
+                            }
+                            .padding(.bottom)
+                            .padding(.vertical, 5)
+                        //                                .toolbar {
+                        //                                    ToolbarItemGroup(placement: .keyboard) {
+                        //                                        buttonBar()
+                        //                                    }
+                        //                                }
+                    }
+                    
+                    
                 }
                 .padding(.horizontal, 20)
                 .defaultScrollAnchor(editingContent.isEmpty ? .topLeading : .bottom)
-                .safeAreaInset(edge: .bottom) {
+//                .safeAreaInset(edge: .bottom) {
+//                    buttonBar()
+//                }
+                
+                VStack {
                     buttonBar()
-                }
-
-                if let data = selectedData {
-                    if isGIF(data: data) {
-                        AnimatedImageView_data(data: data)
-                            .contextMenu {
-                                Button(role: .destructive, action: {
-                                    withAnimation(.smooth) {
-                                        selectedData = nil
-                                        selectedImage = nil
-                                        entry.deleteImage(coreDataManager: coreDataManager)
-
+                    if let data = selectedData {
+                        if isGIF(data: data) {
+                            AnimatedImageView_data(data: data)
+                                .contextMenu {
+                                    Button(role: .destructive, action: {
+                                        withAnimation(.smooth) {
+                                            selectedData = nil
+                                            selectedImage = nil
+                                            entry.deleteImage(coreDataManager: coreDataManager)
+                                            
+                                        }
+                                    }) {
+                                        Text("Delete")
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
                                     }
-                                }) {
-                                    Text("Delete")
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
                                 }
-                            }
-                    } else {
-                        CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
-                            .contextMenu {
-                                Button(role: .destructive, action: {
-                                    withAnimation(.smooth) {
-                                        selectedData = nil
-                                        selectedImage = nil
-                                        entry.deleteImage(coreDataManager: coreDataManager)
+                        } else {
+                            CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                                .contextMenu {
+                                    Button(role: .destructive, action: {
+                                        withAnimation(.smooth) {
+                                            selectedData = nil
+                                            selectedImage = nil
+                                            entry.deleteImage(coreDataManager: coreDataManager)
+                                        }
+                                    }) {
+                                        Text("Delete")
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
                                     }
-                                }) {
-                                    Text("Delete")
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
                                 }
-                            }
+                        }
                     }
                 }
             }
@@ -176,7 +179,7 @@ struct EditingEntryView: View {
     
     @ViewBuilder
        func buttonBar() -> some View {
-           HStack(spacing: 25) {
+           HStack(spacing: 35) {
                Button(action: startOrStopRecognition) {
                    Image(systemName: "mic.fill")
                        .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
@@ -184,12 +187,13 @@ struct EditingEntryView: View {
                }
                
                Spacer()
-               Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20))
-                   .onTapGesture {
-                       vibration_heavy.impactOccurred()
-                       entry.isHidden.toggle()
-                   }
-                   .foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+               
+               Button {
+                   vibration_heavy.impactOccurred()
+                   entry.isHidden.toggle()
+               } label: {
+                   Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+               }
                
     
                PhotosPicker(selection:$selectedItem, matching: .images) {

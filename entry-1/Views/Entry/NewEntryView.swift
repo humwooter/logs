@@ -81,40 +81,41 @@ struct NewEntryView: View {
                 }
                 .padding(.horizontal, 20)
                 .defaultScrollAnchor(entryContent.isEmpty ? .topLeading : .bottom)
-                .safeAreaInset(edge: .bottom) {
+            
+
+
+                VStack {
                     buttonBar()
-                }
-
-
-                if let data = selectedData {
-                    if isGIF(data: data) {
-                        AnimatedImageView_data(data: data)
-                            .contextMenu {
-                                Button(role: .destructive, action: {
-                                    withAnimation(.smooth) {
-                                        selectedData = nil
-                                        imageHeight = 0
+                    if let data = selectedData {
+                        if isGIF(data: data) {
+                            AnimatedImageView_data(data: data)
+                                .contextMenu {
+                                    Button(role: .destructive, action: {
+                                        withAnimation(.smooth) {
+                                            selectedData = nil
+                                            imageHeight = 0
+                                        }
+                                    }) {
+                                        Text("Delete")
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
                                     }
-                                }) {
-                                    Text("Delete")
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
                                 }
-                            }
-                    } else {
-                        CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
-                            .contextMenu {
-                                Button(role: .destructive, action: {
-                                    withAnimation(.smooth) {
-                                        selectedData = nil
-                                        imageHeight = 0
+                        } else {
+                            CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                                .contextMenu {
+                                    Button(role: .destructive, action: {
+                                        withAnimation(.smooth) {
+                                            selectedData = nil
+                                            imageHeight = 0
+                                        }
+                                    }) {
+                                        Text("Delete")
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
                                     }
-                                }) {
-                                    Text("Delete")
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
                                 }
-                            }
+                        }
                     }
                 }
             }
@@ -166,20 +167,20 @@ struct NewEntryView: View {
     
     @ViewBuilder
     func buttonBar() -> some View {
-        HStack(spacing: 25) {
+        HStack(spacing: 35) {
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
                     .font(.system(size: 20))
             }
             Spacer()
-            
-            Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).onTapGesture {
-                    vibration_heavy.impactOccurred()
-                    isHidden.toggle()
-                }
-                .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
-            
+        
+            Button {
+                vibration_heavy.impactOccurred()
+                isHidden.toggle()
+            } label: {
+                Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
+            }
             
             
             PhotosPicker(selection:$selectedItem, matching: .images) {
