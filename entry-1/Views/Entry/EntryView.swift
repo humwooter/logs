@@ -21,7 +21,6 @@ import FLAnimatedImage
 
 
 
-let timer = MyTimer()
 
 
 class DayChange: ObservableObject {
@@ -383,8 +382,15 @@ struct EntryView: View {
     
     @State private var selectedSortOption: SortOption = .timeAscending
     init(color: UIColor) {
-        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: color]
-     UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.label]
+        
+        if color == UIColor.clear {
+            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.foregroundColor(background: UIColor.label)]
+
+        }
+        else {
+            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: color]
+        }
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.label]
    }
     
     
@@ -450,18 +456,14 @@ struct EntryView: View {
                             deleteEntries(from: indexSet, entries: sortedEntries)
                         }
                     }
-              
-                    
-                    
                     
                 }
             .background {
-                if userPreferences.backgroundColors.first != Color(UIColor.systemGroupedBackground) {
                     ZStack {
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors[1]], startPoint: .top, endPoint: .bottomTrailing)
-                            .ignoresSafeArea()
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                     }
-                }
+                    .ignoresSafeArea()
             }
             .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())

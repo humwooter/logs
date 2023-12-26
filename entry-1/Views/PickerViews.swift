@@ -290,7 +290,7 @@ struct FontPicker: View {
 struct BackgroundColorPickerView: View {
     @Binding var topColor: Color
     @Binding var bottomColor: Color
-    @State var defaultColor = Color("BackgroundColor")
+    @State var defaultColor = Color.clear
     var body: some View {
         Section {
             HStack() {

@@ -62,7 +62,7 @@ class UserPreferences: ObservableObject {
     }
     
     
-    @Published var backgroundColors: [Color] = [Color(UIColor.systemGroupedBackground), Color(UIColor.systemGroupedBackground)] {
+    @Published var backgroundColors: [Color] = [Color.clear, Color.clear] {
         didSet {
             UserDefaults.standard.saveColors(colors: backgroundColors, forKey: "backgroundColors")
         }
@@ -80,11 +80,6 @@ class UserPreferences: ObservableObject {
         }
     }
     
-    @Published var backgroundColor: Color {
-        didSet {
-            UserDefaults.standard.setColor(color: backgroundColor, forKey: "backgroundColor")
-        }
-    }
     
     @Published var showLockScreen: Bool  {
         didSet {
@@ -136,10 +131,9 @@ class UserPreferences: ObservableObject {
         self.activatedButtons = UserDefaults.standard.array(forKey: "activatedButtons") as? [Bool] ?? [true, false, false, false, false]
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "#FFEFC2"), Color(hex: "#FFB1FF"), Color(hex: "#C8FFFF"), Color(hex: "#C2FFCB"), Color(hex: "#928CFF")]
-        self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color(UIColor.systemGroupedBackground), Color(UIColor.systemGroupedBackground)]
+        self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color.clear, Color.clear]
 
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
-        self.backgroundColor = Color(.clear)
     }
 }
 

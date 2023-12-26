@@ -16,12 +16,11 @@ struct ContentView: View {
                     
             VStack {
                 if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                    
-                    ZStack {
-                        
+                        ZStack {
                             Color(UIColor.systemGroupedBackground)
                             LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                                .ignoresSafeArea()
+                        }
+                        .ignoresSafeArea()
                         
                         Button {
                             authenticate()
@@ -29,7 +28,6 @@ struct ContentView: View {
                             Label("Locked", systemImage: "lock")
                                 .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
                         }
-                    }
                     
                 }
                 else {
@@ -59,7 +57,6 @@ struct ContentView: View {
                             }.tag(2)
                     }
                     .accentColor(userPreferences.accentColor)
-                    .background(userPreferences.backgroundColor)
                     .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 }
                 

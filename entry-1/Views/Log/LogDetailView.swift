@@ -40,11 +40,11 @@ struct LogDetailView: View {
                     
                 }
                 .background {
-                    ZStack {
-                        Color.white
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                            .ignoresSafeArea()
-                    }
+                        ZStack {
+                            Color(UIColor.systemGroupedBackground)
+                            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                                .ignoresSafeArea()
+                        }
                 }
                 .scrollContentBackground(.hidden)
                 .onAppear(perform: {

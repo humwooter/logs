@@ -93,13 +93,18 @@ extension UIColor {
     }
     
     static func foregroundColor(background: UIColor) -> Color {
-        
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0
         var alpha: CGFloat = 0
         
-        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        if background == UIColor(Color.clear) {
+            let new_background = UIColor.systemGroupedBackground
+            new_background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        }
+        else {
+            background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        }
         
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
         

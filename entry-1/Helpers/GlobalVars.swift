@@ -21,4 +21,4 @@ enum SortOption {
     case wordCount
 }
 
-
+var defaultBackgroundColor = Color(UIColor.systemGroupedBackground)
