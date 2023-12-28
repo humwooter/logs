@@ -20,6 +20,9 @@ func isHeic(data: Data) -> Bool {
 }
 
 public func imageExists(at url: URL) -> Bool {
+    if FileManager.default.fileExists(atPath: url.path) {
+        print("IMAGE EXISTS!")
+    }
     return FileManager.default.fileExists(atPath: url.path)
     }
 
@@ -55,16 +58,22 @@ func getMediaData(fromFilename filename: String) -> Data? {
     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     let fileURL = documentsDirectory.appendingPathComponent(filename)
     
-    if FileManager.default.fileExists(atPath: fileURL.path) {
-        do {
-            let data = try Data(contentsOf: fileURL)
-            return data
-        } catch {
-            print("Error reading image file: \(error)")
+    if imageExists(at: fileURL) {
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                let data = try Data(contentsOf: fileURL)
+                return data
+            } catch {
+                print("Error reading image file: \(error)")
+                return nil
+            }
+        } else {
+            print("File does not exist at path: \(fileURL.path)")
             return nil
         }
-    } else {
-        print("File does not exist at path: \(fileURL.path)")
+    }
+    else {
         return nil
     }
 }

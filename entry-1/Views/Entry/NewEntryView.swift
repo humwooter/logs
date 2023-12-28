@@ -46,10 +46,10 @@ struct NewEntryView: View {
     @State private var entryContent = ""
     @State private var dynamicHeight: CGFloat = 100
     @State private var imageHeight: CGFloat = 0
-    @State private var buttonBarHeight: CGFloat = 60
+    @State private var keyboardHeight: CGFloat = 0
+
 
     
-    let bottomAnchor = UUID().uuidString    
     var imageFrameHeight: CGFloat = 150
 
     
@@ -59,15 +59,7 @@ struct NewEntryView: View {
                 ScrollView(.vertical, showsIndicators: true) {
                     VStack {
                         TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
-                            .focused($focusField)
-
-//                            .toolbar {
-//                                ToolbarItemGroup(placement: .keyboard) {
-//                                    buttonBar()
-//                                }
-//                            }
-//                            .foregroundColor(colorScheme == .dark ? .white : .black).opacity(0.8)
-                            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))                            .focused($focusField)
                             .onSubmit {
                                 finalizeCreation()
                             }
@@ -77,10 +69,19 @@ struct NewEntryView: View {
                         
                         
                     }
+//                    .frame(maxHeight: focusField == true ? UIScreen.main.bounds.height/3 - imageHeight : UIScreen.main.bounds.height/2 - imageHeight)
+//                    .onTapGesture {
+//                        print("totalHeight: \(UIScreen.main.bounds.height)")
+//                        print("maxY: \(UIScreen.main.bounds.maxY)")
+//
+//                        print("imageHeight: \(imageHeight)")
+//                        print("keyboardHeight: \(keyboardHeight)")
+//                        print("FRAME VERTICAL HEIGHT: \(0.7*UIScreen.main.bounds.height - imageHeight - keyboardHeight)")
+//                        print("prev: \(UIScreen.main.bounds.height/3 - imageHeight)")
+//                    }
 
                 }
                 .padding(.horizontal, 20)
-                .defaultScrollAnchor(entryContent.isEmpty ? .topLeading : .bottom)
             
 
 
@@ -118,6 +119,7 @@ struct NewEntryView: View {
                         }
                     }
                 }
+           
             }
             .background {
                     ZStack {
@@ -131,7 +133,7 @@ struct NewEntryView: View {
                 
             }
             .navigationBarTitle("New Entry")
-            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+//            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -141,6 +143,7 @@ struct NewEntryView: View {
                         finalizeCreation()
                         presentationMode.wrappedValue.dismiss()
                         focusField = false
+                        keyboardHeight = 0
                     }) {
                         Text("Done")
                             .font(.system(size: 15))
@@ -161,6 +164,7 @@ struct NewEntryView: View {
         }
         .onTapGesture {
             focusField = true
+            keyboardHeight = UIScreen.main.bounds.height/3
         }
        
     }
@@ -193,7 +197,9 @@ struct NewEntryView: View {
                 Task {
                     if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                         selectedData = data
-                        imageHeight = imageFrameHeight
+                        imageHeight = UIScreen.main.bounds.height/7
+
+//                        imageHeight = imageFrameHeight
                     }
                 }
             }
@@ -206,6 +212,7 @@ struct NewEntryView: View {
                     Task {
                         if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
                             selectedData = data
+                            imageHeight = UIScreen.main.bounds.height/7
                         }
                     }
                 }

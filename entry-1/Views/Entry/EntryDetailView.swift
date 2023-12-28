@@ -40,7 +40,7 @@ struct EntryDetailView: View { //used in LogDetailView
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .contextMenu {
                             Button(action: {
-                                UIPasteboard.general.string = entry.content ?? ""
+                                UIPasteboard.general.string = entry.content 
                                 print("entry color : \(entry.color)")
                             }) {
                                 Text("Copy Message")
@@ -52,7 +52,10 @@ struct EntryDetailView: View { //used in LogDetailView
                                 let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
                                 try? pdfData.write(to: tmpURL)
                                 let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                    let window = windowScene.windows.first
+                                    window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                }
                             }, label: {
                                 Label("Share Entry", systemImage: "square.and.arrow.up")
                             })
@@ -68,14 +71,23 @@ struct EntryDetailView: View { //used in LogDetailView
                                 Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
                             })
                             
-                            if (!((entry.imageContent?.isEmpty) == nil)) {
-                                Button(action: {
-                                    if let filename = entry.imageContent, let image = UIImage(data:  getMediaData(fromFilename: filename)!) {
-                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                            if let filename = entry.imageContent {
+                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                if imageExists(at: fileURL) {
+                                    if let data =  getMediaData(fromFilename: filename) {
+                                        let image = UIImage(data: data)!
+                                        Button(action: {
+                                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                            let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                            
+                                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                            
+                                        }, label: {
+                                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                        })
                                     }
-                                }, label: {
-                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                })
+                                }
                                 
                             }
                             
@@ -103,9 +115,7 @@ struct EntryDetailView: View { //used in LogDetailView
                     let fileURL = documentsDirectory.appendingPathComponent(filename)
                     let data = try? Data(contentsOf: fileURL)
                     if let data = data, isGIF(data: data) {
-                        let imageView = AnimatedImageView(url: fileURL)
                         let asyncImage = UIImage(data: data)
-                        let height = asyncImage!.size.height
                         AnimatedImageView(url: fileURL).scaledToFit()
                     } else {
                         if imageExists(at: fileURL) {

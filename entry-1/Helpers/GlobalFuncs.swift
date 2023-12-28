@@ -9,6 +9,17 @@ import Foundation
 import CoreData
 import SwiftUI
 
+
+func isClear(for color: UIColor) -> Bool {
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    
+    return ((red + green + blue + alpha) == 0)
+}
 func textColor(for backgroundColor: UIColor) -> Color {
     var red: CGFloat = 0
     var green: CGFloat = 0

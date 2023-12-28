@@ -16,11 +16,11 @@ struct ContentView: View {
                     
             VStack {
                 if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                        ZStack {
-                            Color(UIColor.systemGroupedBackground)
-                            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                        }
-                        .ignoresSafeArea()
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                        
+                            .ignoresSafeArea()
                         
                         Button {
                             authenticate()
@@ -28,6 +28,7 @@ struct ContentView: View {
                             Label("Locked", systemImage: "lock")
                                 .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
                         }
+                    }
                     
                 }
                 else {
@@ -40,8 +41,8 @@ struct ContentView: View {
                             }.tag(0)
                         
                         
-                        
-                        EntryView(color: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))))
+                        EntryView(color: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+//                        EntryView(color: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {

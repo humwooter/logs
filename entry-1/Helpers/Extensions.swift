@@ -98,13 +98,15 @@ extension UIColor {
         var blue: CGFloat = 0
         var alpha: CGFloat = 0
         
-        if background == UIColor(Color.clear) {
+        print("red: \(red), green: \(green), blue: \(blue), alpha: \(alpha)")
+        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        if (isClear(for: background)) {
             let new_background = UIColor.systemGroupedBackground
             new_background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            print("red: \(red), green: \(green), blue: \(blue), alpha: \(alpha)")
         }
-        else {
-            background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        }
+        
         
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
         

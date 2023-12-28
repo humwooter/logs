@@ -104,14 +104,23 @@ struct TextView : View {
                                 Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
                             })
                             
-                            if (!((entry.imageContent?.isEmpty) == nil)) {
-                                Button(action: {
-                                    if let filename = entry.imageContent, let image = UIImage(data:  getMediaData(fromFilename: filename)!) {
-                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                            if let filename = entry.imageContent {
+                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                if imageExists(at: fileURL) {
+                                    if let data =  getMediaData(fromFilename: filename) {
+                                        let image = UIImage(data: data)!
+                                        Button(action: {
+                                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                            let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                            
+                                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                            
+                                        }, label: {
+                                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                        })
                                     }
-                                }, label: {
-                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                })
+                                }
                                 
                             }
                             
@@ -147,7 +156,7 @@ struct TextView : View {
                 }
             } header: {
                 HStack {
-                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                         
                         
                         
@@ -161,13 +170,14 @@ struct TextView : View {
                     Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                         .contentTransition(.symbolEffect(.replace.offUp))
 
-                        .onTapGesture {
-                            vibration_light.impactOccurred()
-                                entry.isShown.toggle()
-                                coreDataManager.save(context: coreDataManager.viewContext)
-                        }
+                    
                 }
                 .font(.system(size: UIFont.systemFontSize))
+                .onTapGesture {
+                    vibration_light.impactOccurred()
+                        entry.isShown.toggle()
+                        coreDataManager.save(context: coreDataManager.viewContext)
+                }
             }
             .onAppear {
                 showEntry = !entry.isHidden
@@ -353,44 +363,28 @@ struct EntryView: View {
            predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
        ) var logs: FetchedResults<Log>
     
-//    @FetchRequest(
-//        entity: Entry.entity(),
-//        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]
-//    ) var entries: FetchedResults<Entry>
-    
+
     @FetchRequest(
         entity: Entry.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
         predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
     ) var entries: FetchedResults<Entry>
 
-//    @FetchRequest var entries: FetchedResults<Entry>
     @State private var currentTime: Date = Date()
-
-    
-//    init() {
-//        let predicate = NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
-//        let sortDescriptors = [NSSortDescriptor(keyPath: \Entry.time, ascending: true)]
-//        _entries = FetchRequest<Entry>(
-//            entity: Entry.entity(),
-//            sortDescriptors: sortDescriptors,
-//            predicate: predicate
-//        )
-//    }
 
     
     
     @State private var selectedSortOption: SortOption = .timeAscending
     init(color: UIColor) {
+        if !isClear(for: color) {
+            let textColor = UIColor(UIColor.foregroundColor(background: color))
+            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+        }
+        if isClear(for: color) {
+            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+        }
         
-        if color == UIColor.clear {
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.foregroundColor(background: UIColor.label)]
-
-        }
-        else {
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: color]
-        }
-        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor.label]
    }
     
     
@@ -524,15 +518,11 @@ struct EntryView: View {
             }
             if entries.count == 0 {
                     Text("No entries")
-                        .foregroundColor(.gray)
                         .italic()
-                    if let log = logs.first {
-                        if (log.day != formattedDate(Date())) {
-                            ProgressView()
-                        }
-                    }
-                    
-                }
+                        .refreshable(action: {
+                            updateFetchRequests()
+                        })
+            }
         }
       
         .onAppear {

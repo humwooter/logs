@@ -39,9 +39,8 @@ struct EditingEntryView: View {
     
     @State private var previousMediaFilename: String = ""
     @State private var previousMediaData: Data?
+    @State var imageHeight: CGFloat = 0
 
-
-    
     
 
     
@@ -71,20 +70,13 @@ struct EditingEntryView: View {
                             }
                             .padding(.bottom)
                             .padding(.vertical, 5)
-                        //                                .toolbar {
-                        //                                    ToolbarItemGroup(placement: .keyboard) {
-                        //                                        buttonBar()
-                        //                                    }
-                        //                                }
+    
                     }
-                    
-                    
+          
+//                    .frame(maxHeight: focusField == true ? UIScreen.main.bounds.height/3 - imageHeight : UIScreen.main.bounds.height/2 - imageHeight)
                 }
                 .padding(.horizontal, 20)
-                .defaultScrollAnchor(editingContent.isEmpty ? .topLeading : .bottom)
-//                .safeAreaInset(edge: .bottom) {
-//                    buttonBar()
-//                }
+
                 
                 VStack {
                     buttonBar()
@@ -122,6 +114,13 @@ struct EditingEntryView: View {
                                 }
                         }
                     }
+                }
+   
+            }
+            .onAppear {
+                if let filename = entry.imageContent {
+                    selectedData = getMediaData(fromFilename: filename)
+                    imageHeight = UIScreen.main.bounds.height/7
                 }
             }
             .background {
@@ -172,10 +171,12 @@ struct EditingEntryView: View {
                 }
             }
         }
+   
         .onTapGesture {
             focusField = true
         }
     }
+    
     
     @ViewBuilder
        func buttonBar() -> some View {
@@ -202,11 +203,13 @@ struct EditingEntryView: View {
                }
                .onChange(of: selectedItem) { _ in
                    selectedData = nil
+                   imageHeight = 0
                    entry.deleteImage(coreDataManager: coreDataManager)
                    Task {
                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                            selectedData = data
                            entry.saveImage(data: data, coreDataManager: coreDataManager)
+                           imageHeight = UIScreen.main.bounds.height/7
                        }
                    }
                }
@@ -215,11 +218,13 @@ struct EditingEntryView: View {
                    .font(.system(size: 20))
                    .onChange(of: selectedImage) { _ in
                        selectedData = nil
+                       imageHeight = 0
                        entry.deleteImage(coreDataManager: coreDataManager)
                        Task {
                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
                                selectedData = data
                                entry.saveImage(data: data, coreDataManager: coreDataManager)
+                               imageHeight = UIScreen.main.bounds.height/7
                            }
                        }
                    }

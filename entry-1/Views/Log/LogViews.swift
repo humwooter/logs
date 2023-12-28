@@ -181,12 +181,7 @@ struct LogsView: View {
                                         }
                                 }
                             }
-                            .onAppear {
-                                let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                                    
-                                
-                                dates.insert(todayComponents)
-                            }
+                    
 
                             ForEach(filteredLogs(), id: \.self) { log in
                                 NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
@@ -209,7 +204,10 @@ struct LogsView: View {
                                                     let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
                                                     try? pdfData.write(to: tmpURL)
                                                     let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                                    UIApplication.shared.windows.first?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                                        let window = windowScene.windows.first
+                                                        window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                                    }
                                                 }
                                             }
                                          
@@ -246,23 +244,19 @@ struct LogsView: View {
                             .ignoresSafeArea()
                     }
                     .onAppear {
-                        updateFetchRequests()
-                        
-                        //dates is a set so if the current date exists already then nothing happens
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                            
-                        
                         dates.insert(todayComponents)
+                        updateFetchRequests()
+                        updateDateRange()
+                        print("UPDATING DATES")
+                        //dates is a set so if the current date exists already then nothing happens
                     }
                     .scrollContentBackground(.hidden)
                     .refreshable {
-                        updateFetchRequests()
-                        
-                        //dates is a set so if the current date exists already then nothing happens
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                            
-                        
                         dates.insert(todayComponents)
+                        updateFetchRequests()
+                        updateDateRange()
                     }
                     .sheet(isPresented: $shareSheetShown) {
                         if let log_uiimage = image {
@@ -345,7 +339,6 @@ struct LogsView: View {
             newLog.day = currentDay
             newLog.id = UUID()
         }
-
     }
     
     

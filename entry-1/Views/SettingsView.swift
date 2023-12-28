@@ -96,7 +96,17 @@ struct SettingsView: View {
     
     @State private var selectedTab = 0
     
-    
+//    init(color: UIColor) {
+//        if !isClear(for: color) {
+//            let textColor = UIColor(UIColor.foregroundColor(background: color))
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+//        }
+//        if isClear(for: color) {
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//        }
+//        
+//   }
     
     var body: some View {
 
@@ -224,6 +234,17 @@ struct SettingsView: View {
 
                             ) {
                                 BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+//                                    .onChange(of: userPreferences.backgroundColors.first) { newColor in
+//                                        print("COLOR CHANGED")
+//                                        if !isClear(for: UIColor(newColor!)) {
+//                                            let textColor = UIColor(UIColor.foregroundColor(background: UIColor(newColor!)))
+//                                            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+//                                            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+//                                        }
+//                                        if isClear(for: UIColor(newColor!)) {
+//                                            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//                                        }
+//                                    }
                             }
                             Section {
                                 ColorPicker("Pin Color", selection: $userPreferences.pinColor)
@@ -250,6 +271,7 @@ struct SettingsView: View {
                         ) {
                             ButtonDashboard().environmentObject(userPreferences)
                                 .listStyle(.automatic)
+                                .padding(.horizontal, 5)
                             
                         }
                         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in

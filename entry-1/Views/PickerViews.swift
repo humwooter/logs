@@ -296,6 +296,7 @@ struct BackgroundColorPickerView: View {
             HStack() {
                 VStack {
                     ColorPicker("Top Color", selection: $topColor, supportsOpacity: false)
+              
                     ColorPicker("Bottom Color", selection: $bottomColor, supportsOpacity: false)
                 }
                 .padding()
@@ -319,5 +320,6 @@ struct BackgroundColorPickerView: View {
                     .padding(1)
             }
         }
+
     }
 }
