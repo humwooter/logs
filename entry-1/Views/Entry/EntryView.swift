@@ -517,8 +517,11 @@ struct EntryView: View {
                 
             }
             if entries.count == 0 {
+                VStack {
                     Text("No entries")
                         .italic()
+                    Spacer()
+                }
                         .refreshable(action: {
                             updateFetchRequests()
                         })
