@@ -23,21 +23,21 @@ extension Entry {
     @NSManaged public var relationship: Log
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor
-    @NSManaged public var image: String
-    @NSManaged public var imageContent: String?
+    @NSManaged public var stampIcon: String
+    @NSManaged public var mediaFilename: String?
     @NSManaged public var isHidden: Bool
     @NSManaged public var isShown: Bool
     @NSManaged public var isPinned: Bool
     @NSManaged public var isRemoved: Bool
     @NSManaged public var stampIndex: Int16
-    @NSManaged public var buttons: [Bool]
+//    @NSManaged public var buttons: [Bool]
 
     
     
     func deleteImage(coreDataManager: CoreDataManager) {
         print("in delete image")
         let mainContext = coreDataManager.viewContext
-        if let filename = self.imageContent {
+        if let filename = self.mediaFilename {
             if filename.isEmpty {
                 print("Filename is empty, no image to delete.")
                 return
@@ -57,7 +57,7 @@ extension Entry {
             }
         }
         
-        self.imageContent = ""
+        self.mediaFilename = ""
         
         do {
             try mainContext.save()
@@ -78,7 +78,7 @@ extension Entry {
     func saveImage(data: Data, coreDataManager: CoreDataManager) { //should check whether image exists already first and delete it
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
 
-        if let mediaFilename = self.imageContent, !mediaFilename.isEmpty { //deleting existing image
+        if let mediaFilename = self.mediaFilename, !mediaFilename.isEmpty { //deleting existing image
             let existingURL = documentsDirectory.appendingPathComponent(mediaFilename)
             if imageExists(at: existingURL) {
                 self.deleteImage(coreDataManager: coreDataManager)
@@ -95,7 +95,7 @@ extension Entry {
             print("Error saving image file: \(error)")
         }
         
-        self.imageContent = uniqueFilename
+        self.mediaFilename = uniqueFilename
         print("entry from saveImage: \(self)")
         
         let mainContext = coreDataManager.viewContext

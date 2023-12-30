@@ -10,11 +10,27 @@ struct ContentView: View {
     @State private var indices : [Bool] = [false, true, false]
     @ObservedObject private var userPreferences = UserPreferences()
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
-    
+    @FetchRequest(
+           entity: Entry.entity(),
+           sortDescriptors: [], // No sorting applied
+           predicate: NSPredicate(format: "time == nil")
+       ) var entriesWithNilTime: FetchedResults<Entry>
     
     var body: some View {
                     
             VStack {
+//                    List {
+//                        ForEach(entriesWithNilTime, id: \.self) { entry in
+//                            EntryDetailView(entry: entry)
+//                                .environmentObject(userPreferences)
+//                                .onAppear {
+//                                    print("entry: \(entry)")
+//                                }
+////                            Text(entry.content ?? "No content") // Displaying entry content
+//                        }
+//                    }
+                
+               
                 if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -42,7 +58,6 @@ struct ContentView: View {
                         
                         
                         EntryView(color: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-//                        EntryView(color: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {
@@ -65,10 +80,10 @@ struct ContentView: View {
                 createLog(in: coreDataManager.viewContext)
                 deleteOldEntries()
                 authenticate()
-                for family in UIFont.familyNames.sorted() {
-                    let names = UIFont.fontNames(forFamilyName: family)
-                    print("Family: \(family) Font names: \(names)")
-                }
+                
+                print("Entries with nil time: \(entriesWithNilTime.count)")
+                
+                
             })
     }
     
@@ -103,9 +118,9 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-    }
-}
+//struct ContentView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+//    }
+//}
 

@@ -25,7 +25,7 @@ struct LogChartView: View {
                     )
                     .foregroundStyle(Color(entry.color))
                     .annotation(position: .overlay, alignment:.center) {
-                        Image(systemName: entry.image).foregroundColor(Color(entry.color))
+                        Image(systemName: entry.stampIcon).foregroundColor(Color(entry.color))
                     }
                     .symbolSize(0)
 //                                    .annotation(position: .top) {
@@ -113,7 +113,7 @@ struct LogChartView_multipleCharts: View {
                         day: formattedDateShort(from: entry.time) ?? "", // Assuming `day` is an optional string and providing a default value if nil
                         time: entry.time,
                         color: entry.color != UIColor.tertiarySystemBackground ? Color(entry.color) : Color(UIColor.secondaryLabel), // Ensure entry.color is convertible to Color
-                        image: entry.image
+                        image: entry.stampIcon
                     )
                     print("minute: \(Calendar.current.component(.minute, from: entry.time))")
                     print("hour: \(Calendar.current.component(.hour, from: entry.time))")

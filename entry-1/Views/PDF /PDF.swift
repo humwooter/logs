@@ -90,7 +90,7 @@ struct EntryDetailView_PDF: View { //used in EntryDetailView
                             .foregroundColor(.gray)
                         Spacer()
                         if (entry.stampIndex  != -1) {
-                            Image(systemName: entry.image).tag(entry.image)
+                            Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                                 .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
                         }
                     }
@@ -102,8 +102,8 @@ struct EntryDetailView_PDF: View { //used in EntryDetailView
                 Spacer() // Push the image to the right
             }
             
-            if entry.imageContent != "" {
-                if let filename = entry.imageContent {
+            if entry.mediaFilename != "" {
+                if let filename = entry.mediaFilename {
                     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                     let fileURL = documentsDirectory.appendingPathComponent(filename)
                     let data = try? Data(contentsOf: fileURL)

@@ -104,7 +104,7 @@ struct TextView : View {
                                 Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
                             })
                             
-                            if let filename = entry.imageContent {
+                            if let filename = entry.mediaFilename {
                                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                 if imageExists(at: fileURL) {
@@ -156,11 +156,9 @@ struct TextView : View {
                 }
             } header: {
                 HStack {
-                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from:entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                         
-                        
-                        
-                    Label("", systemImage: entry.image).foregroundStyle(Color(entry.color))
+                    Label("", systemImage: entry.stampIcon).foregroundStyle(Color(entry.color))
                     Spacer()
 
                     if (entry.isPinned) {
@@ -190,7 +188,7 @@ struct TextView : View {
     func deleteEntry(entry: Entry) {
         let mainContext = coreDataManager.viewContext
         mainContext.performAndWait {
-            let filename = entry.imageContent
+            let filename = entry.mediaFilename
             let parentLog = entry.relationship
             
             
@@ -305,12 +303,12 @@ struct EntryRowView: View {
             
             if (index == entry.stampIndex) {
                     entry.stampIndex = -1
-                    entry.image = ""
+                    entry.stampIcon = ""
                     entry.color = UIColor.tertiarySystemBackground
             }
             else {
                     entry.stampIndex = Int16(index)
-                    entry.image = userPreferences.stamps[index].imageName
+                    entry.stampIcon = userPreferences.stamps[index].imageName
                     entry.color = UIColor(userPreferences.stamps[index].color)
             }
             
@@ -391,16 +389,31 @@ struct EntryView: View {
     var body: some View {
         NavigationStack {
             List {
+                
+                if entries.count == 0 {
+                    Section {
+                        Text("No entries")
+                    }
+//                    VStack {
+//                        Text("No entries")
+//                            .italic()
+//                        Spacer()
+//                    }
+                            .refreshable(action: {
+                                updateFetchRequests()
+                            })
+                }
+                else {
                     switch selectedSortOption {
                     case .timeAscending:
                         let sortedEntries = entries.sorted { $0.time > $1.time }
-               
+                        
                         ForEach(sortedEntries) { entry in
                             if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
-                                        .environmentObject(userPreferences)
-                                        .environmentObject(coreDataManager)
-                                        .id("\(entry.id)")
+                                    .environmentObject(userPreferences)
+                                    .environmentObject(coreDataManager)
+                                    .id("\(entry.id)")
                             }
                         }
                         
@@ -422,7 +435,7 @@ struct EntryView: View {
                             deleteEntries(from: indexSet, entries: sortedEntries)
                         }
                     case .image:
-                        let sortedEntries = entries.sorted { $0.image > $1.image }
+                        let sortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
                         ForEach(sortedEntries) { entry in
                             if (!entry.isFault && !entry.isRemoved) {
                                 EntryRowView(entry: entry)
@@ -450,6 +463,7 @@ struct EntryView: View {
                             deleteEntries(from: indexSet, entries: sortedEntries)
                         }
                     }
+                }
                     
                 }
             .background {
@@ -516,16 +530,7 @@ struct EntryView: View {
 
                 
             }
-            if entries.count == 0 {
-                VStack {
-                    Text("No entries")
-                        .italic()
-                    Spacer()
-                }
-                        .refreshable(action: {
-                            updateFetchRequests()
-                        })
-            }
+   
         }
       
         .onAppear {
@@ -594,12 +599,28 @@ struct EntryView: View {
     }
     
     
+//    private func fetchMarkedEntries() { //fetches important entries before loading the view
+//        let mainContext = coreDataManager.viewContext
+//        mainContext.perform {
+//            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//            for index in 0..<5 {
+//                fetchRequest.predicate = NSPredicate(format: "buttons[%d] == %@", index, NSNumber(value: true))
+//                do {
+//                    let entriesArray = try mainContext.fetch(fetchRequest)
+//                    markedEntries.button_entries[index] = Set(entriesArray)
+//                } catch {
+//                    print("Error fetching marked entries: \(error)")
+//                }
+//            }
+//        }
+//    }
+    
     private func fetchMarkedEntries() { //fetches important entries before loading the view
         let mainContext = coreDataManager.viewContext
         mainContext.perform {
             let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
             for index in 0..<5 {
-                fetchRequest.predicate = NSPredicate(format: "buttons[%d] == %@", index, NSNumber(value: true))
+                fetchRequest.predicate = NSPredicate(format: "stampIndex == %d", index)
                 do {
                     let entriesArray = try mainContext.fetch(fetchRequest)
                     markedEntries.button_entries[index] = Set(entriesArray)
@@ -609,7 +630,7 @@ struct EntryView: View {
             }
         }
     }
-    
+
     
     
     func check_files() {

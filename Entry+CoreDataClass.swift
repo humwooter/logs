@@ -37,8 +37,8 @@ public class Entry: NSManagedObject, Codable {
             color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor()
         }
 
-        image = try values.decodeIfPresent(String.self, forKey: .image)!
-        imageContent = try values.decodeIfPresent(String.self, forKey: .imageContent) ?? ""
+        stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon)!
+        mediaFilename = try values.decodeIfPresent(String.self, forKey: .mediaFilename) ?? ""
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
         isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned)!
 
@@ -56,15 +56,15 @@ public class Entry: NSManagedObject, Codable {
    
         try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: true), forKey: .color)
 
-        try container.encodeIfPresent(image, forKey: .image)
-        try container.encodeIfPresent(imageContent, forKey: .imageContent)
+        try container.encodeIfPresent(stampIcon, forKey: .stampIcon)
+        try container.encodeIfPresent(mediaFilename, forKey: .mediaFilename)
         try container.encodeIfPresent(isHidden, forKey: .isHidden)
         try container.encodeIfPresent(isPinned, forKey: .isPinned)
 
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, image, imageContent, isHidden, isPinned, stampIndex
+        case id, time, content, color, stampIcon, mediaFilename, isHidden, isPinned, stampIndex
     }
     
 }

@@ -31,10 +31,11 @@ struct EntryDetailView: View { //used in LogDetailView
                             .foregroundColor(.gray)
                         Spacer()
                         if (entry.stampIndex != -1 && entry.stampIndex != nil ) {
-                            Image(systemName: entry.image).tag(entry.image)
+                            Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                                 .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
                         }
                     }
+
                     Text(entry.content)
                         .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil ? .bold : .regular)
                         .foregroundColor(colorScheme == .dark ? .white : .black)
@@ -71,7 +72,7 @@ struct EntryDetailView: View { //used in LogDetailView
                                 Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
                             })
                             
-                            if let filename = entry.imageContent {
+                            if let filename = entry.mediaFilename {
                                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                 if imageExists(at: fileURL) {
@@ -109,8 +110,8 @@ struct EntryDetailView: View { //used in LogDetailView
                 Spacer() // Push the image to the right
             }
             
-            if entry.imageContent != "" {
-                if let filename = entry.imageContent {
+            if entry.mediaFilename != "" {
+                if let filename = entry.mediaFilename {
                     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                     let fileURL = documentsDirectory.appendingPathComponent(filename)
                     let data = try? Data(contentsOf: fileURL)

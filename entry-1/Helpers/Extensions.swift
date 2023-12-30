@@ -72,7 +72,7 @@ extension UIColor {
     static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {
         let color = colorScheme == .dark ? Color.white : Color.black
         
-        if !entry.buttons.contains(true) {
+        if entry.stampIndex == -1 {
             if colorScheme == .dark {
                 return .white
             }
@@ -87,7 +87,6 @@ extension UIColor {
         background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
-        print("brigtness value: \(brightness)")
         
         return brightness > 0.5 ? Color.black : Color.white
     }
@@ -98,13 +97,11 @@ extension UIColor {
         var blue: CGFloat = 0
         var alpha: CGFloat = 0
         
-        print("red: \(red), green: \(green), blue: \(blue), alpha: \(alpha)")
         background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         
         if (isClear(for: background)) {
             let new_background = UIColor.systemGroupedBackground
             new_background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-            print("red: \(red), green: \(green), blue: \(blue), alpha: \(alpha)")
         }
         
         
@@ -117,17 +114,12 @@ extension UIColor {
     static func backgroundColor(entry: Entry, colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
         let opacity_val = colorScheme == .dark ? 0.90 : 0.75
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-//        
-//        
+      
         if  entry.stampIndex == -1 || entry.stampIndex == nil {
             return Color(color)
         }
-//        
-//        print("Color(entry.color).opacity(opacity_val): \(Color(entry.color).opacity(opacity_val))")
         return Color(entry.color).opacity(opacity_val)
     }
-    
-    
 }
 
 extension Color {

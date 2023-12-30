@@ -230,34 +230,31 @@ struct NewEntryView: View {
     }
     
     func finalizeCreation() {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        let uniqueFilename = UUID().uuidString + ".png"
-
-        let newEntry = Entry(context: viewContext)
         
+        
+        let newEntry = Entry(context: viewContext)
+        newEntry.id = UUID()
+        newEntry.content = entryContent
+        newEntry.time = Date()
+        print("entry time has been set")
+        newEntry.stampIndex = -1
+        newEntry.color = UIColor.tertiarySystemBackground
+        newEntry.stampIcon = ""
+        newEntry.isHidden = isHidden
+        newEntry.isRemoved = false
+        newEntry.isPinned = false
+        newEntry.isShown = true
+  
+    
         
         if let data = selectedData {
-            if let savedFilename = saveMedia(data: data, viewContext: viewContext) {
-                filename = savedFilename
-                newEntry.imageContent = filename
-                print(": \(filename)")
+            if let savedFilename = saveMedia(data: data) {
+                newEntry.mediaFilename = savedFilename
             } else {
                 print("Failed to save media.")
             }
         }
 
-        
-        newEntry.content = entryContent
-        newEntry.time = Date()
-        newEntry.stampIndex = -1
-        newEntry.color = UIColor.tertiarySystemBackground
-        newEntry.image = ""
-        newEntry.id = UUID()
-        newEntry.isHidden = isHidden
-        newEntry.isRemoved = false
-        newEntry.isPinned = false
-        newEntry.isShown = true
-        
         // Fetch the log with the appropriate day
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time))

@@ -15,12 +15,11 @@ struct entry_1App: App {
 
     
     init() {
-      try? Tips.configure()
     }
     
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
+            ContentView().environment(\.managedObjectContext, persistenceController.viewContext)
 
             // ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
 //            ContentView()

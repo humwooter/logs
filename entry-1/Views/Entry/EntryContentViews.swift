@@ -115,8 +115,8 @@ struct EditingView: View {
                     }
                     .focused($focusField)
                 
-                if entry.imageContent != "" {
-                    if let filename = entry.imageContent {
+                if entry.mediaFilename != "" {
+                    if let filename = entry.mediaFilename {
                         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let fileURL = documentsDirectory.appendingPathComponent(filename)
                         let data = try? Data(contentsOf: fileURL)
@@ -221,8 +221,8 @@ struct NotEditingView: View {
                         .lineSpacing(userPreferences.lineSpacing)
                     
                     
-                    if entry.imageContent != "" {
-                        if let filename = entry.imageContent {
+                    if entry.mediaFilename != "" {
+                        if let filename = entry.mediaFilename {
                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                             let fileURL = documentsDirectory.appendingPathComponent(filename)
                             let data = try? Data(contentsOf: fileURL)
@@ -256,9 +256,9 @@ struct NotEditingView: View {
                         .lineSpacing(userPreferences.lineSpacing)
 
                     
-                    if entry.imageContent != "" {
+                    if entry.mediaFilename != "" {
                         
-                        if let filename = entry.imageContent {
+                        if let filename = entry.mediaFilename {
                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                             let fileURL = documentsDirectory.appendingPathComponent(filename)
                             let data = try? Data(contentsOf: fileURL)

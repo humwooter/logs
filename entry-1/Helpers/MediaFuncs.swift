@@ -26,7 +26,17 @@ public func imageExists(at url: URL) -> Bool {
     return FileManager.default.fileExists(atPath: url.path)
     }
 
-func saveMedia(data: Data, viewContext: NSManagedObjectContext) -> String? {
+public func imageExists(at filename: String) -> Bool {
+    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    let url = documentsDirectory.appendingPathComponent(filename)
+    
+    if FileManager.default.fileExists(atPath: url.path) {
+        print("IMAGE EXISTS!")
+    }
+    return FileManager.default.fileExists(atPath: url.path)
+    }
+
+func saveMedia(data: Data) -> String? {
     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     var uniqueFilename: String
 
@@ -43,9 +53,6 @@ func saveMedia(data: Data, viewContext: NSManagedObjectContext) -> String? {
     
     do {
         try data.write(to: fileURL)
-        let newEntry = Entry(context: viewContext)
-        newEntry.imageContent = uniqueFilename
-        print(": \(uniqueFilename)")
         return uniqueFilename
     } catch {
         print("Failed to write: \(error)")

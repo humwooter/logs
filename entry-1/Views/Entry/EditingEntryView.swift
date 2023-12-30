@@ -50,8 +50,8 @@ struct EditingEntryView: View {
                 
                 HStack() {
                     Spacer()
-                    if (entry.image != "") {
-                        Image(systemName: entry.image).foregroundStyle(Color(entry.color))
+                    if (entry.stampIcon != "") {
+                        Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
                             .font(.system(size: 15))
                             .padding(.horizontal)
                         
@@ -118,7 +118,7 @@ struct EditingEntryView: View {
    
             }
             .onAppear {
-                if let filename = entry.imageContent {
+                if let filename = entry.mediaFilename {
                     selectedData = getMediaData(fromFilename: filename)
                     imageHeight = UIScreen.main.bounds.height/7
                 }
@@ -131,7 +131,7 @@ struct EditingEntryView: View {
                     .ignoresSafeArea()
             }
             .onAppear {
-                if let filename = entry.imageContent, previousMediaFilename.isEmpty {
+                if let filename = entry.mediaFilename, previousMediaFilename.isEmpty {
                     previousMediaFilename = filename
                     previousMediaData = getMediaData(fromFilename: filename)
                     selectedData = previousMediaData

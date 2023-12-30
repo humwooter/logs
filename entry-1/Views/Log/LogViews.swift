@@ -149,7 +149,8 @@ struct LogsView: View {
     ) var currentLog: FetchedResults<Log>
 
     @State var selectedLogs: [Log] = []
-    
+    @StateObject private var searchModel = SearchModel()
+
     // LogsView
     var body: some View {
 
@@ -266,6 +267,7 @@ struct LogsView: View {
                         }
                     }
                     .listStyle(.automatic)
+                    .searchable(text: $searchModel.searchText)
                     .navigationTitle("Logs")
             }.font(.system(size: UIFont.systemFontSize))
 
@@ -280,7 +282,11 @@ struct LogsView: View {
                 }
         }
     }
-    
+//    private func addToken(_ token: FilterTokens) {
+//           if !searchModel.tokens.contains(token) {
+//               searchModel.tokens.append(token)
+//           }
+//       }
     func DatePickerView(date: Binding<Date>, title: String) -> some View {
         List {
             DatePicker("Start Date", selection: date, displayedComponents: .date)
@@ -417,7 +423,7 @@ struct LogsView: View {
                     print()
   
                     print("entry.content: \(entry.content)")
-                    if entry.imageContent != "" && entry.imageContent != nil {
+                    if entry.mediaFilename != "" && entry.mediaFilename != nil {
                         totalHeight += (imageHeight + 50)
                     }
                 }

@@ -28,14 +28,7 @@ struct LogDetailView: View {
                     EntryDetailView(entry: entry)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
-                        .background() {
-                            GeometryReader { geometry in
-                                Path { path in
-                                    totalHeight = geometry.size.height
-                                    print("Text frame size = \(geometry.size)")
-                                }
-                            }
-                        }
+                
                 
                     
                 }

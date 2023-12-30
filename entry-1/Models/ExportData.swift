@@ -67,8 +67,8 @@ struct ExportData {
                             "time": entry.time.formatted() ?? "",
                             "id": entry.id.uuidString ?? UUID().uuidString,
                             "color": entry.color.toHexString() ?? "", // Assuming a method to convert UIColor to Hex
-                            "image": entry.image ?? "",
-                            "imageContent": entry.imageContent ?? ""
+                            "image": entry.stampIcon ?? "",
+                            "mediaFilename": entry.mediaFilename ?? ""
                         ]
                         jsonEntries.append(jsonEntry)
                     }
