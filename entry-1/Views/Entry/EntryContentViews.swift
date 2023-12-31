@@ -266,11 +266,9 @@ struct NotEditingView: View {
                             
                             if let data = data, isGIF(data: data) {
                                 
-                                let imageView = AnimatedImageView(url: fileURL)
                                 
                                 let asyncImage = UIImage(data: data)
                                 
-                                let height = asyncImage!.size.height
                                 
                                 AnimatedImageView(url: fileURL).scaledToFit()
                                 

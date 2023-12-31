@@ -80,7 +80,6 @@ struct EntryDetailView: View { //used in LogDetailView
                                         let image = UIImage(data: data)!
                                         Button(action: {
                                             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                            let fileURL = documentsDirectory.appendingPathComponent(filename)
                                             
                                             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
                                             
@@ -116,7 +115,6 @@ struct EntryDetailView: View { //used in LogDetailView
                     let fileURL = documentsDirectory.appendingPathComponent(filename)
                     let data = try? Data(contentsOf: fileURL)
                     if let data = data, isGIF(data: data) {
-                        let asyncImage = UIImage(data: data)
                         AnimatedImageView(url: fileURL).scaledToFit()
                     } else {
                         if imageExists(at: fileURL) {

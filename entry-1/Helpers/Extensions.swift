@@ -69,9 +69,7 @@ extension UIColor {
     }
 
     
-    static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {
-        let color = colorScheme == .dark ? Color.white : Color.black
-        
+    static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {        
         if entry.stampIndex == -1 {
             if colorScheme == .dark {
                 return .white

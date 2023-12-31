@@ -282,21 +282,9 @@ struct LogsView: View {
                 }
         }
     }
-//    private func addToken(_ token: FilterTokens) {
-//           if !searchModel.tokens.contains(token) {
-//               searchModel.tokens.append(token)
-//           }
-//       }
-    func DatePickerView(date: Binding<Date>, title: String) -> some View {
-        List {
-            DatePicker("Start Date", selection: date, displayedComponents: .date)
-        }
-        .navigationTitle(title)
-    }
-    
-    
 
     
+
     func filteredLogs() -> [Log] {
         print("Entered filtered logs!")
         print("All logs: \(logs)")
@@ -333,12 +321,10 @@ struct LogsView: View {
 
     
     func updateFetchRequests() {
-        
         dateFormatter.dateFormat = "MM/dd/yyyy"
 
         let currentDay = formattedDate(Date())
         currentLog.nsPredicate = NSPredicate(format: "day == %@", currentDay)
-        
         
         if currentLog.isEmpty {
             let newLog = Log(context: coreDataManager.viewContext)
@@ -346,8 +332,7 @@ struct LogsView: View {
             newLog.id = UUID()
         }
     }
-    
-    
+
     
     private func deleteLog(log: Log?) {
         guard let log = log else { return }
@@ -390,8 +375,6 @@ struct LogsView: View {
         let uiHostingController = UIHostingController(rootView: rootView)
         // Define lineHeight
         print("userPreferences.fontSize: \(userPreferences.fontSize)")
-            let lineHeight: CGFloat = 25 // Example line height
-            let entryHeight: CGFloat = 25
             let imageHeight: CGFloat = 250 // Additional height for entries with images. this should be dynamic later
 
         var totalHeight: CGFloat = 0
@@ -428,7 +411,6 @@ struct LogsView: View {
                     }
                 }
             }
-//        
         
 
         print("total HEIGHT: \(totalHeight)")
