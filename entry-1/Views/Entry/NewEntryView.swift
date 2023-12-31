@@ -230,8 +230,6 @@ struct NewEntryView: View {
     }
     
     func finalizeCreation() {
-        
-        
         let newEntry = Entry(context: viewContext)
         newEntry.id = UUID()
         newEntry.content = entryContent

@@ -106,6 +106,24 @@ extension Entry {
         }
     }
     
+//    func unRemove(coreDataManager: CoreDataManager) {
+//        let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+//        
+//        let formattedDay = formattedDate(self.time)
+//        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDay)
+//        
+//        do {
+//            let results = try coreDataManager.viewContext.fetch(fetchRequest)
+//            if let matchingLog = results.first {
+//                self.relationship = matchingLog
+//                self.isRemoved = false
+//                try coreDataManager.viewContext.save()
+//            }
+//        } catch let error as NSError {
+//            print("Fetch error: \(error), \(error.userInfo)")
+//        }
+//    }
+    
     func unRemove(coreDataManager: CoreDataManager) {
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
         
@@ -114,15 +132,30 @@ extension Entry {
         
         do {
             let results = try coreDataManager.viewContext.fetch(fetchRequest)
+            let log: Log
+
             if let matchingLog = results.first {
-                self.relationship = matchingLog
-                self.isRemoved = false
-                try coreDataManager.viewContext.save()
+                // Use the existing log
+                log = matchingLog
+            } else {
+                // Create a new log if none exists for the given day
+                log = Log(context: coreDataManager.viewContext)
+                log.day = formattedDay
+                log.id = UUID() // Assuming 'id' is required; generate a new UUID
             }
+
+            // Add the entry to the log's relationship
+            self.relationship = log
+            self.isRemoved = false
+
+            // Save the context
+            try coreDataManager.viewContext.save()
+
         } catch let error as NSError {
-            print("Fetch error: \(error), \(error.userInfo)")
+            print("Fetch or save error: \(error), \(error.userInfo)")
         }
     }
+
     
     
 }

@@ -30,14 +30,14 @@ struct EntryDetailView: View { //used in LogDetailView
                             .font(.footnote)
                             .foregroundColor(.gray)
                         Spacer()
-                        if (entry.stampIndex != -1 && entry.stampIndex != nil ) {
+                        if (entry.stampIndex != -1 ) {
                             Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                                 .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
                         }
                     }
 
                     Text(entry.content)
-                        .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil ? .bold : .regular)
+                        .fontWeight(entry.stampIndex != -1  ? .bold : .regular)
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .contextMenu {
                             Button(action: {
@@ -78,9 +78,7 @@ struct EntryDetailView: View { //used in LogDetailView
                                 if imageExists(at: fileURL) {
                                     if let data =  getMediaData(fromFilename: filename) {
                                         let image = UIImage(data: data)!
-                                        Button(action: {
-                                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                            
+                                        Button(action: {                                     
                                             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
                                             
                                         }, label: {

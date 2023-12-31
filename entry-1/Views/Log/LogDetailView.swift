@@ -28,6 +28,7 @@ struct LogDetailView: View {
                     EntryDetailView(entry: entry)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
+                        .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                 
                 
                     

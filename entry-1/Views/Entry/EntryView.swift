@@ -86,7 +86,7 @@ struct TextView : View {
                             }
                             
                             Button(action: {
-                                UIPasteboard.general.string = entry.content ?? ""
+                                UIPasteboard.general.string = entry.content 
                             }) {
                                 Text("Copy Message")
                                 Image(systemName: "doc.on.doc")

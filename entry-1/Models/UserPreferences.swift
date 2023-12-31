@@ -32,7 +32,6 @@ struct Stamp {
 }
 
 
-
 class UserPreferences: ObservableObject {
     
     
@@ -133,7 +132,7 @@ class UserPreferences: ObservableObject {
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "#FFEFC2"), Color(hex: "#FFB1FF"), Color(hex: "#C8FFFF"), Color(hex: "#C2FFCB"), Color(hex: "#928CFF")]
         self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color.clear, Color.clear]
 
-        self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") ?? false
+        self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") 
     }
 }
 
@@ -183,22 +182,7 @@ extension UserDefaults {
         return nil
     }
     
-//    func saveStamps(stamps: [Stamp], forKey key: String) {
-//          let uiColors = stamps.map { UIColor($0.color) }
-//          let imageNames = stamps.map { $0.imageName }
-//          let colorData = uiColors.compactMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
-//          set([colorData, imageNames], forKey: key)
-//      }
-//      
-//      func loadStamps(forKey key: String) -> [Stamp]? {
-//          guard let savedArray = array(forKey: key), savedArray.count == 2 else { return nil }
-//          guard let colorData = savedArray[0] as? [Data], let imageNames = savedArray[1] as? [String] else { return nil }
-//          
-//          let uiColors = colorData.compactMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: $0) }
-//          let colors = uiColors.map { Color($0) }
-//          
-//          return zip(colors, imageNames).map { Stamp(color: $0, imageName: $1) }
-//      }
+
     func saveStamps(stamps: [Stamp], forKey key: String) {
         let uiColors = stamps.map { UIColor($0.color) }
         let imageNames = stamps.map { $0.imageName }

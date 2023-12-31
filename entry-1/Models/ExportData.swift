@@ -54,7 +54,7 @@ struct ExportData {
             var jsonLogs: [[String: Any]] = []
             for log in logs {
                 var jsonLog: [String: Any] = [
-                    "day": log.day ?? "",
+                    "day": log.day ,
                     "id": log.id.uuidString ?? "", // Include the id of the Log
                     // add other attributes of Log here
                 ]

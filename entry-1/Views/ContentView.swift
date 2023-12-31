@@ -49,7 +49,7 @@ struct ContentView: View {
                 }
                 else {
                     TabView(selection: $selectedIndex) {
-                        LogsView()
+                        LogParentView()
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {

@@ -64,8 +64,8 @@ struct LogChartView_multipleCharts: View {
             ScrollView(.vertical) {
                 Chart {
                     ForEach(data) { pointData in
-                        var hourComponent : Float =  Float(Calendar.current.component(.hour, from: pointData.time))
-                        var minuteComponent : Float =  Float(Calendar.current.component(.minute, from: pointData.time))/60.0
+                        let hourComponent : Float =  Float(Calendar.current.component(.hour, from: pointData.time))
+                        let minuteComponent : Float =  Float(Calendar.current.component(.minute, from: pointData.time))/60.0
                         var totalTime = hourComponent + minuteComponent
 
                         PointMark(
