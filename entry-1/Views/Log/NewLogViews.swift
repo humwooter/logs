@@ -317,7 +317,10 @@ struct LogsView: View {
                                 
                                 ForEach(entries, id: \.self) { entry in
                                     
-                                    Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))) {
+                                    Section(header: 
+                                                Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
+                                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                                    ) {
                                         EntryDetailView(entry: entry)
                                             .environmentObject(userPreferences)
                                             .environmentObject(coreDataManager)
