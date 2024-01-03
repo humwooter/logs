@@ -73,7 +73,7 @@ struct TextView : View {
             Section {
                 if (entry.isShown) {
                     
-                    NotEditingView(entry: entry).environmentObject(userPreferences)
+                    NotEditingView(entry: entry, isEditing: $isEditing).environmentObject(userPreferences).environmentObject(coreDataManager)
                         .contextMenu {
                             Button(action: {
                                 withAnimation {
@@ -165,8 +165,12 @@ struct TextView : View {
                         Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
 
                     }
-                    Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
+//                    Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
+//                        .contentTransition(.symbolEffect(.replace.offUp))
+                    
+                    Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                         .contentTransition(.symbolEffect(.replace.offUp))
+                        .font(.system(size: UIFont.systemFontSize))
 
                     
                 }

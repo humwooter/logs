@@ -201,51 +201,20 @@ struct EditingView: View {
 struct NotEditingView: View {
     @ObservedObject var entry: Entry
     @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var coreDataManager: CoreDataManager
+
     @Environment(\.colorScheme) var colorScheme
-    
+    @State private var showEntry = true
+
+    @Binding var isEditing: Bool
     
     
     var body : some View {
         ZStack(alignment: .topTrailing) {
   
             VStack {
-                if entry.isHidden {
-                    Text(entry.content)
-                        .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     
-                        .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil ? .semibold : .regular)
-                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .blur(radius:7)
-                        .padding(.vertical, 5)
-                        .padding(2)
-                        .lineSpacing(userPreferences.lineSpacing)
-                    
-                    
-                    if entry.mediaFilename != "" {
-                        if let filename = entry.mediaFilename {
-                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            let fileURL = documentsDirectory.appendingPathComponent(filename)
-                            let data = try? Data(contentsOf: fileURL)
-                            
-                            
-                            if let data = data, isGIF(data: data) {
-                                
-                                let imageView = AnimatedImageView(url: fileURL)
-                                
-                                AnimatedImageView(url: fileURL).scaledToFit()
-                                    .blur(radius:10)
-                    
-                                
-                            } else {
-                                if imageExists(at: fileURL) {
-                                    CustomAsyncImageView(url: fileURL).scaledToFit()                                    .blur(radius:10)
-
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
+                
                     Text(entry.content)
                         .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     
@@ -254,6 +223,8 @@ struct NotEditingView: View {
                         .padding(2)
                         .padding(.vertical, 5)
                         .lineSpacing(userPreferences.lineSpacing)
+                        .blur(radius: entry.isHidden ? 7 : 0)
+
 
                     
                     if entry.mediaFilename != "" {
@@ -271,6 +242,8 @@ struct NotEditingView: View {
                                 
                                 
                                 AnimatedImageView(url: fileURL).scaledToFit()
+                                    .blur(radius: entry.isHidden ? 10 : 0)
+
                                 
                                 
                                 // Add imageView
@@ -280,10 +253,89 @@ struct NotEditingView: View {
                                 }
                             }
                         }
+                    } 
+                
+                HStack {
+                    Spacer()
+                    Menu {
+                                                    Button(action: {
+                                                        withAnimation {
+                                                            isEditing = true
+                                                        }
+                                                    }) {
+                                                        Text("Edit")
+                                                        Image(systemName: "pencil")
+                                                            .foregroundColor(userPreferences.accentColor)
+                                                    }
+                                                    
+                                                    Button(action: {
+                                                        UIPasteboard.general.string = entry.content
+                                                    }) {
+                                                        Text("Copy Message")
+                                                        Image(systemName: "doc.on.doc")
+                                                    }
+                                                    
+                                                    
+                                                    Button(action: {
+                                                        withAnimation(.easeOut) {
+                                                            showEntry.toggle()
+                                                            entry.isHidden = !showEntry
+                                                            coreDataManager.save(context: coreDataManager.viewContext)
+                                                        }
+
+                                                    }, label: {
+                                                        Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+                                                    })
+                                                    
+                                                    if let filename = entry.mediaFilename {
+                                                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                                        let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                                        if imageExists(at: fileURL) {
+                                                            if let data =  getMediaData(fromFilename: filename) {
+                                                                let image = UIImage(data: data)!
+                                                                Button(action: {
+                                                                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                                                    let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                                                    
+                                                                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                                                    
+                                                                }, label: {
+                                                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                                                })
+                                                            }
+                                                        }
+                                                        
+                                                    }
+                                                    
+                                                    Button(action: {
+                                                        withAnimation {
+                                                            entry.isPinned.toggle()
+                                                            coreDataManager.save(context: coreDataManager.viewContext)
+                                                        }
+                                                    }) {
+                                                        Text(entry.isPinned ? "Unpin" : "Pin")
+                                                        Image(systemName: "pin.fill")
+                                                            .foregroundColor(.red)
+                                                      
+                                                    }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: UIFont.systemFontSize))
+                            .onTapGesture {
+                                vibration_medium.prepare()
+                                vibration_medium.impactOccurred()
+                            }
+
                     }
+                    .foregroundStyle(Color(UIColor.label).opacity(0.3))
+
+
+
                 }
-                
-                
+                .padding(5)
+            }
+            .onAppear {
+                showEntry = !entry.isHidden
             }
             .padding(.top, 5)
         }

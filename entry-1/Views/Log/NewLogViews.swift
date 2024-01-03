@@ -193,38 +193,50 @@ struct LogsView: View {
                                 
                                 
                                 ForEach(filteredLogs(), id: \.self) { log in
-                                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
-                                        .environmentObject(userPreferences)) {
-                                            Label(log.day, systemImage: "book.fill")
-                                        }
-                                        .contextMenu {
-                                            Button(role: .destructive, action: {
-                                                showingDeleteConfirmation = true
-                                                logToDelete = log
-                                            }) {
-                                                Label("Delete", systemImage: "trash")
-                                                    .foregroundColor(.red)
-                                                
-                                            }
-                                            Button(action: {
-                                                Task {
-                                                    DispatchQueue.main.async {
-                                                        let pdfData = createPDFData_log(log: log)
-                                                        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
-                                                        try? pdfData.write(to: tmpURL)
-                                                        let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                                            let window = windowScene.windows.first
-                                                            window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-                                                        }
+                                    
+                                    ScrollView {
+                                        LazyVStack {
+                                            NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
+                                                .environmentObject(userPreferences)) {
+                                                    HStack {
+                                                        Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                                                        Text(log.day).foregroundStyle(Color(UIColor.label))
+                                                        Spacer()
                                                     }
+                                                    .padding(.vertical, 5)
+                                                    .padding(.top, 2)
+//                                                    Label(log.day, systemImage: "book.fill")
                                                 }
-                                                
-                                            }, label: {
-                                                Label("Share Log PDF", systemImage: "square.and.arrow.up")
-                                            })
-                                            
+                                                .contextMenu {
+                                                    Button(role: .destructive, action: {
+                                                        showingDeleteConfirmation = true
+                                                        logToDelete = log
+                                                    }) {
+                                                        Label("Delete", systemImage: "trash")
+                                                            .foregroundColor(.red)
+                                                        
+                                                    }
+                                                    Button(action: {
+                                                        Task {
+                                                            DispatchQueue.main.async {
+                                                                let pdfData = createPDFData_log(log: log)
+                                                                let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
+                                                                try? pdfData.write(to: tmpURL)
+                                                                let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+                                                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                                                    let window = windowScene.windows.first
+                                                                    window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                    }, label: {
+                                                        Label("Share Log PDF", systemImage: "square.and.arrow.up")
+                                                    })
+                                                    
+                                                }
                                         }
+                                    }
                                 }
                                 .alert(isPresented: $showingDeleteConfirmation) {
                                     Alert(title: Text("Delete log"),
@@ -275,7 +287,7 @@ struct LogsView: View {
                                         searchModel.tokens.append(.stampIndexEntries)
                                     } label: {
                                         HStack {
-                                            Image(systemName: "circle.fill")
+                                            Image(systemName: "number.circle.fill")
                                                 .foregroundStyle(userPreferences.accentColor)
                                                 .padding(.horizontal, 5)
 
@@ -287,7 +299,7 @@ struct LogsView: View {
                                         searchModel.tokens.append(.stampNameEntries)
                                     } label: {
                                         HStack {
-                                            Image(systemName: "star.fill")
+                                            Image(systemName: "star.circle.fill")
                                                 .foregroundStyle(userPreferences.accentColor)
                                                 .padding(.horizontal, 5)
 
@@ -645,7 +657,7 @@ struct LogsView: View {
 struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
-    @StateObject private var searchModel = SearchModel()
+    @ObservedObject private var searchModel = SearchModel()
     
 
     var body: some View {
@@ -656,13 +668,17 @@ struct LogParentView : View {
             .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens) { token in
                         switch token {
                         case .hiddenEntries:
-                            Label("Hidden", systemImage: "eye.fill")
+                            Text("Hidden")
+//                            Label("Hidden", systemImage: "eye.fill")
                         case .mediaEntries:
-                            Label("Media", systemImage: "paperclip")
+                            Text("Media")
+//                            Label("Media", systemImage: "paperclip")
                         case .stampIndexEntries:
-                            Label("Index", systemImage: "circle.fill")
+                            Text("Index")
+//                            Label("Index", systemImage: "circle.fill")
                         case .stampNameEntries:
-                            Label("Name", systemImage: "circle")
+                            Text("Name")
+//                            Label("Name", systemImage: "circle")
                         case .searchTextEntries:
                             Text(searchModel.searchText)
                         }
