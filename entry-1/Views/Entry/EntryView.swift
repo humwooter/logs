@@ -72,7 +72,6 @@ struct TextView : View {
         if (!entry.isFault) {
             Section {
                 if (entry.isShown) {
-                    
                     NotEditingView(entry: entry, isEditing: $isEditing).environmentObject(userPreferences).environmentObject(coreDataManager)
                         .contextMenu {
                             Button(action: {
@@ -158,7 +157,8 @@ struct TextView : View {
                 HStack {
                     Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                         
-                    Label("", systemImage: entry.stampIcon).foregroundStyle(Color(entry.color))
+//                    Label("", systemImage: entry.stampIcon).foregroundStyle(Color(entry.color))
+                    Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
                     Spacer()
 
                     if (entry.isPinned) {
@@ -170,9 +170,6 @@ struct TextView : View {
                     
                     Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                         .contentTransition(.symbolEffect(.replace.offUp))
-                        .font(.system(size: UIFont.systemFontSize))
-
-                    
                 }
                 .font(.system(size: UIFont.systemFontSize))
                 .onTapGesture {
@@ -432,6 +429,7 @@ struct EntryView: View {
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
                                     .id("\(entry.id)")
+
                             }
                         }
                         
@@ -446,6 +444,7 @@ struct EntryView: View {
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
                                     .id("\(entry.id)")
+
                             }
                         }
                         
@@ -460,6 +459,7 @@ struct EntryView: View {
                                     .environmentObject(userPreferences)
                                     .environmentObject(coreDataManager)
                                     .id("\(entry.id)")
+
                             }
                         }
                         

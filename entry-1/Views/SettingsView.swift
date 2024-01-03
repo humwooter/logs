@@ -280,9 +280,9 @@ struct SettingsView: View {
                                 IconPicker(
                                     selectedImage: $userPreferences.stamps[index].imageName,
                                     selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor,
-                                    buttonIndex: index,
-                                    inputCategories: imageCategories
-                                )
+                                    backgroundColors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], buttonIndex: index,
+                                    inputCategories: imageCategories)
+                                
                             }
                         }
                     }

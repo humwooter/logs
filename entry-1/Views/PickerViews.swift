@@ -129,6 +129,8 @@ struct IconPicker: View {
     @Binding var selectedColor: Color
     @Binding var accentColor: Color
     @State private var searchText = ""
+    
+    @State var backgroundColors: [Color]
 
     
     var buttonIndex: Int
@@ -144,7 +146,11 @@ struct IconPicker: View {
     
     var body: some View {
         
-        Section(header: Text("Stamp \(buttonIndex + 1)")) {
+        Section(header: 
+                    Text("Stamp \(buttonIndex + 1)")                            
+            .font(.system(size: UIFont.systemFontSize))
+
+        ) {
             NavigationLink(destination: imageListView()) {
                 HStack {
                     Text(selectedImage)
@@ -213,8 +219,18 @@ struct IconPicker: View {
             }
             .padding(.horizontal, 10) // Horizontal padding for the entire grid
         }
+        .background {
+                ZStack {
+                    Color(UIColor.systemGroupedBackground)
+                    LinearGradient(colors: backgroundColors,  startPoint: .top, endPoint: .bottom)
+                        .ignoresSafeArea()
+                }
+        }
+        .scrollContentBackground(.hidden)
         .navigationTitle("Button \(buttonIndex + 1)")
         .searchable(text: $searchText)
+
+
 
 
     }

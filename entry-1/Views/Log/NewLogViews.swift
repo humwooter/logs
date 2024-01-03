@@ -445,35 +445,42 @@ struct LogsView: View {
     func filteredLogs() -> [Log] {
         print("Entered filtered logs!")
         print("All logs: \(logs)")
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
-        
-        
-        var filtered: [Log] = []
-        updateFetchRequests()
-        
+
+        // Parse dates once and store them
+        let parsedLogs = logs.compactMap { log -> (Log, Date)? in
+            guard let logDate = dateFormatter.date(from: log.day) else { return nil }
+            return (log, logDate)
+        }
+
+        // Group logs by year
+        let groupedByYear = Dictionary(grouping: parsedLogs) { (log, date) -> Int in
+            Calendar.current.component(.year, from: date)
+        }
+
+        // Sort groups by year and flatten
+        let sortedAndFlattenedLogs = groupedByYear.sorted { $0.key > $1.key } // Previous year logs first
+                                            .flatMap { $0.value.map { $0.0 } }
+
         switch selectedTimeframe {
         case "By Date":
-            return logs.filter { log in
+            return sortedAndFlattenedLogs.filter { log in
                 guard let logDate = dateFormatter.date(from: log.day) else { return false }
-                for dateComponent in dates {
-                    if let selectedDate = calendar.date(from: dateComponent) {
-                        let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-                        let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
-                        if logDate >= startOfDay && logDate <= endOfDay {
-                            return true
-                        }
-                    }
+                return dates.contains { dateComponent in
+                    guard let selectedDate = calendar.date(from: dateComponent) else { return false }
+                    let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+                    let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
+                    return logDate >= startOfDay && logDate <= endOfDay
                 }
-                return false
             }
-            
+
         default:
-            filtered = Array(logs)
+            return sortedAndFlattenedLogs
         }
-        
-        return filtered
     }
+
     
 
     
