@@ -34,7 +34,7 @@ struct RecentlyDeletedView: View {
             ForEach(filteredEntries, id: \.self) { entry in
                 Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                 ) {
-                    EntryDetailView(entry: entry)
+                    EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                         .contextMenu {
                             Button {
                                 entry.unRemove(coreDataManager: coreDataManager)
@@ -59,7 +59,8 @@ struct RecentlyDeletedView: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Recently Deleted")
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic))
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
+
 
     }
 }

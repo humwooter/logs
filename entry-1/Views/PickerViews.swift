@@ -165,7 +165,8 @@ struct IconPicker: View {
     }
     
     func imageListView() -> some View {
-        ScrollView {
+        NavigationStack {
+            ScrollView {
                 ForEach(inputCategories.keys.sorted(), id: \.self) { category in
                     let filteredImages = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
                     if (!filteredImages.isEmpty) {
@@ -186,7 +187,7 @@ struct IconPicker: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(selectedImage != image ? Color(UIColor.secondarySystemBackground).opacity(1) : selectedColor)
                                         .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
-
+                                    
                                     
                                     HStack {
                                         Image(systemName: image)
@@ -215,23 +216,26 @@ struct IconPicker: View {
                                 }
                             }
                         }
+                    } else {
+                        ZStack {
+                            Color.clear
+                                .ignoresSafeArea()
+                        }
+                    }
+                }
+                .padding(.horizontal, 10) // Horizontal padding for the entire grid
+            }
+            .background {
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                        LinearGradient(colors: backgroundColors,  startPoint: .top, endPoint: .bottom)
+                            .ignoresSafeArea()
                     }
             }
-            .padding(.horizontal, 10) // Horizontal padding for the entire grid
+            .scrollContentBackground(.hidden)
+            .navigationTitle("Button \(buttonIndex + 1)")
+            .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
         }
-        .background {
-                ZStack {
-                    Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: backgroundColors,  startPoint: .top, endPoint: .bottom)
-                        .ignoresSafeArea()
-                }
-        }
-        .scrollContentBackground(.hidden)
-        .navigationTitle("Button \(buttonIndex + 1)")
-        .searchable(text: $searchText)
-
-
-
 
     }
 }
@@ -244,7 +248,6 @@ struct FontPicker: View {
     @State private var searchText = ""
     
     var body: some View {
-//        Section(header: Text("Font Family")) {
             NavigationLink(destination: fontListView()) {
                 HStack {
                     Text("Font Family")
@@ -253,8 +256,7 @@ struct FontPicker: View {
 
                 }
             }
-//        }
-//        Section(header: Text("Font Size")) {
+
         HStack {
             Text("Font Size")
             Slider(value: $selectedFontSize, in: 10...30, step: 1, label: { Text("Font Size") })

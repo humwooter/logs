@@ -72,6 +72,7 @@ struct EditingEntryView: View {
                             .padding(.vertical, 5)
     
                     }
+
           
 //                    .frame(maxHeight: focusField == true ? UIScreen.main.bounds.height/3 - imageHeight : UIScreen.main.bounds.height/2 - imageHeight)
                 }

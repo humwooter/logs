@@ -201,12 +201,10 @@ struct LogsView: View {
                                                     HStack {
                                                         Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                                                         Text(log.day).foregroundStyle(Color(UIColor.label))
+
                                                         Spacer()
                                                     }
-                                                    .padding(.vertical, 5)
-                                                    .padding(.top, 2)
-//                                                    Label(log.day, systemImage: "book.fill")
-                                                }
+                                                }.padding(.top, 10)
                                                 .contextMenu {
                                                     Button(role: .destructive, action: {
                                                         showingDeleteConfirmation = true
@@ -314,6 +312,8 @@ struct LogsView: View {
                             }
                             else {
                                 let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
+                                               .sorted { $0.time > $1.time }
+
                                 
                                 ForEach(entries, id: \.self) { entry in
                                     
@@ -667,7 +667,7 @@ struct LogsView: View {
 struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
-    @ObservedObject private var searchModel = SearchModel()
+    @StateObject private var searchModel = SearchModel()
     
 
     var body: some View {

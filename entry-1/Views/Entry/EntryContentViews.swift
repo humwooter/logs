@@ -104,7 +104,9 @@ struct EditingView: View {
             }
             
             VStack {
-                TextField(!entry.content.isEmpty ? entry.content : "Start typing here...", text: $editingContent, axis: .vertical)
+                TextField(!entry.content.isEmpty ? entry.content : "Start typing here...", text: $editingContent, axis: .vertical).adaptsToKeyboard()
+
+                
                     .fixedSize(horizontal: false, vertical: true)
                     .onSubmit {
                         finalizeEdit()
@@ -286,8 +288,7 @@ struct NotEditingView: View {
                             }
                         
                     }
-                    .foregroundStyle(Color(UIColor.label).opacity(0.3))
-                    
+                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     
                     
                 }
