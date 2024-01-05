@@ -5,46 +5,49 @@
 //  Created by Katyayani G. Raman on 1/4/24.
 //
 
-import Foundation
 import SwiftUI
 import UIKit
 
-struct CustomTextField: UIViewRepresentable {
+struct GrowingTextField: UIViewRepresentable {
     @Binding var text: String
-       var placeholder: String
-       @State private var height: CGFloat = 0
+    let fontName: String
+    let fontSize: CGFloat
+    let fontColor: UIColor
+    var initialText: String?
 
-       func makeUIView(context: Context) -> UITextField {
-           let textField = UITextField(frame: .zero)
-           textField.delegate = context.coordinator
-           textField.placeholder = placeholder
-           textField.borderStyle = .roundedRect
-           textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
-           textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-           textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
-           return textField
-       }
+    
 
-       func updateUIView(_ uiView: UITextField, context: Context) {
-           uiView.text = text
-           DispatchQueue.main.async {
-               self.height = uiView.sizeThatFits(CGSize(width: uiView.frame.size.width, height: CGFloat.greatestFiniteMagnitude)).height
-           }
-       }
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        textView.backgroundColor = UIColor(Color.white.opacity(0.05)) // Set background color to clear
+        textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
+        textView.textColor = fontColor  // Set font color
+        textView.isScrollEnabled = true
+        textView.showsVerticalScrollIndicator = false
+        textView.delegate = context.coordinator
+        textView.textContainerInset = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
 
-       class Coordinator: NSObject, UITextFieldDelegate {
-           var parent: CustomTextField
+        return textView
+    }
 
-           init(_ parent: CustomTextField) {
-               self.parent = parent
-           }
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        uiView.text = text
+    }
 
-           @objc func textFieldDidChange(_ textField: UITextField) {
-               parent.text = textField.text ?? ""
-           }
-       }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
 
-       func makeCoordinator() -> Coordinator {
-           Coordinator(self)
-       }
-   }
+    class Coordinator: NSObject, UITextViewDelegate {
+        var parent: GrowingTextField
+
+        init(_ parent: GrowingTextField) {
+            self.parent = parent
+        }
+
+        func textViewDidChange(_ textView: UITextView) {
+            parent.text = textView.text
+        }
+    }
+}
+

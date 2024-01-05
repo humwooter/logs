@@ -56,15 +56,20 @@ struct NewEntryView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                ScrollView(.vertical, showsIndicators: true) {
+//                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
-                        TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
-                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))                            .focused($focusField)
+//                        TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
+
+                        
+                        GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
+                            .padding()
+                            
+//                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))                            .focused($focusField)
                             .onSubmit {
                                 finalizeCreation()
                             }
-                            .padding(.bottom)
-                            .padding(.vertical, 5)
+//                            .padding(.bottom)
+//                            .padding(.vertical, 5)
                           
                         
                         
@@ -80,8 +85,8 @@ struct NewEntryView: View {
 //                        print("prev: \(UIScreen.main.bounds.height/3 - imageHeight)")
 //                    }
 
-                }
-                .padding(.horizontal, 20)
+//                }
+//                .padding(.horizontal, 20)
             
 
 
