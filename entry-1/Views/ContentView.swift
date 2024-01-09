@@ -95,24 +95,26 @@ struct ContentView: View {
 
             let context = LAContext()
             var error: NSError?
-            
-            // check whether biometric authentication is possible
-            if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
-                // it's possible, so go ahead and use it
+
+            // Check whether biometric authentication is possible or fallback to passcode
+            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
+                // It's possible, so go ahead and use it
                 let reason = "We need to unlock your data."
-                
-                context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
-                    // authentication has now completed
+
+                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { success, authenticationError in
+                    // Authentication has now completed
                     DispatchQueue.main.async {
                         if success {
                             userPreferences.isUnlocked = true
                         } else {
-                            // there was a problem
+                            // Biometrics failed and the user either cancelled the passcode screen or entered an incorrect passcode
+                            // Handle the failure or fallback to a custom password prompt if needed
                         }
                     }
                 }
             } else {
-                // no biometrics
+                // Biometrics and passcode not available
+                // You might want to fallback to a custom password prompt
             }
         }
     }

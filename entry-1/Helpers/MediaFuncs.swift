@@ -62,6 +62,10 @@ func saveMedia(data: Data) -> String? {
 
 
 func getMediaData(fromFilename filename: String) -> Data? {
+    if filename.isEmpty {
+        return nil
+    }
+    
     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     let fileURL = documentsDirectory.appendingPathComponent(filename)
     

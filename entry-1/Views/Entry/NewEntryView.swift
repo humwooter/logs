@@ -50,45 +50,36 @@ struct NewEntryView: View {
 
 
     
-    var imageFrameHeight: CGFloat = 150
-
     
     var body: some View {
         NavigationStack {
             VStack {
 //                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
-//                        TextField(entryContent.isEmpty ? "Start typing here..." : entryContent, text: $entryContent, axis: .vertical)
-
                         
-                        GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
+                        ZStack {
+                            if entryContent.isEmpty {
+                                VStack {
+                                    HStack {
+                                        Text("Start typing here...")
+                                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                        Spacer()
+                                    }.padding(20)
+                                    Spacer()
+                                }
+                            }
+                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
+                        }
                             .padding()
-                            
-//                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))                            .focused($focusField)
+
                             .onSubmit {
                                 finalizeCreation()
                             }
-//                            .padding(.bottom)
-//                            .padding(.vertical, 5)
-                          
-                        
-                        
                     }
-//                    .frame(maxHeight: focusField == true ? UIScreen.main.bounds.height/3 - imageHeight : UIScreen.main.bounds.height/2 - imageHeight)
-//                    .onTapGesture {
-//                        print("totalHeight: \(UIScreen.main.bounds.height)")
-//                        print("maxY: \(UIScreen.main.bounds.maxY)")
-//
-//                        print("imageHeight: \(imageHeight)")
-//                        print("keyboardHeight: \(keyboardHeight)")
-//                        print("FRAME VERTICAL HEIGHT: \(0.7*UIScreen.main.bounds.height - imageHeight - keyboardHeight)")
-//                        print("prev: \(UIScreen.main.bounds.height/3 - imageHeight)")
-//                    }
-
-//                }
-//                .padding(.horizontal, 20)
-            
-
+                    .onTapGesture {
+                        focusField = true
+                    }
 
                 VStack {
                     buttonBar()
@@ -135,6 +126,8 @@ struct NewEntryView: View {
             }
             .sheet(isPresented: $isCameraPresented) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
+//                    .presentationDetents([.medium, .])
+
                 
             }
             .navigationBarTitle("New Entry")
@@ -230,7 +223,8 @@ struct NewEntryView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(Color.white.opacity(0.05))
+//        .background(Color.white.opacity(0.05))
+        .background(Color(UIColor.label).opacity(0.05))
 
     }
     

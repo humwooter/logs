@@ -63,23 +63,13 @@ struct EditingEntryView: View {
                     VStack {
                         GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
                             .padding()
-
-//                        TextField(entry.content.isEmpty ? "Start typing here..." : entry.content, text: $editingContent, axis: .vertical)
-//                            .focused($focusField)
-//                            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
-//                        
-//                            .onSubmit {
-//                                finalizeEdit()
-//                            }
-//                            .padding(.bottom)
-//                            .padding(.vertical, 5)
     
                     }
+                    .onTapGesture {
+                        focusField = true
+                    }
 
-          
-//                    .frame(maxHeight: focusField == true ? UIScreen.main.bounds.height/3 - imageHeight : UIScreen.main.bounds.height/2 - imageHeight)
-//                }
-//                .padding(.horizontal, 20)
+
 
                 
                 VStack {
@@ -243,7 +233,8 @@ struct EditingEntryView: View {
            }
            .padding(.vertical)
            .padding(.horizontal, 20)
-           .background(Color.white.opacity(0.05))
+//           .background(Color.white.opacity(0.05))
+           .background(Color(UIColor.label).opacity(0.05))
        }
     
     
