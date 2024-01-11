@@ -234,7 +234,7 @@ struct EditingEntryView: View {
            .padding(.vertical)
            .padding(.horizontal, 20)
 //           .background(Color.white.opacity(0.05))
-           .background(Color(UIColor.label).opacity(0.05))
+           .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
        }
     
     

@@ -29,6 +29,7 @@ extension Entry {
     @NSManaged public var isShown: Bool
     @NSManaged public var isPinned: Bool
     @NSManaged public var isRemoved: Bool
+    @NSManaged public var isDrafted: Bool
     @NSManaged public var stampIndex: Int16
 //    @NSManaged public var buttons: [Bool]
 

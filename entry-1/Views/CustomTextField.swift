@@ -20,7 +20,9 @@ struct GrowingTextField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
 //        textView.backgroundColor = UIColor(Color.white.opacity(0.05)) // Set background color to clear
-        textView.backgroundColor = UIColor(Color(UIColor.label).opacity(0.05))
+//        textView.backgroundColor = UIColor(Color(UIColor.label).opacity(0.05))
+        textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
+
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
         textView.textColor = fontColor  // Set font color
         textView.isScrollEnabled = true

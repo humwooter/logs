@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 import TipKit
 
-
+var button_width : CGFloat = 82
 
 
 struct ButtonDashboard: View {
@@ -22,36 +22,33 @@ struct ButtonDashboard: View {
 
 
         var body: some View {
-              VStack {
-                  
-                  HStack {
-                      Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
-                  }
+            VStack(alignment: .center) {
+                    HStack {
+                        Spacer()
 
-                  dashboardSection(startIndex: selectedTab*7)
+                        TabView(selection: $selectedTab) {
+                            ForEach(0..<3) { tabPage in
+                                dashboardSection(startIndex: tabPage*7)
+                                    .tag(tabPage)
+                                    .padding(.vertical, 5)
+                            }
+                        }
+                        .frame(minHeight: 4.5*button_width)
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                        .padding(.bottom, 5)
 
-                  // TabView at the bottom
-                  TabView(selection: $selectedTab) {
-                      ForEach(0..<3) { tabPage in
-                          Text("") // Placeholder for tab content
-                              .tag(tabPage) // Important to set the tag for selection
-                      }
-                  }
-                  .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                  .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always)) // so that it will show up in light mode against a white background
+                        Spacer()
+                    }
+            }
 
-//
-              }.padding(.top, 35)
           }
     
     
     @ViewBuilder
     private func dashboardSection(startIndex: Int) -> some View {
-//        let startIndex = startIndex * 7
         VStack {
             Spacer()
-//            Text("STAMPS").font(.custom(userPreferences.fontName, size: userPreferences.fontSize + 3)).bold()
-//            Spacer()
             HStack(alignment: .center, spacing: 20) {
                 ForEach(startIndex..<startIndex+2, id: \.self) { index in
                     
@@ -73,7 +70,7 @@ struct ButtonDashboard: View {
         .alert(isPresented: $showAlert) {
              Alert(title: Text("Limit Reached"), message: Text("No more than 3 stamps can be activated at a time."), dismissButton: .default(Text("OK")))
          }
-        .padding(.top, 20)
+//        .padding(.top, 20)
     }
     
     @ViewBuilder
@@ -95,7 +92,7 @@ struct ButtonDashboard: View {
                         )
                     )
 
-                    .frame(width: 82, height: 82)
+                    .frame(width: button_width, height: button_width)
                     .opacity(stamp.isActive ? 1 : 0.3)
                     .cornerRadius(40)
                     .shadow(radius: stamp.isActive ? 5 : 0)

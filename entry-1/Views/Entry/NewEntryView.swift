@@ -22,6 +22,10 @@ struct NewEntryView: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userPreferences: UserPreferences
     @Environment(\.colorScheme) var colorScheme
+    
+    
+    
+    
     @State private var speechRecognizer = SFSpeechRecognizer()
     @State private var recognitionTask: SFSpeechRecognitionTask?
     @State private var audioEngine = AVAudioEngine()
@@ -196,8 +200,6 @@ struct NewEntryView: View {
                     if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                         selectedData = data
                         imageHeight = UIScreen.main.bounds.height/7
-
-//                        imageHeight = imageFrameHeight
                     }
                 }
             }
@@ -223,8 +225,8 @@ struct NewEntryView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-//        .background(Color.white.opacity(0.05))
-        .background(Color(UIColor.label).opacity(0.05))
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+//        .background(Color(UIColor.label).opacity(0.05))
 
     }
     
@@ -239,6 +241,7 @@ struct NewEntryView: View {
         newEntry.stampIcon = ""
         newEntry.isHidden = isHidden
         newEntry.isRemoved = false
+        newEntry.isDrafted = false
         newEntry.isPinned = false
         newEntry.isShown = true
   
