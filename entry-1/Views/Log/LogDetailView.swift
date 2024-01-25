@@ -49,7 +49,7 @@ struct LogDetailView: View {
                 .listStyle(.automatic)
             }
             
-            
+//            .navigationTitle(Date.formattedDate(time: Date))
             .navigationBarTitleDisplayMode(.inline)
         } else {
             Text("No entries available")

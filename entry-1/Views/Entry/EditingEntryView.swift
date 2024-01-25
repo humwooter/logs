@@ -244,6 +244,7 @@ struct EditingEntryView: View {
           let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
               entry.content = editingContent
+              entry.lastUpdated = Date()
               
               // Save the context
               print("isEditing: \(isEditing)")

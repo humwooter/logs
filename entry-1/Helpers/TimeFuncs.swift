@@ -18,13 +18,28 @@ func formattedTime(time: Date) -> String {
     return formatter.string(from: time)
 }
 
+func formattedTime_long(date: Date) -> String {
+    let calendar = Calendar.current
+    let today = calendar.startOfDay(for: Date())
+    let startOfDay = calendar.startOfDay(for: date)
+
+    let dateFormatter = DateFormatter()
+    dateFormatter.timeStyle = .short
+
+    if today == startOfDay {
+        return "\(dateFormatter.string(from: date))"
+    } else {
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "E" // "Mon", "Tue", etc.
+        return "\(dayFormatter.string(from: date)) - \(dateFormatter.string(from: date))"
+    }
+}
+
 func formattedDateShort(from date: Date) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MMM d" // "Oct 19" format
     return dateFormatter.string(from: date)
 }
-
-
 
 
 func formattedDate(_ date: Date) -> String {
@@ -44,8 +59,6 @@ func formattedDateFull(_ date: Date) -> String {
     dateFormatter.dateFormat = "EEEE, MMMM d, yyyy"
     return dateFormatter.string(from: date)
 }
-
-
 
 
 func currentDate() -> String {

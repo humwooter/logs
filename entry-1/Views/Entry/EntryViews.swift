@@ -153,11 +153,23 @@ struct TextView : View {
 
                         }
                 }
-            } header: {
+                
+            }
+        header: {
                 HStack {
-                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                        
-//                    Label("", systemImage: entry.stampIcon).foregroundStyle(Color(entry.color))
+//                    VStack(alignment: .leading) {
+                        Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                        if let timeLastUpdated = entry.lastUpdated {
+                            if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time) {
+                                HStack {
+                                    Image(systemName: "arrow.right")
+                                    Text(formattedTime_long(date: timeLastUpdated))
+                                }
+                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                            }
+
+                        }
+
                     Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
                     Spacer()
 
@@ -178,6 +190,7 @@ struct TextView : View {
                         coreDataManager.save(context: coreDataManager.viewContext)
                 }
             }
+            
             .onAppear {
                 showEntry = !entry.isHidden
             }
@@ -263,12 +276,13 @@ struct EntryRowView: View {
     var body : some View {
         if (!entry.isFault) {
          
-           
-                TextView(entry: entry)
                 
+                TextView(entry: entry)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+
+//                    .shadow(radius: 0.5)
 //                    .padding(.vertical, 2.0)
                     .padding(.bottom, padding)
                 
@@ -395,11 +409,7 @@ struct EntryView: View {
                     Section {
                         Text("No entries")
                     }
-//                    VStack {
-//                        Text("No entries")
-//                            .italic()
-//                        Spacer()
-//                    }
+
                             .refreshable(action: {
                                 updateFetchRequests()
                             })

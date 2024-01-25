@@ -38,42 +38,6 @@ struct SettingsView: View {
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     
-    let fontCategories: [String: [String]] = [
-        "Traditional": ["Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Impact", "Arial Rounded MT Bold","Superclarendon Regular", ],
-        "Monospace": ["Courier New", "STIX Two Math"],
-        "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin", "BarelyEnough-Regular", "MotleyForces-Regular", "ClickerScript-Regular", "Magiera-Script", "Mueda-City", "SunnySpellsBasic-Regular", "Papyrus Condensed", "Nathan-CondensedRegular", "Lilly", "NjalBold", "Darlin\'Pop"],
-        "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript"],
-        "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "MageScript", "HaraldRunic", "LuciusCipher"],
-        "Other": ["American Typewriter", "Chalkboard SE Regular", "Academy Engraved LET Plain:1.0", "Copperplate Light",  "Barrbar", "PixelDigivolve"],
-        "Unique": ["ShootingStars", "aAnnyeongHaseyo", "Spicy-Chips", "Cute_Aurora_demo", "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme"],
-        "Antique": ["aAnggaranDasar", "IrishUncialfabeta-Bold", "QuaeriteRegnumDei"],
-        "Calligraphy": []
-    ]
-    
-    
-    
-    
-    let imageCategories: [String: [String]] = [
-        "Shapes": ["circle", "staroflife", "star.fill", "heart.fill", "bolt.heart.fill", "heart.slash.fill", "house.fill"],
-        "Symbols": ["folder.fill", "exclamationmark", "checkmark","lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "atom", "compass.drawing", "music.note", "globe.desk.fill", "envelope.fill"],
-        "Human": ["brain", "ear.fill", "mustache.fill", "hand.raised.fill", "brain.filled.head.profile", "shoe.fill"],
-        "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "ladybug.fill", "fish.fill"],
-        "Nature": ["leaf.fill", "moon.stars.fill", "sun.haze.circle.fill", "wind.snow", "sun.max.fill", "drop.fill", "flame", "flame.fill", "tree", "tree.fill", "globe.asia.australia.fill", "camera.macro", "snowflake", "tornado", "cloud.rainbow.half", "mountain.2.fill"],
-        "Actions": ["gamecontroller.fill", "figure.run", "figure.mind.and.body", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard" ,  "figure.yoga", "music.mic", "figure.strengthtraining.traditional", "paintbrush.fill", "pianokeys.inverse", "paintbrush.pointed.fill"],
-        "Fitness": ["gym.bag.fill", "surfboard.fill", "snowboard.fill", "volleyball.fill", "tennis.racket", "basketball.fill", "baseball.fill", "soccerball", "football", "football.fill"],
-        "Commerce": ["bag.fill", "cart.fill", "creditcard.fill", "giftcard.fill", "dollarsign", "basket.fill", "handbag.fill"],
-        "Sleep": ["bed.double.fill"],
-        "Emotions" : ["face.smiling.inverse", "hand.thumbsup.fill", "hands.thumbsdown.fill", "hands.and.sparkles.fill"],
-        "Transportation": ["car.fill", "bus.fill", "tram.fill", "ferry.fill", "sailboat.fill", "bicycle", "scooter"],
-        "Other" : ["drop.halfull", "swirl.circle.righthalf.filled", "lightspectrum.horizontal", "camera.circle.fill",   "camera.aperture", "books.vertical.fill",  "key.fill", "poweroutlet.type.f", "doc.richtext.fill", "infinity.circle.fill", "tropicalstorm.circle.fill"],
-        "Special" : ["graduationcap.fill", "backpack.fill", "sparkle.magnifyingglass", "theatermasks.fill", "camera.filters", "birthday.cake.fill", "trophy.fill", "timelapse", "puzzlepiece.fill" , "wand.and.rays.inverse", "crown.fill"],
-        "Food" : ["frying.pan.fill", "cup.and.saucer.fill", "wineglass.fill", "carrot", "fork.knife", "waterbottle.fill"],
-        "Magic": ["suit.club.fill", "suit.spade.fill", "suit.diamond.fill", "hands.and.sparkles.fill"],
-        "Tools": ["wrench.adjustable.fill", "hammer.fill", "eyedropper.halffull", "screwdriver.fill", "wrench.and.screwdriver.fill", "stethoscope", "compass.drawing"],
-        "Celebratory" : ["balloon.fill", "fireworks"],
-        "Gaming" : ["playstation.logo", "xbox.logo"],
-        "Currency": ["dollarsign.circle.fill", "centsign.circle.fill", "yensign.circle.fill", "sterlingsign.circle.fill", "francsign.circle.fill", "florinsign.circle.fill", "turkishlirasign.circle.fill", "rublesign.circle.fill", "eurosign.circle.fill", "dongsign.circle.fill", "indianrupeesign.circle.fill", "tengesign.circle.fill", "australsign.circle.fill", "coloncurrencysign.circle.fill", "larisign.circle.fill", "bitcoinsign.circle.fill"]
-    ]
     
     @State var advancedSettings = false
     @State private var isExportDocumentPickerPresented = false
@@ -113,8 +77,9 @@ struct SettingsView: View {
         NavigationStack {
             VStack {
                 Picker("Options", selection: $selectedTab) {
-                    Text("Preferences").padding().tag(0)
-                    Text("Stamps").padding().tag(1)
+                    Text("General").padding().tag(0)
+                    Text("Preferences").padding().tag(1)
+                    Text("Stamps").padding().tag(2)
                 }.foregroundStyle(Color(UIColor.secondarySystemBackground))
                 .background {
                     ZStack {
@@ -128,20 +93,22 @@ struct SettingsView: View {
                 .padding(.horizontal, 5)
 
                 List {
+                    
                     if selectedTab == 0 {
                         
-                        Section(header: Text("Preferences").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        Section(header: Text("About").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                             .font(.system(size: UIFont.systemFontSize))
 
                         ) {
-                            ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                             
-                            FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
-                            HStack {
-                                Text("Line Spacing")
-                                Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+                            NavigationLink {
+                                IntroViews()
+                                    .environmentObject(userPreferences)
+                            } label: {
+                                Label("User Guide", systemImage: "info.circle.fill")
                             }
-                            
+
+                      
                             
                         }
                         
@@ -207,8 +174,6 @@ struct SettingsView: View {
                         }
                         .background(.clear)  // Use a clear background to prevent any visual breaks
                         
-                        
-                        
                         Section(header: Text("Advanced Settings").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                             .font(.system(size: UIFont.systemFontSize))
 
@@ -229,42 +194,54 @@ struct SettingsView: View {
                                         }
                                     }
                             }
-                            Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                                .font(.system(size: UIFont.systemFontSize))
-
-                            ) {
-                                BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
-//                                    .onChange(of: userPreferences.backgroundColors.first) { newColor in
-//                                        print("COLOR CHANGED")
-//                                        if !isClear(for: UIColor(newColor!)) {
-//                                            let textColor = UIColor(UIColor.foregroundColor(background: UIColor(newColor!)))
-//                                            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
-//                                            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
-//                                        }
-//                                        if isClear(for: UIColor(newColor!)) {
-//                                            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-//                                        }
-//                                    }
-                            }
-                            Section {
-                                ColorPicker("Pin Color", selection: $userPreferences.pinColor)
-                            } header: {
-                                HStack {
-                                    Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)                                .font(.system(size: UIFont.systemFontSize))
-
-
-                                    
-                                    Spacer()
-                                    Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
-                                }
-                            }
+              
                             
                             
                         }
                     }
-                    
-                    
                     if selectedTab == 1 {
+                        
+                        Section(header: Text("Preferences").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
+                        ) {
+                            ColorPicker("Accent Color", selection: $userPreferences.accentColor)
+                            FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1])
+//                            FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
+                            HStack {
+                                Text("Line Spacing")
+                                Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+                            }
+                            
+                            
+                        }
+                        
+                        
+                        
+                        Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                            .font(.system(size: UIFont.systemFontSize))
+
+                        ) {
+                            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+                        }
+                        Section {
+                            ColorPicker("Pin Color", selection: $userPreferences.pinColor)
+                        } header: {
+                            HStack {
+                                Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)                                .font(.system(size: UIFont.systemFontSize))
+
+
+                                
+                                Spacer()
+                                Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
+                            }
+                        }
+                        
+  
+                    }
+                    
+                    
+                    if selectedTab == 2 {
                         Section(header: Text("Stamp Dashboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                             .font(.system(size: UIFont.systemFontSize))
 
@@ -277,11 +254,12 @@ struct SettingsView: View {
                         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
                             if userPreferences.stamps[index].isActive {
                                 
-                                IconPicker(
-                                    selectedImage: $userPreferences.stamps[index].imageName,
-                                    selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor,
-                                    backgroundColors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], buttonIndex: index,
-                                    inputCategories: imageCategories)
+                                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, inputCategories: imageCategories)
+//                                IconPicker(
+//                                    selectedImage: $userPreferences.stamps[index].imageName,
+//                                    selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor,
+//                                    backgroundColors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], buttonIndex: index,
+//                                    inputCategories: imageCategories)
                                 
                             }
                         }

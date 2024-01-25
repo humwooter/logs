@@ -295,9 +295,12 @@ struct NotEditingView: View {
                 }
                 .padding(.top, 5)
                 
-                Text(entry.content)
+//                Text(entry.content)
+//                ClickableLinksTextView(text: entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))).scaledToFit()
+                Text(makeAttributedString(from: entry.content))            
+                    .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                     .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
-                
+                    .scaledToFit()
                     .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
                     .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
                     .padding(2)
@@ -344,6 +347,22 @@ struct NotEditingView: View {
             .padding(.top, 5)
         }
         
+    }
+    private func makeAttributedString(from string: String) -> AttributedString {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
+            return AttributedString(string)
+        }
+        
+        let attributedString = NSMutableAttributedString(string: string)
+        let matches = detector.matches(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count))
+
+        for match in matches {
+            guard let range = Range(match.range, in: string) else { continue }
+            let nsRange = NSRange(range, in: string)
+            attributedString.addAttribute(.link, value: match.url!, range: nsRange)
+        }
+
+        return AttributedString(attributedString)
     }
 }
 

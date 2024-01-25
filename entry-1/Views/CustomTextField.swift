@@ -29,13 +29,19 @@ struct GrowingTextField: UIViewRepresentable {
         textView.showsVerticalScrollIndicator = false
         textView.delegate = context.coordinator
         textView.textContainerInset = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+        textView.dataDetectorTypes = .link  // Enable detection of links
 
         return textView
     }
+    
 
+    
     func updateUIView(_ uiView: UITextView, context: Context) {
-        uiView.text = text
+        if uiView.text != text {
+            uiView.text = text
+        }
     }
+
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -54,3 +60,36 @@ struct GrowingTextField: UIViewRepresentable {
     }
 }
 
+
+
+
+
+struct ClickableLinksTextView: UIViewRepresentable {
+    var text: String
+    let fontName: String
+    let fontSize: CGFloat
+    let fontColor: UIColor
+
+    func makeUIView(context: Context) -> UITextView {
+        let textView = UITextView()
+        
+        textView.backgroundColor = .clear // You can customize the background color if needed
+        textView.font = UIFont(name: fontName, size: fontSize)
+        textView.textColor = fontColor
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.showsVerticalScrollIndicator = false
+        textView.dataDetectorTypes = .link // Enable detection of links
+        textView.textContainerInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        textView.text = text
+
+        return textView
+    }
+
+    func updateUIView(_ uiView: UITextView, context: Context) {
+        // Update the text if it has changed
+        if uiView.text != text {
+            uiView.text = text
+        }
+    }
+}

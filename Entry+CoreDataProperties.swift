@@ -20,6 +20,7 @@ extension Entry {
     
     @NSManaged public var content: String
     @NSManaged public var time: Date
+    @NSManaged public var lastUpdated: Date?
     @NSManaged public var relationship: Log
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor

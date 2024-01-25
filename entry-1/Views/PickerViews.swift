@@ -31,6 +31,7 @@ struct ButtonDashboard: View {
                                 dashboardSection(startIndex: tabPage*7)
                                     .tag(tabPage)
                                     .padding(.vertical, 5)
+                                
                             }
                         }
                         .frame(minHeight: 4.5*button_width)
@@ -53,6 +54,7 @@ struct ButtonDashboard: View {
                 ForEach(startIndex..<startIndex+2, id: \.self) { index in
                     
                     buttonSection(index: index)
+                    
                 }
             }
             HStack(alignment: .center, spacing: 20) {
@@ -112,10 +114,13 @@ struct ButtonDashboard: View {
                                    ), color: stamp.color)
                 }
             }
+ 
         }
         .onTapGesture {
             print("INDEX: \(index)")
+            print("STAMP: \(stamp)")
         }
+   
     }
 }
 
@@ -127,7 +132,10 @@ struct IconPicker: View {
     @Binding var accentColor: Color
     @State private var searchText = ""
     
-    @State var backgroundColors: [Color]
+//    @State var backgroundColors: [Color]
+    
+    @Binding var topColor_background: Color
+    @Binding var bottomColor_background: Color
 
     
     var buttonIndex: Int
@@ -225,7 +233,7 @@ struct IconPicker: View {
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: backgroundColors,  startPoint: .top, endPoint: .bottom)
+                        LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
                             .ignoresSafeArea()
                     }
             }
@@ -244,6 +252,9 @@ struct FontPicker: View {
     var inputCategories: [String: [String]]
     @State private var searchText = ""
     
+    @Binding var topColor_background: Color
+    @Binding var bottomColor_background: Color
+    
     var body: some View {
             NavigationLink(destination: fontListView()) {
                 HStack {
@@ -258,7 +269,6 @@ struct FontPicker: View {
             Text("Font Size")
             Slider(value: $selectedFontSize, in: 10...30, step: 1, label: { Text("Font Size") })
         }
-//        }
     }
     
     func fontListView() -> some View {
@@ -295,6 +305,14 @@ struct FontPicker: View {
             }
       
         }
+        .background {
+                ZStack {
+                    Color(UIColor.systemGroupedBackground)
+                    LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
+                        .ignoresSafeArea()
+                }
+        }
+        .scrollContentBackground(.hidden)
         .navigationTitle("Font Type")
         .searchable(text: $searchText)
     }

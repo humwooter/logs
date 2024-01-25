@@ -151,8 +151,6 @@ struct LogsView: View {
 
     @State var selectedLogs: [Log] = []
     
-//    @StateObject private var searchModel = SearchModel()
-
     // LogsView
     @FetchRequest(
         entity: Entry.entity(),
@@ -174,7 +172,7 @@ struct LogsView: View {
                                         MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.automatic)
                                             .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
                                             .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                                            .accentColor(Color.complementaryColor(of: userPreferences.accentColor))
+                                            .accentColor(userPreferences.accentColor)
                                         
                                     }
                                     

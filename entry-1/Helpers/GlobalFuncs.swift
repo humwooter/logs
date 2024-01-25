@@ -9,6 +9,10 @@ import Foundation
 import CoreData
 import SwiftUI
 
+func getDocumentsDirectory() -> URL {
+    let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+    return paths[0]
+}
 
 func isClear(for color: UIColor) -> Bool {
     var red: CGFloat = 0

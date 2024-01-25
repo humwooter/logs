@@ -235,6 +235,7 @@ struct NewEntryView: View {
         newEntry.id = UUID()
         newEntry.content = entryContent
         newEntry.time = Date()
+        newEntry.lastUpdated = Date()
         print("entry time has been set")
         newEntry.stampIndex = -1
         newEntry.color = UIColor.tertiarySystemBackground

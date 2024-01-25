@@ -20,5 +20,3 @@ enum FilterTokens: String, Identifiable, Hashable, CaseIterable {
     case hiddenEntries, stampNameEntries, stampIndexEntries, mediaEntries, searchTextEntries
     var id: Self { self }
 }
-
-
