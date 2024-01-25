@@ -14,7 +14,22 @@ import UniformTypeIdentifiers
 
 
 
+func makeAttributedString(from string: String) -> AttributedString {
+    guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else {
+        return AttributedString(string)
+    }
+    
+    let attributedString = NSMutableAttributedString(string: string)
+    let matches = detector.matches(in: string, options: [], range: NSRange(location: 0, length: string.utf16.count))
 
+    for match in matches {
+        guard let range = Range(match.range, in: string) else { continue }
+        let nsRange = NSRange(range, in: string)
+        attributedString.addAttribute(.link, value: match.url!, range: nsRange)
+    }
+
+    return AttributedString(attributedString)
+}
 //    private func importData(from url: URL) async throws {
 //        print("entered import data")
 //

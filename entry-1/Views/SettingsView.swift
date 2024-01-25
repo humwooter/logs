@@ -195,6 +195,17 @@ struct SettingsView: View {
                                     }
                             }
               
+                            Section(header: Text("Link Detection").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                                .font(.system(size: UIFont.systemFontSize))
+
+                            ) {
+                                Toggle("Activate hyperlinks", isOn: $userPreferences.showLinks) // Make sure to add this property to UserPreferences
+                                    .onChange(of: userPreferences.showLinks) { newValue in
+                                        if newValue {
+                                            userPreferences.showLinks = newValue
+                                        }
+                                    }
+                            }
                             
                             
                         }
@@ -207,7 +218,6 @@ struct SettingsView: View {
                         ) {
                             ColorPicker("Accent Color", selection: $userPreferences.accentColor)
                             FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1])
-//                            FontPicker(selectedFont: $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories)
                             HStack {
                                 Text("Line Spacing")
                                 Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
@@ -224,6 +234,14 @@ struct SettingsView: View {
                         ) {
                             BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
                         }
+                        
+//                        Section(header: Text("Entry background color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//                            .font(.system(size: UIFont.systemFontSize))
+//
+//                        ) {
+//                            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+//                        }
+                        
                         Section {
                             ColorPicker("Pin Color", selection: $userPreferences.pinColor)
                         } header: {
@@ -255,11 +273,7 @@ struct SettingsView: View {
                             if userPreferences.stamps[index].isActive {
                                 
                                 IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, inputCategories: imageCategories)
-//                                IconPicker(
-//                                    selectedImage: $userPreferences.stamps[index].imageName,
-//                                    selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor,
-//                                    backgroundColors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], buttonIndex: index,
-//                                    inputCategories: imageCategories)
+
                                 
                             }
                         }

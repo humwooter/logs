@@ -76,6 +76,12 @@ class UserPreferences: ObservableObject {
         }
     }
     
+    @Published var entryBackgroundColor: Color = Color.clear {
+        didSet {
+            UserDefaults.standard.setColor(color: entryBackgroundColor, forKey: "entryBackgroundColor")
+        }
+    }
+    
     @Published var accentColor: Color {
         didSet {
             UserDefaults.standard.setColor(color: accentColor, forKey: "accentColor")
@@ -94,6 +100,13 @@ class UserPreferences: ObservableObject {
             UserDefaults.standard.set(showLockScreen, forKey: "showLockScreen")
         }
     }
+    
+    @Published var showLinks: Bool = false {
+        didSet {
+            UserDefaults.standard.set(showLinks, forKey: "showLinks")
+        }
+    }
+    
     @Published var isUnlocked: Bool = false
     
     @Published var fontSize: CGFloat {
@@ -115,6 +128,7 @@ class UserPreferences: ObservableObject {
     }
     
     
+    
     init() {
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
         self.pinColor = UserDefaults.standard.color(forKey: "pinColor") ?? Color.red
@@ -130,6 +144,7 @@ class UserPreferences: ObservableObject {
           ]
         
         
+        self.showLinks = UserDefaults.standard.bool(forKey: "showLinks") ?? false
         
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []
 
@@ -145,6 +160,7 @@ class UserPreferences: ObservableObject {
         self.selectedImages = UserDefaults.standard.array(forKey: "selectedImages") as? [String] ?? ["star.fill", "staroflife", "heart.fill", "book.fill", "gamecontroller.fill"]
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "#FFEFC2"), Color(hex: "#FFB1FF"), Color(hex: "#C8FFFF"), Color(hex: "#C2FFCB"), Color(hex: "#928CFF")]
         self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color.clear, Color.clear]
+        self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
 
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") 
     }

@@ -116,10 +116,7 @@ struct ButtonDashboard: View {
             }
  
         }
-        .onTapGesture {
-            print("INDEX: \(index)")
-            print("STAMP: \(stamp)")
-        }
+
    
     }
 }
@@ -267,7 +264,7 @@ struct FontPicker: View {
 
         HStack {
             Text("Font Size")
-            Slider(value: $selectedFontSize, in: 10...30, step: 1, label: { Text("Font Size") })
+            Slider(value: $selectedFontSize, in: 5...30, step: 0.5, label: { Text("Font Size") })
         }
     }
     
