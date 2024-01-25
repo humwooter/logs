@@ -298,7 +298,7 @@ struct NotEditingView: View {
 //                Text(entry.content)
 //                ClickableLinksTextView(text: entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))).scaledToFit()
 //                Text(makeAttributedString(from: entry.content))   
-                VStack {
+                ZStack {
                     if (userPreferences.showLinks) {
                         Text(makeAttributedString(from: entry.content))
                     } else {
@@ -309,7 +309,7 @@ struct NotEditingView: View {
                     .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     .scaledToFit()
                     .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
-                    .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                     .padding(2)
                     .padding(.vertical, 5)
                     .lineSpacing(userPreferences.lineSpacing)
