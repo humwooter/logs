@@ -43,7 +43,8 @@ struct EntryDetailView: View { //used in LogDetailView
                         } else {
                             Text(entry.content)
                         }
-                    }                        .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
+                    }                        
+                    .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                         .fontWeight(entry.stampIndex != -1  ? .bold : .regular)
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .contextMenu {

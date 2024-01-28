@@ -295,21 +295,18 @@ struct NotEditingView: View {
                 }
                 .padding(.top, 5)
                 
-//                Text(entry.content)
-//                ClickableLinksTextView(text: entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))).scaledToFit()
-//                Text(makeAttributedString(from: entry.content))   
-                ZStack {
+                VStack {
                     if (userPreferences.showLinks) {
                         Text(makeAttributedString(from: entry.content))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                     } else {
                         Text(entry.content)
+                            .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
                     }
                 }
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                     .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
-                    .scaledToFit()
                     .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                     .padding(2)
                     .padding(.vertical, 5)
                     .lineSpacing(userPreferences.lineSpacing)
@@ -342,6 +339,7 @@ struct NotEditingView: View {
                         }
                     }
                 }
+                
                 
                 
             }
