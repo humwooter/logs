@@ -138,7 +138,11 @@ struct EditingView: View {
                                         entry.deleteImage(coreDataManager: coreDataManager)
                                     }
                             }
-                        } else {
+                        } 
+                        else if let data, isPDF(data: data) {
+                            PDFKitView(data: data)
+                        }
+                        else {
                             ZStack(alignment: .topLeading) {
                                 AsyncImage(url: fileURL) { image in
                                     image.resizable()
@@ -253,16 +257,22 @@ struct NotEditingView: View {
                             let fileURL = documentsDirectory.appendingPathComponent(filename)
                             if imageExists(at: fileURL) {
                                 if let data =  getMediaData(fromFilename: filename) {
-                                    let image = UIImage(data: data)!
-                                    Button(action: {
-                                        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                        let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                        
-                                        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                        
-                                    }, label: {
-                                        Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                    })
+                                    if isPDF(data: data) {
+//                                        Circle()
+//                                        PDFKitView(data: data)
+                                    }
+                                    else {
+                                        let image = UIImage(data: data)!
+                                        Button(action: {
+                                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                            let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                            
+                                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                            
+                                        }, label: {
+                                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                        })
+                                    }
                                 }
                             }
                             
@@ -299,13 +309,15 @@ struct NotEditingView: View {
                     if (userPreferences.showLinks) {
                         Text(makeAttributedString(from: entry.content))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     } else {
                         Text(entry.content)
                             .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     }
                 }
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
+//                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
                     .padding(2)
                     .padding(.vertical, 5)
@@ -323,18 +335,18 @@ struct NotEditingView: View {
                         let data = try? Data(contentsOf: fileURL)
                         
                         
-                        if let data = data, isGIF(data: data) {
-                            
-                            
+                        if let data = data, isGIF(data: data) {                       
                             let asyncImage = UIImage(data: data)
-                            
-                            
                             AnimatedImageView(url: fileURL).scaledToFit()
                                 .blur(radius: entry.isHidden ? 10 : 0)
                             // Add imageView
+                        } else if let data, isPDF(data: data) {
+                            PDFKitView(data: data).scaledToFit()
+                                .blur(radius: entry.isHidden ? 10 : 0)
                         } else {
                             if imageExists(at: fileURL) {
                                 CustomAsyncImageView(url: fileURL).scaledToFit()
+                                    .blur(radius: entry.isHidden ? 10 : 0)
                             }
                         }
                     }

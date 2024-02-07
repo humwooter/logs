@@ -85,16 +85,18 @@ struct EntryDetailView: View { //used in LogDetailView
                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                 if imageExists(at: fileURL) {
                                     if let data =  getMediaData(fromFilename: filename) {
-                                        let image = UIImage(data: data)!
-                                        Button(action: {                                     
-                                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                            
-                                        }, label: {
-                                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                        })
+                                        if isPDF(data: data) {
+                                        } else {
+                                            let image = UIImage(data: data)!
+                                            Button(action: {
+                                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                                
+                                            }, label: {
+                                                Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                            })
+                                        }
                                     }
                                 }
-                                
                             }
                             
                             Button(action: {
@@ -122,6 +124,9 @@ struct EntryDetailView: View { //used in LogDetailView
                     let data = try? Data(contentsOf: fileURL)
                     if let data = data, isGIF(data: data) {
                         AnimatedImageView(url: fileURL).scaledToFit()
+                    } else if let data, isPDF(data: data) {
+                        PDFKitView(data: data).scaledToFit()
+                        
                     } else {
                         if imageExists(at: fileURL) {
                             CustomAsyncImageView(url: fileURL).scaledToFit()

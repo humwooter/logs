@@ -14,6 +14,33 @@ func isGIF(data: Data) -> Bool {
     return data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) || data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
 }
 
+func isPDF(data: Data) -> Bool {
+    guard let signature = String(data: data.prefix(5), encoding: .ascii) else { return false }
+    return signature == "%PDF-"
+}
+
+func drawPDFfromURL(url: URL) -> UIImage? {
+    guard let document = CGPDFDocument(url as CFURL) else { return nil }
+    guard let page = document.page(at: 1) else { return nil }
+
+    let pageRect = page.getBoxRect(.mediaBox)
+    let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+    let img = renderer.image { ctx in
+        UIColor.white.set()
+        ctx.fill(pageRect)
+
+        ctx.cgContext.translateBy(x: 0.0, y: pageRect.size.height)
+        ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+
+        ctx.cgContext.drawPDFPage(page)
+    }
+
+    return img
+}
+
+//func isPDF(data: Data) -> Bool {
+//    return data.prefix(5) == Data([0x25, 0x50, 0x44, 0x46, 0x2d]) // Prefix for %PDF-
+//} //same thing as implementation above
 
 func isHeic(data: Data) -> Bool {
     return data.prefix(4) == Data([0x89, 0x48, 0x45, 0x49]) // Prefix for HEIC

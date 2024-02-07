@@ -108,16 +108,18 @@ struct TextView : View {
                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                 if imageExists(at: fileURL) {
                                     if let data =  getMediaData(fromFilename: filename) {
-                                        let image = UIImage(data: data)!
-                                        Button(action: {
-                                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                            let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                            
-                                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                            
-                                        }, label: {
-                                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                        })
+                                        if !isPDF(data: data) {
+                                            let image = UIImage(data: data)!
+                                            Button(action: {
+                                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                                                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                                                
+                                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                                                
+                                            }, label: {
+                                                Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                                            })
+                                        }
                                     }
                                 }
                                 

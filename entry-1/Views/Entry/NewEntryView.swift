@@ -14,7 +14,8 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-
+import UniformTypeIdentifiers
+import PDFKit
 
 
 struct NewEntryView: View {
@@ -38,12 +39,14 @@ struct NewEntryView: View {
     @State private var selectedItem : PhotosPickerItem?
     @State private var selectedImage : UIImage?
     @State private var selectedData: Data? //used for gifs
+    @State private var selectedPDFLink: URL? //used for gifs
+
     @State private var isCameraPresented = false
     @State private var filename = ""
     @State private var imageData : Data?
     @State private var imageIsAnimated = false
     @State private var isHidden = false
-    
+    @State private var isDocumentPickerPresented = false
     
     
     
@@ -87,6 +90,37 @@ struct NewEntryView: View {
 
                 VStack {
                     buttonBar()
+//                    if let data = selectedData {
+//                        if isGIF(data: data) {
+//                            AnimatedImageView_data(data: data)
+//                                .contextMenu {
+//                                    Button(role: .destructive, action: {
+//                                        withAnimation(.smooth) {
+//                                            selectedData = nil
+//                                            imageHeight = 0
+//                                        }
+//                                    }) {
+//                                        Text("Delete")
+//                                        Image(systemName: "trash")
+//                                            .foregroundColor(.red)
+//                                    }
+//                                }
+//                        } else {
+//                            CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+//                                .contextMenu {
+//                                    Button(role: .destructive, action: {
+//                                        withAnimation(.smooth) {
+//                                            selectedData = nil
+//                                            imageHeight = 0
+//                                        }
+//                                    }) {
+//                                        Text("Delete")
+//                                        Image(systemName: "trash")
+//                                            .foregroundColor(.red)
+//                                    }
+//                                }
+//                        }
+//                    }
                     if let data = selectedData {
                         if isGIF(data: data) {
                             AnimatedImageView_data(data: data)
@@ -102,6 +136,30 @@ struct NewEntryView: View {
                                             .foregroundColor(.red)
                                     }
                                 }
+                        } else if isPDF(data: data) { // Assuming you have an     // Create a PDFDocument from the selectedData
+           
+                                // Assuming you have a way to display UIImage in your UI
+                                //                                DispatchQueue.main.async {
+                                // Update your UI here with pdfImage
+                                // For example, if you have an UIImageView for displaying the PDF image:
+                                PDFKitView(data: data)
+                                    .contextMenu {
+                                        Button(role: .destructive, action: {
+                                            withAnimation(.smooth) {
+                                                selectedData = nil
+                                                imageHeight = 0
+                                            }
+                                        }) {
+                                            Text("Delete")
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                        }
+                                    }
+                     
+//                            } else {
+//                                // Handle the case where the PDF could not be rendered to an image
+//                                print("Could not render the PDF to an image.")
+//                            }
                         } else {
                             CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                 .contextMenu {
@@ -220,6 +278,51 @@ struct NewEntryView: View {
                     vibration_heavy.impactOccurred()
                     isCameraPresented = true
                 }
+            
+            Button {
+                selectedData = nil
+                vibration_heavy.impactOccurred()
+                isDocumentPickerPresented = true
+            } label: {
+                Image(systemName: "link")
+                    .font(.system(size: 20))
+            }
+            .fileImporter(
+                isPresented: $isDocumentPickerPresented,
+                allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    let url = urls[0]
+                    do {
+                        // Attempt to start accessing the security-scoped resource
+                        if url.startAccessingSecurityScopedResource() {
+                            // Here, instead of creating a bookmark, we read the file data directly
+                            let fileData = try Data(contentsOf: url)
+                            selectedData = fileData // Assuming selectedData is of type Data
+                            imageHeight = UIScreen.main.bounds.height/7
+                            
+                            if isPDF(data: fileData) {
+                                selectedPDFLink = url
+                            }
+                            
+                            // Remember to stop accessing the security-scoped resource when you’re done
+                            url.stopAccessingSecurityScopedResource()
+                        } else {
+                            // Handle failure to access the file
+                            print("Error accessing file")
+                        }
+                    } catch {
+                        // Handle errors such as file not found, insufficient permissions, etc.
+                        print("Error reading file: \(error)")
+                    }
+                case .failure(let error):
+                    // Handle the case where the document picker failed to return a file
+                    print("Error selecting file: \(error)")
+                }
+            }
+            
             
             
         }
@@ -340,3 +443,22 @@ struct NewEntryView: View {
     
 }
 
+
+
+struct PDFThumbnailRepresented : UIViewRepresentable {
+    var pdfView : PDFView
+    
+    func makeUIView(context: Context) -> PDFThumbnailView {
+        let thumbnail = PDFThumbnailView()
+        thumbnail.pdfView = pdfView
+        thumbnail.thumbnailSize = CGSize(width: 100, height: 100)
+        thumbnail.layoutMode = .horizontal
+        return thumbnail
+    }
+    
+    func updateUIView(_ uiView: PDFThumbnailView, context: Context) {
+        //do any updates you need
+        //you could update the thumbnailSize to the size of the view here if you want, for example
+        //uiView.thumbnailSize = uiView.bounds.size
+    }
+}

@@ -125,7 +125,7 @@ struct EntryDetailView_PDF: View { //used in EntryDetailView
 
 
 
-struct PDFDocument: FileDocument {
+struct PDFDoc: FileDocument {
     var pdfURL: URL?
     
     init(pdfURL: URL?) {

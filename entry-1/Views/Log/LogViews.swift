@@ -367,7 +367,7 @@ struct LogsView: View {
             }.font(.system(size: UIFont.systemFontSize))
 
             
-                .fileExporter(isPresented: $isExporting, document: PDFDocument(pdfURL: pdfURL), contentType: .pdf) { result in
+                .fileExporter(isPresented: $isExporting, document: PDFDoc(pdfURL: pdfURL), contentType: .pdf) { result in
                     switch result {
                     case .success(let url):
                         print("File successfully saved at \(url)")
