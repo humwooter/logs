@@ -125,7 +125,7 @@ extension UIColor {
       
         if  entry.stampIndex == -1 || entry.stampIndex == nil {
             
-            if userPreferences.entryBackgroundColor == .clear {
+            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
                 return Color(color)
             } else {
                 return userPreferences.entryBackgroundColor
