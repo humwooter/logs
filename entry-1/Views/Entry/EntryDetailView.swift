@@ -17,7 +17,8 @@ struct EntryDetailView: View { //used in LogDetailView
     @State var image: UIImage?
     @State var shareSheetShown = false
     let entry: Entry
-    
+    @State private var isFullScreen = false
+
     
     
 @State var showEntry = true
@@ -28,8 +29,7 @@ struct EntryDetailView: View { //used in LogDetailView
                     HStack {
                         Text(formattedTime(time: entry.time))
                             .font(.footnote)
-                            .foregroundColor(.gray)
-                        Spacer()
+                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)                       
                         if (entry.stampIndex != -1 ) {
                             Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                                 .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
@@ -40,8 +40,11 @@ struct EntryDetailView: View { //used in LogDetailView
                     VStack {
                         if (userPreferences.showLinks) {
                             Text(makeAttributedString(from: entry.content))
+                                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences))
+
                         } else {
                             Text(entry.content)
+                                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences))
                         }
                     }                        
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
@@ -149,6 +152,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 }
             }
             .blur(radius: showEntry ? 0 : 7)
+        
         
     }
     

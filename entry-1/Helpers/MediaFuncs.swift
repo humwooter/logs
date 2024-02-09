@@ -88,6 +88,20 @@ func saveMedia(data: Data) -> String? {
 }
 
 
+func savePDFDataToFile(data: Data, filename: String) -> URL? {
+    guard let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+    let fileURL = directory.appendingPathComponent(filename)
+    
+    do {
+        try data.write(to: fileURL)
+        return fileURL
+    } catch {
+        print("Error saving PDF file: \(error)")
+        return nil
+    }
+}
+
+
 func getMediaData(fromFilename filename: String) -> Data? {
     if filename.isEmpty {
         return nil

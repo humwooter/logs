@@ -14,7 +14,8 @@ struct RecentlyDeletedView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
     @EnvironmentObject var userPreferences: UserPreferences
     @State private var searchText = ""
-    
+    @Environment(\.colorScheme) var colorScheme
+
     @FetchRequest(
         entity: Entry.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
@@ -48,6 +49,9 @@ struct RecentlyDeletedView: View {
 
                         }
                 }
+                .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+             
+
             }
         }
         .background {
@@ -62,5 +66,11 @@ struct RecentlyDeletedView: View {
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
 
 
+    }
+    
+    func getDefaultEntryBackgroundColor() -> Color {
+        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+        
+        return Color(color)
     }
 }

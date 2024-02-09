@@ -54,9 +54,14 @@ struct NewEntryView: View {
     @State private var dynamicHeight: CGFloat = 100
     @State private var imageHeight: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
-
-
+    @State private var isFullScreen = false
+    @State private var isTextButtonBarVisible: Bool = false
+    @State private var cursorPosition: NSRange? = nil
     
+    @State private var selectedDate : Date = Date()
+
+
+    @State private var showingDatePicker = false // To control the visibility of the date picker
     
     var body: some View {
         NavigationStack {
@@ -76,7 +81,7 @@ struct NewEntryView: View {
                                     Spacer()
                                 }
                             }
-                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
+                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
                         }
                             .padding()
 
@@ -89,38 +94,30 @@ struct NewEntryView: View {
                     }
 
                 VStack {
+                    HStack {
+                        Button(action: {
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                isTextButtonBarVisible.toggle()
+                            }
+                        }) {
+                            HStack {
+//                                if (!isTextButtonBarVisible) {
+//                                    Image(systemName: "text.justify.left")
+//                                }
+                                Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(userPreferences.accentColor)
+                                    .padding()
+                            }
+                        }
+                        
+                        if isTextButtonBarVisible {
+                            textFormattingButtonBar()
+                        }
+                        Spacer()
+                    }
                     buttonBar()
-//                    if let data = selectedData {
-//                        if isGIF(data: data) {
-//                            AnimatedImageView_data(data: data)
-//                                .contextMenu {
-//                                    Button(role: .destructive, action: {
-//                                        withAnimation(.smooth) {
-//                                            selectedData = nil
-//                                            imageHeight = 0
-//                                        }
-//                                    }) {
-//                                        Text("Delete")
-//                                        Image(systemName: "trash")
-//                                            .foregroundColor(.red)
-//                                    }
-//                                }
-//                        } else {
-//                            CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
-//                                .contextMenu {
-//                                    Button(role: .destructive, action: {
-//                                        withAnimation(.smooth) {
-//                                            selectedData = nil
-//                                            imageHeight = 0
-//                                        }
-//                                    }) {
-//                                        Text("Delete")
-//                                        Image(systemName: "trash")
-//                                            .foregroundColor(.red)
-//                                    }
-//                                }
-//                        }
-//                    }
+
                     if let data = selectedData {
                         if isGIF(data: data) {
                             AnimatedImageView_data(data: data)
@@ -136,12 +133,7 @@ struct NewEntryView: View {
                                             .foregroundColor(.red)
                                     }
                                 }
-                        } else if isPDF(data: data) { // Assuming you have an     // Create a PDFDocument from the selectedData
-           
-                                // Assuming you have a way to display UIImage in your UI
-                                //                                DispatchQueue.main.async {
-                                // Update your UI here with pdfImage
-                                // For example, if you have an UIImageView for displaying the PDF image:
+                        } else if isPDF(data: data) { // Assuming you have an
                                 PDFKitView(data: data)
                                     .contextMenu {
                                         Button(role: .destructive, action: {
@@ -156,10 +148,6 @@ struct NewEntryView: View {
                                         }
                                     }
                      
-//                            } else {
-//                                // Handle the case where the PDF could not be rendered to an image
-//                                print("Could not render the PDF to an image.")
-//                            }
                         } else {
                             CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                 .contextMenu {
@@ -192,22 +180,68 @@ struct NewEntryView: View {
 
                 
             }
+//            .sheet(isPresented: $showingDatePicker) {
+//                   DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
+//                       .datePickerStyle(GraphicalDatePickerStyle())
+//                       .padding()
+//               }
             .navigationBarTitle("New Entry")
-//            .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
+
 
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        vibration_heavy.impactOccurred()
+                    
+                  
+                    HStack {
+                        Menu("", systemImage: "ellipsis.circle") {
+                            Button("Edit Date") {
+                                showingDatePicker.toggle()
+                            }
+                        }
+                     
+                        .sheet(isPresented: $showingDatePicker) {
+                            
+                                VStack {
+                                    HStack {
+                                        Button("Cancel") {
+                                            showingDatePicker = false
+                                        }.foregroundStyle(.red)
+                                        Spacer()
+                                        Button("Done") {
+                                            // Perform the action when the date is selected
+                                            showingDatePicker = false
+                                        }.foregroundStyle(Color(UIColor.label))
+                                    }
+                                    .font(.system(size: 15))
+                                    .padding()
+                                }
+                            List {
+
+                                DatePicker("Edit Date", selection: $selectedDate)
+                                    .presentationDetents([.fraction(0.25)])
+                                    .font(.system(size: 15))
+                                    .foregroundColor(userPreferences.accentColor)
+                                    .padding(.horizontal)
+                                
+                                
+                                
+                            }.navigationTitle("Select Custom Date")
+                        }
                         
-                        finalizeCreation()
-                        presentationMode.wrappedValue.dismiss()
-                        focusField = false
-                        keyboardHeight = 0
-                    }) {
-                        Text("Done")
-                            .font(.system(size: 15))
-                            .foregroundColor(userPreferences.accentColor)
+                                     
+            
+                        Button(action: {
+                            vibration_heavy.impactOccurred()
+                            
+                            finalizeCreation()
+                            presentationMode.wrappedValue.dismiss()
+                            focusField = false
+                            keyboardHeight = 0
+                        }) {
+                            Text("Done")
+                                .font(.system(size: 15))
+                                .foregroundColor(userPreferences.accentColor)
+                        }
                     }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
@@ -228,10 +262,65 @@ struct NewEntryView: View {
         }
        
     }
-    
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            
+            // Bullet point button
+            Button(action: {
+                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: entryContent, at: cursorPosition)
+                self.cursorPosition = newCursorPos
+                self.entryContent = newContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Repeat similar logic for the other buttons
+
+
+            
+            // Tab button
+            Button(action: {
+                let (newContent, cursorPosition) = insertOrAppendText("\t", into: entryContent, at: cursorPosition)
+                self.cursorPosition = cursorPosition
+                self.entryContent = newContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            
+            // New Line button
+            Button(action: {
+                let (newContent, cursorPosition) = insertOrAppendText("\n", into: entryContent, at: cursorPosition)
+                self.cursorPosition = cursorPosition
+                self.entryContent = newContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .cornerRadius(15)
+
+    }
+
     @ViewBuilder
     func buttonBar() -> some View {
         HStack(spacing: 35) {
+            
+            
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
@@ -337,8 +426,8 @@ struct NewEntryView: View {
         let newEntry = Entry(context: viewContext)
         newEntry.id = UUID()
         newEntry.content = entryContent
-        newEntry.time = Date()
-        newEntry.lastUpdated = Date()
+        newEntry.time = selectedDate
+        newEntry.lastUpdated = nil
         print("entry time has been set")
         newEntry.stampIndex = -1
         newEntry.color = UIColor.tertiarySystemBackground

@@ -17,7 +17,7 @@ struct LogDetailView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @Environment(\.colorScheme) var colorScheme
     @Binding var totalHeight: CGFloat
-    
+
     let log: Log
     
     var body: some View {
@@ -29,6 +29,9 @@ struct LogDetailView: View {
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                        .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+        
+
                 
                 
                     
@@ -48,7 +51,8 @@ struct LogDetailView: View {
             
                 .listStyle(.automatic)
             }
-            
+//            .listRowBackground(userPreferences.entryBackgroundColor == .clear ? Color(UIColor.systemGroupedBackground) : userPreferences.entryBackgroundColor)
+
 //            .navigationTitle(Date.formattedDate(time: Date))
             .navigationBarTitleDisplayMode(.inline)
         } else {
@@ -56,5 +60,9 @@ struct LogDetailView: View {
                 .foregroundColor(.gray)
         }
     }
-    
+    func getDefaultEntryBackgroundColor() -> Color {
+        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+        
+        return Color(color)
+    }
 }

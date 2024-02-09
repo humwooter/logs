@@ -67,6 +67,12 @@ struct TextView : View {
     
     @State private var showEntry = true
     
+    @State private var showDocumentPicker = false
+      @State private var pdfFileURL: URL?
+    @State private var pdfData: Data?
+    @State private var isExporting = false
+    
+    
     var body : some View {
         
         if (!entry.isFault) {
@@ -108,6 +114,7 @@ struct TextView : View {
                                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                                 if imageExists(at: fileURL) {
                                     if let data =  getMediaData(fromFilename: filename) {
+                                        
                                         if !isPDF(data: data) {
                                             let image = UIImage(data: data)!
                                             Button(action: {
@@ -119,6 +126,19 @@ struct TextView : View {
                                             }, label: {
                                                 Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
                                             })
+                                        } else {
+                                            
+//                                            Button(action: {
+//                                                pdfData = data
+//                                                     isExporting = true
+//                                                print("PRESSED PDF BUTTON")
+//                                            }, label: {
+//                                                Text("Save PDF")
+//                                                
+//                                            })
+//                                       
+//                                            
+                                             
                                         }
                                     }
                                 }
@@ -147,12 +167,33 @@ struct TextView : View {
                                 editingContent = entry.content
                             }
                         }
+                  
+                    
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
                                 .foregroundColor(userPreferences.accentColor)
 //                                .presentationDetents([.medium, .large])
                                 .presentationDragIndicator(.hidden)
 
+                        }
+                    
+                        .sheet(isPresented: $isExporting) {
+                            if let data = pdfData {
+                                Text("test")
+                                .fileExporter(
+                                    isPresented: $isExporting,
+                                    document: PDFDoc(data: data),
+                                    contentType: .pdf,
+                                    defaultFilename: "MyDocument.pdf"
+                                ) { result in
+                                    switch result {
+                                    case .success(let url):
+                                        print("PDF successfully saved at \(url)")
+                                    case .failure(let error):
+                                        print("Failed to save PDF: \(error)")
+                                    }
+                                }
+                            }
                         }
                 }
                 
@@ -312,7 +353,11 @@ struct EntryRowView: View {
         
     }
     
-
+    func getDefaultEntryBackgroundColor() -> Color {
+        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+        
+        return Color(color)
+    }
     
     private func activateButton(entry: Entry, index: Int) {
         let mainContext = coreDataManager.viewContext

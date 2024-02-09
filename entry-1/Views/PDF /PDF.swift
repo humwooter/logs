@@ -125,7 +125,7 @@ struct EntryDetailView_PDF: View { //used in EntryDetailView
 
 
 
-struct PDFDoc: FileDocument {
+struct PDFDoc_url: FileDocument {
     var pdfURL: URL?
     
     init(pdfURL: URL?) {
@@ -145,5 +145,25 @@ struct PDFDoc: FileDocument {
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
         let data = try Data(contentsOf: pdfURL!)
         return .init(regularFileWithContents: data)
+    }
+}
+
+struct PDFDoc: FileDocument {
+    static var readableContentTypes: [UTType] { [.pdf] } // Specify the content type as PDF
+    var data: Data
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.data = data
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        return FileWrapper(regularFileWithContents: data)
     }
 }

@@ -223,15 +223,17 @@ struct SettingsView: View {
                                 Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
                             }
                             
-                            HStack {
-                                ColorPicker("Entry background color", selection: $userPreferences.entryBackgroundColor)
-                                Spacer()
-                                Button {
-                                    userPreferences.entryBackgroundColor = .clear
-                                } label: {
-                                    Image(systemName: "gobackward")
-                                        .foregroundStyle(.red)
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Label("Reset to default", systemImage: "gobackward").foregroundStyle(.red)
+                                        .onTapGesture {
+                                            vibration_light.impactOccurred()
+                                            userPreferences.entryBackgroundColor = .clear
+                                        }
+                                        .padding(1)
                                 }
+                                ColorPicker("Entry background color", selection: $userPreferences.entryBackgroundColor)                           
                             }
                             .padding() // Add padding around the VStack for overall spacing
 

@@ -47,6 +47,48 @@
 		4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264462AEDD0E10099EA84 /* UserPreferences.swift */; };
 		4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */; };
 		4A89FCFD2AC2AE9F0076EAAC /* GlobalFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A89FCFC2AC2AE9F0076EAAC /* GlobalFuncs.swift */; };
+		4A942A502B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
+		4A942A512B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
+		4A942A522B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
+		4A942A542B75990300C60BCC /* Shabina.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A532B75990300C60BCC /* Shabina.otf */; };
+		4A942A552B75990300C60BCC /* Shabina.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A532B75990300C60BCC /* Shabina.otf */; };
+		4A942A562B75990300C60BCC /* Shabina.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A532B75990300C60BCC /* Shabina.otf */; };
+		4A942A582B7599A500C60BCC /* Catbrother.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A572B7599A500C60BCC /* Catbrother.ttf */; };
+		4A942A592B7599A500C60BCC /* Catbrother.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A572B7599A500C60BCC /* Catbrother.ttf */; };
+		4A942A5A2B7599A500C60BCC /* Catbrother.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A572B7599A500C60BCC /* Catbrother.ttf */; };
+		4A942A5C2B7599C600C60BCC /* Catread.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5B2B7599C600C60BCC /* Catread.ttf */; };
+		4A942A5D2B7599C600C60BCC /* Catread.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5B2B7599C600C60BCC /* Catread.ttf */; };
+		4A942A5E2B7599C600C60BCC /* Catread.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5B2B7599C600C60BCC /* Catread.ttf */; };
+		4A942A602B759A2900C60BCC /* CraftyForYou.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5F2B759A2900C60BCC /* CraftyForYou.ttf */; };
+		4A942A612B759A2900C60BCC /* CraftyForYou.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5F2B759A2900C60BCC /* CraftyForYou.ttf */; };
+		4A942A622B759A2900C60BCC /* CraftyForYou.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A5F2B759A2900C60BCC /* CraftyForYou.ttf */; };
+		4A942A642B759AEA00C60BCC /* Calloveya.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A632B759AEA00C60BCC /* Calloveya.ttf */; };
+		4A942A652B759AEA00C60BCC /* Calloveya.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A632B759AEA00C60BCC /* Calloveya.ttf */; };
+		4A942A662B759AEA00C60BCC /* Calloveya.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A632B759AEA00C60BCC /* Calloveya.ttf */; };
+		4A942A682B759C7400C60BCC /* Snickles.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A672B759C7400C60BCC /* Snickles.ttf */; };
+		4A942A692B759C7400C60BCC /* Snickles.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A672B759C7400C60BCC /* Snickles.ttf */; };
+		4A942A6A2B759C7400C60BCC /* Snickles.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A672B759C7400C60BCC /* Snickles.ttf */; };
+		4A942A6C2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6B2B759C8D00C60BCC /* RichieBrusher.ttf */; };
+		4A942A6D2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6B2B759C8D00C60BCC /* RichieBrusher.ttf */; };
+		4A942A6E2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6B2B759C8D00C60BCC /* RichieBrusher.ttf */; };
+		4A942A702B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */; };
+		4A942A712B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */; };
+		4A942A722B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */; };
+		4A942A742B759CF100C60BCC /* ZukaDoodle.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */; };
+		4A942A752B759CF100C60BCC /* ZukaDoodle.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */; };
+		4A942A762B759CF100C60BCC /* ZukaDoodle.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */; };
+		4A942A782B759D3400C60BCC /* BadComic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A772B759D3300C60BCC /* BadComic.ttf */; };
+		4A942A792B759D3400C60BCC /* BadComic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A772B759D3300C60BCC /* BadComic.ttf */; };
+		4A942A7A2B759D3400C60BCC /* BadComic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A772B759D3300C60BCC /* BadComic.ttf */; };
+		4A942A7C2B759DEB00C60BCC /* MiniStory.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */; };
+		4A942A7D2B759DEB00C60BCC /* MiniStory.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */; };
+		4A942A7E2B759DEB00C60BCC /* MiniStory.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */; };
+		4A942A802B759EDC00C60BCC /* NewBoba.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */; };
+		4A942A812B759EDC00C60BCC /* NewBoba.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */; };
+		4A942A822B759EDC00C60BCC /* NewBoba.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */; };
+		4A942A842B759F1000C60BCC /* SpicyPotatos.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */; };
+		4A942A852B759F1000C60BCC /* SpicyPotatos.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */; };
+		4A942A862B759F1000C60BCC /* SpicyPotatos.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */; };
 		4A9982CF2B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		4A9982D02B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAF710A2B738DB400C94555 /* PDFKitView.swift */; };
@@ -141,10 +183,10 @@
 		4ACE310B2AEE40A200807858 /* Floralia-Ea8Xr.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31092AEE40A200807858 /* Floralia-Ea8Xr.ttf */; };
 		4ACE310D2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */; };
 		4ACE310E2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */; };
-		4ACE31102AEE414100807858 /* AutumnDingbats-qZG7x.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats-qZG7x.ttf */; };
-		4ACE31112AEE414200807858 /* AutumnDingbats-qZG7x.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats-qZG7x.ttf */; };
-		4ACE31132AEE415C00807858 /* HarryPotter-ov4z.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter-ov4z.ttf */; };
-		4ACE31142AEE415C00807858 /* HarryPotter-ov4z.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter-ov4z.ttf */; };
+		4ACE31102AEE414100807858 /* AutumnDingbats.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */; };
+		4ACE31112AEE414200807858 /* AutumnDingbats.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */; };
+		4ACE31132AEE415C00807858 /* HarryPotter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter.ttf */; };
+		4ACE31142AEE415C00807858 /* HarryPotter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter.ttf */; };
 		4ACE31162AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */; };
 		4ACE31172AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */; };
 		4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACEB3D32B5F6BC500B76634 /* Stamp.swift */; };
@@ -231,6 +273,20 @@
 		4A89FCFC2AC2AE9F0076EAAC /* GlobalFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalFuncs.swift; sourceTree = "<group>"; };
 		4A8CBA842B32D84F0094E133 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		4A8CBA862B32D84F0094E133 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4A942A4F2B7598E700C60BCC /* Copyduck.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Copyduck.ttf; path = "../../../../Downloads/copyduck-font/Copyduck.ttf"; sourceTree = "<group>"; };
+		4A942A532B75990300C60BCC /* Shabina.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Shabina.otf; path = "../../../../Downloads/shabina-font/Shabina.otf"; sourceTree = "<group>"; };
+		4A942A572B7599A500C60BCC /* Catbrother.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Catbrother.ttf; path = "../../../../Downloads/catbrother-font/Catbrother.ttf"; sourceTree = "<group>"; };
+		4A942A5B2B7599C600C60BCC /* Catread.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Catread.ttf; path = "../../../../Downloads/catread-font-2/Catread.ttf"; sourceTree = "<group>"; };
+		4A942A5F2B759A2900C60BCC /* CraftyForYou.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = CraftyForYou.ttf; path = "../../../../Downloads/craftyforyou-font/CraftyForYou.ttf"; sourceTree = "<group>"; };
+		4A942A632B759AEA00C60BCC /* Calloveya.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Calloveya.ttf; path = "../../../../Downloads/calloveya-font/Calloveya.ttf"; sourceTree = "<group>"; };
+		4A942A672B759C7400C60BCC /* Snickles.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Snickles.ttf; path = "../../../../Downloads/snickles-font/Snickles.ttf"; sourceTree = "<group>"; };
+		4A942A6B2B759C8D00C60BCC /* RichieBrusher.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = RichieBrusher.ttf; path = "../../../../Downloads/richie-brusher-font/RichieBrusher.ttf"; sourceTree = "<group>"; };
+		4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Milkmoustachio.ttf; path = "../../../../Downloads/milkmoustachio-font/Milkmoustachio.ttf"; sourceTree = "<group>"; };
+		4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ZukaDoodle.ttf; path = "../../../../Downloads/zuka-doodle-font/ZukaDoodle.ttf"; sourceTree = "<group>"; };
+		4A942A772B759D3300C60BCC /* BadComic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = BadComic.ttf; path = "../../../../Downloads/bad-comic-font/BadComic.ttf"; sourceTree = "<group>"; };
+		4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MiniStory.ttf; path = "../../../../Downloads/mini-story-font/MiniStory.ttf"; sourceTree = "<group>"; };
+		4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = NewBoba.ttf; path = "../../../../Downloads/new-boba-font/NewBoba.ttf"; sourceTree = "<group>"; };
+		4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpicyPotatos.ttf; path = "../../../../Downloads/spicy-potatos-font/SpicyPotatos.ttf"; sourceTree = "<group>"; };
 		4A9982CE2B401BDF00AEA8BC /* entry_ 4.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "entry_ 4.xcdatamodel"; sourceTree = "<group>"; };
 		4A9982D12B40241E00AEA8BC /* entry_5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_5.xcdatamodel; sourceTree = "<group>"; };
 		4AA29F682ADB7930009FDD36 /* entry_ 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 3.xcdatamodel"; sourceTree = "<group>"; };
@@ -276,8 +332,8 @@
 		4ACE31062AEE305600807858 /* Emperialisme.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Emperialisme.otf; sourceTree = "<group>"; };
 		4ACE31092AEE40A200807858 /* Floralia-Ea8Xr.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Floralia-Ea8Xr.ttf"; sourceTree = "<group>"; };
 		4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Greenleaf-1GRqe.ttf"; sourceTree = "<group>"; };
-		4ACE310F2AEE414100807858 /* AutumnDingbats-qZG7x.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "AutumnDingbats-qZG7x.ttf"; sourceTree = "<group>"; };
-		4ACE31122AEE415C00807858 /* HarryPotter-ov4z.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HarryPotter-ov4z.ttf"; sourceTree = "<group>"; };
+		4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AutumnDingbats.ttf; sourceTree = "<group>"; };
+		4ACE31122AEE415C00807858 /* HarryPotter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = HarryPotter.ttf; sourceTree = "<group>"; };
 		4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HffBirdStencil-2e1l.ttf"; sourceTree = "<group>"; };
 		4ACEB3D32B5F6BC500B76634 /* Stamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stamp.swift; sourceTree = "<group>"; };
 		4ACEB3D52B5F74C800B76634 /* IntroViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroViews.swift; sourceTree = "<group>"; };
@@ -505,9 +561,23 @@
 		4ACE30FC2AEE2DD200807858 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */,
+				4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */,
+				4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */,
+				4A942A772B759D3300C60BCC /* BadComic.ttf */,
+				4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */,
+				4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */,
+				4A942A6B2B759C8D00C60BCC /* RichieBrusher.ttf */,
+				4A942A672B759C7400C60BCC /* Snickles.ttf */,
+				4A942A632B759AEA00C60BCC /* Calloveya.ttf */,
+				4A942A5F2B759A2900C60BCC /* CraftyForYou.ttf */,
+				4A942A5B2B7599C600C60BCC /* Catread.ttf */,
+				4A942A572B7599A500C60BCC /* Catbrother.ttf */,
+				4A942A532B75990300C60BCC /* Shabina.otf */,
+				4A942A4F2B7598E700C60BCC /* Copyduck.ttf */,
 				4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */,
-				4ACE31122AEE415C00807858 /* HarryPotter-ov4z.ttf */,
-				4ACE310F2AEE414100807858 /* AutumnDingbats-qZG7x.ttf */,
+				4ACE31122AEE415C00807858 /* HarryPotter.ttf */,
+				4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */,
 				4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */,
 				4ACE31092AEE40A200807858 /* Floralia-Ea8Xr.ttf */,
 				4ACE31062AEE305600807858 /* Emperialisme.otf */,
@@ -660,15 +730,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ACE31102AEE414100807858 /* AutumnDingbats-qZG7x.ttf in Resources */,
+				4ACE31102AEE414100807858 /* AutumnDingbats.ttf in Resources */,
 				34A808362A8A167800B9BB5C /* Preview Assets.xcassets in Resources */,
 				4ACE30DC2AEE1FA800807858 /* ShootingStars.ttf in Resources */,
 				4ACE31162AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */,
+				4A942A802B759EDC00C60BCC /* NewBoba.ttf in Resources */,
 				4ACE30AC2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
 				4ACE30A82AEE139C00807858 /* MageScript-KpaW.ttf in Resources */,
 				4ACE30D22AEE1CC500807858 /* MuedaCity.ttf in Resources */,
 				4ACE30DF2AEE1FBE00807858 /* NathanCondensedRegular.ttf in Resources */,
 				4ACE30FE2AEE2E9000807858 /* DarlinPop.ttf in Resources */,
+				4A942A642B759AEA00C60BCC /* Calloveya.ttf in Resources */,
 				4ACE30BC2AEE19D200807858 /* HeyOctober.ttf in Resources */,
 				4ACE309C2AEE0E9100807858 /* MotleyForcesRegular.ttf in Resources */,
 				4ACE30C42AEE1A2700807858 /* AnnyeongHaseyo-GOKLO.ttf in Resources */,
@@ -677,29 +749,41 @@
 				4ACE30B82AEE18C800807858 /* MagieraScript.ttf in Resources */,
 				4ACE30E52AEE202600807858 /* Veggieburger.otf in Resources */,
 				4ACE310D2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */,
+				4A942A782B759D3400C60BCC /* BadComic.ttf in Resources */,
+				4A942A6C2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
+				4A942A7C2B759DEB00C60BCC /* MiniStory.ttf in Resources */,
 				4ACE30EB2AEE28AD00807858 /* GothicStraightFaced.ttf in Resources */,
 				4ACE30B42AEE158F00807858 /* StainellaScript.ttf in Resources */,
 				4ACE30F12AEE28C300807858 /* IrishuncialfabetaBold-2OEBd.ttf in Resources */,
 				4ACE30A02AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30FA2AEE294300807858 /* IrishuncialfabetaBold.ttf in Resources */,
 				4ACE30D52AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
+				4A942A702B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */,
+				4A942A682B759C7400C60BCC /* Snickles.ttf in Resources */,
 				4ACE30D92AEE1F2E00807858 /* SpicyChips.ttf in Resources */,
 				4ACE31012AEE2FE100807858 /* TheNightOne.otf in Resources */,
 				4ACE30C02AEE1A0700807858 /* NjalBold.otf in Resources */,
+				4A942A602B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
 				4ACE31072AEE305600807858 /* Emperialisme.otf in Resources */,
 				34A808322A8A167800B9BB5C /* Assets.xcassets in Resources */,
 				4ACE30B02AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
-				4ACE31132AEE415C00807858 /* HarryPotter-ov4z.ttf in Resources */,
+				4ACE31132AEE415C00807858 /* HarryPotter.ttf in Resources */,
 				4ACE30F72AEE28DA00807858 /* AliceInWonderland.ttf in Resources */,
+				4A942A502B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30902AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */,
 				4ACE30C82AEE1A3400807858 /* Barrbar-DOKOR.otf in Resources */,
 				4ACE30EE2AEE28B700807858 /* QuaeriteRegnumDei.otf in Resources */,
 				4ACE308C2AEE0A4000807858 /* SunnySpellsBasicRegular-Yz1Wv.ttf in Resources */,
 				4ACE30E82AEE203300807858 /* CuteAurora.ttf in Resources */,
+				4A942A582B7599A500C60BCC /* Catbrother.ttf in Resources */,
+				4A942A742B759CF100C60BCC /* ZukaDoodle.ttf in Resources */,
+				4A942A542B75990300C60BCC /* Shabina.otf in Resources */,
 				4ACE30982AEE0DE100807858 /* Auseklis.ttf in Resources */,
 				4ACE310A2AEE40A200807858 /* Floralia-Ea8Xr.ttf in Resources */,
+				4A942A5C2B7599C600C60BCC /* Catread.ttf in Resources */,
 				4ACE30CC2AEE1B2400807858 /* LuciusCipher.ttf in Resources */,
 				4ACE30A42AEE133800807858 /* Astrodotbasic.ttf in Resources */,
+				4A942A842B759F1000C60BCC /* SpicyPotatos.ttf in Resources */,
 				4ACE30E22AEE201000807858 /* Lilly.ttf in Resources */,
 				4ACE30CF2AEE1C4B00807858 /* PixelDigivolve.ttf in Resources */,
 			);
@@ -711,22 +795,36 @@
 			files = (
 				4ACE30912AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */,
 				4ACE30D62AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
+				4A942A5D2B7599C600C60BCC /* Catread.ttf in Resources */,
+				4A942A592B7599A500C60BCC /* Catbrother.ttf in Resources */,
+				4A942A712B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */,
+				4A942A552B75990300C60BCC /* Shabina.otf in Resources */,
 				4ACE30B52AEE158F00807858 /* StainellaScript.ttf in Resources */,
+				4A942A792B759D3400C60BCC /* BadComic.ttf in Resources */,
+				4A942A7D2B759DEB00C60BCC /* MiniStory.ttf in Resources */,
 				4ACE30C92AEE1A3400807858 /* Barrbar-DOKOR.otf in Resources */,
 				4ACE30C52AEE1A2700807858 /* AnnyeongHaseyo-GOKLO.ttf in Resources */,
 				4ACE30CD2AEE1B2400807858 /* LuciusCipher.ttf in Resources */,
+				4A942A652B759AEA00C60BCC /* Calloveya.ttf in Resources */,
+				4A942A752B759CF100C60BCC /* ZukaDoodle.ttf in Resources */,
 				4ACE309D2AEE0E9100807858 /* MotleyForcesRegular.ttf in Resources */,
 				4ACE30D32AEE1CC500807858 /* MuedaCity.ttf in Resources */,
+				4A942A812B759EDC00C60BCC /* NewBoba.ttf in Resources */,
 				4ACE30992AEE0DE100807858 /* Auseklis.ttf in Resources */,
 				4ACE30A12AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30C12AEE1A0700807858 /* NjalBold.otf in Resources */,
 				4ACE30B92AEE18C800807858 /* MagieraScript.ttf in Resources */,
+				4A942A852B759F1000C60BCC /* SpicyPotatos.ttf in Resources */,
+				4A942A512B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30AD2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
+				4A942A6D2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
 				4ACE30B12AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
 				4ACE30A92AEE139C00807858 /* MageScript-KpaW.ttf in Resources */,
+				4A942A612B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
 				4ACE30D02AEE1C4B00807858 /* PixelDigivolve.ttf in Resources */,
 				4ACE30A52AEE133800807858 /* Astrodotbasic.ttf in Resources */,
 				4ACE30BD2AEE19D200807858 /* HeyOctober.ttf in Resources */,
+				4A942A692B759C7400C60BCC /* Snickles.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,20 +834,29 @@
 			files = (
 				4ACE30E62AEE202600807858 /* Veggieburger.otf in Resources */,
 				4ACE31022AEE2FE100807858 /* TheNightOne.otf in Resources */,
+				4A942A7E2B759DEB00C60BCC /* MiniStory.ttf in Resources */,
 				4ACE30F82AEE28DA00807858 /* AliceInWonderland.ttf in Resources */,
 				4ACE30922AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */,
 				4ACE30E32AEE201000807858 /* Lilly.ttf in Resources */,
+				4A942A562B75990300C60BCC /* Shabina.otf in Resources */,
+				4A942A6E2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
 				4ACE30E92AEE203300807858 /* CuteAurora.ttf in Resources */,
 				4ACE30EF2AEE28B700807858 /* QuaeriteRegnumDei.otf in Resources */,
 				4ACE30DA2AEE1F2E00807858 /* SpicyChips.ttf in Resources */,
 				4ACE30D72AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
 				4ACE30B62AEE158F00807858 /* StainellaScript.ttf in Resources */,
+				4A942A5A2B7599A500C60BCC /* Catbrother.ttf in Resources */,
 				4ACE30CA2AEE1A3400807858 /* Barrbar-DOKOR.otf in Resources */,
+				4A942A5E2B7599C600C60BCC /* Catread.ttf in Resources */,
 				4ACE310E2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */,
+				4A942A622B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
+				4A942A6A2B759C7400C60BCC /* Snickles.ttf in Resources */,
+				4A942A862B759F1000C60BCC /* SpicyPotatos.ttf in Resources */,
 				4ACE30C62AEE1A2700807858 /* AnnyeongHaseyo-GOKLO.ttf in Resources */,
 				4ACE31082AEE305600807858 /* Emperialisme.otf in Resources */,
-				4ACE31112AEE414200807858 /* AutumnDingbats-qZG7x.ttf in Resources */,
+				4ACE31112AEE414200807858 /* AutumnDingbats.ttf in Resources */,
 				4ACE310B2AEE40A200807858 /* Floralia-Ea8Xr.ttf in Resources */,
+				4A942A722B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */,
 				4ACE30EC2AEE28AD00807858 /* GothicStraightFaced.ttf in Resources */,
 				4ACE30FF2AEE2E9000807858 /* DarlinPop.ttf in Resources */,
 				4ACE309E2AEE0E9100807858 /* MotleyForcesRegular.ttf in Resources */,
@@ -760,15 +867,20 @@
 				4ACE30DD2AEE1FA800807858 /* ShootingStars.ttf in Resources */,
 				4ACE30BA2AEE18C800807858 /* MagieraScript.ttf in Resources */,
 				4ACE30FB2AEE294300807858 /* IrishuncialfabetaBold.ttf in Resources */,
-				4ACE31142AEE415C00807858 /* HarryPotter-ov4z.ttf in Resources */,
+				4ACE31142AEE415C00807858 /* HarryPotter.ttf in Resources */,
 				4ACE31172AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */,
 				4ACE30AE2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
 				4ACE30B22AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
+				4A942A762B759CF100C60BCC /* ZukaDoodle.ttf in Resources */,
 				4ACE30F22AEE28C300807858 /* IrishuncialfabetaBold-2OEBd.ttf in Resources */,
 				4ACE30AA2AEE139C00807858 /* MageScript-KpaW.ttf in Resources */,
+				4A942A822B759EDC00C60BCC /* NewBoba.ttf in Resources */,
 				4ACE30A62AEE133800807858 /* Astrodotbasic.ttf in Resources */,
+				4A942A522B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30BE2AEE19D200807858 /* HeyOctober.ttf in Resources */,
+				4A942A662B759AEA00C60BCC /* Calloveya.ttf in Resources */,
 				4ACE31052AEE304000807858 /* Boekopi.otf in Resources */,
+				4A942A7A2B759D3400C60BCC /* BadComic.ttf in Resources */,
 				4ACE30E02AEE1FBE00807858 /* NathanCondensedRegular.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

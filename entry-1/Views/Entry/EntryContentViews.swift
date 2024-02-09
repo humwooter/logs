@@ -14,7 +14,7 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-
+import QuickLook
 
 
 
@@ -32,7 +32,8 @@ struct EditingView: View {
     @State private var showPhotos = false
     @State private var selectedData: Data?
     @State private var showCamera = false
-    
+    @State private var isFullScreen = false
+
     var body: some View {
         VStack() {
             VStack {
@@ -140,6 +141,7 @@ struct EditingView: View {
                             }
                         } 
                         else if let data, isPDF(data: data) {
+                            
                             PDFKitView(data: data)
                         }
                         else {
@@ -214,6 +216,10 @@ struct NotEditingView: View {
     
     @Binding var isEditing: Bool
     
+    @State var currentMediaData: Data?
+    @State private var isFullScreen = false
+    @State private var cursorPosition: NSRange? = nil
+    @State private var selectedURL: URL? = nil
     
     var body : some View {
         ZStack(alignment: .topTrailing) {
@@ -333,20 +339,46 @@ struct NotEditingView: View {
                         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let fileURL = documentsDirectory.appendingPathComponent(filename)
                         let data = try? Data(contentsOf: fileURL)
+                    
                         
-                        
-                        if let data = data, isGIF(data: data) {                       
+                        if let data = data, isGIF(data: data) {
                             let asyncImage = UIImage(data: data)
                             AnimatedImageView(url: fileURL).scaledToFit()
                                 .blur(radius: entry.isHidden ? 10 : 0)
+                                .quickLookPreview($selectedURL)
+                                .onTapGesture {
+                                    selectedURL = fileURL
+                                }
                             // Add imageView
                         } else if let data, isPDF(data: data) {
-                            PDFKitView(data: data).scaledToFit()
-                                .blur(radius: entry.isHidden ? 10 : 0)
+                            VStack {
+                                    HStack {
+                                        Spacer()
+
+                                        Button {
+                                            isFullScreen.toggle()
+                                        } label: {
+                                            Label("Expand", systemImage: "arrow.up.left.and.arrow.down.right")
+                                        }
+                                        .padding(.horizontal, 3)
+                                        .cornerRadius(20)
+                                   
+                                    }
+
+                               
+                                PDFKitView(data: data).scaledToFit()
+                                    .blur(radius: entry.isHidden ? 10 : 0)
+                              
+                            }
+
                         } else {
                             if imageExists(at: fileURL) {
                                 CustomAsyncImageView(url: fileURL).scaledToFit()
                                     .blur(radius: entry.isHidden ? 10 : 0)
+                                    .quickLookPreview($selectedURL)
+                                    .onTapGesture {
+                                        selectedURL = fileURL
+                                    }
                             }
                         }
                     }
@@ -354,6 +386,31 @@ struct NotEditingView: View {
                 
                 
                 
+            }
+    
+            .sheet(isPresented: $isFullScreen) {
+                
+                if let filename = entry.mediaFilename {
+                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let fileURL = documentsDirectory.appendingPathComponent(filename)
+                    let data = try? Data(contentsOf: fileURL)
+                    
+                    if let data = data, isPDF(data: data) {
+                        VStack {
+                            
+                            PDFReader(entry: entry, isFullScreen: $isFullScreen)
+                                .environmentObject(userPreferences)
+                            
+//                            GrowingTextField(text: $entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
+//                                .padding()
+//                                .scaledToFit()
+//                            PDFKitViewFullscreen(data: data)
+                        }
+            
+                        .scrollContentBackground(.hidden)
+                    }
+                }
+            
             }
             .onAppear {
                 showEntry = !entry.isHidden

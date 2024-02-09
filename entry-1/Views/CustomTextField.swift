@@ -14,13 +14,13 @@ struct GrowingTextField: UIViewRepresentable {
     let fontSize: CGFloat
     let fontColor: UIColor
     var initialText: String?
+    @Binding var cursorPosition: NSRange? // Add this
 
     
 
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
-//        textView.backgroundColor = UIColor(Color.white.opacity(0.05)) // Set background color to clear
-//        textView.backgroundColor = UIColor(Color(UIColor.label).opacity(0.05))
+
         textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
 
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
@@ -57,39 +57,22 @@ struct GrowingTextField: UIViewRepresentable {
         func textViewDidChange(_ textView: UITextView) {
             parent.text = textView.text
         }
-    }
-}
-
-
-
-
-
-struct ClickableLinksTextView: UIViewRepresentable {
-    var text: String
-    let fontName: String
-    let fontSize: CGFloat
-    let fontColor: UIColor
-
-    func makeUIView(context: Context) -> UITextView {
-        let textView = UITextView()
+        func insertTextAtCursor(_ textView: UITextView, text: String) {
+               if let selectedRange = textView.selectedTextRange {
+                   textView.replace(selectedRange, withText: text)
+                   parent.text = textView.text // Update the bound text
+               }
+           }
         
-        textView.backgroundColor = .clear // You can customize the background color if needed
-        textView.font = UIFont(name: fontName, size: fontSize)
-        textView.textColor = fontColor
-        textView.isEditable = false
-        textView.isScrollEnabled = false
-        textView.showsVerticalScrollIndicator = false
-        textView.dataDetectorTypes = .link // Enable detection of links
-        textView.textContainerInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        textView.text = text
-
-        return textView
-    }
-
-    func updateUIView(_ uiView: UITextView, context: Context) {
-        // Update the text if it has changed
-        if uiView.text != text {
-            uiView.text = text
+        func textViewDidChangeSelection(_ textView: UITextView) {
+            if let selectedRange = textView.selectedTextRange {
+                let location = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+                let length = textView.offset(from: selectedRange.start, to: selectedRange.end)
+                parent.cursorPosition = NSRange(location: location, length: length)
+            }
         }
+        
+        
     }
 }
+

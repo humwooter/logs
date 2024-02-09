@@ -77,6 +77,35 @@ extension UIColor {
         
         return brightness > 0.5 ? Color.black : Color.white
     }
+    
+    //this calculates the foreground color for the second styling where the stamps only color the icon and the entry takes on the userPreferences.entryBackgroundColor
+    static func foregroundColor2(colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
+            if userPreferences.entryBackgroundColor != .clear {
+                let blendedColor = UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor))
+                var red: CGFloat = 0
+                var green: CGFloat = 0
+                var blue: CGFloat = 0
+                var alpha: CGFloat = 0
+                blendedColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+                let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+                return brightness > 0.5 ? Color.black : Color.white
+            }
+        
+        else { //if the background color is clear then it is set to the default
+            let background = UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))
+            
+            var red: CGFloat = 0
+            var green: CGFloat = 0
+            var blue: CGFloat = 0
+            var alpha: CGFloat = 0
+            
+            background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            
+            let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+            
+            return brightness > 0.5 ? Color.black : Color.white
+        }
+    }
 
     
     static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {        

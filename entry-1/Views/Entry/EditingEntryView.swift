@@ -40,9 +40,14 @@ struct EditingEntryView: View {
     @State private var previousMediaFilename: String = ""
     @State private var previousMediaData: Data?
     @State var imageHeight: CGFloat = 0
-
+    @State private var isTextButtonBarVisible: Bool = false
     
+    @State private var cursorPosition: NSRange? = nil
 
+    @State private var selectedDate : Date = Date()
+
+
+    @State private var showingDatePicker = false
     
     var body : some View {
         NavigationStack {
@@ -61,7 +66,7 @@ struct EditingEntryView: View {
                 
 //                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
-                        GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).cornerRadius(15)
+                        GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
                             .padding()
     
                     }
@@ -73,7 +78,29 @@ struct EditingEntryView: View {
 
                 
                 VStack {
-                    buttonBar()
+                    HStack {
+                        Button(action: {
+                            withAnimation(.easeOut(duration: 0.5)) {
+                                isTextButtonBarVisible.toggle()
+                            }
+                        }) {
+                            HStack {
+//                                if (!isTextButtonBarVisible) {
+//                                    Image(systemName: "text.justify.left")
+//                                }
+                                Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(userPreferences.accentColor)
+                                    .padding()
+                            }
+                        }
+                        
+                        if isTextButtonBarVisible {
+                            textFormattingButtonBar()
+                        }
+                        Spacer()
+                    }
+                    buttonBar()                   
                     if let data = selectedData {
                         if isGIF(data: data) {
                             AnimatedImageView_data(data: data)
@@ -93,7 +120,21 @@ struct EditingEntryView: View {
                                 }
                         } else {
                             if isPDF(data: data) {
-                                
+                                PDFKitView(data: data).scaledToFit()
+                                    .contextMenu {
+                                        Button(role: .destructive, action: {
+                                            withAnimation(.smooth) {
+                                                selectedData = nil
+                                                selectedImage = nil
+                                                entry.deleteImage(coreDataManager: coreDataManager)
+                                                
+                                            }
+                                        }) {
+                                            Text("Delete")
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                        }
+                                    }
                             } else {
                                 CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                     .contextMenu {
@@ -147,20 +188,59 @@ struct EditingEntryView: View {
             .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
             .toolbar {
+                
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        vibration_heavy.impactOccurred()
-                        DispatchQueue.main.async {
-                            finalizeEdit()
-                        }
-                        focusField = false
-                    } label: {
-                        Text("Done")
-                            .font(.system(size: 15))
-                            .foregroundColor(userPreferences.accentColor)
-
-                    }
                     
+                  
+                    HStack {
+                        Menu("", systemImage: "ellipsis.circle") {
+                            Button("Edit Date") {
+                                showingDatePicker.toggle()
+                            }
+                        }
+                     
+                        .sheet(isPresented: $showingDatePicker) {
+                            
+                                VStack {
+                                    HStack {
+                                        Button("Cancel") {
+                                            showingDatePicker = false
+                                        }.foregroundStyle(.red)
+                                        Spacer()
+                                        Button("Done") {
+                                            // Perform the action when the date is selected
+                                            showingDatePicker = false
+                                        }.foregroundStyle(Color(UIColor.label))
+                                    }
+                                    .font(.system(size: 15))
+                                    .padding()
+                                }
+                            List {
+
+                                DatePicker("Edit Date", selection: $selectedDate)
+                                    .presentationDetents([.fraction(0.25)])
+                                    .font(.system(size: 15))
+                                    .foregroundColor(userPreferences.accentColor)
+                                    .padding(.horizontal)
+                                
+                                
+                                
+                            }.navigationTitle("Select Custom Date")
+                        }
+                        
+                                     
+            
+                        Button(action: {
+                            vibration_heavy.impactOccurred()
+                            finalizeEdit()
+                            focusField = false
+                        }) {
+                            Text("Done")
+                                .font(.system(size: 15))
+                                .foregroundColor(userPreferences.accentColor)
+                        }
+                    }
                 }
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -179,6 +259,59 @@ struct EditingEntryView: View {
         }
     }
     
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            
+   
+            Button(action: {
+                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: editingContent, at: cursorPosition)
+                self.cursorPosition = newCursorPos
+                self.editingContent = newContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Repeat similar logic for the other buttons
+
+
+            
+            // Tab button
+            Button(action: {
+                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: cursorPosition)
+                self.cursorPosition = cursorPosition
+                self.editingContent = editingContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            
+            // New Line button
+            Button(action: {
+                let (editingContent, cursorPosition) = insertOrAppendText("\n", into: editingContent, at: cursorPosition)
+                self.cursorPosition = cursorPosition
+                self.editingContent = editingContent
+                vibration_heavy.impactOccurred()
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .cornerRadius(15)
+
+    }
     
     @ViewBuilder
        func buttonBar() -> some View {
@@ -248,7 +381,7 @@ struct EditingEntryView: View {
           let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
               entry.content = editingContent
-              entry.lastUpdated = Date()
+              entry.lastUpdated = selectedDate
               
               // Save the context
               print("isEditing: \(isEditing)")

@@ -57,23 +57,6 @@ struct GetHeightModifier: ViewModifier {
 }
 
 
-func estimatedHeight(forText text: String, fontName: String, fontSize: CGFloat, lineSpacing: CGFloat) -> CGFloat {
-    guard let font = UIFont(name: fontName, size: fontSize) else { return 0 }
-    
-    let screenWidth = UIScreen.main.bounds.width
-    let paragraphStyle = NSMutableParagraphStyle()
-    paragraphStyle.lineSpacing = lineSpacing
-
-    let attributes: [NSAttributedString.Key: Any] = [
-        .font: font,
-        .paragraphStyle: paragraphStyle
-    ]
-
-    let constraintRect = CGSize(width: screenWidth, height: .greatestFiniteMagnitude)
-    let boundingBox = text.boundingRect(with: constraintRect, options: .usesLineFragmentOrigin, attributes: attributes, context: nil)
-
-    return ceil(boundingBox.height)
-}
 
 
 
@@ -159,6 +142,7 @@ struct LogsView: View {
     
     @Environment(\.isSearching) private var isSearching
     @ObservedObject var searchModel: SearchModel
+    @Environment(\.colorScheme) var colorScheme
 
 
     var body: some View {
@@ -324,9 +308,9 @@ struct LogsView: View {
                                             .environmentObject(userPreferences)
                                             .environmentObject(coreDataManager)
                                             .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                       
                                     }
-
-
+                                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
                                 }
                             }
                         }
@@ -367,7 +351,7 @@ struct LogsView: View {
             }.font(.system(size: UIFont.systemFontSize))
 
             
-                .fileExporter(isPresented: $isExporting, document: PDFDoc(pdfURL: pdfURL), contentType: .pdf) { result in
+                .fileExporter(isPresented: $isExporting, document: PDFDoc_url(pdfURL: pdfURL), contentType: .pdf) { result in
                     switch result {
                     case .success(let url):
                         print("File successfully saved at \(url)")
@@ -376,6 +360,12 @@ struct LogsView: View {
                     }
                 }
         }
+    }
+    
+    func getDefaultEntryBackgroundColor() -> Color {
+        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+        
+        return Color(color)
     }
 
     func DatePickerView(date: Binding<Date>, title: String) -> some View {
