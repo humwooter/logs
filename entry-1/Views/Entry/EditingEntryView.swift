@@ -480,7 +480,7 @@ struct EditingEntryView: View {
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,
-                allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
+                allowedContentTypes: [UTType.image, UTType.pdf], 
                 allowsMultipleSelection: false
             ) { result in
                 switch result {

@@ -19,6 +19,8 @@ enum SortOption {
     case timeDescending
     case image
     case wordCount
+    case isShown
+    case isHidden
 }
 
 var defaultBackgroundColor = Color(UIColor.systemGroupedBackground)

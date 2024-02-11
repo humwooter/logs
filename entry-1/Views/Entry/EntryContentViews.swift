@@ -356,15 +356,12 @@ struct NotEditingView: View {
                             VStack {
                                     HStack {
                                         Spacer()
-
-                                        Button {
+                                        Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right").onTapGesture {
                                             isFullScreen.toggle()
-                                        } label: {
-                                            Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
+
                                         }
                                         .padding(.horizontal, 3)
                                         .cornerRadius(20)
-                                   
                                     }
 
                                

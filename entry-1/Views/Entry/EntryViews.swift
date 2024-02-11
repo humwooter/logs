@@ -324,9 +324,6 @@ struct EntryRowView: View {
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-
-//                    .shadow(radius: 0.5)
-//                    .padding(.vertical, 2.0)
                     .padding(.bottom, padding)
                 
                     .swipeActions(edge: .leading) {
@@ -416,6 +413,7 @@ struct EntryView: View {
     @State private var refreshToggle = false
     
     @State private var currentDay: Date = Date()
+    @State var excludeStampedEntries: [Bool] = Array(repeating: false, count: 21)
 
     @FetchRequest(
            entity: Log.entity(),
@@ -443,8 +441,8 @@ struct EntryView: View {
         }
         if isClear(for: color) {
             UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
         }
-        
    }
     
     
@@ -523,6 +521,37 @@ struct EntryView: View {
                         .onDelete { indexSet in
                             deleteEntries(from: indexSet, entries: sortedEntries)
                         }
+                        
+                    case .isShown:
+                        let sortedEntries = entries.filter { $0.isShown }
+                        
+                        ForEach(sortedEntries) { entry in
+                            if (!entry.isFault && !entry.isRemoved) {
+                                EntryRowView(entry: entry)
+                                    .environmentObject(userPreferences)
+                                    .environmentObject(coreDataManager)
+                                    .id("\(entry.id)")
+                            }
+                        }
+                        
+                        .onDelete { indexSet in
+                            deleteEntries(from: indexSet, entries: sortedEntries)
+                        }
+                    case .isHidden:
+                        let sortedEntries = entries.filter { $0.isHidden == false }
+                        
+                        ForEach(sortedEntries) { entry in
+                            if (!entry.isFault && !entry.isRemoved) {
+                                EntryRowView(entry: entry)
+                                    .environmentObject(userPreferences)
+                                    .environmentObject(coreDataManager)
+                                    .id("\(entry.id)")
+                            }
+                        }
+                        
+                        .onDelete { indexSet in
+                            deleteEntries(from: indexSet, entries: sortedEntries)
+                        }
                     }
                 }
                     
@@ -546,38 +575,97 @@ struct EntryView: View {
             })
             )
             .navigationBarItems(trailing:
-                                    Menu {
-                Button(action: {
-                    selectedSortOption = .timeAscending
-                }) {
-                    Text("Time Ascending")
-                    Image(systemName: selectedSortOption == .timeAscending ? "checkmark" : "")
-                }
+                Menu {
                 
-                Button(action: {
-                    selectedSortOption = .timeDescending
-                }) {
-                    Text("Time Descending")
-                    Image(systemName: selectedSortOption == .timeDescending ? "checkmark" : "")
+                Menu {
+                    ControlGroup {
+                        Button(action: {
+                            selectedSortOption = .timeAscending
+                        }) {
+                            VStack {
+
+                                Text("Increasing")
+                            }
+                        }
+                        Button(action: {
+                            selectedSortOption = .timeDescending
+                        }) {
+                            VStack {
+
+                                Text("Decreasing")
+                             
+                            }
+                        }
+                    } label: {
+                        Text("Sort by Time")
+                    }
+                    
+                    Button(action: {
+                        selectedSortOption = .image
+                    }) {
+                        Text("Stamp Name")
+                        Image(systemName: selectedSortOption == .image ? "checkmark" : "")
+                    }
+                    Button(action: {
+                        selectedSortOption = .wordCount
+                    }) {
+                        Text("Word Count")
+                        Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
+                    }
+                } label: {
+                    Text("Sort")
                 }
+
+                Menu {
+                    ControlGroup {
+                        Button(action: {
+                            selectedSortOption = .isShown
+                        }) {
+                            Label("is Open", systemImage: "book.pages.fill")
+    //                        Text("is Open")
+                            Image(systemName: selectedSortOption == .isShown ? "checkmark" : "")
+                        }
+                        
+                        Button(action: {
+                            selectedSortOption = .isHidden
+                        }) {
+                            Label("is Shown", systemImage: "eye.fill")
+
+    //                        Text("is Shown")
+                            Image(systemName: selectedSortOption == .isHidden ? "checkmark" : "")
+                        }
+                    } label: {
+                        Text("Filter by")
+                    }
+                } label: {
+                    Text("Filter")
+                }
+
+       
+          
                 
-                Button(action: {
-                    selectedSortOption = .image
-                }) {
-                    Text("Stamp Name")
-                    Image(systemName: selectedSortOption == .image ? "checkmark" : "")
-                }
-                Button(action: {
-                    selectedSortOption = .wordCount
-                }) {
-                    Text("Word Count")
-                    Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
-                }
+//                ControlGroup {
+//                    Button(action: {
+//                        selectedSortOption = .image
+//                    }) {
+//                        Text("Stamp Name")
+//                        Image(systemName: selectedSortOption == .image ? "checkmark" : "")
+//                    }
+//                    Button(action: {
+//                        selectedSortOption = .wordCount
+//                    }) {
+//                        Text("Word Count")
+//                        Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
+//                    }
+//                } label: {
+//                    Text("other sorts")
+//                }
             } label: {
-                Image(systemName: "arrow.up.arrow.down")
+                Image(systemName: "slider.horizontal.3")
                     .font(.system(size:13))
                 
             }
+                                
             )
             .refreshable(action: {
                 updateFetchRequests()

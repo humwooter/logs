@@ -301,7 +301,7 @@ struct NewEntryView: View {
             Spacer()
         }
         .padding(.vertical, 10)
-        .padding(.horizontal, 20)
+        .padding(.horizontal)
         .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
 
@@ -369,7 +369,7 @@ struct NewEntryView: View {
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,
-                allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
+                allowedContentTypes: [UTType.image, UTType.pdf], // Customize as needed
                 allowsMultipleSelection: false
             ) { result in
                 switch result {

@@ -135,10 +135,9 @@ struct EntryDetailView: View { //used in LogDetailView
                         HStack {
                             Spacer()
 
-                            Button {
+                            Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right").onTapGesture {
                                 isFullScreen.toggle()
-                            } label: {
-                                Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
+
                             }
                             .padding(.horizontal, 3)
                             .cornerRadius(20)
@@ -162,13 +161,7 @@ struct EntryDetailView: View { //used in LogDetailView
             .onAppear {
                 showEntry = !entry.isHidden
             }
-       
-//            .sheet(isPresented: $shareSheetShown) {
-//                if let entry_uiimage = image {
-//                    let entryImage = Image(uiImage: entry_uiimage)
-//                    ShareLink(item: entryImage, preview: SharePreview("", image: entryImage))
-//                }
-//            }
+
             .sheet(isPresented: $isFullScreen) {
                 
                 if let filename = entry.mediaFilename {

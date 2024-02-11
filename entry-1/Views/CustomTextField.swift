@@ -35,13 +35,27 @@ struct GrowingTextField: UIViewRepresentable {
     }
     
 
-    
+//    
+//    func updateUIView(_ uiView: UITextView, context: Context) {
+//        if uiView.text != text {
+//            uiView.text = text
+//        }
+//    }
+
     func updateUIView(_ uiView: UITextView, context: Context) {
-        if uiView.text != text {
-            uiView.text = text
+        uiView.text = text // Set the text
+        uiView.textColor = fontColor // Update the font color if needed
+
+        // Set the cursor position if defined
+        if let cursorPosition = cursorPosition, !uiView.text.isEmpty {
+            if let startPosition = uiView.position(from: uiView.beginningOfDocument, offset: cursorPosition.location) {
+                if let endPosition = uiView.position(from: startPosition, offset: cursorPosition.length) {
+                    uiView.selectedTextRange = uiView.textRange(from: startPosition, to: endPosition)
+
+                }
+            }
         }
     }
-
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -55,8 +69,12 @@ struct GrowingTextField: UIViewRepresentable {
         }
 
         func textViewDidChange(_ textView: UITextView) {
-            parent.text = textView.text
+            // This will capture the updated text and cursor position
+            parent.text = textView.text // Update the bound text
+            let cursorPosition = textView.selectedRange
+            parent.cursorPosition = cursorPosition // Update the cursor position
         }
+
         func insertTextAtCursor(_ textView: UITextView, text: String) {
                if let selectedRange = textView.selectedTextRange {
                    textView.replace(selectedRange, withText: text)
@@ -64,13 +82,20 @@ struct GrowingTextField: UIViewRepresentable {
                }
            }
         
+//        func textViewDidChangeSelection(_ textView: UITextView) {
+//            if let selectedRange = textView.selectedTextRange {
+//                let location = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
+//                let length = textView.offset(from: selectedRange.start, to: selectedRange.end)
+//                parent.cursorPosition = NSRange(location: location, length: length)
+//            }
+//        }
+        
         func textViewDidChangeSelection(_ textView: UITextView) {
-            if let selectedRange = textView.selectedTextRange {
-                let location = textView.offset(from: textView.beginningOfDocument, to: selectedRange.start)
-                let length = textView.offset(from: selectedRange.start, to: selectedRange.end)
-                parent.cursorPosition = NSRange(location: location, length: length)
-            }
+            // This will capture the new cursor position when the selection changes
+            let cursorPosition = textView.selectedRange
+            parent.cursorPosition = cursorPosition // Update the cursor position
         }
+
         
         
     }

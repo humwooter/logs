@@ -173,6 +173,34 @@ func countNewlines(in string: String) -> Int {
     return string.filter { $0 == "\n" }.count
 }
 
+//func insertOrAppendText(_ text: String, into content: String, at cursorPosition: NSRange?) -> (String, NSRange) {
+//    var modifiedContent = content
+//    var newCursorPosition = cursorPosition
+//    
+//    if let cursorPosition = cursorPosition,
+//       let rangeStart = content.index(content.startIndex, offsetBy: cursorPosition.location, limitedBy: content.endIndex) {
+//        
+//        // If cursorPosition.length > 0, it means text is selected, and we are replacing it.
+//        let rangeEnd = cursorPosition.length > 0 ?
+//            content.index(rangeStart, offsetBy: cursorPosition.length, limitedBy: content.endIndex) ?? rangeStart :
+//            rangeStart
+//        let stringRange = rangeStart..<rangeEnd
+//        modifiedContent.replaceSubrange(stringRange, with: text)
+//        
+//        // Update cursor position to be right after the inserted text
+//        let newLocation = content.distance(from: content.startIndex, to: rangeStart) + text.count
+//        newCursorPosition = NSRange(location: newLocation, length: 0)
+//    } else {
+//        modifiedContent += text
+//        
+//        // Update cursor position to the end of the content
+//        let newLocation = modifiedContent.count
+//        newCursorPosition = NSRange(location: newLocation, length: 0)
+//    }
+//
+//    return (modifiedContent, newCursorPosition!)
+//}
+
 func insertOrAppendText(_ text: String, into content: String, at cursorPosition: NSRange?) -> (String, NSRange) {
     var modifiedContent = content
     var newCursorPosition = cursorPosition
@@ -187,19 +215,21 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
         let stringRange = rangeStart..<rangeEnd
         modifiedContent.replaceSubrange(stringRange, with: text)
         
-        // Update cursor position to be right after the inserted text
-        let newLocation = content.distance(from: content.startIndex, to: rangeStart) + text.count
+        // Update cursor position to be right after the inserted text.
+        // The new position should be calculated based on the modifiedContent.
+        let newLocation = modifiedContent.distance(from: modifiedContent.startIndex, to: rangeStart) + text.count
         newCursorPosition = NSRange(location: newLocation, length: 0)
     } else {
         modifiedContent += text
         
-        // Update cursor position to the end of the content
+        // Update cursor position to the end of the content, which is the length of the modifiedContent
         let newLocation = modifiedContent.count
         newCursorPosition = NSRange(location: newLocation, length: 0)
     }
 
     return (modifiedContent, newCursorPosition!)
 }
+
 
 
 func getDefaultEntryBackgroundColor(colorScheme: ColorScheme) -> Color {
