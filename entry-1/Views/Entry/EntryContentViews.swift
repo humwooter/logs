@@ -327,7 +327,6 @@ struct NotEditingView: View {
                 }
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
 //                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
-                    .fontWeight(entry.stampIndex != -1 && entry.stampIndex != nil  ? .semibold : .regular)
                     .padding(2)
                     .padding(.vertical, 5)
                     .lineSpacing(userPreferences.lineSpacing)

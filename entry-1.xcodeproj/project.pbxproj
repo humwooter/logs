@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		345E99182A90DE35004A81E2 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 345E99172A90DE35004A81E2 /* ImagePicker.swift */; };
 		34973C192AB7E8E3003C8902 /* EntryContentViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34973C182AB7E8E3003C8902 /* EntryContentViews.swift */; };
-		34973C1B2AB90D7A003C8902 /* ImageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34973C1A2AB90D7A003C8902 /* ImageRenderer.swift */; };
 		34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A808282A8A167200B9BB5C /* entry_1App.swift */; };
 		34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8082A2A8A167200B9BB5C /* Persistence.swift */; };
 		34A808302A8A167300B9BB5C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A8082F2A8A167300B9BB5C /* ContentView.swift */; };
@@ -229,7 +228,6 @@
 /* Begin PBXFileReference section */
 		345E99172A90DE35004A81E2 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		34973C182AB7E8E3003C8902 /* EntryContentViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryContentViews.swift; sourceTree = "<group>"; };
-		34973C1A2AB90D7A003C8902 /* ImageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRenderer.swift; sourceTree = "<group>"; };
 		34A808252A8A167200B9BB5C /* entry-1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "entry-1.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		34A808282A8A167200B9BB5C /* entry_1App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = entry_1App.swift; sourceTree = "<group>"; };
 		34A8082A2A8A167200B9BB5C /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
@@ -462,7 +460,6 @@
 				4ACEB3D32B5F6BC500B76634 /* Stamp.swift */,
 				345E99172A90DE35004A81E2 /* ImagePicker.swift */,
 				34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */,
-				34973C1A2AB90D7A003C8902 /* ImageRenderer.swift */,
 				4AC45F572ADF71CD00246AEF /* Documents.swift */,
 				4A7264462AEDD0E10099EA84 /* UserPreferences.swift */,
 			);
@@ -922,7 +919,6 @@
 				4A7264352AEBAFAC0099EA84 /* EntryDetailView.swift in Sources */,
 				4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
-				34973C1B2AB90D7A003C8902 /* ImageRenderer.swift in Sources */,
 				34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */,
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */,

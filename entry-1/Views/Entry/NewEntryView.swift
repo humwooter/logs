@@ -101,9 +101,6 @@ struct NewEntryView: View {
                             }
                         }) {
                             HStack {
-//                                if (!isTextButtonBarVisible) {
-//                                    Image(systemName: "text.justify.left")
-//                                }
                                 Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
                                     .font(.system(size: 20))
                                     .foregroundColor(userPreferences.accentColor)
@@ -123,10 +120,8 @@ struct NewEntryView: View {
                             AnimatedImageView_data(data: data)
                                 .contextMenu {
                                     Button(role: .destructive, action: {
-                                        withAnimation(.smooth) {
                                             selectedData = nil
                                             imageHeight = 0
-                                        }
                                     }) {
                                         Text("Delete")
                                         Image(systemName: "trash")
@@ -137,10 +132,8 @@ struct NewEntryView: View {
                                 PDFKitView(data: data)
                                     .contextMenu {
                                         Button(role: .destructive, action: {
-                                            withAnimation(.smooth) {
                                                 selectedData = nil
                                                 imageHeight = 0
-                                            }
                                         }) {
                                             Text("Delete")
                                             Image(systemName: "trash")
@@ -152,10 +145,8 @@ struct NewEntryView: View {
                             CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                 .contextMenu {
                                     Button(role: .destructive, action: {
-                                        withAnimation(.smooth) {
                                             selectedData = nil
                                             imageHeight = 0
-                                        }
                                     }) {
                                         Text("Delete")
                                         Image(systemName: "trash")

@@ -38,14 +38,7 @@ struct LogDetailView_PDF: View {
                 
                     
                 }
-//                .background() {
-//                    GeometryReader { geometry in
-//                        Path { path in
-//                            height = geometry.size.height
-//                            print("Text frame size = \(geometry.size)")
-//                        }
-//                    }
-//                }
+
                 .onAppear(perform: {
                     print("LOG detailz: \(log)")
                 })

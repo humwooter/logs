@@ -110,12 +110,10 @@ struct EditingEntryView: View {
                             AnimatedImageView_data(data: data)
                                 .contextMenu {
                                     Button(role: .destructive, action: {
-                                        withAnimation(.smooth) {
                                             selectedData = nil
                                             selectedImage = nil
                                             entry.deleteImage(coreDataManager: coreDataManager)
                                             
-                                        }
                                     }) {
                                         Text("Delete")
                                         Image(systemName: "trash")
@@ -127,12 +125,10 @@ struct EditingEntryView: View {
                                 PDFKitView(data: data).scaledToFit()
                                     .contextMenu {
                                         Button(role: .destructive, action: {
-                                            withAnimation(.smooth) {
                                                 selectedData = nil
                                                 selectedImage = nil
                                                 entry.deleteImage(coreDataManager: coreDataManager)
                                                 
-                                            }
                                         }) {
                                             Text("Delete")
                                             Image(systemName: "trash")
@@ -143,11 +139,9 @@ struct EditingEntryView: View {
                                 CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                     .contextMenu {
                                         Button(role: .destructive, action: {
-                                            withAnimation(.smooth) {
                                                 selectedData = nil
                                                 selectedImage = nil
                                                 entry.deleteImage(coreDataManager: coreDataManager)
-                                            }
                                         }) {
                                             Text("Delete")
                                             Image(systemName: "trash")
