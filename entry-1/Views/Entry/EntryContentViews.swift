@@ -122,48 +122,51 @@ struct EditingView: View {
                     if let filename = entry.mediaFilename {
                         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let fileURL = documentsDirectory.appendingPathComponent(filename)
-                        let data = try? Data(contentsOf: fileURL)
                         
-                        if let data = data, isGIF(data: data) {
-                            ZStack(alignment: .topLeading) {
-                                AnimatedImageView(url: fileURL).scaledToFit()
-                                Image(systemName: "minus.circle") // Cancel button
-                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-                                    .foregroundColor(.red).opacity(0.8)
-                                    .font(.custom("serif", size: 20))
-                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-                                    .frame(width:70, height: 70)
-                                    .background(Color(.black).opacity(0.01))
-                                    .onTapGesture {
-                                        vibration_medium.impactOccurred()
-                                        entry.deleteImage(coreDataManager: coreDataManager)
-                                    }
-                            }
-                        } 
-                        else if let data, isPDF(data: data) {
+                        if imageExists(at: fileURL) {
+                            let data = try? Data(contentsOf: fileURL)
                             
-                            PDFKitView(data: data)
-                        }
-                        else {
-                            ZStack(alignment: .topLeading) {
-                                AsyncImage(url: fileURL) { image in
-                                    image.resizable()
-                                        .scaledToFit()
+                            if let data = data, isGIF(data: data) {
+                                ZStack(alignment: .topLeading) {
+                                    AnimatedImageView(url: fileURL).scaledToFit()
+                                    Image(systemName: "minus.circle") // Cancel button
+                                        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+                                        .foregroundColor(.red).opacity(0.8)
+                                        .font(.custom("serif", size: 20))
+                                        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+                                        .frame(width:70, height: 70)
+                                        .background(Color(.black).opacity(0.01))
+                                        .onTapGesture {
+                                            vibration_medium.impactOccurred()
+                                            entry.deleteImage(coreDataManager: coreDataManager)
+                                        }
                                 }
-                            placeholder: {
-                                ProgressView()
                             }
-                                Image(systemName: "minus.circle") // Cancel button
-                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-                                    .foregroundColor(.red).opacity(0.8)
-                                    .font(.custom("serif", size: 20))
-                                    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-                                    .frame(width:70, height: 70)
-                                    .background(Color(.black).opacity(0.01))
-                                    .onTapGesture {
-                                        vibration_medium.impactOccurred()
-                                        entry.deleteImage(coreDataManager: coreDataManager)
+                            else if let data, isPDF(data: data) {
+                                
+                                PDFKitView(data: data)
+                            }
+                            else {
+                                ZStack(alignment: .topLeading) {
+                                    AsyncImage(url: fileURL) { image in
+                                        image.resizable()
+                                            .scaledToFit()
                                     }
+                                placeholder: {
+                                    ProgressView()
+                                }
+                                    Image(systemName: "minus.circle") // Cancel button
+                                        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+                                        .foregroundColor(.red).opacity(0.8)
+                                        .font(.custom("serif", size: 20))
+                                        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+                                        .frame(width:70, height: 70)
+                                        .background(Color(.black).opacity(0.01))
+                                        .onTapGesture {
+                                            vibration_medium.impactOccurred()
+                                            entry.deleteImage(coreDataManager: coreDataManager)
+                                        }
+                                }
                             }
                         }
                     }
@@ -358,7 +361,7 @@ struct NotEditingView: View {
                                         Button {
                                             isFullScreen.toggle()
                                         } label: {
-                                            Label("Expand", systemImage: "arrow.up.left.and.arrow.down.right")
+                                            Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
                                         }
                                         .padding(.horizontal, 3)
                                         .cornerRadius(20)
@@ -366,7 +369,7 @@ struct NotEditingView: View {
                                     }
 
                                
-                                PDFKitView(data: data).scaledToFit()
+                                AsyncPDFKitView(url: fileURL).scaledToFit()
                                     .blur(radius: entry.isHidden ? 10 : 0)
                               
                             }
@@ -401,10 +404,7 @@ struct NotEditingView: View {
                             PDFReader(entry: entry, isFullScreen: $isFullScreen)
                                 .environmentObject(userPreferences)
                             
-//                            GrowingTextField(text: $entry.content, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
-//                                .padding()
-//                                .scaledToFit()
-//                            PDFKitViewFullscreen(data: data)
+
                         }
             
                         .scrollContentBackground(.hidden)

@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 import SwiftUI
-
+import PDFKit
 
 func isGIF(data: Data) -> Bool {
     return data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) || data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
@@ -127,5 +127,45 @@ func getMediaData(fromFilename filename: String) -> Data? {
     }
     else {
         return nil
+    }
+}
+
+func generatePNGFromPDF(url: URL) -> Data? {
+    guard let pdfDocument = PDFDocument(url: url), let page = pdfDocument.page(at: 0) else { return nil }
+    let pageRect = page.bounds(for: .mediaBox)
+    let renderer = UIGraphicsImageRenderer(size: pageRect.size)
+    let img = renderer.image { ctx in
+        // Flip the context to correct for the PDF's coordinate system
+        ctx.cgContext.translateBy(x: 0, y: pageRect.size.height)
+        ctx.cgContext.scaleBy(x: 1.0, y: -1.0)
+        
+        UIColor.white.set()
+        ctx.fill(pageRect)
+        page.draw(with: .mediaBox, to: ctx.cgContext)
+    }
+    return img.pngData()
+}
+
+func deleteImage(with mediaFilename: String?, coreDataManager: CoreDataManager) {
+    print("in delete image")
+    let mainContext = coreDataManager.viewContext
+    
+    guard let filename = mediaFilename, !filename.isEmpty else {
+        print("Filename is empty or nil, no image to delete.")
+        return
+    }
+    
+    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    let fileURL = documentsDirectory.appendingPathComponent(filename)
+    
+    if FileManager.default.fileExists(atPath: fileURL.path) {
+        do {
+            try FileManager.default.removeItem(at: fileURL)
+            print("Image at \(fileURL) has been deleted")
+        } catch {
+            print("Error deleting image file: \(error)")
+        }
+    } else {
+        print("File does not exist at path: \(fileURL.path)")
     }
 }

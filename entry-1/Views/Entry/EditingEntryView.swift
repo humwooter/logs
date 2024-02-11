@@ -49,6 +49,10 @@ struct EditingEntryView: View {
 
     @State private var showingDatePicker = false
     
+    @State private var isDocumentPickerPresented = false
+    @State private var selectedPDFLink: URL? //used for gifs
+
+    
     var body : some View {
         NavigationStack {
             VStack {
@@ -313,66 +317,219 @@ struct EditingEntryView: View {
 
     }
     
-    @ViewBuilder
-       func buttonBar() -> some View {
-           HStack(spacing: 35) {
-               Button(action: startOrStopRecognition) {
-                   Image(systemName: "mic.fill")
-                       .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
-                       .font(.system(size: 20))
-               }
-               
-               Spacer()
-               
-               Button {
-                   vibration_heavy.impactOccurred()
-                   entry.isHidden.toggle()
-               } label: {
-                   Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
-               }
-               
     
-               PhotosPicker(selection:$selectedItem, matching: .images) {
-                   Image(systemName: "photo.fill")
-                       .font(.system(size: 20))
-               }
-               .onChange(of: selectedItem) { _ in
-                   selectedData = nil
-                   imageHeight = 0
-                   entry.deleteImage(coreDataManager: coreDataManager)
-                   Task {
-                       if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                           selectedData = data
-                           entry.saveImage(data: data, coreDataManager: coreDataManager)
-                           imageHeight = UIScreen.main.bounds.height/7
-                       }
-                   }
-               }
-               
-               Image(systemName: "camera.fill")
-                   .font(.system(size: 20))
-                   .onChange(of: selectedImage) { _ in
-                       selectedData = nil
-                       imageHeight = 0
-                       entry.deleteImage(coreDataManager: coreDataManager)
-                       Task {
-                           if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                               selectedData = data
-                               entry.saveImage(data: data, coreDataManager: coreDataManager)
-                               imageHeight = UIScreen.main.bounds.height/7
-                           }
-                       }
-                   }
-                   .onTapGesture {
-                       vibration_heavy.impactOccurred()
-                       showCamera = true
-                   }
-           }
-           .padding(.vertical)
-           .padding(.horizontal, 20)
-//           .background(Color.white.opacity(0.05))
-           .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
-       }
+    
+//    @ViewBuilder
+//       func buttonBar() -> some View {
+//           HStack(spacing: 35) {
+//               Button(action: startOrStopRecognition) {
+//                   Image(systemName: "mic.fill")
+//                       .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
+//                       .font(.system(size: 20))
+//               }
+//               
+//               Spacer()
+//               
+//               Button {
+//                   vibration_heavy.impactOccurred()
+//                   entry.isHidden.toggle()
+//               } label: {
+//                   Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+//               }
+//               
+//    
+//               PhotosPicker(selection:$selectedItem, matching: .images) {
+//                   Image(systemName: "photo.fill")
+//                       .font(.system(size: 20))
+//               }
+//               .onChange(of: selectedItem) { _ in
+//                   selectedData = nil
+//                   imageHeight = 0
+//                   entry.deleteImage(coreDataManager: coreDataManager)
+//                   Task {
+//                       if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+//                           selectedData = data
+//                           entry.saveImage(data: data, coreDataManager: coreDataManager)
+//                           imageHeight = UIScreen.main.bounds.height/7
+//                       }
+//                   }
+//               }
+//               
+//               Image(systemName: "camera.fill")
+//                   .font(.system(size: 20))
+//                   .onChange(of: selectedImage) { _ in
+//                       selectedData = nil
+//                       imageHeight = 0
+//                       entry.deleteImage(coreDataManager: coreDataManager)
+//                       Task {
+//                           if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+//                               selectedData = data
+//                               entry.saveImage(data: data, coreDataManager: coreDataManager)
+//                               imageHeight = UIScreen.main.bounds.height/7
+//                           }
+//                       }
+//                   }
+//                   .onTapGesture {
+//                       vibration_heavy.impactOccurred()
+//                       showCamera = true
+//                   }
+//               
+//               Button {
+//                   selectedData = nil
+//                   vibration_heavy.impactOccurred()
+//                   isDocumentPickerPresented = true
+//               } label: {
+//                   Image(systemName: "link")
+//                       .font(.system(size: 20))
+//                       .foregroundColor(userPreferences.accentColor)
+//               }
+//               .fileImporter(
+//                   isPresented: $isDocumentPickerPresented,
+//                   allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
+//                   allowsMultipleSelection: false
+//               ) { result in
+//                   switch result {
+//                   case .success(let urls):
+//                       let url = urls[0]
+//                       do {
+//                           // Attempt to start accessing the security-scoped resource
+//                           if url.startAccessingSecurityScopedResource() {
+//                               // Here, instead of creating a bookmark, we read the file data directly
+//                               let fileData = try Data(contentsOf: url)
+//                               selectedData = fileData // Assuming selectedData is of type Data
+//                               imageHeight = UIScreen.main.bounds.height/7
+//                               
+//                               if isPDF(data: fileData) {
+//                                   selectedPDFLink = url
+//                               }
+//                               
+//                               // Remember to stop accessing the security-scoped resource when you’re done
+//                               url.stopAccessingSecurityScopedResource()
+//                           } else {
+//                               // Handle failure to access the file
+//                               print("Error accessing file")
+//                           }
+//                       } catch {
+//                           // Handle errors such as file not found, insufficient permissions, etc.
+//                           print("Error reading file: \(error)")
+//                       }
+//                   case .failure(let error):
+//                       // Handle the case where the document picker failed to return a file
+//                       print("Error selecting file: \(error)")
+//                   }
+//               }
+//           }
+//           .padding(.vertical)
+//           .padding(.horizontal, 20)
+////           .background(Color.white.opacity(0.05))
+//           .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+//       }
+    @ViewBuilder
+    func buttonBar() -> some View {
+        HStack(spacing: 35) {
+            
+            
+            Button(action: startOrStopRecognition) {
+                Image(systemName: "mic.fill")
+                    .foregroundColor(isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
+                    .font(.system(size: 20))
+            }
+            Spacer()
+        
+            Button {
+                vibration_heavy.impactOccurred()
+                entry.isHidden.toggle()
+            } label: {
+                Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+            }
+            
+            
+            PhotosPicker(selection:$selectedItem, matching: .images) {
+                Image(systemName: "photo.fill")
+                    .font(.system(size: 20))
+                
+            }
+            .onChange(of: selectedItem) { _ in
+                selectedData = nil
+                Task {
+                    if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+                        selectedData = data
+                        imageHeight = UIScreen.main.bounds.height/7
+                    }
+                }
+            }
+
+            
+            Image(systemName: "camera.fill")
+                .font(.system(size: 20))
+                .onChange(of: selectedImage) { _ in
+                    selectedData = nil
+                    Task {
+                        if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+                            selectedData = data
+                            imageHeight = UIScreen.main.bounds.height/7
+                        }
+                    }
+                }
+                .onTapGesture {
+                    vibration_heavy.impactOccurred()
+                    showCamera = true
+                }
+            
+            Button {
+                selectedData = nil
+                vibration_heavy.impactOccurred()
+                isDocumentPickerPresented = true
+            } label: {
+                Image(systemName: "link")
+                    .font(.system(size: 20))
+            }
+            .fileImporter(
+                isPresented: $isDocumentPickerPresented,
+                allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    let url = urls[0]
+                    do {
+                        // Attempt to start accessing the security-scoped resource
+                        if url.startAccessingSecurityScopedResource() {
+                            // Here, instead of creating a bookmark, we read the file data directly
+                            let fileData = try Data(contentsOf: url)
+                            selectedData = fileData // Assuming selectedData is of type Data
+                            imageHeight = UIScreen.main.bounds.height/7
+                            
+                            if isPDF(data: fileData) {
+                                selectedPDFLink = url
+                            }
+                            
+                            // Remember to stop accessing the security-scoped resource when you’re done
+                            url.stopAccessingSecurityScopedResource()
+                        } else {
+                            // Handle failure to access the file
+                            print("Error accessing file")
+                        }
+                    } catch {
+                        // Handle errors such as file not found, insufficient permissions, etc.
+                        print("Error reading file: \(error)")
+                    }
+                case .failure(let error):
+                    // Handle the case where the document picker failed to return a file
+                    print("Error selecting file: \(error)")
+                }
+            }
+            
+            
+            
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .foregroundColor(userPreferences.accentColor)
+//        .background(Color(UIColor.label).opacity(0.05))
+
+    }
     
     
     
@@ -383,6 +540,23 @@ struct EditingEntryView: View {
               entry.content = editingContent
               entry.lastUpdated = selectedDate
               
+              //saving new data if it is picked -> we also need to delete previous data
+              if let data = selectedData {
+                  if let prevFilename = entry.mediaFilename {
+                      previousMediaFilename = prevFilename
+                  }
+                  
+                  if let savedFilename = saveMedia(data: data) { //save new media
+                      entry.mediaFilename = savedFilename
+                  } else {
+                      print("Failed to save media.")
+                  }
+                  
+                  print("deleting previous image")
+                  deleteImage(with: previousMediaFilename)
+              }
+
+              
               // Save the context
               print("isEditing: \(isEditing)")
               coreDataManager.save(context: mainContext)
@@ -390,7 +564,29 @@ struct EditingEntryView: View {
           isEditing = false
       }
       
-
+    func deleteImage(with mediaFilename: String?) {
+        print("in delete image")
+        let mainContext = coreDataManager.viewContext
+        
+        guard let filename = mediaFilename, !filename.isEmpty else {
+            print("Filename is empty or nil, no image to delete.")
+            return
+        }
+        
+        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent(filename)
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+                print("Image at \(fileURL) has been deleted")
+            } catch {
+                print("Error deleting image file: \(error)")
+            }
+        } else {
+            print("File does not exist at path: \(fileURL.path)")
+        }
+    }
     
     func cancelEdit() {
         editingContent = entry.content // Reset to the original content

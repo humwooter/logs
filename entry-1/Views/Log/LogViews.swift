@@ -144,7 +144,6 @@ struct LogsView: View {
     @ObservedObject var searchModel: SearchModel
     @Environment(\.colorScheme) var colorScheme
 
-
     var body: some View {
 
         NavigationView {
@@ -313,6 +312,26 @@ struct LogsView: View {
                                     .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
                                 }
                             }
+//                            else { //only showing first 10 results
+//                                let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
+//                                               .sorted { $0.time > $1.time }
+////                                               .prefix(2) // Limit to first 10 entries
+//
+//                                ForEach(entries, id: \.self) { entry in
+//                                    Section(header:
+//                                                Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
+//                                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+//                                    ) {
+//                                        EntryDetailView(entry: entry)
+//                                            .environmentObject(userPreferences)
+//                                            .environmentObject(coreDataManager)
+//                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                                       
+//                                    }
+//                                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+//                                }
+//                            }
+
                         }
                     }
                 
@@ -657,7 +676,8 @@ struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
     @StateObject private var searchModel = SearchModel()
-    
+    @FocusState private var isSearchFieldFocused: Bool
+
 
     var body: some View {
         
@@ -684,6 +704,6 @@ struct LogParentView : View {
                 
             }
             .font(.system(size: UIFont.systemFontSize))
-
+            .focused($isSearchFieldFocused)
     }
 }

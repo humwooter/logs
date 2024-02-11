@@ -127,10 +127,28 @@ struct EntryDetailView: View { //used in LogDetailView
                     let data = try? Data(contentsOf: fileURL)
                     if let data = data, isGIF(data: data) {
                         AnimatedImageView(url: fileURL).scaledToFit()
-                    } else if let data, isPDF(data: data) {
-                        PDFKitView(data: data).scaledToFit()
+                    } 
+                    else if let data, isPDF(data: data) {
+//                        PDFKitView(data: data).scaledToFit()
+//                        AsyncPDFKitView(url: fileURL).scaledToFit()
                         
-                    } else {
+                        HStack {
+                            Spacer()
+
+                            Button {
+                                isFullScreen.toggle()
+                            } label: {
+                                Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
+                            }
+                            .padding(.horizontal, 3)
+                            .cornerRadius(20)
+                       
+                        }
+                        
+                        CustomAsyncPDFThumbnailView(pdfURL: fileURL).scaledToFit()
+                        
+                    } 
+                    else {
                         if imageExists(at: fileURL) {
                             CustomAsyncImageView(url: fileURL).scaledToFit()
                             
@@ -145,11 +163,32 @@ struct EntryDetailView: View { //used in LogDetailView
                 showEntry = !entry.isHidden
             }
        
-            .sheet(isPresented: $shareSheetShown) {
-                if let entry_uiimage = image {
-                    let entryImage = Image(uiImage: entry_uiimage)
-                    ShareLink(item: entryImage, preview: SharePreview("", image: entryImage))
+//            .sheet(isPresented: $shareSheetShown) {
+//                if let entry_uiimage = image {
+//                    let entryImage = Image(uiImage: entry_uiimage)
+//                    ShareLink(item: entryImage, preview: SharePreview("", image: entryImage))
+//                }
+//            }
+            .sheet(isPresented: $isFullScreen) {
+                
+                if let filename = entry.mediaFilename {
+                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                    let fileURL = documentsDirectory.appendingPathComponent(filename)
+                    let data = try? Data(contentsOf: fileURL)
+                    
+                    if let data = data, isPDF(data: data) {
+                        VStack {
+                            
+                            PDFReader(entry: entry, isFullScreen: $isFullScreen)
+                                .environmentObject(userPreferences)
+                            
+
+                        }
+            
+                        .scrollContentBackground(.hidden)
+                    }
                 }
+            
             }
             .blur(radius: showEntry ? 0 : 7)
         
