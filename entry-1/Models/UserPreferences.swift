@@ -38,6 +38,22 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 
 class UserPreferences: ObservableObject {
     
+//    enum CodingKeys: CodingKey {
+//          case stamps, stampStorage, activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName
+//      }
+    
+//    required init(from decoder: Decoder) throws {
+//         let container = try decoder.container(keyedBy: CodingKeys.self)
+//         stamps = try container.decode([Stamp].self, forKey: .stamps)
+//         // Decode other properties, converting colors as necessary
+//     }
+//     
+//     func encode(to encoder: Encoder) throws {
+//         var container = encoder.container(keyedBy: CodingKeys.self)
+//         try container.encode(stamps, forKey: .stamps)
+//         // Encode other properties, converting colors as necessary
+//     }
+//    
     
     @Published var stamps: [Stamp] {
          didSet {
@@ -212,14 +228,6 @@ extension UserDefaults {
         return nil
     }
     
-
-//    func saveStamps(stamps: [Stamp], forKey key: String) {
-//        let uiColors = stamps.map { UIColor($0.color) }
-//        let imageNames = stamps.map { $0.imageName }
-//        let isActive = stamps.map { $0.isActive }
-//        let colorData = uiColors.compactMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
-//        set([colorData, imageNames, isActive], forKey: key)
-//    }
     
     func saveStamps(stamps: [Stamp], forKey key: String) {
         let idStrings = stamps.map { $0.id.uuidString }
@@ -234,17 +242,6 @@ extension UserDefaults {
     }
 
 
-//    func loadStamps(forKey key: String) -> [Stamp]? {
-//        
-//  
-//        guard let savedArray = array(forKey: key), savedArray.count == 3 else { return nil }
-//        guard let colorData = savedArray[0] as? [Data], let imageNames = savedArray[1] as? [String], let isActive = savedArray[2] as? [Bool] else { return nil }
-//
-//        let uiColors = colorData.compactMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: $0) }
-//        let colors = uiColors.map { Color($0) }
-//
-//        return zip3(colors, imageNames, isActive).map { Stamp(color: $0, imageName: $1, isActive: $2) }
-//    }
     
     func loadStamps(forKey key: String) -> [Stamp]? {
         guard let savedArray = array(forKey: key), savedArray.count == 5 else { return nil }

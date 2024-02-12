@@ -14,7 +14,9 @@ struct GrowingTextField: UIViewRepresentable {
     let fontName: String
     let fontSize: CGFloat
     let fontColor: UIColor
+    let cursorColor: UIColor
     var initialText: String?
+    
     @Binding var cursorPosition: NSRange?
     @ObservedObject var viewModel: TextEditorViewModel
     
@@ -22,7 +24,7 @@ struct GrowingTextField: UIViewRepresentable {
         let textView = UITextView()
         context.coordinator.textView = textView
         textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
-        
+        textView.tintColor = cursorColor
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
         textView.textColor = fontColor  // Set font color
         textView.isScrollEnabled = true
@@ -41,7 +43,6 @@ struct GrowingTextField: UIViewRepresentable {
         if uiView.text != text {
                 uiView.text = text
             }
-//        uiView.textColor = fontColor // Update the font color if needed
     }
     
     func makeCoordinator() -> Coordinator {
@@ -67,7 +68,6 @@ struct GrowingTextField: UIViewRepresentable {
                 .receive(on: DispatchQueue.main) // Ensure UI updates are on the main thread
                 .sink { [weak self] textToInsert in
                     self?.insertTextAtCursor(text: textToInsert)
-//                    self?.viewModel.textToInsert = nil // Optionally reset after insertion
                 }
                 .store(in: &cancellables)
         }
@@ -77,8 +77,7 @@ struct GrowingTextField: UIViewRepresentable {
             self.textView = textView // Keep a reference to the textView
         }
 
-
-        
+  
         private func insertTextAtCursor(text: String) {
             print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
 //            DispatchQueue.main.async {
