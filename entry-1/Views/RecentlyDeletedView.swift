@@ -15,7 +15,7 @@ struct RecentlyDeletedView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @State private var searchText = ""
     @Environment(\.colorScheme) var colorScheme
-
+    @State private var showingPopover = false
     @FetchRequest(
         entity: Entry.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
@@ -31,41 +31,49 @@ struct RecentlyDeletedView: View {
     }
     
     var body: some View {
+        
+        
         List {
-            ForEach(filteredEntries, id: \.self) { entry in
-                Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                ) {
-                    EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                        .contextMenu {
-                            Button {
-                                entry.unRemove(coreDataManager: coreDataManager)
-                            } label: {
-                                Label("Recovery entry", systemImage: "arrow.up")
+            Section(header: Text("Entries are available here for 10 days, after which they will be permanently deleted")
+                .font(.caption)
+                .foregroundColor(Color(userPreferences.entryBackgroundColor == .clear ? .gray : UIColor(userPreferences.entryBackgroundColor)))
+            ) {}
+                
+                ForEach(filteredEntries, id: \.self) { entry in
+                    Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.entryBackgroundColor ?? Color.gray))).opacity(0.4)
+                    ) {
+                        EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            .contextMenu {
+                                Button {
+                                    entry.unRemove(coreDataManager: coreDataManager)
+                                } label: {
+                                    Label("Recovery entry", systemImage: "arrow.up")
+                                }
+                                
+                                Button("Delete", role: .destructive) {
+                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
+                                }
+                                
                             }
-                            
-                            Button("Delete", role: .destructive) {
-                                deleteEntry(entry: entry, coreDataManager: coreDataManager)
-                            }
-
-                        }
+                    }
+                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                    
                 }
-                .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-             
-
-            }
+            
+            
         }
         .background {
-                ZStack {
-                    Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                        .ignoresSafeArea()
-                }
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
+            }
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Recently Deleted")
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
-
-
+        
+        
     }
     
     func getDefaultEntryBackgroundColor() -> Color {
