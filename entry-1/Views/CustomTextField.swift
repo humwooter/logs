@@ -35,7 +35,7 @@ struct GrowingTextField: UIViewRepresentable {
     }
     
 
-//    
+//
 //    func updateUIView(_ uiView: UITextView, context: Context) {
 //        if uiView.text != text {
 //            uiView.text = text
@@ -45,16 +45,19 @@ struct GrowingTextField: UIViewRepresentable {
     func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.text = text // Set the text
         uiView.textColor = fontColor // Update the font color if needed
-
-        // Set the cursor position if defined
-        if let cursorPosition = cursorPosition, !uiView.text.isEmpty {
-            if let startPosition = uiView.position(from: uiView.beginningOfDocument, offset: cursorPosition.location) {
-                if let endPosition = uiView.position(from: startPosition, offset: cursorPosition.length) {
-                    uiView.selectedTextRange = uiView.textRange(from: startPosition, to: endPosition)
-
-                }
-            }
+        if let cursorPosition = cursorPosition {
+            uiView.selectedRange = cursorPosition
         }
+        
+        // Set the cursor position if defined
+//        if let cursorPosition = cursorPosition, !uiView.text.isEmpty {
+//            if let startPosition = uiView.position(from: uiView.beginningOfDocument, offset: cursorPosition.location) {
+//                if let endPosition = uiView.position(from: startPosition, offset: cursorPosition.length) {
+//                    uiView.selectedTextRange = uiView.textRange(from: startPosition, to: endPosition)
+//
+//                }
+//            }
+//        }
     }
 
     func makeCoordinator() -> Coordinator {
@@ -100,4 +103,3 @@ struct GrowingTextField: UIViewRepresentable {
         
     }
 }
-

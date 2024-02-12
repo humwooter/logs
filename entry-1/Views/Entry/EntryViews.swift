@@ -34,9 +34,9 @@ class DayChange: ObservableObject {
 }
 
 
-class MarkedEntries: ObservableObject {
-    @Published var button_entries: [Set<Entry>] = Array(repeating: Set<Entry>(), count: 21)
-}
+//class MarkedEntries: ObservableObject {
+//    @Published var button_entries: [Set<Entry>] = Array(repeating: Set<Entry>(), count: 21)
+//}
 
 class Refresh: ObservableObject {
     @Published var needsRefresh: Bool = false
@@ -305,7 +305,7 @@ struct EntryRowView: View {
     
     @State private var isShowingEntryCreationView = false
     
-    @ObservedObject var markedEntries = MarkedEntries()
+//    @ObservedObject var markedEntries = MarkedEntries()
     @EnvironmentObject var userPreferences: UserPreferences
     @Environment(\.colorScheme) var colorScheme
     @State private var selectedEntry: Entry?
@@ -371,12 +371,12 @@ struct EntryRowView: View {
                     entry.color = UIColor(userPreferences.stamps[index].color)
             }
             
-            if userPreferences.stamps[index].isActive {
-                markedEntries.button_entries[index].insert(entry)
-            } else {
-                entry.color = UIColor.tertiarySystemBackground
-                markedEntries.button_entries[index].remove(entry)
-            }
+//            if userPreferences.stamps[index].isActive {
+//                markedEntries.button_entries[index].insert(entry)
+//            } else {
+//                entry.color = UIColor.tertiarySystemBackground
+//                markedEntries.button_entries[index].remove(entry)
+//            }
             // Save the context
             do {
                 try mainContext.save()
@@ -400,7 +400,7 @@ struct EntryView: View {
 
     @State private var isShowingEntryCreationView = false
     
-    @ObservedObject var markedEntries = MarkedEntries()
+//    @ObservedObject var markedEntries = MarkedEntries()
     @Environment(\.colorScheme) var colorScheme
     @State private var selectedEntry: Entry?
     @State private var showDeleteAlert = false
@@ -764,21 +764,21 @@ struct EntryView: View {
 //        }
 //    }
     
-    private func fetchMarkedEntries() { //fetches important entries before loading the view
-        let mainContext = coreDataManager.viewContext
-        mainContext.perform {
-            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-            for index in 0..<5 {
-                fetchRequest.predicate = NSPredicate(format: "stampIndex == %d", index)
-                do {
-                    let entriesArray = try mainContext.fetch(fetchRequest)
-                    markedEntries.button_entries[index] = Set(entriesArray)
-                } catch {
-                    print("Error fetching marked entries: \(error)")
-                }
-            }
-        }
-    }
+//    private func fetchMarkedEntries() { //fetches important entries before loading the view
+//        let mainContext = coreDataManager.viewContext
+//        mainContext.perform {
+//            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//            for index in 0..<5 {
+//                fetchRequest.predicate = NSPredicate(format: "stampIndex == %d", index)
+//                do {
+//                    let entriesArray = try mainContext.fetch(fetchRequest)
+//                    markedEntries.button_entries[index] = Set(entriesArray)
+//                } catch {
+//                    print("Error fetching marked entries: \(error)")
+//                }
+//            }
+//        }
+//    }
 
     
     

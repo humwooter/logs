@@ -66,7 +66,6 @@ struct NewEntryView: View {
     var body: some View {
         NavigationStack {
             VStack {
-//                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
                         
                         ZStack {

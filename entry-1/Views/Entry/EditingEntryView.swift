@@ -17,7 +17,10 @@ import FLAnimatedImage
 
 struct EditingEntryView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
+//    @Environment(\.managedObjectContext) private var viewContext
+
     @EnvironmentObject var userPreferences: UserPreferences
+
     @ObservedObject var entry: Entry
     @Binding var editingContent: String
     @Binding var isEditing: Bool
@@ -51,6 +54,7 @@ struct EditingEntryView: View {
     
     @State private var isDocumentPickerPresented = false
     @State private var selectedPDFLink: URL? //used for gifs
+    @State private var deletePrevMedia = false
 
     
     var body : some View {
@@ -74,9 +78,9 @@ struct EditingEntryView: View {
                             .padding()
     
                     }
-                    .onTapGesture {
-                        focusField = true
-                    }
+//                    .onTapGesture {
+//                        focusField = true
+//                    }
 
 
 
@@ -112,7 +116,8 @@ struct EditingEntryView: View {
                                     Button(role: .destructive, action: {
                                             selectedData = nil
                                             selectedImage = nil
-                                            entry.deleteImage(coreDataManager: coreDataManager)
+                                        deletePrevMedia = true
+//                                            entry.deleteImage(coreDataManager: coreDataManager)
                                             
                                     }) {
                                         Text("Delete")
@@ -122,26 +127,43 @@ struct EditingEntryView: View {
                                 }
                         } else {
                             if isPDF(data: data) {
-                                PDFKitView(data: data).scaledToFit()
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                                selectedData = nil
-                                                selectedImage = nil
-                                                entry.deleteImage(coreDataManager: coreDataManager)
-                                                
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
+                                if let url = selectedPDFLink {
+                                    AsyncPDFKitView(url: url).scaledToFit()
+                                        .contextMenu {
+                                            Button(role: .destructive, action: {
+                                                    selectedData = nil
+                                                    selectedImage = nil
+                                                deletePrevMedia = true
+//                                                    entry.deleteImage(coreDataManager: coreDataManager)
+                                                    
+                                            }) {
+                                                Text("Delete")
+                                                Image(systemName: "trash")
+                                                    .foregroundColor(.red)
+                                            }
                                         }
-                                    }
+                                }
+//                                PDFKitView(data: data).scaledToFit()
+//                                    .contextMenu {
+//                                        Button(role: .destructive, action: {
+//                                                selectedData = nil
+//                                                selectedImage = nil
+//                                                entry.deleteImage(coreDataManager: coreDataManager)
+//                                                
+//                                        }) {
+//                                            Text("Delete")
+//                                            Image(systemName: "trash")
+//                                                .foregroundColor(.red)
+//                                        }
+//                                    }
                             } else {
                                 CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                     .contextMenu {
                                         Button(role: .destructive, action: {
                                                 selectedData = nil
                                                 selectedImage = nil
-                                                entry.deleteImage(coreDataManager: coreDataManager)
+                                            deletePrevMedia = true
+//                                                entry.deleteImage(coreDataManager: coreDataManager)
                                         }) {
                                             Text("Delete")
                                             Image(systemName: "trash")
@@ -279,7 +301,7 @@ struct EditingEntryView: View {
             
             // Tab button
             Button(action: {
-                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: cursorPosition)
+                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: self.cursorPosition)
                 self.cursorPosition = cursorPosition
                 self.editingContent = editingContent
                 vibration_heavy.impactOccurred()
@@ -448,6 +470,7 @@ struct EditingEntryView: View {
                 Task {
                     if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
                         selectedData = data
+                        deletePrevMedia = true
                         imageHeight = UIScreen.main.bounds.height/7
                     }
                 }
@@ -461,6 +484,7 @@ struct EditingEntryView: View {
                     Task {
                         if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
                             selectedData = data
+                            deletePrevMedia = true
                             imageHeight = UIScreen.main.bounds.height/7
                         }
                     }
@@ -498,6 +522,8 @@ struct EditingEntryView: View {
                                 selectedPDFLink = url
                             }
                             
+                            deletePrevMedia = true
+                            
                             // Remember to stop accessing the security-scoped resource when you’re done
                             url.stopAccessingSecurityScopedResource()
                         } else {
@@ -529,25 +555,32 @@ struct EditingEntryView: View {
     
     func finalizeEdit() {
           // Code to finalize the edit
-          let mainContext = coreDataManager.viewContext
+        let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
               entry.content = editingContent
               entry.lastUpdated = selectedDate
               
               //saving new data if it is picked -> we also need to delete previous data
-              if let data = selectedData {
+              if deletePrevMedia {
+                  
                   if let prevFilename = entry.mediaFilename {
                       previousMediaFilename = prevFilename
                   }
                   
-                  if let savedFilename = saveMedia(data: data) { //save new media
-                      entry.mediaFilename = savedFilename
-                  } else {
-                      print("Failed to save media.")
-                  }
-                  
                   print("deleting previous image")
                   deleteImage(with: previousMediaFilename)
+                  
+                  
+                  if let data = selectedData { // new media data
+                      if let savedFilename = saveMedia(data: data) { //save new media
+                          entry.mediaFilename = savedFilename
+                      } else {
+                          print("Failed to save media.")
+                      }
+             
+                  } else {
+                      
+                  }
               }
 
               
