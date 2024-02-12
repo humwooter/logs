@@ -62,6 +62,8 @@ struct NewEntryView: View {
 
 
     @State private var showingDatePicker = false // To control the visibility of the date picker
+    @ObservedObject var textEditorViewModel = TextEditorViewModel()
+
     
     var body: some View {
         NavigationStack {
@@ -80,7 +82,7 @@ struct NewEntryView: View {
                                     Spacer()
                                 }
                             }
-                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
+                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
                         }
                             .padding()
 
@@ -166,15 +168,9 @@ struct NewEntryView: View {
             }
             .sheet(isPresented: $isCameraPresented) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
-//                    .presentationDetents([.medium, .])
-
-                
+   
             }
-//            .sheet(isPresented: $showingDatePicker) {
-//                   DatePicker("Select Date", selection: $selectedDate, displayedComponents: .date)
-//                       .datePickerStyle(GraphicalDatePickerStyle())
-//                       .padding()
-//               }
+
             .navigationBarTitle("New Entry")
 
 
@@ -252,45 +248,33 @@ struct NewEntryView: View {
         }
        
     }
+
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
         HStack(spacing: 35) {
-            
-            // Bullet point button
+            // Bullet Point Button
             Button(action: {
-                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: entryContent, at: cursorPosition)
-                self.cursorPosition = newCursorPos
-                self.entryContent = newContent
-                vibration_heavy.impactOccurred()
+                self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
                     .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            // Repeat similar logic for the other buttons
-
-
-            
-            // Tab button
+            // Tab Button
             Button(action: {
-                let (newContent, cursorPosition) = insertOrAppendText("\t", into: entryContent, at: cursorPosition)
-                self.cursorPosition = cursorPosition
-                self.entryContent = newContent
-                vibration_heavy.impactOccurred()
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
                     .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            
-            // New Line button
+            // New Line Button
             Button(action: {
-                let (newContent, cursorPosition) = insertOrAppendText("\n", into: entryContent, at: cursorPosition)
-                self.cursorPosition = cursorPosition
-                self.entryContent = newContent
-                vibration_heavy.impactOccurred()
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
             }) {
                 Image(systemName: "return")
                     .font(.system(size: 20))
@@ -300,10 +284,9 @@ struct NewEntryView: View {
             Spacer()
         }
         .padding(.vertical, 10)
-        .padding(.horizontal)
+        .padding(.horizontal, 20)
         .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
-
     }
 
     @ViewBuilder

@@ -174,6 +174,9 @@ struct TextView : View {
                                 .foregroundColor(userPreferences.accentColor)
 //                                .presentationDetents([.medium, .large])
                                 .presentationDragIndicator(.hidden)
+                                .environmentObject(userPreferences)
+                                .environmentObject(coreDataManager)
+                            
 
                         }
                     

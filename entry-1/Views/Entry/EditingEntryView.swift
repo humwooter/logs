@@ -55,7 +55,7 @@ struct EditingEntryView: View {
     @State private var isDocumentPickerPresented = false
     @State private var selectedPDFLink: URL? //used for gifs
     @State private var deletePrevMedia = false
-
+    @ObservedObject var textEditorViewModel = TextEditorViewModel()
     
     var body : some View {
         NavigationStack {
@@ -74,17 +74,11 @@ struct EditingEntryView: View {
                 
 //                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
-                        GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition).cornerRadius(15)
+                        GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
                             .padding()
     
                     }
-//                    .onTapGesture {
-//                        focusField = true
-//                    }
 
-
-
-                
                 VStack {
                     HStack {
                         Button(action: {
@@ -127,35 +121,35 @@ struct EditingEntryView: View {
                                 }
                         } else {
                             if isPDF(data: data) {
-                                if let url = selectedPDFLink {
-                                    AsyncPDFKitView(url: url).scaledToFit()
-                                        .contextMenu {
-                                            Button(role: .destructive, action: {
-                                                    selectedData = nil
-                                                    selectedImage = nil
-                                                deletePrevMedia = true
-//                                                    entry.deleteImage(coreDataManager: coreDataManager)
-                                                    
-                                            }) {
-                                                Text("Delete")
-                                                Image(systemName: "trash")
-                                                    .foregroundColor(.red)
-                                            }
-                                        }
-                                }
-//                                PDFKitView(data: data).scaledToFit()
-//                                    .contextMenu {
-//                                        Button(role: .destructive, action: {
-//                                                selectedData = nil
-//                                                selectedImage = nil
-//                                                entry.deleteImage(coreDataManager: coreDataManager)
-//                                                
-//                                        }) {
-//                                            Text("Delete")
-//                                            Image(systemName: "trash")
-//                                                .foregroundColor(.red)
+//                                if let url = selectedPDFLink {
+//                                    AsyncPDFKitView(url: url).scaledToFit()
+//                                        .contextMenu {
+//                                            Button(role: .destructive, action: {
+//                                                    selectedData = nil
+//                                                    selectedImage = nil
+//                                                deletePrevMedia = true
+////                                                    entry.deleteImage(coreDataManager: coreDataManager)
+//                                                    
+//                                            }) {
+//                                                Text("Delete")
+//                                                Image(systemName: "trash")
+//                                                    .foregroundColor(.red)
+//                                            }
 //                                        }
-//                                    }
+//                                }
+                                PDFKitView(data: data).scaledToFit()
+                                    .contextMenu {
+                                        Button(role: .destructive, action: {
+                                                selectedData = nil
+                                                selectedImage = nil
+                                                entry.deleteImage(coreDataManager: coreDataManager)
+                                                
+                                        }) {
+                                            Text("Delete")
+                                            Image(systemName: "trash")
+                                                .foregroundColor(.red)
+                                        }
+                                    }
                             } else {
                                 CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
                                     .contextMenu {
@@ -176,16 +170,6 @@ struct EditingEntryView: View {
                 }
    
             }
-            .onAppear {
-                if let filename = entry.mediaFilename {
-                    selectedData = getMediaData(fromFilename: filename)
-                    imageHeight = UIScreen.main.bounds.height/7
-                }
-                
-                        if !entry.content.isEmpty {
-                            editingContent = entry.content
-                        }
-            }
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -199,6 +183,9 @@ struct EditingEntryView: View {
                     previousMediaData = getMediaData(fromFilename: filename)
                     selectedData = previousMediaData
                 }
+                if !entry.content.isEmpty {
+                    editingContent = entry.content
+                }
             }
             .sheet(isPresented: $showCamera) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
@@ -208,8 +195,6 @@ struct EditingEntryView: View {
             .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
             .toolbar {
-                
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     
                   
@@ -279,45 +264,88 @@ struct EditingEntryView: View {
         }
     }
     
+//    @ViewBuilder
+//    func textFormattingButtonBar() -> some View {
+//        HStack(spacing: 35) {
+//            
+//   
+//            Button(action: {
+//                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: editingContent, at: cursorPosition)
+//                self.cursorPosition = newCursorPos
+//                self.editingContent = newContent
+//                vibration_heavy.impactOccurred()
+//            }) {
+//                Image(systemName: "list.bullet")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            // Repeat similar logic for the other buttons
+//
+//
+//            
+//            // Tab button
+//            Button(action: {
+//                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: self.cursorPosition)
+//                self.cursorPosition = cursorPosition
+//                self.editingContent = editingContent
+//                vibration_heavy.impactOccurred()
+//            }) {
+//                Image(systemName: "arrow.forward.to.line")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            
+//            // New Line button
+//            Button(action: {
+//                let (editingContent, cursorPosition) = insertOrAppendText("\n", into: editingContent, at: cursorPosition)
+//                self.cursorPosition = cursorPosition
+//                self.editingContent = editingContent
+//                vibration_heavy.impactOccurred()
+//            }) {
+//                Image(systemName: "return")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            Spacer()
+//        }
+//        .padding(.vertical, 10)
+//        .padding(.horizontal, 20)
+//        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+//        .cornerRadius(15)
+//
+//    }
+    
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
         HStack(spacing: 35) {
-            
-   
+            // Bullet Point Button
             Button(action: {
-                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: editingContent, at: cursorPosition)
-                self.cursorPosition = newCursorPos
-                self.editingContent = newContent
-                vibration_heavy.impactOccurred()
+                // Signal to insert a bullet point at the current cursor position.
+                // Update the viewModel's textToInsert property, which triggers the insertion.
+                self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
                     .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            // Repeat similar logic for the other buttons
-
-
-            
-            // Tab button
+            // Tab Button
             Button(action: {
-                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: self.cursorPosition)
-                self.cursorPosition = cursorPosition
-                self.editingContent = editingContent
-                vibration_heavy.impactOccurred()
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
                     .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            
-            // New Line button
+            // New Line Button
             Button(action: {
-                let (editingContent, cursorPosition) = insertOrAppendText("\n", into: editingContent, at: cursorPosition)
-                self.cursorPosition = cursorPosition
-                self.editingContent = editingContent
-                vibration_heavy.impactOccurred()
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
             }) {
                 Image(systemName: "return")
                     .font(.system(size: 20))
@@ -330,116 +358,24 @@ struct EditingEntryView: View {
         .padding(.horizontal, 20)
         .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
-
     }
-    
-    
-    
-//    @ViewBuilder
-//       func buttonBar() -> some View {
-//           HStack(spacing: 35) {
-//               Button(action: startOrStopRecognition) {
-//                   Image(systemName: "mic.fill")
-//                       .foregroundColor(isListening ? userPreferences.accentColor : Color.oppositeColor(of: userPreferences.accentColor))
-//                       .font(.system(size: 20))
-//               }
-//               
-//               Spacer()
-//               
-//               Button {
-//                   vibration_heavy.impactOccurred()
-//                   entry.isHidden.toggle()
-//               } label: {
-//                   Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
-//               }
-//               
-//    
-//               PhotosPicker(selection:$selectedItem, matching: .images) {
-//                   Image(systemName: "photo.fill")
-//                       .font(.system(size: 20))
-//               }
-//               .onChange(of: selectedItem) { _ in
-//                   selectedData = nil
-//                   imageHeight = 0
-//                   entry.deleteImage(coreDataManager: coreDataManager)
-//                   Task {
-//                       if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-//                           selectedData = data
-//                           entry.saveImage(data: data, coreDataManager: coreDataManager)
-//                           imageHeight = UIScreen.main.bounds.height/7
-//                       }
-//                   }
-//               }
-//               
-//               Image(systemName: "camera.fill")
-//                   .font(.system(size: 20))
-//                   .onChange(of: selectedImage) { _ in
-//                       selectedData = nil
-//                       imageHeight = 0
-//                       entry.deleteImage(coreDataManager: coreDataManager)
-//                       Task {
-//                           if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-//                               selectedData = data
-//                               entry.saveImage(data: data, coreDataManager: coreDataManager)
-//                               imageHeight = UIScreen.main.bounds.height/7
-//                           }
-//                       }
-//                   }
-//                   .onTapGesture {
-//                       vibration_heavy.impactOccurred()
-//                       showCamera = true
-//                   }
-//               
-//               Button {
-//                   selectedData = nil
-//                   vibration_heavy.impactOccurred()
-//                   isDocumentPickerPresented = true
-//               } label: {
-//                   Image(systemName: "link")
-//                       .font(.system(size: 20))
-//                       .foregroundColor(userPreferences.accentColor)
-//               }
-//               .fileImporter(
-//                   isPresented: $isDocumentPickerPresented,
-//                   allowedContentTypes: [UTType.content, UTType.image, UTType.pdf], // Customize as needed
-//                   allowsMultipleSelection: false
-//               ) { result in
-//                   switch result {
-//                   case .success(let urls):
-//                       let url = urls[0]
-//                       do {
-//                           // Attempt to start accessing the security-scoped resource
-//                           if url.startAccessingSecurityScopedResource() {
-//                               // Here, instead of creating a bookmark, we read the file data directly
-//                               let fileData = try Data(contentsOf: url)
-//                               selectedData = fileData // Assuming selectedData is of type Data
-//                               imageHeight = UIScreen.main.bounds.height/7
-//                               
-//                               if isPDF(data: fileData) {
-//                                   selectedPDFLink = url
-//                               }
-//                               
-//                               // Remember to stop accessing the security-scoped resource when you’re done
-//                               url.stopAccessingSecurityScopedResource()
-//                           } else {
-//                               // Handle failure to access the file
-//                               print("Error accessing file")
-//                           }
-//                       } catch {
-//                           // Handle errors such as file not found, insufficient permissions, etc.
-//                           print("Error reading file: \(error)")
-//                       }
-//                   case .failure(let error):
-//                       // Handle the case where the document picker failed to return a file
-//                       print("Error selecting file: \(error)")
-//                   }
-//               }
-//           }
-//           .padding(.vertical)
-//           .padding(.horizontal, 20)
-////           .background(Color.white.opacity(0.05))
-//           .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
-//       }
+
+    func insertText(_ textToInsert: String) {
+        // Check if the editingContent already contains the marker to avoid duplication
+        if editingContent.contains(cursorPositionMarker) {
+            // If the marker is already present, replace it with the new text directly
+            editingContent = editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+        } else {
+            // If the marker is not present, insert the marker at the end of the text
+            // This is a simplistic approach; you might have a more sophisticated method to determine the insertion point
+            editingContent += cursorPositionMarker
+            // Then replace the marker with the actual text to insert
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.editingContent = self.editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+            }
+        }
+    }
+
     @ViewBuilder
     func buttonBar() -> some View {
         HStack(spacing: 35) {
@@ -516,7 +452,6 @@ struct EditingEntryView: View {
                             // Here, instead of creating a bookmark, we read the file data directly
                             let fileData = try Data(contentsOf: url)
                             selectedData = fileData // Assuming selectedData is of type Data
-                            imageHeight = UIScreen.main.bounds.height/7
                             
                             if isPDF(data: fileData) {
                                 selectedPDFLink = url
