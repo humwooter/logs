@@ -32,7 +32,8 @@
 		4A0FF6DC2AFB8D110078F319 /* LogChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */; };
 		4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A143A372B78983A007C55B5 /* PDFReader.swift */; };
 		4A197A6D2B46BEB600A4F14D /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */; };
-		4A3C182E2B79D90E00743E2A /* NewEditingEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A3C182D2B79D90E00743E2A /* NewEditingEntryView.swift */; };
+		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
+		4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */; };
 		4A4647652B3EA36C002B2164 /* SearchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4647642B3EA36C002B2164 /* SearchViews.swift */; };
 		4A6EC0E92B32EABC0031DDFA /* Tips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6EC0E82B32EABC0031DDFA /* Tips.swift */; };
 		4A72642D2AEBAC100099EA84 /* MediaFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A72642C2AEBAC100099EA84 /* MediaFuncs.swift */; };
@@ -256,7 +257,8 @@
 		4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogChartView.swift; sourceTree = "<group>"; };
 		4A143A372B78983A007C55B5 /* PDFReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReader.swift; sourceTree = "<group>"; };
 		4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
-		4A3C182D2B79D90E00743E2A /* NewEditingEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEditingEntryView.swift; sourceTree = "<group>"; };
+		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
+		4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataView.swift; sourceTree = "<group>"; };
 		4A4647642B3EA36C002B2164 /* SearchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViews.swift; sourceTree = "<group>"; };
 		4A6EC0E82B32EABC0031DDFA /* Tips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tips.swift; sourceTree = "<group>"; };
 		4A72642C2AEBAC100099EA84 /* MediaFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFuncs.swift; sourceTree = "<group>"; };
@@ -439,6 +441,7 @@
 		34C43B982A9C4106005C1296 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4A45D8162B7C9C6D008739A6 /* UserPreferences */,
 				4A9D31A52B54AA1F00E219CE /* IntroScreens */,
 				4A4647632B3EA357002B2164 /* SearchViews */,
 				4A72643D2AEC628C0099EA84 /* Experimental */,
@@ -459,13 +462,29 @@
 		34C43B992A9C4122005C1296 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				4A45D8172B7C9CB6008739A6 /* Documents */,
 				4ACEB3D32B5F6BC500B76634 /* Stamp.swift */,
 				345E99172A90DE35004A81E2 /* ImagePicker.swift */,
 				34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */,
-				4AC45F572ADF71CD00246AEF /* Documents.swift */,
 				4A7264462AEDD0E10099EA84 /* UserPreferences.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		4A45D8162B7C9C6D008739A6 /* UserPreferences */ = {
+			isa = PBXGroup;
+			children = (
+				4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */,
+			);
+			path = UserPreferences;
+			sourceTree = "<group>";
+		};
+		4A45D8172B7C9CB6008739A6 /* Documents */ = {
+			isa = PBXGroup;
+			children = (
+				4AC45F572ADF71CD00246AEF /* Documents.swift */,
+			);
+			path = Documents;
 			sourceTree = "<group>";
 		};
 		4A4647632B3EA357002B2164 /* SearchViews */ = {
@@ -495,7 +514,6 @@
 				4A7264342AEBAFAC0099EA84 /* EntryDetailView.swift */,
 				4A7264422AECECB60099EA84 /* NewEntryView.swift */,
 				4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */,
-				4A3C182D2B79D90E00743E2A /* NewEditingEntryView.swift */,
 			);
 			path = Entry;
 			sourceTree = "<group>";
@@ -506,6 +524,7 @@
 				34A808622A8AFBC400B9BB5C /* LogViews.swift */,
 				4A7264392AEBB0570099EA84 /* LogDetailView.swift */,
 				4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */,
+				4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */,
 			);
 			path = Log;
 			sourceTree = "<group>";
@@ -912,17 +931,18 @@
 				34973C192AB7E8E3003C8902 /* EntryContentViews.swift in Sources */,
 				4A4647652B3EA36C002B2164 /* SearchViews.swift in Sources */,
 				34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */,
+				4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */,
 				34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */,
 				4A0FF6DC2AFB8D110078F319 /* LogChartView.swift in Sources */,
 				4ACEB3D62B5F74C800B76634 /* IntroViews.swift in Sources */,
 				4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */,
-				4A3C182E2B79D90E00743E2A /* NewEditingEntryView.swift in Sources */,
 				4A72642D2AEBAC100099EA84 /* MediaFuncs.swift in Sources */,
 				34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */,
 				4AE3AF2D2B3B1757002CA8B1 /* DataFuncs.swift in Sources */,
 				4A7264352AEBAFAC0099EA84 /* EntryDetailView.swift in Sources */,
 				4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
+				4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */,
 				34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */,
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */,

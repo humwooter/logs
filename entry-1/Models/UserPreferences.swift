@@ -12,6 +12,29 @@ import UIKit
 import LocalAuthentication
 import UniformTypeIdentifiers
 
+extension KeyedDecodingContainer {
+    func decodeColor(forKey key: K) throws -> Color {
+        let colorData = try decode(Data.self, forKey: key)
+        guard let uiColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) else {
+            throw DecodingError.dataCorruptedError(forKey: key, in: self, debugDescription: "Color data corrupted or invalid")
+        }
+        return Color(uiColor: uiColor)
+    }
+
+    func decodeColors(forKey key: K) throws -> [Color] {
+        var colors = [Color]()
+        var container = try nestedUnkeyedContainer(forKey: key)
+        while !container.isAtEnd {
+            let colorData = try container.decode(Data.self)
+            if let uiColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) {
+                colors.append(Color(uiColor: uiColor))
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Color data corrupted or invalid")
+            }
+        }
+        return colors
+    }
+}
 
 
 func zip3<A, B, C>(_ array1: [A], _ array2: [B], _ array3: [C]) -> [(A, B, C)] {
@@ -36,37 +59,131 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 
 
 
-class UserPreferences: ObservableObject {
+class UserPreferences: ObservableObject, Codable {
     
-//    enum CodingKeys: CodingKey {
-//          case stamps, stampStorage, activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName
-//      }
+    enum CodingKeys: CodingKey {
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage
+    }
     
-//    required init(from decoder: Decoder) throws {
-//         let container = try decoder.container(keyedBy: CodingKeys.self)
-//         stamps = try container.decode([Stamp].self, forKey: .stamps)
-//         // Decode other properties, converting colors as necessary
-//     }
-//     
-//     func encode(to encoder: Encoder) throws {
-//         var container = encoder.container(keyedBy: CodingKeys.self)
-//         try container.encode(stamps, forKey: .stamps)
-//         // Encode other properties, converting colors as necessary
-//     }
-//    
+    
+    private func encodeColors(container: inout KeyedEncodingContainer<CodingKeys>, colors: [Color], key: CodingKeys) throws {
+        let uiColors = colors.map { UIColor($0) }
+        let colorDataArray = try uiColors.map { try NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: true) }
+        try container.encode(colorDataArray, forKey: key)
+    }
+    
+    private func decodeColors(container: KeyedDecodingContainer<CodingKeys>, key: CodingKeys) throws -> [Color] {
+        let colorDataArray = try container.decode([Data].self, forKey: key)
+        return colorDataArray.compactMap { data -> Color? in
+            guard let uiColor = try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: data) else { return nil }
+            return Color(uiColor: uiColor)
+        }
+    }
+    
+    
+    private func decodeColor(container: KeyedDecodingContainer<CodingKeys>, key: CodingKeys) throws -> Color {
+        let colorData = try container.decode(Data.self, forKey: key)
+        guard let uiColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) else {
+            throw DecodingError.dataCorruptedError(forKey: key, in: container, debugDescription: "Color data corrupted")
+        }
+        return Color(uiColor: uiColor)
+    }
+    
+    private func encodeColor(container: inout KeyedEncodingContainer<CodingKeys>, color: Color, key: CodingKeys) throws {
+        let uiColor = UIColor(color)
+        let colorData = try NSKeyedArchiver.archivedData(withRootObject: uiColor, requiringSecureCoding: true)
+        try container.encode(colorData, forKey: key)
+    }
+    
+    
+    func update(from preferences: UserPreferences) {
+           DispatchQueue.main.async {
+               self.activatedButtons = preferences.activatedButtons
+               self.selectedImages = preferences.selectedImages
+               self.selectedColors = preferences.selectedColors
+               self.backgroundColors = preferences.backgroundColors
+               self.entryBackgroundColor = preferences.entryBackgroundColor
+               self.accentColor = preferences.accentColor
+               self.pinColor = preferences.pinColor
+               self.showLockScreen = preferences.showLockScreen
+               self.showLinks = preferences.showLinks
+               self.isUnlocked = preferences.isUnlocked
+               self.fontSize = preferences.fontSize
+               self.lineSpacing = preferences.lineSpacing
+               self.fontName = preferences.fontName
+               self.stamps = preferences.stamps
+               self.stampStorage = preferences.stampStorage
+           }
+       }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.stampStorage = try container.decode([Stamp].self, forKey: .stampStorage)
+        self.stamps = try container.decode([Stamp].self, forKey: .stamps)
+
+        // Decode Colors directly within the initializer
+        self.entryBackgroundColor = try container.decodeColor(forKey: .entryBackgroundColor)
+        self.accentColor = try container.decodeColor(forKey: .accentColor)
+        self.pinColor = try container.decodeColor(forKey: .pinColor)
+        self.backgroundColors = try container.decodeColors(forKey: .backgroundColors)
+        self.selectedColors = try container.decodeColors(forKey: .selectedColors)
+        
+        // Decode other properties
+        self.activatedButtons = try container.decode([Bool].self, forKey: .activatedButtons)
+        self.selectedImages = try container.decode([String].self, forKey: .selectedImages)
+        self.showLockScreen = try container.decode(Bool.self, forKey: .showLockScreen)
+        self.showLinks = try container.decode(Bool.self, forKey: .showLinks)
+        self.isUnlocked = try container.decode(Bool.self, forKey: .isUnlocked)
+        self.fontSize = try container.decode(CGFloat.self, forKey: .fontSize)
+        self.lineSpacing = try container.decode(CGFloat.self, forKey: .lineSpacing)
+        self.fontName = try container.decode(String.self, forKey: .fontName)
+    }
+
+
+    
+    
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // Encode arrays of Stamps
+        try container.encode(stamps, forKey: .stamps)
+        try container.encode(stampStorage, forKey: .stampStorage)
+        
+        // Encode simple types
+        try container.encode(activatedButtons, forKey: .activatedButtons)
+        try container.encode(selectedImages, forKey: .selectedImages)
+        
+        // Encode Colors
+        try encodeColor(container: &container, color: entryBackgroundColor, key: .entryBackgroundColor)
+        try encodeColor(container: &container, color: accentColor, key: .accentColor)
+        try encodeColor(container: &container, color: pinColor, key: .pinColor)
+        try encodeColors(container: &container, colors: backgroundColors, key: .backgroundColors)
+        try encodeColors(container: &container, colors: selectedColors, key: .selectedColors)
+        
+        // Encode other properties
+        try container.encode(showLockScreen, forKey: .showLockScreen)
+        try container.encode(showLinks, forKey: .showLinks)
+        try container.encode(isUnlocked, forKey: .isUnlocked)
+        try container.encode(fontSize, forKey: .fontSize)
+        try container.encode(lineSpacing, forKey: .lineSpacing)
+        try container.encode(fontName, forKey: .fontName)
+    }
+    
+    
     
     @Published var stamps: [Stamp] {
-         didSet {
-             UserDefaults.standard.saveStamps(stamps: stamps, forKey: "stamps")
-         }
-     }
+        didSet {
+            UserDefaults.standard.saveStamps(stamps: stamps, forKey: "stamps")
+        }
+    }
     
     @Published var stampStorage: [Stamp] {
         didSet {
             UserDefaults.standard.saveStamps(stamps: stampStorage, forKey: "stampStorage")
         }
     }
-
+    
     
     @Published var activatedButtons: [Bool] = [true, false, false, false, false] {
         didSet {
@@ -148,27 +265,27 @@ class UserPreferences: ObservableObject {
     init() {
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
         self.pinColor = UserDefaults.standard.color(forKey: "pinColor") ?? Color.red
-
+        
         let initialStamps = [
             Stamp(id: UUID(), name: "", color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
-              Stamp(id: UUID(), name: "",color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
-          ]
+            Stamp(id: UUID(), name: "",color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
+            Stamp(id: UUID(), name: "",color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
+            Stamp(id: UUID(), name: "",color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
+            Stamp(id: UUID(), name: "",color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
+            Stamp(id: UUID(), name: "",color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
+            Stamp(id: UUID(), name: "",color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
+        ]
         
         
         self.showLinks = UserDefaults.standard.bool(forKey: "showLinks") ?? false
         
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []
-
-
+        
+        
         let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: .indigo, imageName: "pencil", isActive: false), count: 14)
-          self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
-      
-
+        self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
+        
+        
         self.fontSize = CGFloat(UserDefaults.standard.float(forKey: "fontSize")) != 0.0 ? CGFloat(UserDefaults.standard.float(forKey: "fontSize")) : CGFloat(16)
         self.lineSpacing = 3.0
         self.fontName = UserDefaults.standard.string(forKey: "fontName") ?? "serif"
@@ -177,8 +294,8 @@ class UserPreferences: ObservableObject {
         self.selectedColors = UserDefaults.standard.loadColors(forKey: "selectedColors") ?? [Color(hex: "#FFEFC2"), Color(hex: "#FFB1FF"), Color(hex: "#C8FFFF"), Color(hex: "#C2FFCB"), Color(hex: "#928CFF")]
         self.backgroundColors = UserDefaults.standard.loadColors(forKey: "backgroundColors") ?? [Color.clear, Color.clear]
         self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
-
-        self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen") 
+        
+        self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen")
     }
 }
 
@@ -235,13 +352,13 @@ extension UserDefaults {
         let uiColors = stamps.map { UIColor($0.color) }
         let imageNames = stamps.map { $0.imageName }
         let isActive = stamps.map { $0.isActive }
-
+        
         let colorData = uiColors.compactMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
-
+        
         set([idStrings, names, colorData, imageNames, isActive], forKey: key)
     }
-
-
+    
+    
     
     func loadStamps(forKey key: String) -> [Stamp]? {
         guard let savedArray = array(forKey: key), savedArray.count == 5 else { return nil }
@@ -250,13 +367,41 @@ extension UserDefaults {
               let colorData = savedArray[2] as? [Data],
               let imageNames = savedArray[3] as? [String],
               let isActive = savedArray[4] as? [Bool] else { return nil }
-
+        
         let ids = idStrings.compactMap { UUID(uuidString: $0) }
         let uiColors = colorData.compactMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: $0) }
         let colors = uiColors.map { Color($0) }
-
+        
         return zip5(ids, names, colors, imageNames, isActive).map { Stamp(id: $0, name: $1, color: $2, imageName: $3, isActive: $4) }
     }
+    
+    
+}
 
 
+extension UserPreferences {
+    static func importFromJson(from url: URL) throws -> UserPreferences {
+           let data = try Data(contentsOf: url)
+           let decoder = JSONDecoder()
+           
+           let userPreferences = try decoder.decode(UserPreferences.self, from: data)
+           return userPreferences
+       }
+    
+    func exportToJson() throws -> URL {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted // For readability
+        
+        let data = try encoder.encode(self)
+        
+        // Define the file URL to save the data to (e.g., in the Documents directory)
+        let urls = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        let fileURL = urls[0].appendingPathComponent("UserPreferences.json")
+        
+        try data.write(to: fileURL)
+        
+        return fileURL
+    }
+    
+     
 }

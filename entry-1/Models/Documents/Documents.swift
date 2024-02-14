@@ -95,3 +95,28 @@ struct LogDocument: FileDocument {
         return .init(regularFileWithContents: data)
     }
 }
+
+struct UserPreferencesDocument: FileDocument {
+    var userPreferences: UserPreferences
+
+    static var readableContentTypes: [UTType] { [.json] }
+    static var writableContentTypes: [UTType] { [.json] }
+
+    init(userPreferences: UserPreferences) {
+        self.userPreferences = userPreferences
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        // Decode the JSON content to a UserPreferences instance
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.userPreferences = try JSONDecoder().decode(UserPreferences.self, from: data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        // Encode UserPreferences to JSON data
+        let jsonData = try JSONEncoder().encode(userPreferences)
+        return FileWrapper(regularFileWithContents: jsonData)
+    }
+}

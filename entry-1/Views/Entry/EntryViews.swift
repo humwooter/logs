@@ -127,17 +127,6 @@ struct TextView : View {
                                                 Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
                                             })
                                         } else {
-                                            
-//                                            Button(action: {
-//                                                pdfData = data
-//                                                     isExporting = true
-//                                                print("PRESSED PDF BUTTON")
-//                                            }, label: {
-//                                                Text("Save PDF")
-//                                                
-//                                            })
-//                                       
-//                                            
                                              
                                         }
                                     }
@@ -223,8 +212,6 @@ struct TextView : View {
                         Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
 
                     }
-//                    Label("", systemImage: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
-//                        .contentTransition(.symbolEffect(.replace.offUp))
                     
                     Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                         .contentTransition(.symbolEffect(.replace.offUp))
@@ -526,7 +513,7 @@ struct EntryView: View {
                         }
                         
                     case .isShown:
-                        let sortedEntries = entries.filter { $0.isShown }
+                        let sortedEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
                         
                         ForEach(sortedEntries) { entry in
                             if (!entry.isFault && !entry.isRemoved) {
@@ -541,7 +528,7 @@ struct EntryView: View {
                             deleteEntries(from: indexSet, entries: sortedEntries)
                         }
                     case .isHidden:
-                        let sortedEntries = entries.filter { $0.isHidden == false }
+                        let sortedEntries = entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
                         
                         ForEach(sortedEntries) { entry in
                             if (!entry.isFault && !entry.isRemoved) {
