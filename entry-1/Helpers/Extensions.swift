@@ -53,10 +53,11 @@ extension UIColor {
     }
 
 
-    static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
+    static func foregroundColor(entry: Entry, background: UIColor, userPreferences: UserPreferences) -> Color {
         if entry.stampIndex == -1 {
             if userPreferences.entryBackgroundColor != .clear {
                 let blendedColor = UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor))
+                print("blendedColor: \(blendedColor)")
                 var red: CGFloat = 0
                 var green: CGFloat = 0
                 var blue: CGFloat = 0
@@ -131,6 +132,8 @@ extension UIColor {
     }
     
     static func foregroundColor(background: UIColor) -> Color {
+        
+        print("entered foreground color func")
         var red: CGFloat = 0
         var green: CGFloat = 0
         var blue: CGFloat = 0
@@ -143,8 +146,12 @@ extension UIColor {
             new_background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         }
         
+        print("print background color: \(background)")
+
         
         let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+        
+        print("brightness value: \(brightness)")
         
         return brightness > 0.5 ? Color.black : Color.white
     }
@@ -165,21 +172,50 @@ extension UIColor {
         return Color(entry.color).opacity(opacity_val)
     }
     
+//    static func blendedColor(from color1: UIColor, with color2: UIColor) -> UIColor {
+//        print("entered blended color")
+//        
+//        print("color1: \(color1)")
+//        print("color2: \(color2)")
+//
+//        var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
+//        var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
+//        
+//        color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+//        color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+//        
+//        // Simple blend by averaging the components
+//        let rBlended = (r1 + r2) / 2
+//        let gBlended = (g1 + g2) / 2
+//        let bBlended = (b1 + b2) / 2
+//        let aBlended = (a1 + a2) / 2
+//        
+//        return UIColor(red: rBlended, green: gBlended, blue: bBlended, alpha: aBlended)
+//    }
+    
     static func blendedColor(from color1: UIColor, with color2: UIColor) -> UIColor {
+        print("entered blended color")
+        
+        print("color1: \(color1)")
+        print("color2: \(color2)")
+
         var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
         var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
         
         color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
         color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
         
-        // Simple blend by averaging the components
-        let rBlended = (r1 + r2) / 2
-        let gBlended = (g1 + g2) / 2
-        let bBlended = (b1 + b2) / 2
-        let aBlended = (a1 + a2) / 2
+        // Adjusting the blend based on alpha values
+        let aBlended = min(1.0, a1 + a2) // Ensure alpha doesn't exceed 1.0
+        
+        // Weighted blend for colors based on their alpha values
+        let rBlended = ((r1 * a1) + (r2 * a2)) / aBlended
+        let gBlended = ((g1 * a1) + (g2 * a2)) / aBlended
+        let bBlended = ((b1 * a1) + (b2 * a2)) / aBlended
         
         return UIColor(red: rBlended, green: gBlended, blue: bBlended, alpha: aBlended)
     }
+
 }
 
 extension Color {

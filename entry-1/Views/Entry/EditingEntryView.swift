@@ -39,7 +39,7 @@ struct EditingEntryView: View {
     @State private var recognitionTask: SFSpeechRecognitionTask?
     @State private var audioEngine = AVAudioEngine()
     
-    
+    @State private var previousEntryContent: String = ""
     @State private var previousMediaFilename: String = ""
     @State private var previousMediaData: Data?
     @State var imageHeight: CGFloat = 0
@@ -72,7 +72,6 @@ struct EditingEntryView: View {
                 }
                 
                 
-//                ScrollView(.vertical, showsIndicators: true) {
                     VStack {
                         GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
                                          cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
@@ -88,9 +87,6 @@ struct EditingEntryView: View {
                             }
                         }) {
                             HStack {
-//                                if (!isTextButtonBarVisible) {
-//                                    Image(systemName: "text.justify.left")
-//                                }
                                 Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
                                     .font(.system(size: 20))
                                     .foregroundColor(userPreferences.accentColor)
@@ -103,7 +99,7 @@ struct EditingEntryView: View {
                         }
                         Spacer()
                     }
-                    buttonBar()                   
+                    buttonBar()
                     if let data = selectedData {
                         if isGIF(data: data) {
                             AnimatedImageView_data(data: data)
@@ -130,7 +126,7 @@ struct EditingEntryView: View {
 //                                                    selectedImage = nil
 //                                                deletePrevMedia = true
 ////                                                    entry.deleteImage(coreDataManager: coreDataManager)
-//                                                    
+//
 //                                            }) {
 //                                                Text("Delete")
 //                                                Image(systemName: "trash")
@@ -185,8 +181,10 @@ struct EditingEntryView: View {
                     selectedData = previousMediaData
                 }
                 if !entry.content.isEmpty {
+                    previousEntryContent = entry.content
                     editingContent = entry.content
                 }
+
             }
             .sheet(isPresented: $showCamera) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
@@ -265,59 +263,7 @@ struct EditingEntryView: View {
         }
     }
     
-//    @ViewBuilder
-//    func textFormattingButtonBar() -> some View {
-//        HStack(spacing: 35) {
-//            
-//   
-//            Button(action: {
-//                let (newContent, newCursorPos) = insertOrAppendText("\t• ", into: editingContent, at: cursorPosition)
-//                self.cursorPosition = newCursorPos
-//                self.editingContent = newContent
-//                vibration_heavy.impactOccurred()
-//            }) {
-//                Image(systemName: "list.bullet")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            // Repeat similar logic for the other buttons
-//
-//
-//            
-//            // Tab button
-//            Button(action: {
-//                let (editingContent, cursorPosition) = insertOrAppendText("\t", into: editingContent, at: self.cursorPosition)
-//                self.cursorPosition = cursorPosition
-//                self.editingContent = editingContent
-//                vibration_heavy.impactOccurred()
-//            }) {
-//                Image(systemName: "arrow.forward.to.line")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            
-//            // New Line button
-//            Button(action: {
-//                let (editingContent, cursorPosition) = insertOrAppendText("\n", into: editingContent, at: cursorPosition)
-//                self.cursorPosition = cursorPosition
-//                self.editingContent = editingContent
-//                vibration_heavy.impactOccurred()
-//            }) {
-//                Image(systemName: "return")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            Spacer()
-//        }
-//        .padding(.vertical, 10)
-//        .padding(.horizontal, 20)
-//        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
-//        .cornerRadius(15)
-//
-//    }
+
     
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
@@ -441,7 +387,7 @@ struct EditingEntryView: View {
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,
-                allowedContentTypes: [UTType.image, UTType.pdf], 
+                allowedContentTypes: [UTType.image, UTType.pdf],
                 allowsMultipleSelection: false
             ) { result in
                 switch result {

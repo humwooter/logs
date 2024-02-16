@@ -29,7 +29,10 @@ struct EntryDetailView: View { //used in LogDetailView
                     HStack {
                         Text(formattedTime(time: entry.time))
                             .font(.footnote)
-                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.entryBackgroundColor ?? Color(UIColor.label)))).opacity(0.4)                       
+                            .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences).opacity(0.4))
+
+//                            .foregroundStyle(Color(UIColor.blendedColor(from: UIColor(userPreferences.entryBackgroundColor), with: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor))))
+//                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.entryBackgroundColor ?? Color(UIColor.label)))).opacity(0.4)
                         if (entry.stampIndex != -1 ) {
                             Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                                 .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))

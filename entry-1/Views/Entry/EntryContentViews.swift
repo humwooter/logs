@@ -100,7 +100,8 @@ struct EditingView: View {
                             }
                         }
                 }
-                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
+//                .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+//                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                 
             }
             
@@ -112,7 +113,8 @@ struct EditingView: View {
                     .onSubmit {
                         finalizeEdit()
                     }
-                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences)).opacity(0.6) //to determinw whether black or white
+                    .foregroundStyle(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor))))
+//                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences)).opacity(0.6) //to determinw whether black or white
                     .onTapGesture {
                         focusField = true
                     }
@@ -307,7 +309,7 @@ struct NotEditingView: View {
                             }
                         
                     }
-                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences)).opacity(0.3)
+                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, userPreferences: userPreferences)).opacity(0.3)
 
                     
                 
@@ -318,11 +320,11 @@ struct NotEditingView: View {
                     if (userPreferences.showLinks) {
                         Text(makeAttributedString(from: entry.content))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
+                            .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
                     } else {
                         Text(entry.content)
                             .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
+                            .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
                     }
                 }
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
