@@ -106,12 +106,35 @@ struct PDFReader: View {
     @ObservedObject var textEditorViewModel = TextEditorViewModel()
     @State private var cursorPosition: NSRange? = nil
     @State private var entryContent: String = ""
+    @State private var prevEntryContent: String = ""
+
 
     var body: some View {
         NavigationView {
           
                 VStack {
-                    
+                    HStack {
+                        
+                        if showTextField_PDF {
+                            Button {
+                                    entry.content = prevEntryContent
+                                    do {
+                                        try coreDataManager.viewContext.save()
+                                    } catch {
+                                        // Handle the error, e.g., log it or show an alert to the user
+                                        print("Failed to save context after updating entry content: \(error)")
+                                    }
+                                showTextField_PDF = false
+                            } label: {
+                                        Image(systemName: "arrow.left")
+                                            .foregroundStyle(userPreferences.accentColor)
+                                            .padding(.horizontal)
+                               
+                                }
+                            
+                        }
+                        Spacer()
+
                     Button {
                         if (showTextField_PDF) {
                             entry.content = entryContent
@@ -124,13 +147,15 @@ struct PDFReader: View {
                         }
                         showTextField_PDF.toggle()
                     } label: {
-                        HStack {
-                            Spacer()
                             Image(systemName: showTextField_PDF ? "checkmark" : "pencil")
                                 .foregroundStyle(showTextField_PDF ? Color.oppositeColor(of: userPreferences.accentColor) : userPreferences.accentColor)
                                 .padding(.horizontal)
                         }
+                        
+                        
+                      
                     }
+
                     if showTextField_PDF{
                         GrowingTextField(text: $entryContent,
                             fontName: userPreferences.fontName,
@@ -177,6 +202,7 @@ struct PDFReader: View {
             }
             .onAppear {
                 entryContent = entry.content
+                prevEntryContent = entry.content
                 for voice in AVSpeechSynthesisVoice.speechVoices() {
                     print("Language: \(voice.language), Name: \(voice.name), Identifier: \(voice.identifier)")
                 }
