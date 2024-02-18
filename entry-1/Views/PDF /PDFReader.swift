@@ -20,6 +20,7 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
     var onPageChanged: (Int) -> Void // Callback for page changes
     @ObservedObject var viewModel: PDFReaderViewModel // Add this line
     @Binding var currentPageIndex: Int16 // Changed to a binding
+    @EnvironmentObject var coreDataManager: CoreDataManager
 
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
@@ -39,9 +40,16 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
         // Add observer for page changes
         NotificationCenter.default.addObserver(forName: Notification.Name.PDFViewPageChanged, object: pdfView, queue: .main) { _ in
             if let currentPage = pdfView.currentPage, let index = pdfView.document?.index(for: currentPage) {
-                DispatchQueue.main.async {
+//                DispatchQueue.main.async {
                     self.currentPageIndex = Int16(index)
-                }
+//                    
+//                    do {
+//                        try coreDataManager.viewContext.save()
+//                    } catch {
+//                        // Handle the error, e.g., log it or show an alert to the user
+//                        print("Failed to save context after updating entry content: \(error)")
+//                    }
+//                }
             }
         }
         
@@ -97,13 +105,23 @@ struct PDFReader: View {
 
     @ObservedObject var textEditorViewModel = TextEditorViewModel()
     @State private var cursorPosition: NSRange? = nil
-    
+    @State private var entryContent: String = ""
+
     var body: some View {
         NavigationView {
           
                 VStack {
                     
                     Button {
+                        if (showTextField_PDF) {
+                            entry.content = entryContent
+                            do {
+                                try coreDataManager.viewContext.save()
+                            } catch {
+                                // Handle the error, e.g., log it or show an alert to the user
+                                print("Failed to save context after updating entry content: \(error)")
+                            }
+                        }
                         showTextField_PDF.toggle()
                     } label: {
                         HStack {
@@ -114,18 +132,7 @@ struct PDFReader: View {
                         }
                     }
                     if showTextField_PDF{
-                        GrowingTextField(text: Binding<String>(
-                            get: { self.entry.content ?? "" }, // Safely unwrap the optional String
-                            set: {
-                                self.entry.content = $0
-                                // Assuming entry is a Core Data object, save the context after updating
-                                do {
-                                    try coreDataManager.viewContext.save()
-                                } catch {
-                                    // Handle the error, e.g., log it or show an alert to the user
-                                    print("Failed to save context after updating entry content: \(error)")
-                                }
-                            }),
+                        GrowingTextField(text: $entryContent,
                             fontName: userPreferences.fontName,
                             fontSize: userPreferences.fontSize,
                             fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))),
@@ -142,6 +149,7 @@ struct PDFReader: View {
                         PDFKitViewFullscreen(data: data, onPageChanged: { pageIndex in
                             self.currentPageIndex = Int16(pageIndex)
                         }, viewModel: viewModel, currentPageIndex: $currentPageIndex)
+                        .environmentObject(coreDataManager)
                         .navigationTitle("PDF Reader")
                         .frame(maxWidth: .infinity)
                         
@@ -168,6 +176,7 @@ struct PDFReader: View {
                 }
             }
             .onAppear {
+                entryContent = entry.content
                 for voice in AVSpeechSynthesisVoice.speechVoices() {
                     print("Language: \(voice.language), Name: \(voice.name), Identifier: \(voice.identifier)")
                 }
