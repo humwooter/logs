@@ -32,6 +32,7 @@ extension Entry {
     @NSManaged public var isRemoved: Bool
     @NSManaged public var isDrafted: Bool
     @NSManaged public var stampIndex: Int16
+    @NSManaged public var pageNum_pdf: Int16
 //    @NSManaged public var buttons: [Bool]
 
     

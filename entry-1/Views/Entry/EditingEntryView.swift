@@ -45,7 +45,6 @@ struct EditingEntryView: View {
     @State var imageHeight: CGFloat = 0
     @State private var isTextButtonBarVisible: Bool = false
     
-    @State private var cursorPosition: NSRange? = nil
 
     @State private var selectedDate : Date = Date()
 
@@ -56,6 +55,8 @@ struct EditingEntryView: View {
     @State private var selectedPDFLink: URL? //used for gifs
     @State private var deletePrevMedia = false
     @ObservedObject var textEditorViewModel = TextEditorViewModel()
+    @State private var cursorPosition: NSRange? = nil
+
     
     var body : some View {
         NavigationStack {

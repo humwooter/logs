@@ -19,6 +19,7 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
     let data: Data
     var onPageChanged: (Int) -> Void // Callback for page changes
     @ObservedObject var viewModel: PDFReaderViewModel // Add this line
+    @Binding var currentPageIndex: Int16 // Changed to a binding
 
     func makeUIView(context: Context) -> PDFView {
         let pdfView = PDFView()
@@ -26,7 +27,7 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
         pdfView.autoScales = true
         
         // Set the display mode to single page continuous and direction to horizontal
-        pdfView.displayDirection = .horizontal
+        pdfView.displayDirection = .vertical
         pdfView.displayMode = .singlePageContinuous
         pdfView.usePageViewController(true, withViewOptions: [UIPageViewController.OptionsKey.interPageSpacing: 20])
         pdfView.backgroundColor = .clear
@@ -38,7 +39,9 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
         // Add observer for page changes
         NotificationCenter.default.addObserver(forName: Notification.Name.PDFViewPageChanged, object: pdfView, queue: .main) { _ in
             if let currentPage = pdfView.currentPage, let index = pdfView.document?.index(for: currentPage) {
-                onPageChanged(index)
+                DispatchQueue.main.async {
+                    self.currentPageIndex = Int16(index)
+                }
             }
         }
         
@@ -81,36 +84,82 @@ struct PDFKitViewFullscreen: UIViewRepresentable {
 
 struct PDFReader: View {
     @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var coreDataManager: CoreDataManager
     @ObservedObject var entry: Entry
     @Binding var isFullScreen: Bool
-    @State private var currentPageIndex: Int = 0 // Track the current page index
+//    @State private var currentPageIndex: Int = 0 // Track the current page index
     @StateObject private var viewModel = PDFReaderViewModel() // Instantiate the view model
+    @Binding var currentPageIndex: Int16 // Changed to a binding
 
-    
     // Speech synthesizer for narrating PDF text
     private let speechSynthesizer = AVSpeechSynthesizer()
+    @State private var showTextField_PDF = false
+
+    @ObservedObject var textEditorViewModel = TextEditorViewModel()
+    @State private var cursorPosition: NSRange? = nil
     
     var body: some View {
         NavigationView {
-
-            VStack {
-                if let filename = entry.mediaFilename, let data = loadPDFData(filename: filename), isPDF(data: data) {
-                    PDFKitViewFullscreen(data: data, onPageChanged: { pageIndex in
-                        self.currentPageIndex = pageIndex
-                    }, viewModel: viewModel)
-                    .navigationTitle("PDF Reader")
-
-                    .onDisappear {
-                        self.speechSynthesizer.stopSpeaking(at: .immediate)
+          
+                VStack {
+                    
+                    Button {
+                        showTextField_PDF.toggle()
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Image(systemName: showTextField_PDF ? "checkmark" : "pencil")
+                                .foregroundStyle(showTextField_PDF ? Color.oppositeColor(of: userPreferences.accentColor) : userPreferences.accentColor)
+                                .padding(.horizontal)
+                        }
+                    }
+                    if showTextField_PDF{
+                        GrowingTextField(text: Binding<String>(
+                            get: { self.entry.content ?? "" }, // Safely unwrap the optional String
+                            set: {
+                                self.entry.content = $0
+                                // Assuming entry is a Core Data object, save the context after updating
+                                do {
+                                    try coreDataManager.viewContext.save()
+                                } catch {
+                                    // Handle the error, e.g., log it or show an alert to the user
+                                    print("Failed to save context after updating entry content: \(error)")
+                                }
+                            }),
+                            fontName: userPreferences.fontName,
+                            fontSize: userPreferences.fontSize,
+                            fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))),
+                            cursorColor: UIColor(userPreferences.accentColor),
+                            cursorPosition: $cursorPosition,
+                            viewModel: textEditorViewModel
+                        ).frame(maxWidth: .infinity)
+                            .cornerRadius(15)
+                            .padding()
+                        
                     }
                     
-                    buttonBar(data: data)
-
-                } else {
-                    Text("Unable to load PDF.")
+                    if let filename = entry.mediaFilename, let data = loadPDFData(filename: filename), isPDF(data: data) {
+                        PDFKitViewFullscreen(data: data, onPageChanged: { pageIndex in
+                            self.currentPageIndex = Int16(pageIndex)
+                        }, viewModel: viewModel, currentPageIndex: $currentPageIndex)
+                        .navigationTitle("PDF Reader")
+                        .frame(maxWidth: .infinity)
+                        
+                        .onDisappear {
+                            self.speechSynthesizer.stopSpeaking(at: .immediate)
+                        }
+                        
+                        if (showTextField_PDF) {
+                            textFormattingButtonBar()
+                                .padding(.horizontal)
+                        }
+                        buttonBar(data: data)
+                        
+                    } else {
+                        Text("Unable to load PDF.")
+                    }
+                    
                 }
-                
-            }
             .background {
                 ZStack {
                     Color(UIColor.systemGroupedBackground)
@@ -147,11 +196,11 @@ struct PDFReader: View {
         
         let utterance = AVSpeechUtterance(string: textToNarrate)
         
-        if let voice = AVSpeechSynthesisVoice(identifier: "com.apple.voice.compact.en-AU.Karen") {
+        if let voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Tessa-compact") {
             utterance.voice = voice
         }
         
-        utterance.pitchMultiplier = 0.9
+//        utterance.pitchMultiplier = 0.9
         utterance.preUtteranceDelay = 0.1
         utterance.preUtteranceDelay = 0.1
 
@@ -164,11 +213,7 @@ struct PDFReader: View {
         let fileURL = documentsDirectory.appendingPathComponent(filename)
         return try? Data(contentsOf: fileURL)
     }
-    
-    func isPDF(data: Data) -> Bool {
-        // Implement your logic to verify if the data represents a PDF
-        return true
-    }
+
     
     
     @ViewBuilder
@@ -176,7 +221,7 @@ struct PDFReader: View {
         HStack(spacing: 35) {
             Spacer()
             Button {
-                narratePDF(data: data, pageIndex: currentPageIndex, selectedText: viewModel.selectedText)
+                narratePDF(data: data, pageIndex: Int(currentPageIndex), selectedText: viewModel.selectedText)
 
             } label: {
                 Label("Narrate page", systemImage: "speaker.wave.3.fill")
@@ -189,5 +234,47 @@ struct PDFReader: View {
         .foregroundColor(userPreferences.accentColor)
 //        .background(Color(UIColor.label).opacity(0.05))
 
+    }
+    
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            // Bullet Point Button
+            Button(action: {
+                // Signal to insert a bullet point at the current cursor position.
+                // Update the viewModel's textToInsert property, which triggers the insertion.
+                self.textEditorViewModel.textToInsert = "\t• "
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Tab Button
+            Button(action: {
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // New Line Button
+            Button(action: {
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal)
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .cornerRadius(15)
     }
 }

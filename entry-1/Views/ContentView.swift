@@ -16,6 +16,12 @@ struct ContentView: View {
            predicate: NSPredicate(format: "time == nil")
        ) var entriesWithNilTime: FetchedResults<Entry>
     
+    
+    @FetchRequest(
+        entity: Entry.entity(),
+        sortDescriptors: []  // Empty array implies no sorting
+    ) var allEntries: FetchedResults<Entry>
+    
     var body: some View {
                     
             VStack {
@@ -82,6 +88,19 @@ struct ContentView: View {
                 authenticate()
                 
                 print("Entries with nil time: \(entriesWithNilTime.count)")
+                
+                
+//                for entry in allEntries {
+//                       entry.pageNum_pdf = -1
+//                   }
+//                   
+//                   // Save the changes to the persistent store
+//                   do {
+//                       try coreDataManager.viewContext.save()
+//                   } catch {
+//                       // Handle the error, e.g., log it or show an alert to the user
+//                       print("Failed to save context: \(error)")
+//                   }
                 
                 
             })

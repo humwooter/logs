@@ -18,8 +18,8 @@ struct EntryDetailView: View { //used in LogDetailView
     @State var shareSheetShown = false
     let entry: Entry
     @State private var isFullScreen = false
-
     
+
     
 @State var showEntry = true
     var body: some View {
@@ -114,7 +114,6 @@ struct EntryDetailView: View { //used in LogDetailView
                                 Text(entry.isPinned ? "Unpin" : "Pin")
                                 Image(systemName: "pin.fill")
                                     .foregroundColor(.red)
-                              
                             }
                             
                
@@ -175,8 +174,16 @@ struct EntryDetailView: View { //used in LogDetailView
                     if let data = data, isPDF(data: data) {
                         VStack {
                             
-                            PDFReader(entry: entry, isFullScreen: $isFullScreen)
+//                            PDFReader(entry: entry, isFullScreen: $isFullScreen, currentPageIndex: entry.pageNum_pdf)
+                            PDFReader(entry: entry,
+                                      isFullScreen: $isFullScreen,
+                                      currentPageIndex: Binding<Int16>(
+                                          get: { entry.pageNum_pdf },
+                                          set: { entry.pageNum_pdf = $0; try? coreDataManager.viewContext.save() }
+                                      ))
                                 .environmentObject(userPreferences)
+                                .environmentObject(coreDataManager)
+
                             
 
                         }

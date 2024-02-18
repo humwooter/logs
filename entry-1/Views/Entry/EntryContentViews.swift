@@ -399,9 +399,14 @@ struct NotEditingView: View {
                     if let data = data, isPDF(data: data) {
                         VStack {
                             
-                            PDFReader(entry: entry, isFullScreen: $isFullScreen)
+                            PDFReader(entry: entry,
+                                      isFullScreen: $isFullScreen,
+                                      currentPageIndex: Binding<Int16>(
+                                          get: { entry.pageNum_pdf },
+                                          set: { entry.pageNum_pdf = $0; try? coreDataManager.viewContext.save() }
+                                      ))
                                 .environmentObject(userPreferences)
-                            
+                                .environmentObject(coreDataManager)
 
                         }
             
