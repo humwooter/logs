@@ -231,6 +231,8 @@ struct SettingsView: View {
                                 
                             }
                         }
+//                        StampDataView(stamps: userPreferences.stamps) //for importing and exporting userPreferences
+//                            .environmentObject(userPreferences)
                     }
                 }
 

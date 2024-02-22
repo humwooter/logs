@@ -358,9 +358,9 @@ struct NotEditingView: View {
                             VStack {
                                     HStack {
                                         Spacer()
-                                        Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right").onTapGesture {
+                                        Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right") .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                                            .onTapGesture {
                                             isFullScreen.toggle()
-
                                         }
                                         .padding(.horizontal, 3)
                                         .cornerRadius(20)
@@ -389,7 +389,7 @@ struct NotEditingView: View {
                 
             }
     
-            .sheet(isPresented: $isFullScreen) {
+            .fullScreenCover(isPresented: $isFullScreen) {
                 
                 if let filename = entry.mediaFilename {
                     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!

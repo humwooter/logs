@@ -107,7 +107,10 @@ struct PDFReader: View {
     @State private var cursorPosition: NSRange? = nil
     @State private var entryContent: String = ""
     @State private var prevEntryContent: String = ""
+    @Environment(\.presentationMode) private var presentationMode
 
+    @State private var speechRate: Float = AVSpeechUtteranceDefaultSpeechRate
+    @State private var isNarrating = false
 
     var body: some View {
         NavigationView {
@@ -193,11 +196,23 @@ struct PDFReader: View {
                     }
                     
                 }
+            
             .background {
                 ZStack {
                     Color(UIColor.systemGroupedBackground)
                     LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                         .ignoresSafeArea()
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 15))
+                            .foregroundStyle(userPreferences.accentColor)
+                    }
                 }
             }
             .onAppear {
@@ -208,12 +223,14 @@ struct PDFReader: View {
                 }
             }
         }
+ 
     }
     
 
     func narratePDF(data: Data, pageIndex: Int, selectedText: String? = nil) {
+        speechSynthesizer.stopSpeaking(at: .immediate)
         if speechSynthesizer.isSpeaking {
-            speechSynthesizer.stopSpeaking(at: .immediate)
+            isNarrating = false
         }
 
         let textToNarrate: String
@@ -234,13 +251,18 @@ struct PDFReader: View {
         if let voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Tessa-compact") {
             utterance.voice = voice
         }
+//        if let voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Tessa-compact") {
+//            utterance.voice = voice
+//        }
         
 //        utterance.pitchMultiplier = 0.9
         utterance.preUtteranceDelay = 0.1
         utterance.preUtteranceDelay = 0.1
+        utterance.rate = speechRate
 
 //        utterance.volume = 1.0
         speechSynthesizer.speak(utterance)
+        isNarrating = true
     }
     
     func loadPDFData(filename: String) -> Data? {
@@ -260,15 +282,16 @@ struct PDFReader: View {
 
             } label: {
                 Label("Narrate page", systemImage: "speaker.wave.3.fill")
+                    .accentColor(isNarrating ? Color.oppositeColor(of: userPreferences.accentColor) : userPreferences.accentColor)
             }
             
+            Slider(value: $speechRate, in: AVSpeechUtteranceMinimumSpeechRate...AVSpeechUtteranceMaximumSpeechRate)
+                .accentColor(userPreferences.accentColor)
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
         .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .foregroundColor(userPreferences.accentColor)
-//        .background(Color(UIColor.label).opacity(0.05))
-
     }
     
     @ViewBuilder

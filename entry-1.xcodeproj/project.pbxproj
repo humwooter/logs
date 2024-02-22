@@ -48,6 +48,7 @@
 		4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264462AEDD0E10099EA84 /* UserPreferences.swift */; };
 		4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A89FCF92AC154FE0076EAAC /* CustomAsyncImageView.swift */; };
 		4A89FCFD2AC2AE9F0076EAAC /* GlobalFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A89FCFC2AC2AE9F0076EAAC /* GlobalFuncs.swift */; };
+		4A8E80D52B871D240032D1C0 /* StampDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A8E80D42B871D240032D1C0 /* StampDataView.swift */; };
 		4A942A502B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
 		4A942A512B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
 		4A942A522B7598E700C60BCC /* Copyduck.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A4F2B7598E700C60BCC /* Copyduck.ttf */; };
@@ -275,6 +276,7 @@
 		4A89FCFC2AC2AE9F0076EAAC /* GlobalFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalFuncs.swift; sourceTree = "<group>"; };
 		4A8CBA842B32D84F0094E133 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		4A8CBA862B32D84F0094E133 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4A8E80D42B871D240032D1C0 /* StampDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StampDataView.swift; sourceTree = "<group>"; };
 		4A942A4F2B7598E700C60BCC /* Copyduck.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Copyduck.ttf; path = "../../../../Downloads/copyduck-font/Copyduck.ttf"; sourceTree = "<group>"; };
 		4A942A532B75990300C60BCC /* Shabina.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Shabina.otf; path = "../../../../Downloads/shabina-font/Shabina.otf"; sourceTree = "<group>"; };
 		4A942A572B7599A500C60BCC /* Catbrother.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Catbrother.ttf; path = "../../../../Downloads/catbrother-font/Catbrother.ttf"; sourceTree = "<group>"; };
@@ -475,6 +477,7 @@
 			isa = PBXGroup;
 			children = (
 				4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */,
+				4A8E80D42B871D240032D1C0 /* StampDataView.swift */,
 			);
 			path = UserPreferences;
 			sourceTree = "<group>";
@@ -934,6 +937,7 @@
 				4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */,
 				34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */,
 				4A0FF6DC2AFB8D110078F319 /* LogChartView.swift in Sources */,
+				4A8E80D52B871D240032D1C0 /* StampDataView.swift in Sources */,
 				4ACEB3D62B5F74C800B76634 /* IntroViews.swift in Sources */,
 				4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */,
 				4A72642D2AEBAC100099EA84 /* MediaFuncs.swift in Sources */,

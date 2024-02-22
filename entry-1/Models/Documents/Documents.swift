@@ -120,3 +120,53 @@ struct UserPreferencesDocument: FileDocument {
         return FileWrapper(regularFileWithContents: jsonData)
     }
 }
+
+struct StampDocument: FileDocument {
+    var stamp: Stamp
+
+    static var readableContentTypes: [UTType] { [.json] }
+    static var writableContentTypes: [UTType] { [.json] }
+
+    init(stamp: Stamp) {
+        self.stamp = stamp
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        // Decode the JSON content to a UserPreferences instance
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.stamp = try JSONDecoder().decode(Stamp.self, from: data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        // Encode UserPreferences to JSON data
+        let jsonData = try JSONEncoder().encode(stamp)
+        return FileWrapper(regularFileWithContents: jsonData)
+    }
+}
+
+struct StampsDocument: FileDocument {
+    var stamps: [Stamp] // Changed to an array of Stamp
+
+    static var readableContentTypes: [UTType] { [.json] }
+    static var writableContentTypes: [UTType] { [.json] }
+
+    init(stamps: [Stamp]) {
+        self.stamps = stamps
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        // Decode the JSON content to an array of Stamp instances
+        guard let data = configuration.file.regularFileContents else {
+            throw CocoaError(.fileReadCorruptFile)
+        }
+        self.stamps = try JSONDecoder().decode([Stamp].self, from: data)
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        // Encode the array of Stamp to JSON data
+        let jsonData = try JSONEncoder().encode(stamps)
+        return FileWrapper(regularFileWithContents: jsonData)
+    }
+}

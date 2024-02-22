@@ -147,7 +147,7 @@ struct IconPicker: View {
     var body: some View {
         
         Section(header: 
-                    Text("Stamp \(buttonIndex + 1)")                            
+                    Text("Stamp \(buttonIndex + 1)").foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
 
         ) {
