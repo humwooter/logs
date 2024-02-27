@@ -79,88 +79,17 @@ struct TextView : View {
                 if (entry.isShown) {
                     NotEditingView(entry: entry, isEditing: $isEditing).environmentObject(userPreferences).environmentObject(coreDataManager)
                         .contextMenu {
-                            Button(action: {
-                                withAnimation {
-                                    isEditing = true
-                                }
-                            }) {
-                                Text("Edit")
-                                Image(systemName: "pencil")
-                                    .foregroundColor(userPreferences.accentColor)
-                            }
-                            
-                            Button(action: {
-                                UIPasteboard.general.string = entry.content 
-                            }) {
-                                Text("Copy Message")
-                                Image(systemName: "doc.on.doc")
-                            }
-                            
-                            
-                            Button(action: {
-                                withAnimation(.easeOut) {
-                                    showEntry.toggle()
-                                    entry.isHidden = !showEntry
-                                    coreDataManager.save(context: coreDataManager.viewContext)
-                                }
-
-                            }, label: {
-                                Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
-                            })
-                            
-                            if let filename = entry.mediaFilename {
-                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                if imageExists(at: fileURL) {
-                                    if let data =  getMediaData(fromFilename: filename) {
-                                        
-                                        if !isPDF(data: data) {
-                                            let image = UIImage(data: data)!
-                                            Button(action: {
-                                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                                let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                                
-                                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                                
-                                            }, label: {
-                                                Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                            })
-                                        } else {
-                                             
-                                        }
-                                    }
-                                }
-                                
-                            }
-                            
-                            Button(action: {
-                                withAnimation {
-                                    entry.isPinned.toggle()
-                                    coreDataManager.save(context: coreDataManager.viewContext)
-                                }
-                            }) {
-                                Text(entry.isPinned ? "Unpin" : "Pin")
-                                Image(systemName: "pin.fill")
-                                    .foregroundColor(.red)
-                              
-                            }
-                
-                            
+                            entryContextMenuButtons()
                         }
-                    
-                    
-                    
                         .onChange(of: isEditing) { newValue in
                             if newValue {
                                 editingContent = entry.content
                             }
                         }
                   
-                    
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
                                 .foregroundColor(userPreferences.accentColor)
-//                                .presentationDetents([.medium, .large])
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
                                 .environmentObject(coreDataManager)
@@ -190,38 +119,8 @@ struct TextView : View {
                 
             }
         header: {
-                HStack {
-                        Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                        if let timeLastUpdated = entry.lastUpdated {
-                            if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time) {
-                                HStack {
-                                    Image(systemName: "arrow.right")
-                                    Text(formattedTime_long(date: timeLastUpdated))
-                                }
-                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                            }
-
-                        }
-
-                    Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
-                    Spacer()
-
-                    if (entry.isPinned) {
-                        Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
-
-                    }
-                    
-                    Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
-                        .contentTransition(.symbolEffect(.replace.offUp))
-                }
-                .font(.system(size: UIFont.systemFontSize))
-                .onTapGesture {
-                    vibration_light.impactOccurred()
-                        entry.isShown.toggle()
-                        coreDataManager.save(context: coreDataManager.viewContext)
-                }
+                entrySectionHeader()
             }
-            
             .onAppear {
                 showEntry = !entry.isHidden
             }
@@ -256,6 +155,109 @@ struct TextView : View {
             } catch {
                 print("Failed to fetch entry in main context: \(error)")
             }
+        }
+    }
+    
+    
+    @ViewBuilder
+    func entryContextMenuButtons() -> some View {
+        Button(action: {
+            withAnimation {
+                isEditing = true
+            }
+        }) {
+            Text("Edit")
+            Image(systemName: "pencil")
+                .foregroundColor(userPreferences.accentColor)
+        }
+        
+        Button(action: {
+            UIPasteboard.general.string = entry.content
+        }) {
+            Text("Copy Message")
+            Image(systemName: "doc.on.doc")
+        }
+        
+        
+        Button(action: {
+            withAnimation(.easeOut) {
+                showEntry.toggle()
+                entry.isHidden = !showEntry
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
+
+        }, label: {
+            Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+        })
+        
+        if let filename = entry.mediaFilename {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentsDirectory.appendingPathComponent(filename)
+            if imageExists(at: fileURL) {
+                if let data =  getMediaData(fromFilename: filename) {
+                    
+                    if !isPDF(data: data) {
+                        let image = UIImage(data: data)!
+                        Button(action: {
+                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                            let fileURL = documentsDirectory.appendingPathComponent(filename)
+                            
+                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                            
+                        }, label: {
+                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                        })
+                    } else {
+                         
+                    }
+                }
+            }
+            
+        }
+        
+        Button(action: {
+            withAnimation {
+                entry.isPinned.toggle()
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
+        }) {
+            Text(entry.isPinned ? "Unpin" : "Pin")
+            Image(systemName: "pin.fill")
+                .foregroundColor(.red)
+          
+        }
+    }
+    @ViewBuilder
+    func entrySectionHeader() -> some View {
+        HStack {
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+            
+            Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
+                .contentTransition(.symbolEffect(.replace.offUp))
+        }
+        .font(.system(size: UIFont.systemFontSize))
+        .onTapGesture {
+            vibration_light.impactOccurred()
+                entry.isShown.toggle()
+                coreDataManager.save(context: coreDataManager.viewContext)
         }
     }
     

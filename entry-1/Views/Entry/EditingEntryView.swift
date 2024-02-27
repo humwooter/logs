@@ -72,7 +72,6 @@ struct EditingEntryView: View {
                     }
                 }
                 
-                
                     VStack {
                         GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
                                          cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
@@ -101,70 +100,7 @@ struct EditingEntryView: View {
                         Spacer()
                     }
                     buttonBar()
-                    if let data = selectedData {
-                        if isGIF(data: data) {
-                            AnimatedImageView_data(data: data)
-                                .contextMenu {
-                                    Button(role: .destructive, action: {
-                                            selectedData = nil
-                                            selectedImage = nil
-                                        deletePrevMedia = true
-//                                            entry.deleteImage(coreDataManager: coreDataManager)
-                                            
-                                    }) {
-                                        Text("Delete")
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                        } else {
-                            if isPDF(data: data) {
-//                                if let url = selectedPDFLink {
-//                                    AsyncPDFKitView(url: url).scaledToFit()
-//                                        .contextMenu {
-//                                            Button(role: .destructive, action: {
-//                                                    selectedData = nil
-//                                                    selectedImage = nil
-//                                                deletePrevMedia = true
-////                                                    entry.deleteImage(coreDataManager: coreDataManager)
-//
-//                                            }) {
-//                                                Text("Delete")
-//                                                Image(systemName: "trash")
-//                                                    .foregroundColor(.red)
-//                                            }
-//                                        }
-//                                }
-                                PDFKitView(data: data).scaledToFit()
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                                selectedData = nil
-                                                selectedImage = nil
-                                                entry.deleteImage(coreDataManager: coreDataManager)
-                                                
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
-                                        }
-                                    }
-                            } else {
-                                CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                                selectedData = nil
-                                                selectedImage = nil
-                                            deletePrevMedia = true
-//                                                entry.deleteImage(coreDataManager: coreDataManager)
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
-                                        }
-                                    }
-                            }
-                        }
-                    }
+                    entryMediaView()
                 }
    
             }
@@ -265,6 +201,55 @@ struct EditingEntryView: View {
     }
     
 
+    @ViewBuilder
+    func entryMediaView() -> some View {
+        if let data = selectedData {
+            if isGIF(data: data) {
+                AnimatedImageView_data(data: data)
+                    .contextMenu {
+                        Button(role: .destructive, action: {
+                                selectedData = nil
+                                selectedImage = nil
+                            deletePrevMedia = true
+                                
+                        }) {
+                            Text("Delete")
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                    }
+            } else {
+                if isPDF(data: data) {
+                    PDFKitView(data: data).scaledToFit()
+                        .contextMenu {
+                            Button(role: .destructive, action: {
+                                    selectedData = nil
+                                    selectedImage = nil
+                                    entry.deleteImage(coreDataManager: coreDataManager)
+                                    
+                            }) {
+                                Text("Delete")
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                } else {
+                    CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                        .contextMenu {
+                            Button(role: .destructive, action: {
+                                    selectedData = nil
+                                    selectedImage = nil
+                                deletePrevMedia = true
+                            }) {
+                                Text("Delete")
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                }
+            }
+        }
+    }
     
     @ViewBuilder
     func textFormattingButtonBar() -> some View {

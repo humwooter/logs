@@ -24,17 +24,11 @@ struct LogDetailView: View {
         if let entries = log.relationship as? Set<Entry>, !entries.isEmpty {
             Section {
                 List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
-                    
                     EntryDetailView(entry: entry)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                         .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-        
-
-                
-                
-                    
                 }
                 .background {
                         ZStack {
@@ -47,13 +41,9 @@ struct LogDetailView: View {
                 .onAppear(perform: {
                     print("LOG detailz: \(log)")
                 })
-         
-            
                 .listStyle(.automatic)
             }
-//            .listRowBackground(userPreferences.entryBackgroundColor == .clear ? Color(UIColor.systemGroupedBackground) : userPreferences.entryBackgroundColor)
 
-//            .navigationTitle(Date.formattedDate(time: Date))
             .navigationBarTitleDisplayMode(.inline)
         } else {
             Text("No entries available")

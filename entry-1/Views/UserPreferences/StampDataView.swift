@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 struct StampDataView: View {
     @EnvironmentObject var userPreferences: UserPreferences
-    @State  var stamps: [Stamp] // Changed to handle a list of stamps
+//    @State  var stamps: [Stamp] // Changed to handle a list of stamps
     @State private var isExporting = false
     @State private var isImporting = false
     @Environment(\.colorScheme) var colorScheme
@@ -33,7 +33,7 @@ struct StampDataView: View {
                 }
                 .buttonStyle(BackupButtonStyle())
                 .foregroundColor(Color(UIColor.tertiarySystemBackground))
-                .fileExporter(isPresented: $isExporting, document: StampsDocument(stamps: stamps), contentType: .json, defaultFilename: "stamp data backup - \(formattedDateShort(from: Date())).json") { result in
+                .fileExporter(isPresented: $isExporting, document: StampsDocument(stamps: userPreferences.stamps), contentType: .json, defaultFilename: "stamp data backup - \(formattedDateShort(from: Date())).json") { result in
                     switch result {
                     case .success(let url):
                         print("File successfully saved at \(url)")
@@ -79,8 +79,9 @@ struct StampDataView: View {
         do {
             let jsonData = try Data(contentsOf: url)
             let importedStamps = try JSONDecoder().decode([Stamp].self, from: jsonData) // Decode an array of Stamp
-          
-            self.stamps = importedStamps // Update the state with the imported stamps
+          print("imported stamps: \(importedStamps)")
+            self.userPreferences.stamps = importedStamps // Update the state with the imported stamps
+            print("updating stamps")
         } catch {
             print("Failed to import file: \(error)")
         }

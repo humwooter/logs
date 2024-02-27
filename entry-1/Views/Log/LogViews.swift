@@ -150,74 +150,8 @@ struct LogsView: View {
             VStack(spacing: 0) {
                     List {
                             if !isSearching {
-                                Section {
-                                    if showCalendar {
-                                        MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.automatic)
-                                            .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
-                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                                            .accentColor(userPreferences.accentColor)
-                                        
-                                    }
-                                    
-                                } header: {
-                                    HStack {
-                                        Text("Dates").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                                        
-                                        Spacer()
-                                        Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
-                                            .contentTransition(.symbolEffect(.replace.offUp))
-                                        
-                                            .onTapGesture {
-                                                showCalendar.toggle()
-                                            }
-                                    }
-                                }
-                                
-                                
-                                ForEach(filteredLogs(), id: \.self) { log in
-                                    
-                                    ScrollView {
-                                        LazyVStack {
-                                            NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
-                                                .environmentObject(userPreferences)) {
-                                                    HStack {
-                                                        Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                                                        Text(log.day).foregroundStyle(Color(UIColor.label))
-
-                                                        Spacer()
-                                                    }
-                                                }.padding(.top, 10)
-                                                .contextMenu {
-                                                    Button(role: .destructive, action: {
-                                                        showingDeleteConfirmation = true
-                                                        logToDelete = log
-                                                    }) {
-                                                        Label("Delete", systemImage: "trash")
-                                                            .foregroundColor(.red)
-                                                        
-                                                    }
-                                                    Button(action: {
-                                                        Task {
-                                                            DispatchQueue.main.async {
-                                                                let pdfData = createPDFData_log(log: log)
-                                                                let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
-                                                                try? pdfData.write(to: tmpURL)
-                                                                let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                                                    let window = windowScene.windows.first
-                                                                    window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-                                                                }
-                                                            }
-                                                        }
-                                                        
-                                                    }, label: {
-                                                        Label("Share Log PDF", systemImage: "square.and.arrow.up")
-                                                    })
-                                                    
-                                                }
-                                        }
-                                    }
-                                }
+                                calendarView()
+                                logsListView()
                                 .alert(isPresented: $showingDeleteConfirmation) {
                                     Alert(title: Text("Delete log"),
                                           message: Text("Are you sure you want to delete this log? This action cannot be undone."),
@@ -230,108 +164,14 @@ struct LogsView: View {
                                 NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
                                     Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
                                 }
-                                
-                                
-                            
                         }
                         else { //if the user is actively searching
                             if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
-                                
-                                Section(header: Text("Suggested")) {
-                                    Button {
-                                        searchModel.tokens.append(.hiddenEntries)
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "eye.fill")
-                                                .foregroundStyle(userPreferences.accentColor)
-                                                .padding(.horizontal, 5)
-                                            Text("Hidden Entries")
-                                                .foregroundStyle(Color(UIColor.label))
-                                        }
-                                    }
-
-                                    Button {
-                                        searchModel.tokens.append(.mediaEntries)
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "paperclip")
-                                                .foregroundStyle(userPreferences.accentColor)
-                                                .padding(.horizontal, 5)
-
-                                            Text("Entries with Media")
-                                                .foregroundStyle(Color(UIColor.label))
-                                        }
-                                    }
-                                    
-                                    Button {
-                                        searchModel.tokens.append(.stampIndexEntries)
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "number.circle.fill")
-                                                .foregroundStyle(userPreferences.accentColor)
-                                                .padding(.horizontal, 5)
-
-                                            Text("Stamp Number")
-                                                .foregroundStyle(Color(UIColor.label))
-                                        }
-                                    }
-                                    Button {
-                                        searchModel.tokens.append(.stampNameEntries)
-                                    } label: {
-                                        HStack {
-                                            Image(systemName: "star.circle.fill")
-                                                .foregroundStyle(userPreferences.accentColor)
-                                                .padding(.horizontal, 5)
-
-                                            Text("Stamp Icon Label")
-                                                .foregroundStyle(Color(UIColor.label))
-                                        }
-                                    }
-                                }
-                      
-
-                    
+                                suggestedSearchView()
                             }
                             else {
-                                let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
-                                               .sorted { $0.time > $1.time }
-
-                                
-                                ForEach(entries, id: \.self) { entry in
-                                    
-                                    Section(header:
-                                                Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
-                                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                                    ) {
-                                        EntryDetailView(entry: entry)
-                                            .environmentObject(userPreferences)
-                                            .environmentObject(coreDataManager)
-                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                                       
-                                    }
-                                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-                                }
+                                filteredEntriesListView()
                             }
-//                            else { //only showing first 10 results
-//                                let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
-//                                               .sorted { $0.time > $1.time }
-////                                               .prefix(2) // Limit to first 10 entries
-//
-//                                ForEach(entries, id: \.self) { entry in
-//                                    Section(header:
-//                                                Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
-//                                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-//                                    ) {
-//                                        EntryDetailView(entry: entry)
-//                                            .environmentObject(userPreferences)
-//                                            .environmentObject(coreDataManager)
-//                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                                       
-//                                    }
-//                                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-//                                }
-//                            }
-
                         }
                     }
                 
@@ -378,6 +218,155 @@ struct LogsView: View {
                         print("Failed to save file: \(error)")
                     }
                 }
+        }
+    }
+    
+    @ViewBuilder
+    func filteredEntriesListView() -> some View {
+        let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
+                       .sorted { $0.time > $1.time }
+
+        
+        ForEach(entries, id: \.self) { entry in
+            
+            Section(header:
+                        Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
+                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            ) {
+                EntryDetailView(entry: entry)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+               
+            }
+            .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+        }
+    }
+    
+    @ViewBuilder
+    func suggestedSearchView() -> some View {
+        Section(header: Text("Suggested")) {
+            Button {
+                searchModel.tokens.append(.hiddenEntries)
+            } label: {
+                HStack {
+                    Image(systemName: "eye.fill")
+                        .foregroundStyle(userPreferences.accentColor)
+                        .padding(.horizontal, 5)
+                    Text("Hidden Entries")
+                        .foregroundStyle(Color(UIColor.label))
+                }
+            }
+
+            Button {
+                searchModel.tokens.append(.mediaEntries)
+            } label: {
+                HStack {
+                    Image(systemName: "paperclip")
+                        .foregroundStyle(userPreferences.accentColor)
+                        .padding(.horizontal, 5)
+
+                    Text("Entries with Media")
+                        .foregroundStyle(Color(UIColor.label))
+                }
+            }
+            
+            Button {
+                searchModel.tokens.append(.stampIndexEntries)
+            } label: {
+                HStack {
+                    Image(systemName: "number.circle.fill")
+                        .foregroundStyle(userPreferences.accentColor)
+                        .padding(.horizontal, 5)
+
+                    Text("Stamp Number")
+                        .foregroundStyle(Color(UIColor.label))
+                }
+            }
+            Button {
+                searchModel.tokens.append(.stampNameEntries)
+            } label: {
+                HStack {
+                    Image(systemName: "star.circle.fill")
+                        .foregroundStyle(userPreferences.accentColor)
+                        .padding(.horizontal, 5)
+
+                    Text("Stamp Icon Label")
+                        .foregroundStyle(Color(UIColor.label))
+                }
+            }
+        }
+    }
+    @ViewBuilder
+    func calendarView() -> some View {
+        Section {
+            if showCalendar {
+                MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.automatic)
+                    .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
+                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                    .accentColor(userPreferences.accentColor)
+                
+            }
+            
+        } header: {
+            HStack {
+                Text("Dates").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                
+                Spacer()
+                Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
+                    .contentTransition(.symbolEffect(.replace.offUp))
+                
+                    .onTapGesture {
+                        showCalendar.toggle()
+                    }
+            }
+        }
+    }
+    @ViewBuilder
+    func logsListView() -> some View {
+        ForEach(filteredLogs(), id: \.self) { log in
+            
+            ScrollView {
+                LazyVStack {
+                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
+                        .environmentObject(userPreferences)) {
+                            HStack {
+                                Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                                Text(log.day).foregroundStyle(Color(UIColor.label))
+
+                                Spacer()
+                            }
+                        }.padding(.top, 10)
+                        .contextMenu {
+                            Button(role: .destructive, action: {
+                                showingDeleteConfirmation = true
+                                logToDelete = log
+                            }) {
+                                Label("Delete", systemImage: "trash")
+                                    .foregroundColor(.red)
+                                
+                            }
+                            Button(action: {
+                                Task {
+                                    DispatchQueue.main.async {
+                                        let pdfData = createPDFData_log(log: log)
+                                        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
+                                        try? pdfData.write(to: tmpURL)
+                                        let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                                            let window = windowScene.windows.first
+                                            window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+                                        }
+                                    }
+                                }
+                                
+                            }, label: {
+                                Label("Share Log PDF", systemImage: "square.and.arrow.up")
+                            })
+                            
+                        }
+                }
+            }
         }
     }
     

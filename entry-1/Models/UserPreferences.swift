@@ -62,7 +62,7 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 class UserPreferences: ObservableObject, Codable {
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime
     }
     
     
@@ -111,7 +111,7 @@ class UserPreferences: ObservableObject, Codable {
                self.fontSize = preferences.fontSize
                self.lineSpacing = preferences.lineSpacing
                self.fontName = preferences.fontName
-               self.stamps = preferences.stamps
+//               self.stamps = preferences.stamps //don't update stamps for now
                self.stampStorage = preferences.stampStorage
            }
        }
@@ -137,6 +137,7 @@ class UserPreferences: ObservableObject, Codable {
         self.fontSize = try container.decode(CGFloat.self, forKey: .fontSize)
         self.lineSpacing = try container.decode(CGFloat.self, forKey: .lineSpacing)
         self.fontName = try container.decode(String.self, forKey: .fontName)
+        self.showMostRecentEntryTime = try container.decode(Bool.self, forKey: .showMostRecentEntryTime)
     }
 
 
@@ -162,6 +163,7 @@ class UserPreferences: ObservableObject, Codable {
         try encodeColors(container: &container, colors: selectedColors, key: .selectedColors)
         
         // Encode other properties
+        try container.encode(showMostRecentEntryTime, forKey: .showMostRecentEntryTime)
         try container.encode(showLockScreen, forKey: .showLockScreen)
         try container.encode(showLinks, forKey: .showLinks)
         try container.encode(isUnlocked, forKey: .isUnlocked)
@@ -234,6 +236,13 @@ class UserPreferences: ObservableObject, Codable {
         }
     }
     
+    @Published var showMostRecentEntryTime: Bool  {
+        didSet {
+            UserDefaults.standard.set(showMostRecentEntryTime, forKey: "showMostRecentEntryTime")
+        }
+    }
+    
+    
     @Published var showLinks: Bool = false {
         didSet {
             UserDefaults.standard.set(showLinks, forKey: "showLinks")
@@ -296,6 +305,7 @@ class UserPreferences: ObservableObject, Codable {
         self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
         
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen")
+        self.showMostRecentEntryTime = UserDefaults.standard.bool(forKey: "showMostRecentEntryTime")
     }
 }
 

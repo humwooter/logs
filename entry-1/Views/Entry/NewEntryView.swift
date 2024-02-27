@@ -116,46 +116,7 @@ struct NewEntryView: View {
                     }
                     buttonBar()
 
-                    if let data = selectedData {
-                        if isGIF(data: data) {
-                            AnimatedImageView_data(data: data)
-                                .contextMenu {
-                                    Button(role: .destructive, action: {
-                                            selectedData = nil
-                                            imageHeight = 0
-                                    }) {
-                                        Text("Delete")
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                        } else if isPDF(data: data) { // Assuming you have an
-                                PDFKitView(data: data)
-                                    .contextMenu {
-                                        Button(role: .destructive, action: {
-                                                selectedData = nil
-                                                imageHeight = 0
-                                        }) {
-                                            Text("Delete")
-                                            Image(systemName: "trash")
-                                                .foregroundColor(.red)
-                                        }
-                                    }
-                     
-                        } else {
-                            CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
-                                .contextMenu {
-                                    Button(role: .destructive, action: {
-                                            selectedData = nil
-                                            imageHeight = 0
-                                    }) {
-                                        Text("Delete")
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
-                                }
-                        }
-                    }
+                    entryMediaView()
                 }
            
             }
@@ -249,6 +210,49 @@ struct NewEntryView: View {
        
     }
 
+    @ViewBuilder
+    func entryMediaView() -> some View {
+        if let data = selectedData {
+            if isGIF(data: data) {
+                AnimatedImageView_data(data: data)
+                    .contextMenu {
+                        Button(role: .destructive, action: {
+                                selectedData = nil
+                                imageHeight = 0
+                        }) {
+                            Text("Delete")
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                    }
+            } else if isPDF(data: data) { // Assuming you have an
+                    PDFKitView(data: data)
+                        .contextMenu {
+                            Button(role: .destructive, action: {
+                                    selectedData = nil
+                                    imageHeight = 0
+                            }) {
+                                Text("Delete")
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
+         
+            } else {
+                CustomAsyncImageView_uiImage(image: UIImage(data: data)!)
+                    .contextMenu {
+                        Button(role: .destructive, action: {
+                                selectedData = nil
+                                imageHeight = 0
+                        }) {
+                            Text("Delete")
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                        }
+                    }
+            }
+        }
+    }
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
         HStack(spacing: 35) {

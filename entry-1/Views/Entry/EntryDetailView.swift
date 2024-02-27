@@ -26,134 +26,36 @@ struct EntryDetailView: View { //used in LogDetailView
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 VStack(alignment: .leading) {
-                    HStack {
-                        Text(formattedTime(time: entry.time))
-                            .font(.footnote)
-                            .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences).opacity(0.4))
-                        if (entry.stampIndex != -1 ) {
-                            Image(systemName: entry.stampIcon).tag(entry.stampIcon)
-                                .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-                        }
-                    }
+                        entryHeaderView()
 
                     VStack {
+                        
+                        let foregroundColor = UIColor(userPreferences.entryBackgroundColor)
+                        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+                        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+                        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+                        
+                        
                         if (userPreferences.showLinks) {
                             Text(makeAttributedString(from: entry.content))
-                                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences))
+                                .foregroundColor(Color(fontColor))
 
                         } else {
                             Text(entry.content)
-                                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences))
+                                .foregroundColor(Color(fontColor))
                         }
                     }                        
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                         .fontWeight(entry.stampIndex != -1  ? .bold : .regular)
                         .foregroundColor(colorScheme == .dark ? .white : .black)
                         .contextMenu {
-                            Button(action: {
-                                UIPasteboard.general.string = entry.content 
-                                print("entry color : \(entry.color)")
-                            }) {
-                                Text("Copy Message")
-                                Image(systemName: "doc.on.doc")
-                            }
-                            
-                            Button(action: {
-                                let pdfData = createPDFData_entry(entry: entry)
-                                let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
-                                try? pdfData.write(to: tmpURL)
-                                let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                    let window = windowScene.windows.first
-                                    window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-                                }
-                            }, label: {
-                                Label("Share Entry", systemImage: "square.and.arrow.up")
-                            })
-                            
-                            Button(action: {
-                                withAnimation(.easeOut) {
-                                    showEntry.toggle()
-                                    entry.isHidden = !showEntry
-                                    coreDataManager.save(context: coreDataManager.viewContext)
-                                }
-
-                            }, label: {
-                                Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
-                            })
-                            
-                            if let filename = entry.mediaFilename {
-                                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                if imageExists(at: fileURL) {
-                                    if let data =  getMediaData(fromFilename: filename) {
-                                        if isPDF(data: data) {
-                                        } else {
-                                            let image = UIImage(data: data)!
-                                            Button(action: {
-                                                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                                
-                                            }, label: {
-                                                Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                            })
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            Button(action: {
-                                withAnimation {
-                                    entry.isPinned.toggle()
-                                    coreDataManager.save(context: coreDataManager.viewContext)
-                                }
-                            }) {
-                                Text(entry.isPinned ? "Unpin" : "Pin")
-                                Image(systemName: "pin.fill")
-                                    .foregroundColor(.red)
-                            }
-                            
-               
+                            entryContextMenuButtons()
                         }
                 }
                 Spacer() // Push the image to the right
             }
             
-            if entry.mediaFilename != "" {
-                if let filename = entry.mediaFilename {
-                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                    let data = try? Data(contentsOf: fileURL)
-                    if let data = data, isGIF(data: data) {
-                        AnimatedImageView(url: fileURL).scaledToFit()
-                    } 
-                    else if let data, isPDF(data: data) {
-//                        PDFKitView(data: data).scaledToFit()
-//                        AsyncPDFKitView(url: fileURL).scaledToFit()
-                        
-                        HStack {
-                            Spacer()
-
-                            Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right") .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
-                                .onTapGesture {
-                                isFullScreen.toggle()
-                            }
-                            .padding(.horizontal, 3)
-                            .cornerRadius(20)
-                       
-                        }
-                        
-                        CustomAsyncPDFThumbnailView(pdfURL: fileURL).scaledToFit()
-                        
-                    } 
-                    else {
-                        if imageExists(at: fileURL) {
-                            CustomAsyncImageView(url: fileURL).scaledToFit()
-                            
-                        }
-                    }
-                }
-                
-            }
+            entryMediaView()
 
         }.padding(.vertical, 5)
             .onAppear {
@@ -170,7 +72,6 @@ struct EntryDetailView: View { //used in LogDetailView
                     if let data = data, isPDF(data: data) {
                         VStack {
                             
-//                            PDFReader(entry: entry, isFullScreen: $isFullScreen, currentPageIndex: entry.pageNum_pdf)
                             PDFReader(entry: entry,
                                       isFullScreen: $isFullScreen,
                                       currentPageIndex: Binding<Int16>(
@@ -194,7 +95,116 @@ struct EntryDetailView: View { //used in LogDetailView
         
     }
     
-    
+    @ViewBuilder
+    func entryHeaderView() -> some View {
+        HStack {
+            Text(formattedTime(time: entry.time))
+                .font(.footnote)
+                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences).opacity(0.4))
+            if (entry.stampIndex != -1 ) {
+                Image(systemName: entry.stampIcon).tag(entry.stampIcon)
+                    .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+            }
+        }
+    }
+    @ViewBuilder
+    func entryContextMenuButtons() -> some View {
+        Button(action: {
+            UIPasteboard.general.string = entry.content
+            print("entry color : \(entry.color)")
+        }) {
+            Text("Copy Message")
+            Image(systemName: "doc.on.doc")
+        }
+        
+        Button(action: {
+            let pdfData = createPDFData_entry(entry: entry)
+            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
+            try? pdfData.write(to: tmpURL)
+            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                let window = windowScene.windows.first
+                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+            }
+        }, label: {
+            Label("Share Entry", systemImage: "square.and.arrow.up")
+        })
+        
+        Button(action: {
+            withAnimation(.easeOut) {
+                showEntry.toggle()
+                entry.isHidden = !showEntry
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
+
+        }, label: {
+            Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+        })
+        
+        if let filename = entry.mediaFilename {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentsDirectory.appendingPathComponent(filename)
+            if imageExists(at: fileURL) {
+                if let data =  getMediaData(fromFilename: filename) {
+                    if isPDF(data: data) {
+                    } else {
+                        let image = UIImage(data: data)!
+                        Button(action: {
+                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                            
+                        }, label: {
+                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                        })
+                    }
+                }
+            }
+        }
+        
+        Button(action: {
+            withAnimation {
+                entry.isPinned.toggle()
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
+        }) {
+            Text(entry.isPinned ? "Unpin" : "Pin")
+            Image(systemName: "pin.fill")
+                .foregroundColor(.red)
+        }
+    }
+    @ViewBuilder
+    func entryMediaView() -> some View {
+        if entry.mediaFilename != "" {
+            if let filename = entry.mediaFilename {
+                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                let data = try? Data(contentsOf: fileURL)
+                if let data = data, isGIF(data: data) {
+                    AnimatedImageView(url: fileURL).scaledToFit()
+                }
+                else if let data, isPDF(data: data) {
+                    HStack {
+                        Spacer()
+
+                        Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right") .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                            .onTapGesture {
+                            isFullScreen.toggle()
+                        }
+                        .padding(.horizontal, 3)
+                        .cornerRadius(20)
+                   
+                    }
+                    CustomAsyncPDFThumbnailView(pdfURL: fileURL).scaledToFit()
+                }
+                else {
+                    if imageExists(at: fileURL) {
+                        CustomAsyncImageView(url: fileURL).scaledToFit()
+                        
+                    }
+                }
+            }
+            
+        }
+    }
     
     func createPDFData_entry(entry: Entry) -> Data {
         let pdfMetaData = [
@@ -206,7 +216,7 @@ struct EntryDetailView: View { //used in LogDetailView
         
         
         let rootView = List {
-            Section(header: (Text("\(formattedDate(entry.time))")              /*.font(.custom(userPreferences.fontName, size: userPreferences.fontSize))*/
+            Section(header: (Text("\(formattedDate(entry.time))")   
                 .cornerRadius(30))) {
                     EntryDetailView_PDF(entry: entry)
                         .padding(10)
