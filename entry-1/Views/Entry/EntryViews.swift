@@ -43,7 +43,6 @@ class Refresh: ObservableObject {
 }
 
 struct TextView : View {
-    // @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var coreDataManager: CoreDataManager
     
     @EnvironmentObject var userPreferences: UserPreferences
@@ -192,7 +191,6 @@ struct TextView : View {
             }
         header: {
                 HStack {
-//                    VStack(alignment: .leading) {
                         Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                         if let timeLastUpdated = entry.lastUpdated {
                             if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time) {
@@ -288,353 +286,295 @@ struct TextView : View {
     
     
 }
-
-struct EntryRowView: View {
-    @EnvironmentObject var coreDataManager: CoreDataManager
-    @ObservedObject var entry: Entry
+//
+//struct EntryRowView: View {
+//    @EnvironmentObject var coreDataManager: CoreDataManager
+//    @ObservedObject var entry: Entry
+//    
+//    @State private var isShowingEntryCreationView = false
+//    
+////    @ObservedObject var markedEntries = MarkedEntries()
+//    @EnvironmentObject var userPreferences: UserPreferences
+//    @Environment(\.colorScheme) var colorScheme
+//    @State private var selectedEntry: Entry?
+//    @State private var showDeleteAlert = false
+//    @State private var editingEntry: Entry?
+//    @State private var padding: CGFloat = 0.0
+//
+//    
+//    @State private var engine: CHHapticEngine?
+//    
+//    var body : some View {
+//        if (!entry.isFault) {
+//         
+//                
+//                TextView(entry: entry)
+//                    .environmentObject(userPreferences)
+//                    .environmentObject(coreDataManager)
+//                    .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+//                    .padding(.bottom, padding)
+//                
+//                    .swipeActions(edge: .leading) {
+//                        ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
+//                            if userPreferences.stamps[index].isActive {
+//                                Button(action: {
+//                                    withAnimation(.smooth) {
+//                                        activateButton(entry: entry, index: index)
+//                                    }
+//                                }) {
+//                                    Label("", systemImage: userPreferences.stamps[index].imageName)
+//                                }
+//                                .tint(userPreferences.stamps[index].color)
+//                            }
+//                        }
+//                    }
+//
+//        }
+//        
+//        
+//        else {
+//            ProgressView()
+//        }
+//        
+//    }
     
-    @State private var isShowingEntryCreationView = false
-    
-//    @ObservedObject var markedEntries = MarkedEntries()
-    @EnvironmentObject var userPreferences: UserPreferences
-    @Environment(\.colorScheme) var colorScheme
-    @State private var selectedEntry: Entry?
-    @State private var showDeleteAlert = false
-    @State private var editingEntry: Entry?
-    @State private var padding: CGFloat = 0.0
-
-    
-    @State private var engine: CHHapticEngine?
-    
-    var body : some View {
-        if (!entry.isFault) {
-         
-                
-                TextView(entry: entry)
-                    .environmentObject(userPreferences)
-                    .environmentObject(coreDataManager)
-                    .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-                    .padding(.bottom, padding)
-                
-                    .swipeActions(edge: .leading) {
-                        ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
-                            if userPreferences.stamps[index].isActive {
-                                Button(action: {
-                                    withAnimation(.smooth) {
-                                        activateButton(entry: entry, index: index)
-                                    }
-                                }) {
-                                    Label("", systemImage: userPreferences.stamps[index].imageName)
-                                }
-                                .tint(userPreferences.stamps[index].color)
-                            }
-                        }
-                    }
-
-        }
-        
-        
-        else {
-            ProgressView()
-        }
-        
-    }
-    
-    func getDefaultEntryBackgroundColor() -> Color {
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        
-        return Color(color)
-    }
-    
-    private func activateButton(entry: Entry, index: Int) {
-        let mainContext = coreDataManager.viewContext
-        mainContext.performAndWait {
-            
-            if (index == entry.stampIndex) {
-                    entry.stampIndex = -1
-                    entry.stampIcon = ""
-                    entry.color = UIColor.tertiarySystemBackground
-            }
-            else {
-                    entry.stampIndex = Int16(index)
-                    entry.stampIcon = userPreferences.stamps[index].imageName
-                    entry.color = UIColor(userPreferences.stamps[index].color)
-            }
-            
-//            if userPreferences.stamps[index].isActive {
-//                markedEntries.button_entries[index].insert(entry)
-//            } else {
-//                entry.color = UIColor.tertiarySystemBackground
-//                markedEntries.button_entries[index].remove(entry)
+//    func getDefaultEntryBackgroundColor() -> Color {
+//        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+//        
+//        return Color(color)
+//    }
+//    
+//    private func activateButton(entry: Entry, index: Int) {
+//        let mainContext = coreDataManager.viewContext
+//        mainContext.performAndWait {
+//            
+//            if (index == entry.stampIndex) {
+//                    entry.stampIndex = -1
+//                    entry.stampIcon = ""
+//                    entry.color = UIColor.tertiarySystemBackground
 //            }
-            // Save the context
-            do {
-                try mainContext.save()
-            } catch {
-                print("Failed to save mainContext: \(error)")
-            }
+//            else {
+//                    entry.stampIndex = Int16(index)
+//                    entry.stampIcon = userPreferences.stamps[index].imageName
+//                    entry.color = UIColor(userPreferences.stamps[index].color)
+//            }
+//
+//            do {
+//                try mainContext.save()
+//            } catch {
+//                print("Failed to save mainContext: \(error)")
+//            }
+//        }
+//    }
+//
+//}
 
 
-
-        }
-    }
-
-}
-
-
-
-
-struct EntryView: View {
-    @EnvironmentObject var coreDataManager: CoreDataManager
-    @EnvironmentObject var userPreferences: UserPreferences
-
-    @State private var isShowingEntryCreationView = false
-    
-//    @ObservedObject var markedEntries = MarkedEntries()
-    @Environment(\.colorScheme) var colorScheme
-    @State private var selectedEntry: Entry?
-    @State private var showDeleteAlert = false
-    @State private var showingDeleteConfirmation = false
-    
-    @State private var editingEntry: Entry?
- 
-    @State private var toBeDeleted: IndexSet?
-    @State private var showingDeleteAlert = false
-    @State private var refreshToggle = false
-    
-    @State private var currentDay: Date = Date()
-    @State var excludeStampedEntries: [Bool] = Array(repeating: false, count: 21)
-
-    @FetchRequest(
-           entity: Log.entity(),
-           sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
-           predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
-       ) var logs: FetchedResults<Log>
-    
-
-    @FetchRequest(
-        entity: Entry.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
-        predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
-    ) var entries: FetchedResults<Entry>
-
-    @State private var currentTime: Date = Date()
-
-    
-    
-    @State private var selectedSortOption: SortOption = .timeAscending
-    init(color: UIColor) {
-        if !isClear(for: color) {
-            let textColor = UIColor(UIColor.foregroundColor(background: color))
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
-            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
-        }
-        if isClear(for: color) {
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-        }
-   }
-    
-    
-    var body: some View {
-        NavigationStack {
-            List {
-                
-                if entries.count == 0 {
-                    Section {
-                        Text("No entries")
-                    }
-
-                            .refreshable(action: {
-                                updateFetchRequests()
-                            })
-                }
-                else {
-                    switch selectedSortOption {
-                    case .timeAscending:
-                        let sortedEntries = entries.sorted { $0.time > $1.time }
-                        
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                    case .timeDescending:
-                        let sortedEntries = entries.sorted { $0.time < $1.time }
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                    case .image:
-                        let sortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                    case .wordCount:
-                        let sortedEntries = entries.sorted { $0.content.count > $1.content.count }
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                        
-                    case .isShown:
-                        let sortedEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
-                        
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                    case .isHidden:
-                        let sortedEntries = entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
-                        
-                        ForEach(sortedEntries) { entry in
-                            if (!entry.isFault && !entry.isRemoved) {
-                                EntryRowView(entry: entry)
-                                    .environmentObject(userPreferences)
-                                    .environmentObject(coreDataManager)
-                                    .id("\(entry.id)")
-                            }
-                        }
-                        
-                        .onDelete { indexSet in
-                            deleteEntries(from: indexSet, entries: sortedEntries)
-                        }
-                    }
-                }
-                    
-                }
-            .background {
-                    ZStack {
-                        Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                    }
-                    .ignoresSafeArea()
-            }
-            .scrollContentBackground(.hidden)
-            .navigationTitle(entry_1.currentDate())
-            
-            .navigationBarItems(trailing:
-                                    Button(action: {
-                isShowingEntryCreationView = true
-            }, label: {
-                Image(systemName: "plus")
-                    .font(.system(size: 15))
-            })
-            )
-            .navigationBarItems(trailing:
-                Menu {
-                
-                Menu {
-                    ControlGroup {
-                        Button(action: {
-                            selectedSortOption = .timeAscending
-                        }) {
-                            VStack {
-
-                                Text("Increasing")
-                            }
-                        }
-                        Button(action: {
-                            selectedSortOption = .timeDescending
-                        }) {
-                            VStack {
-
-                                Text("Decreasing")
-                             
-                            }
-                        }
-                    } label: {
-                        Text("Sort by Time")
-                    }
-                    
-                    Button(action: {
-                        selectedSortOption = .image
-                    }) {
-                        Text("Stamp Name")
-                        Image(systemName: selectedSortOption == .image ? "checkmark" : "")
-                    }
-                    Button(action: {
-                        selectedSortOption = .wordCount
-                    }) {
-                        Text("Word Count")
-                        Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
-                    }
-                } label: {
-                    Text("Sort")
-                }
-
-                Menu {
-                    ControlGroup {
-                        Button(action: {
-                            selectedSortOption = .isShown
-                        }) {
-                            Label("is Open", systemImage: "book.pages.fill")
-    //                        Text("is Open")
-                            Image(systemName: selectedSortOption == .isShown ? "checkmark" : "")
-                        }
-                        
-                        Button(action: {
-                            selectedSortOption = .isHidden
-                        }) {
-                            Label("is Shown", systemImage: "eye.fill")
-
-    //                        Text("is Shown")
-                            Image(systemName: selectedSortOption == .isHidden ? "checkmark" : "")
-                        }
-                    } label: {
-                        Text("Filter by")
-                    }
-                } label: {
-                    Text("Filter")
-                }
-
-       
-          
-                
-//                ControlGroup {
+//
+//
+//struct EntryView: View {
+//    @EnvironmentObject var coreDataManager: CoreDataManager
+//    @EnvironmentObject var userPreferences: UserPreferences
+//
+//    @State private var isShowingEntryCreationView = false
+//    
+////    @ObservedObject var markedEntries = MarkedEntries()
+//    @Environment(\.colorScheme) var colorScheme
+//    @State private var selectedEntry: Entry?
+//    @State private var showDeleteAlert = false
+//    @State private var showingDeleteConfirmation = false
+//    
+//    @State private var editingEntry: Entry?
+// 
+//    @State private var toBeDeleted: IndexSet?
+//    @State private var showingDeleteAlert = false
+//    @State private var refreshToggle = false
+//    
+//    @State private var currentDay: Date = Date()
+//    @State var excludeStampedEntries: [Bool] = Array(repeating: false, count: 21)
+//
+//    @FetchRequest(
+//           entity: Log.entity(),
+//           sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
+//           predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
+//       ) var logs: FetchedResults<Log>
+//    
+//
+//    @FetchRequest(
+//        entity: Entry.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
+//        predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
+//    ) var entries: FetchedResults<Entry>
+//
+//    @State private var currentTime: Date = Date()
+//
+//    
+//    
+//    @State private var selectedSortOption: SortOption = .timeAscending
+//    init(color: UIColor) {
+//        if !isClear(for: color) {
+//            let textColor = UIColor(UIColor.foregroundColor(background: color))
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+//        }
+//        if isClear(for: color) {
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//        }
+//   }
+//    
+//    
+//    var body: some View {
+//        NavigationStack {
+//            List {
+//                
+//                if entries.count == 0 {
+//                    Section {
+//                        Text("No entries")
+//                    }
+//
+//                            .refreshable(action: {
+//                                updateFetchRequests()
+//                            })
+//                }
+//                else {
+//                    switch selectedSortOption {
+//                    case .timeAscending:
+//                        let sortedEntries = entries.sorted { $0.time > $1.time }
+//                        
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                    case .timeDescending:
+//                        let sortedEntries = entries.sorted { $0.time < $1.time }
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                    case .image:
+//                        let sortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                    case .wordCount:
+//                        let sortedEntries = entries.sorted { $0.content.count > $1.content.count }
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                        
+//                    case .isShown:
+//                        let sortedEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
+//                        
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                    case .isHidden:
+//                        let sortedEntries = entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
+//                        
+//                        ForEach(sortedEntries) { entry in
+//                            if (!entry.isFault && !entry.isRemoved) {
+//                                EntryRowView(entry: entry)
+//                                    .environmentObject(userPreferences)
+//                                    .environmentObject(coreDataManager)
+//                                    .id("\(entry.id)")
+//                            }
+//                        }
+//                        
+//                        .onDelete { indexSet in
+//                            deleteEntries(from: indexSet, entries: sortedEntries)
+//                        }
+//                    }
+//                }
+//                    
+//                }
+//            .background {
+//                    ZStack {
+//                        Color(UIColor.systemGroupedBackground)
+//                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+//                    }
+//                    .ignoresSafeArea()
+//            }
+//            .scrollContentBackground(.hidden)
+//            .navigationTitle(entry_1.currentDate())
+//            
+//            .navigationBarItems(trailing:
+//                                    Button(action: {
+//                isShowingEntryCreationView = true
+//            }, label: {
+//                Image(systemName: "plus")
+//                    .font(.system(size: 15))
+//            })
+//            )
+//            .navigationBarItems(trailing:
+//                Menu {
+//                
+//                Menu {
+//                    ControlGroup {
+//                        Button(action: {
+//                            selectedSortOption = .timeAscending
+//                        }) {
+//                            VStack {
+//                                Text("Increasing")
+//                            }
+//                        }
+//                        Button(action: {
+//                            selectedSortOption = .timeDescending
+//                        }) {
+//                            VStack {
+//                                Text("Decreasing")
+//                            }
+//                        }
+//                    } label: {
+//                        Text("Sort by Time")
+//                    }
+//                    
 //                    Button(action: {
 //                        selectedSortOption = .image
 //                    }) {
@@ -648,143 +588,165 @@ struct EntryView: View {
 //                        Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
 //                    }
 //                } label: {
-//                    Text("other sorts")
+//                    Text("Sort")
 //                }
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size:13))
-                
-            }
-                                
-            )
-            .refreshable(action: {
-                updateFetchRequests()
-            })
-            .sheet(isPresented: $isShowingEntryCreationView) {
-                NewEntryView()
-                    .environmentObject(coreDataManager)
-                    .environmentObject(userPreferences)
-                    .foregroundColor(userPreferences.accentColor)
-                    .presentationDragIndicator(.hidden)
-
-                
-            }
-   
-        }
-      
-        .onAppear {
-            updateFetchRequests()
-        }
-        
-    }
-    
-
-    
-    
-    func updateFetchRequests() {
-        let currentDay = formattedDate(Date())
-        print("current day: \(currentDay)")
-        logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
-        if let log = logs.first {
-            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
-        }
-        else {
-            let newLog = Log(context: coreDataManager.viewContext)
-            newLog.day = currentDay
-            newLog.id = UUID()
-            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
-        }
-    }
-    
-    func deleteRow(at indexSet: IndexSet) {
-        self.toBeDeleted = indexSet           // store rows for delete
-        self.showingDeleteAlert = true
-    }
-    
-    func deleteEntries(from indexSet: IndexSet, entries: [Entry]) {
-        let mainContext = coreDataManager.viewContext
-        mainContext.performAndWait {
-            for index in indexSet {
-                if index < entries.count {
-                    let entryToDelete = entries[index]
-                    let parentLog = entryToDelete.relationship
-                    
-                    // Fetch the entry in the main context
-                    let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-                    fetchRequest.predicate = NSPredicate(format: "id == %@", entryToDelete.id as CVarArg)
-                    
-                    do {
-                        let fetchedEntries = try mainContext.fetch(fetchRequest)
-                        guard let entryToDeleteInContext = fetchedEntries.first else {
-                            print("Failed to fetch entry in main context")
-                            return
-                        }
-                        
-                        print("Entry being removed: \(entryToDelete)")
-                        
-                        // Mark the entry as removed and detach it from the parent log
-                        entryToDeleteInContext.isRemoved = true
-                        parentLog.removeFromRelationship(entryToDeleteInContext)
-                        
-                        // Save changes
-                        try mainContext.save()
-                        
-                    } catch {
-                        print("Failed to fetch entry in main context: \(error)")
-                    }
-                }
-            }
-        }
-    }
-    
-    
-//    private func fetchMarkedEntries() { //fetches important entries before loading the view
+//
+//                Menu {
+//                    ControlGroup {
+//                        Button(action: {
+//                            selectedSortOption = .isShown
+//                        }) {
+//                            Label("is Open", systemImage: "book.pages.fill")
+//                            Image(systemName: selectedSortOption == .isShown ? "checkmark" : "")
+//                        }
+//                        
+//                        Button(action: {
+//                            selectedSortOption = .isHidden
+//                        }) {
+//                            Label("is Shown", systemImage: "eye.fill")
+//                            Image(systemName: selectedSortOption == .isHidden ? "checkmark" : "")
+//                        }
+//                    } label: {
+//                        Text("Filter by")
+//                    }
+//                } label: {
+//                    Text("Filter")
+//                }
+//            } label: {
+//                Image(systemName: "slider.horizontal.3")
+//                    .font(.system(size:13))
+//                
+//            }
+//                                
+//            )
+//            .refreshable(action: {
+//                updateFetchRequests()
+//            })
+//            .sheet(isPresented: $isShowingEntryCreationView) {
+//                NewEntryView()
+//                    .environmentObject(coreDataManager)
+//                    .environmentObject(userPreferences)
+//                    .foregroundColor(userPreferences.accentColor)
+//                    .presentationDragIndicator(.hidden)
+//
+//                
+//            }
+//   
+//        }
+//      
+//        .onAppear {
+//            updateFetchRequests()
+//        }
+//        
+//    }
+//    
+//
+//    
+//    
+//    func updateFetchRequests() {
+//        let currentDay = formattedDate(Date())
+//        print("current day: \(currentDay)")
+//        logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
+//        if let log = logs.first {
+//            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
+//        }
+//        else {
+//            let newLog = Log(context: coreDataManager.viewContext)
+//            newLog.day = currentDay
+//            newLog.id = UUID()
+//            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
+//        }
+//    }
+//    
+//    func deleteRow(at indexSet: IndexSet) {
+//        self.toBeDeleted = indexSet           // store rows for delete
+//        self.showingDeleteAlert = true
+//    }
+//    
+//    func deleteEntries(from indexSet: IndexSet, entries: [Entry]) {
 //        let mainContext = coreDataManager.viewContext
-//        mainContext.perform {
-//            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-//            for index in 0..<5 {
-//                fetchRequest.predicate = NSPredicate(format: "buttons[%d] == %@", index, NSNumber(value: true))
-//                do {
-//                    let entriesArray = try mainContext.fetch(fetchRequest)
-//                    markedEntries.button_entries[index] = Set(entriesArray)
-//                } catch {
-//                    print("Error fetching marked entries: \(error)")
+//        mainContext.performAndWait {
+//            for index in indexSet {
+//                if index < entries.count {
+//                    let entryToDelete = entries[index]
+//                    let parentLog = entryToDelete.relationship
+//                    
+//                    // Fetch the entry in the main context
+//                    let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//                    fetchRequest.predicate = NSPredicate(format: "id == %@", entryToDelete.id as CVarArg)
+//                    
+//                    do {
+//                        let fetchedEntries = try mainContext.fetch(fetchRequest)
+//                        guard let entryToDeleteInContext = fetchedEntries.first else {
+//                            print("Failed to fetch entry in main context")
+//                            return
+//                        }
+//                        
+//                        print("Entry being removed: \(entryToDelete)")
+//                        
+//                        // Mark the entry as removed and detach it from the parent log
+//                        entryToDeleteInContext.isRemoved = true
+//                        parentLog.removeFromRelationship(entryToDeleteInContext)
+//                        
+//                        // Save changes
+//                        try mainContext.save()
+//                        
+//                    } catch {
+//                        print("Failed to fetch entry in main context: \(error)")
+//                    }
 //                }
 //            }
 //        }
 //    }
-    
-//    private func fetchMarkedEntries() { //fetches important entries before loading the view
-//        let mainContext = coreDataManager.viewContext
-//        mainContext.perform {
-//            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-//            for index in 0..<5 {
-//                fetchRequest.predicate = NSPredicate(format: "stampIndex == %d", index)
-//                do {
-//                    let entriesArray = try mainContext.fetch(fetchRequest)
-//                    markedEntries.button_entries[index] = Set(entriesArray)
-//                } catch {
-//                    print("Error fetching marked entries: \(error)")
-//                }
+//    
+//    
+////    private func fetchMarkedEntries() { //fetches important entries before loading the view
+////        let mainContext = coreDataManager.viewContext
+////        mainContext.perform {
+////            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+////            for index in 0..<5 {
+////                fetchRequest.predicate = NSPredicate(format: "buttons[%d] == %@", index, NSNumber(value: true))
+////                do {
+////                    let entriesArray = try mainContext.fetch(fetchRequest)
+////                    markedEntries.button_entries[index] = Set(entriesArray)
+////                } catch {
+////                    print("Error fetching marked entries: \(error)")
+////                }
+////            }
+////        }
+////    }
+//    
+////    private func fetchMarkedEntries() { //fetches important entries before loading the view
+////        let mainContext = coreDataManager.viewContext
+////        mainContext.perform {
+////            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+////            for index in 0..<5 {
+////                fetchRequest.predicate = NSPredicate(format: "stampIndex == %d", index)
+////                do {
+////                    let entriesArray = try mainContext.fetch(fetchRequest)
+////                    markedEntries.button_entries[index] = Set(entriesArray)
+////                } catch {
+////                    print("Error fetching marked entries: \(error)")
+////                }
+////            }
+////        }
+////    }
+//
+//    
+//    
+//    func check_files() {
+//        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+//        do {
+//            let fileURLs = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
+//            for fileURL in fileURLs {
+//                print(fileURL)
 //            }
+//        } catch {
+//            print("Error while enumerating files \(documentsDirectory.path): \(error.localizedDescription)")
 //        }
 //    }
-
-    
-    
-    func check_files() {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        do {
-            let fileURLs = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
-            for fileURL in fileURLs {
-                print(fileURL)
-            }
-        } catch {
-            print("Error while enumerating files \(documentsDirectory.path): \(error.localizedDescription)")
-        }
-    }
-}
-
-
-
-
+//}
+//
+//
+//
+//

@@ -100,8 +100,6 @@ struct EditingView: View {
                             }
                         }
                 }
-//                .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
-//                .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                 
             }
             
@@ -114,7 +112,6 @@ struct EditingView: View {
                         finalizeEdit()
                     }
                     .foregroundStyle(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor))))
-//                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences)).opacity(0.6) //to determinw whether black or white
                     .onTapGesture {
                         focusField = true
                     }
@@ -317,18 +314,29 @@ struct NotEditingView: View {
                 .padding(.top, 5)
                 
                 VStack {
+                    let foregroundColor = isClear(for: entry.color) ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                    let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+                    let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+                    let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+                    
                     if (userPreferences.showLinks) {
+                
                         Text(makeAttributedString(from: entry.content))
+                            .foregroundStyle(Color(fontColor))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                            .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                            .onAppear {
+                                print("ENTRY COLOR IS: \( entry.color)")
+                                print("isClear(for: entry.color): \(isClear(for: entry.color))")
+                            }
+
                     } else {
                         Text(entry.content)
                             .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                            .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                            .foregroundStyle(Color(fontColor))
+
                     }
                 }
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-//                    .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, colorScheme: colorScheme, userPreferences: userPreferences))
                     .padding(2)
                     .padding(.vertical, 5)
                     .lineSpacing(userPreferences.lineSpacing)
