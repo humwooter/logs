@@ -25,6 +25,7 @@ extension Entry {
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor
     @NSManaged public var stampIcon: String
+    @NSManaged public var eventIdentifier: String?
     @NSManaged public var mediaFilename: String?
     @NSManaged public var isHidden: Bool
     @NSManaged public var isShown: Bool

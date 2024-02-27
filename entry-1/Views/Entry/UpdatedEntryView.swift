@@ -89,14 +89,14 @@ struct EntryView: View {
             
             .navigationBarItems(trailing:
                                     HStack {
+                
+                sortedEntriesMenu()
                 Button(action: {
                     isShowingEntryCreationView = true
                 }, label: {
                     Image(systemName: "plus")
                         .font(.system(size: 15))
                 })
-                
-                sortedEntriesMenu()
             }
             )
             .refreshable(action: {
