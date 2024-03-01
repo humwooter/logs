@@ -28,7 +28,9 @@ struct LogDetailView: View {
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                        .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+//                        .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                        .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+
                 }
                 .background {
                         ZStack {

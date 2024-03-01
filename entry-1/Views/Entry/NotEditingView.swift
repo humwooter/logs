@@ -44,6 +44,35 @@ struct NotEditingView: View {
                 entryMediaView()
             }
         }
+        .fullScreenCover(isPresented: $isFullScreen) {
+            
+            if let filename = entry.mediaFilename {
+                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                let data = try? Data(contentsOf: fileURL)
+                
+                if let data = data, isPDF(data: data) {
+                    VStack {
+                        
+                        PDFReader(entry: entry,
+                                  isFullScreen: $isFullScreen,
+                                  currentPageIndex: Binding<Int16>(
+                                      get: { entry.pageNum_pdf },
+                                      set: { entry.pageNum_pdf = $0; try? coreDataManager.viewContext.save() }
+                                  ))
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+
+                        
+
+                    }
+        
+                    .scrollContentBackground(.hidden)
+                }
+            }
+        
+        }
+        .blur(radius: showEntry ? 0 : 7)
     }
     
     @ViewBuilder

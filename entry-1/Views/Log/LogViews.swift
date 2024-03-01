@@ -239,7 +239,7 @@ struct LogsView: View {
                     .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                
             }
-            .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+            .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
         }
     }
     

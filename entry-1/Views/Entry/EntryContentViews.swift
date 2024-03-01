@@ -175,6 +175,7 @@ struct EditingView: View {
         .sheet(isPresented: $showCamera) {
             ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
         }
+        
     }
     
     func hideEntry () {

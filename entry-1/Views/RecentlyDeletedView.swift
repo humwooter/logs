@@ -56,8 +56,8 @@ struct RecentlyDeletedView: View {
                                 
                             }
                     }
-                    .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-                    
+                    .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+
                 }
             
             

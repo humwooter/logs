@@ -45,7 +45,7 @@ let imageCategories: [String: [String]] = [
     "Shapes": ["circle.fill", "triangle.fill", "square.fill", "rhombus.fill", "diamond.fill", "pentagon.fill", "hexagon.fill", "octagon.fill", "seal.fill",  "staroflife.fill", "star.fill", "heart.fill", "bolt.heart.fill", "heart.slash.fill"],
     "Animals": ["bird.fill", "lizard.fill", "hare.fill", "tortoise.fill", "dog.fill", "cat.fill", "ladybug.fill", "fish.fill", "ant.fill", "teddybear.fill"],
     "Nature": ["leaf.fill", "moon.stars.fill", "sun.haze.circle.fill", "wind.snow", "sun.max.fill", "drop.fill",  "flame.fill", "tree.fill", "globe.asia.australia.fill", "camera.macro", "snowflake", "tornado", "cloud.rainbow.half", "cloud.snow.fill", "cloud.fog.fill", "mountain.2.fill"],
-    "Symbols": ["folder.fill",  "key.fill", "exclamationmark", "checkmark","lightbulb.fill", "lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "atom",  "music.note", "globe.desk.fill", "envelope.fill", "house.fill", "pills.fill", "play.fill", "movieclapper.fill"],
+    "Symbols": ["folder.fill",  "key.fill", "exclamationmark", "checkmark","lightbulb.fill", "lightbulb", "gearshape", "bolt.fill", "bookmark.fill", "hourglass", "power", "atom",  "music.note", "globe.desk.fill", "envelope.fill", "house.fill", "pills.fill", "play.fill", "movieclapper.fill", "shoeprints.fill"],
     "Human": ["brain", "ear.fill", "mouth.fill", "mustache.fill", "hand.raised.fill", "brain.filled.head.profile", "shoe.fill", "lungs.fill"],
     "Fashion": ["tshirt.fill", "shoe.fill", "eyebrow"],
     "Gaming" : ["gamecontroller.fill", "arcade.stick.console.fill", "dpad.fill",  "playstation.logo", "xbox.logo", "flag.2.crossed.fill"],
