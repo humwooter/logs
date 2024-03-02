@@ -213,18 +213,22 @@ struct NotEditingView: View {
         .padding(.top, 5)
     }
     
+    func getTextColor() -> UIColor {
+        let foregroundColor = isClear(for: entry.color) ? UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)) : entry.color
+        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        return fontColor
+    }
+    
     @ViewBuilder
     func entryTextView() -> some View {
         VStack {
-            let foregroundColor = isClear(for: entry.color) ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-            let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
-            let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
-            let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
             
             if (userPreferences.showLinks) {
         
                 Text(makeAttributedString(from: entry.content))
-                    .foregroundStyle(Color(fontColor))
+                    .foregroundStyle(Color(getTextColor()))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                     .onAppear {
                         print("ENTRY COLOR IS: \( entry.color)")
@@ -234,7 +238,7 @@ struct NotEditingView: View {
             } else {
                 Text(entry.content)
                     .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                    .foregroundStyle(Color(fontColor))
+                    .foregroundStyle(Color(getTextColor()))
 
             }
         }

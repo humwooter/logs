@@ -28,8 +28,7 @@ struct LogDetailView: View {
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                        .listRowBackground(userPreferences.entryBackgroundColor == .clear ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-                        .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+                        .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
 
                 }
                 .background {
@@ -52,6 +51,8 @@ struct LogDetailView: View {
                 .foregroundColor(.gray)
         }
     }
+
+    
     func getDefaultEntryBackgroundColor() -> Color {
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
         

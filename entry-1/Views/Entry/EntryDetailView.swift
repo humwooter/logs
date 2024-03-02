@@ -30,24 +30,15 @@ struct EntryDetailView: View { //used in LogDetailView
 
                     VStack {
                         
-                        let foregroundColor = UIColor(userPreferences.entryBackgroundColor)
-                        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
-                        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
-                        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
-                        
-                        
                         if (userPreferences.showLinks) {
                             Text(makeAttributedString(from: entry.content))
-                                .foregroundColor(Color(fontColor))
 
                         } else {
                             Text(entry.content)
-                                .foregroundColor(Color(fontColor))
                         }
-                    }                        
+                    } 
+                    .foregroundStyle(Color(getTextColor()))
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-                        .fontWeight(entry.stampIndex != -1  ? .bold : .regular)
-                        .foregroundColor(colorScheme == .dark ? .white : .black)
                         .contextMenu {
                             entryContextMenuButtons()
                         }
@@ -95,12 +86,23 @@ struct EntryDetailView: View { //used in LogDetailView
         
     }
     
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless userPreferences.entryBackgroundColor != .clear
+        let defaultBackgroundColor =  colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+
+        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? defaultBackgroundColor : UIColor(userPreferences.entryBackgroundColor)
+        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        return fontColor
+    }
+    
+    
     @ViewBuilder
     func entryHeaderView() -> some View {
         HStack {
             Text(formattedTime(time: entry.time))
                 .font(.footnote)
-                .foregroundColor(UIColor.foregroundColor2(colorScheme: colorScheme, userPreferences: userPreferences).opacity(0.4))
+                .foregroundStyle(Color(getTextColor()).opacity(0.4))
             if (entry.stampIndex != -1 ) {
                 Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                     .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))

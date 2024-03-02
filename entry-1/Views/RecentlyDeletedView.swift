@@ -36,7 +36,7 @@ struct RecentlyDeletedView: View {
         List {
             Section(header: Text("Entries are available here for 10 days, after which they will be permanently deleted")
                 .font(.caption)
-                .foregroundColor(Color(userPreferences.entryBackgroundColor == .clear ? .gray : UIColor(userPreferences.entryBackgroundColor)))
+                .foregroundColor(Color(getTextColor()).opacity(0.5))
             ) {}
                 
                 ForEach(filteredEntries, id: \.self) { entry in
@@ -56,8 +56,7 @@ struct RecentlyDeletedView: View {
                                 
                             }
                     }
-                    .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-
+                    .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
                 }
             
             
@@ -74,6 +73,16 @@ struct RecentlyDeletedView: View {
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
         
         
+    }
+    
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless userPreferences.entryBackgroundColor != .clear
+        let defaultBackgroundColor =  colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+
+        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? defaultBackgroundColor : UIColor(userPreferences.entryBackgroundColor)
+        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        return fontColor
     }
     
     func getDefaultEntryBackgroundColor() -> Color {
