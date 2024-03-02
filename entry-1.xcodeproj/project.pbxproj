@@ -35,6 +35,7 @@
 		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
 		4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */; };
 		4A4647652B3EA36C002B2164 /* SearchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4647642B3EA36C002B2164 /* SearchViews.swift */; };
+		4A4AFF802B92C57800632C4D /* ButtonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4AFF7F2B92C57800632C4D /* ButtonViews.swift */; };
 		4A5E53152B8D9ED400F4521D /* UpdatedEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */; };
 		4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53162B8DB12400F4521D /* NotEditingView.swift */; };
 		4A5E53192B8DB14D00F4521D /* EntryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53182B8DB14D00F4521D /* EntryRowView.swift */; };
@@ -264,6 +265,7 @@
 		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
 		4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataView.swift; sourceTree = "<group>"; };
 		4A4647642B3EA36C002B2164 /* SearchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViews.swift; sourceTree = "<group>"; };
+		4A4AFF7F2B92C57800632C4D /* ButtonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonViews.swift; sourceTree = "<group>"; };
 		4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatedEntryView.swift; sourceTree = "<group>"; };
 		4A5E53162B8DB12400F4521D /* NotEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotEditingView.swift; sourceTree = "<group>"; };
 		4A5E53182B8DB14D00F4521D /* EntryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryRowView.swift; sourceTree = "<group>"; };
@@ -449,6 +451,7 @@
 		34C43B982A9C4106005C1296 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4A4AFF7E2B92C56D00632C4D /* Buttons */,
 				4A45D8162B7C9C6D008739A6 /* UserPreferences */,
 				4A9D31A52B54AA1F00E219CE /* IntroScreens */,
 				4A4647632B3EA357002B2164 /* SearchViews */,
@@ -502,6 +505,14 @@
 				4A4647642B3EA36C002B2164 /* SearchViews.swift */,
 			);
 			path = SearchViews;
+			sourceTree = "<group>";
+		};
+		4A4AFF7E2B92C56D00632C4D /* Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				4A4AFF7F2B92C57800632C4D /* ButtonViews.swift */,
+			);
+			path = Buttons;
 			sourceTree = "<group>";
 		};
 		4A72642B2AEBABC70099EA84 /* Media */ = {
@@ -930,6 +941,7 @@
 				4A6EC0E92B32EABC0031DDFA /* Tips.swift in Sources */,
 				34A8085B2A8A182300B9BB5C /* Entry+CoreDataProperties.swift in Sources */,
 				4A7264432AECECB60099EA84 /* NewEntryView.swift in Sources */,
+				4A4AFF802B92C57800632C4D /* ButtonViews.swift in Sources */,
 				4ABBEF872AE7BF71005BD78A /* PickerViews.swift in Sources */,
 				34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */,
 				34C43B9B2A9DA51F005C1296 /* CoreDataManager.swift in Sources */,

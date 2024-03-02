@@ -39,11 +39,9 @@ struct SettingsView: View {
         entity: Log.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
     ) var logs: FetchedResults<Log>
-    @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     @Environment(\.colorScheme) var colorScheme
 
     // document picker and file handling
-    @StateObject var docPickerDelegate = DocumentPickerDelegate()
     @State private var isExportDocumentPickerPresented = false
     @State private var isImportDocumentPickerPresented = false
     @State private var tempFileURL: URL?
@@ -76,13 +74,7 @@ struct SettingsView: View {
                 }
 
             }
-            .sheet(isPresented: $isShareSheetPresented, onDismiss: {
-                // Handle dismissal if needed
-            }) {
-                if let fileURLToShare = fileURLToShare {
-                    ShareSheet(activityItems: [fileURLToShare])
-                }
-            }
+
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -271,28 +263,7 @@ struct SettingsView: View {
         self.isShareSheetPresented = true
     }
 
-    
-    // UIDocumentPickerDelegate method
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        guard let url = urls.first else { return }
-        
-        if controller.documentPickerMode == .exportToService {
-            do {
-                
-                // Handle export (write jsonData to the selected URL)
-            } catch {
-                print("Failed to export data: \(error)")
-            }
-        } else if controller.documentPickerMode == .import {
-            do {
-                // Handle import (read jsonData from the selected URL)
-            } catch {
-                print("Failed to import data: \(error)")
-            }
-        }
-    }
-    
-    
+
     
     private func foregroundColor() -> Color {
         if (userPreferences.activatedButtons[0]) {
@@ -320,77 +291,3 @@ struct SettingsView: View {
     
 }
 
-
-extension EnvironmentValues {
-    var viewController: UIViewController? {
-        self[UIViewControllerKey.self]
-    }
-}
-
-struct UIViewControllerKey: EnvironmentKey {
-    static let defaultValue: UIViewController? = nil
-}
-
-struct ToggleButton: View {
-    @Binding var isOn: Bool
-    var color: Color
-    
-    var body: some View {
-        Toggle("", isOn: $isOn)
-            .labelsHidden()
-            .toggleStyle(SwitchToggleStyle(tint: color))
-    }
-    
-}
-
-
-class DocumentPickerDelegate: NSObject, UIDocumentPickerDelegate, ObservableObject {
-    @Published var pickedURL: URL? = nil
-    
-    func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        pickedURL = urls.first
-    }
-}
-
-
-
-struct BackupButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(15)
-            .padding(.horizontal, 10)
-            .background {
-                LinearGradient(colors: [.green, .cyan], startPoint: .leading, endPoint: .trailing)
-            }
-        //            .foregroundColor(colorScheme == .dark ? .white : .black)
-            .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))
-            .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
-    }
-}
-
-struct RestoreButtonStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(15)
-            .padding(.horizontal, 10)
-            .background {
-                LinearGradient(colors: [.yellow, .orange], startPoint: .leading, endPoint: .trailing)
-            }
-        //            .foregroundColor(.white)
-            .clipShape(RoundedRectangle(cornerSize: .init(width: 30, height: 30)))
-            .scaleEffect(!configuration.isPressed ? 0.95 : 1.05)
-    }
-}
-
-
-struct ShareSheet: UIViewControllerRepresentable {
-    var activityItems: [Any]
-    var applicationActivities: [UIActivity]? = nil
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: applicationActivities)
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
