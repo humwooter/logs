@@ -34,6 +34,7 @@ struct EntryRowView: View {
 
     // haptic feedback engine
     @State private var engine: CHHapticEngine?
+    @State var textColor = Color.white
 
     
     
@@ -42,12 +43,26 @@ struct EntryRowView: View {
             TextView(entry: entry)
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
-                .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+                .listRowBackground( UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
                 .padding(.bottom, padding)
                 .swipeActions(edge: .leading) {
                     stampsRowView()
                 }
+//                .onAppear {
+//                    textColor = Color(getTextColor(entry: entry))
+//                }
+//                .onChange(of: colorScheme, { oldValue, newValue in
+//                    textColor = Color(getTextColor(entry: entry))
+//                })
         }
+    }
+    
+    func getTextColor(entry: Entry) -> UIColor {
+        let foregroundColor = isClear(for: entry.color) ? UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)) : entry.color
+        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        return fontColor
     }
     
     @ViewBuilder

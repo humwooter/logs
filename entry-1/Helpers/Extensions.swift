@@ -11,6 +11,32 @@ import SwiftUI
 
 
 extension UIColor {
+    
+    func getAlpha() -> CGFloat {
+        var alpha: CGFloat = 0
+        self.getRed(nil, green: nil, blue: nil, alpha: &alpha)
+        return alpha
+    }
+    
+    func blended(withBackgroundColor backgroundColor: UIColor) -> UIColor {
+         // Extract the components of the foreground color
+         var fgRed: CGFloat = 0, fgGreen: CGFloat = 0, fgBlue: CGFloat = 0, fgAlpha: CGFloat = 0
+         self.getRed(&fgRed, green: &fgGreen, blue: &fgBlue, alpha: &fgAlpha)
+         
+         // Extract the components of the background color
+         var bgRed: CGFloat = 0, bgGreen: CGFloat = 0, bgBlue: CGFloat = 0, bgAlpha: CGFloat = 0
+         backgroundColor.getRed(&bgRed, green: &bgGreen, blue: &bgBlue, alpha: &bgAlpha)
+         
+         // Calculate the blended color components
+         let red = fgRed + (bgRed * (1 - fgAlpha))
+         let green = fgGreen + (bgGreen * (1 - fgAlpha))
+         let blue = fgBlue + (bgBlue * (1 - fgAlpha))
+         let alpha = fgAlpha + (bgAlpha * (1 - fgAlpha)) // Optional: Compute the blended alpha
+         
+         // Create a new UIColor with the blended components
+         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+     }
+    
     func toHexString() -> String {
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -110,28 +136,28 @@ extension UIColor {
         }
     }
 
-    
-    static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {        
-        print("BACKGROUND: \(background)")
-        if entry.stampIndex == -1 {
-            if colorScheme == .dark {
-                return .white
-            }
-            return .black
-        }
-        
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 0
-        
-        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        
-        let brightness = (red * 299 + green * 587 + blue * 114) / 1000
-        
-        return brightness > 0.5 ? Color.black : Color.white
-    }
-    
+//    
+//    static func foregroundColor(entry: Entry, background: UIColor, colorScheme: ColorScheme) -> Color {        
+//        print("BACKGROUND: \(background)")
+//        if entry.stampIndex == -1 {
+//            if colorScheme == .dark {
+//                return .white
+//            }
+//            return .black
+//        }
+//        
+//        var red: CGFloat = 0
+//        var green: CGFloat = 0
+//        var blue: CGFloat = 0
+//        var alpha: CGFloat = 0
+//        
+//        background.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+//        
+//        let brightness = (red * 299 + green * 587 + blue * 114) / 1000
+//        
+//        return brightness > 0.5 ? Color.black : Color.white
+//    }
+//    
     static func foregroundColor(background: UIColor) -> Color {
         
         print("entered foreground color func")
@@ -159,7 +185,7 @@ extension UIColor {
     
     
     static func backgroundColor(entry: Entry, colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
-        let opacity_val = colorScheme == .dark ? 0.90 : 0.75
+        let opacity_val = colorScheme == .dark ? 0.90 : 0.85
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
       
         if  entry.stampIndex == -1 || entry.stampIndex == nil {
@@ -258,7 +284,7 @@ extension UIColor {
 
 extension Color {
     
-    
+
 
     init(hex: String) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)

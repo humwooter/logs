@@ -227,6 +227,15 @@ struct TextView : View {
           
         }
     }
+    
+    func getTextColor() -> UIColor {
+        let foregroundColor = isClear(for: entry.color) ? UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)) : entry.color
+        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
+        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        return fontColor
+    }
+    
     @ViewBuilder
     func entrySectionHeader() -> some View {
         HStack {

@@ -81,6 +81,7 @@ struct EntryView: View {
                     sortedEntriesView()
                 }
             }
+
             .background {
                 backgroundView()
             }
@@ -111,6 +112,7 @@ struct EntryView: View {
             }
         }
     }
+    
     
     func updateFetchRequests() {
         let currentDay = formattedDate(Date())
