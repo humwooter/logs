@@ -24,7 +24,7 @@ struct NotEditingView: View {
     @ObservedObject var entry: Entry
 
     // environment and view state
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showEntry = true
 
     // editing state
@@ -36,6 +36,8 @@ struct NotEditingView: View {
     @State private var isFullScreen = false
     @State private var selectedURL: URL? = nil
     @State private var textColor: Color = Color.clear
+    @State  var foregroundColor: UIColor
+
 
     
     var body : some View {
@@ -46,7 +48,9 @@ struct NotEditingView: View {
                 entryMediaView()
             }
         }
-
+        .onChange(of: colorScheme, { oldValue, newValue in
+            foregroundColor = UIColor(getDefaultEntryBackgroundColor(colorScheme: newValue))
+                    })
         .fullScreenCover(isPresented: $isFullScreen) {
             
             if let filename = entry.mediaFilename {
@@ -101,7 +105,10 @@ struct NotEditingView: View {
                     VStack {
                             HStack {
                                 Spacer()
-                                Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right") .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                                Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
+//                                    .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!).blended(withBackgroundColor: UIColor(userPreferences.entryBackgroundColor)))))
+
+                                    .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
                                     .onTapGesture {
                                     isFullScreen.toggle()
                                 }
@@ -216,62 +223,40 @@ struct NotEditingView: View {
         .padding(.top, 5)
     }
     
-    func getTextColor() -> UIColor {
-        let color  = colorScheme == .dark ? Color.white : Color.black
-        return UIColor(color)
-//        let foregroundColor = isClear(for: entry.color) ? UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)) : entry.color
-//        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
-//        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
-//        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
-//        return fontColor
-    }
+
     
     @ViewBuilder
     func entryTextView() -> some View {
-        var foregroundColor = isClear(for: entry.color) ? UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)) : entry.color
-
         VStack {
             if isClear(for: entry.color) || entry.stampIndex == -1 {
-                if (userPreferences.showLinks) {
+                var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+                var blendedColor = foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor))
+                if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
             
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( textColor)
-
-                        .onAppear {
-                            print("ENTRY COLOR IS: \( entry.color)")
-                            print("isClear(for: entry.color): \(isClear(for: entry.color))")
-                        }
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor)))))
 
                 } else {
                     Text(entry.content)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle(textColor)
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor)))))
                 }
             } else {
                 if (userPreferences.showLinks) {
             
                     Text(makeAttributedString(from: entry.content))
-                        .foregroundStyle( Color(UIColor.fontColor(backgroundColor: entry.color.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor)))))
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: entry.color.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor)))))
 
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .onAppear {
-                            print("ENTRY COLOR IS: \( entry.color)")
-                            print("isClear(for: entry.color): \(isClear(for: entry.color))")
-                        }
-
                 } else {
                     Text(entry.content)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle(textColor)
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: entry.color.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor)))))
                 }
             }
             
         }
-        .onAppear {
-            textColor = Color(UIColor.fontColor(backgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor))))
-        }
-
             .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
             .padding(2)
             .padding(.vertical, 5)
@@ -280,23 +265,3 @@ struct NotEditingView: View {
             .shadow(radius: 0)
     }
 }
-
-
-//struct TextColorModifier: ViewModifier {
-//    var colorScheme: ColorScheme
-//    var entry: Entry
-//    var userPreferences: UserPreferences
-//    // Add any other properties you need to determine the color
-//    
-//    func body(content: Content) -> some View {
-//        let textColor: Color = colorScheme == .dark ? .white : .black
-//        // Uncomment and adapt the following lines according to your specific logic
-//         let foregroundColor = isClear(for: entry.color) ? getDefaultEntryBackgroundColor(colorScheme: colorScheme) : entry.color
-//         let blendedBackgroundColors = blendColors(foregroundColor: userPreferences.backgroundColors[1].opacity(0.5), backgroundColor: userPreferences.backgroundColors[0])
-//         let blendedColor = blendColors(foregroundColor: foregroundColor, backgroundColor: Color(blendedBackgroundColors).opacity(0.4))
-//         let fontColor = fontColor(backgroundColor: blendedColor)
-//        
-//        return content
-//            .foregroundColor(textColor) // Use the determined color
-//    }
-//}

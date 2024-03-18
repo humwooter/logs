@@ -132,7 +132,6 @@ struct LogsView: View {
         animation: nil
     ) var currentLog: FetchedResults<Log>
 
-    @State var selectedLogs: [Log] = []
     
     // LogsView
     @FetchRequest(
@@ -181,14 +180,6 @@ struct LogsView: View {
                                 LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                             }
                             .ignoresSafeArea()
-                    }
-                    .onAppear {
-                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        dates.insert(todayComponents)
-                        updateFetchRequests()
-                        updateDateRange()
-                        print("UPDATING DATES")
-                        //dates is a set so if the current date exists already then nothing happens
                     }
                     .scrollContentBackground(.hidden)
                     .refreshable {
@@ -302,10 +293,18 @@ struct LogsView: View {
     func calendarView() -> some View {
         Section {
             if showCalendar {
-                MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.automatic)
+                MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.graphical)
                     .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
                     .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                     .accentColor(userPreferences.accentColor)
+                    .onAppear {
+                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                        dates.insert(todayComponents)
+                        updateFetchRequests()
+                        updateDateRange()
+                        print("UPDATING DATES")
+                        //dates is a set so if the current date exists already then nothing happens
+                    }
                 
             }
             

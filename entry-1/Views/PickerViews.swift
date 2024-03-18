@@ -72,7 +72,6 @@ struct ButtonDashboard: View {
         .alert(isPresented: $showAlert) {
              Alert(title: Text("Limit Reached"), message: Text("No more than 3 stamps can be activated at a time."), dismissButton: .default(Text("OK")))
          }
-//        .padding(.top, 20)
     }
     
     @ViewBuilder
@@ -319,6 +318,8 @@ struct BackgroundColorPickerView: View {
     @Binding var topColor: Color
     @Binding var bottomColor: Color
     @State var defaultColor = Color.clear
+    @Environment(\.colorScheme) var colorScheme
+
     var body: some View {
         Section {
             HStack() {

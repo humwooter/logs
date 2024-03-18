@@ -25,6 +25,9 @@ enum SortOption {
 
 var defaultBackgroundColor = Color(UIColor.systemGroupedBackground)
 
+var defaultEntryBackgroundColor_dark = Color(UIColor(red: 0.10980392247438431, green: 0.10980392247438431, blue: 0.11764705926179886, alpha: 1.0))
+var defaultEntryBackground_light = Color.white
+
 
 let fontCategories: [String: [String]] = [
     "Traditional": ["Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],

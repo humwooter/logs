@@ -14,6 +14,21 @@ func getDocumentsDirectory() -> URL {
     return paths[0]
 }
 
+
+func printColorComponents(color: UIColor) {
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+
+    if color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
+        print("Red: \(red), Green: \(green), Blue: \(blue), Alpha: \(alpha)")
+    } else {
+        print("Could not retrieve color components.")
+    }
+}
+
+
 func isClear(for color: UIColor) -> Bool {
     var red: CGFloat = 0
     var green: CGFloat = 0
@@ -233,7 +248,10 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
 
 
 func getDefaultEntryBackgroundColor(colorScheme: ColorScheme) -> Color {
-    let uiColor = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-    return Color(uiColor)
+    return colorScheme == .dark ? defaultEntryBackgroundColor_dark : defaultEntryBackground_light
 }
 
+func getDefaultBackgroundColor(colorScheme: ColorScheme) -> Color {
+    let uiColor = colorScheme == .dark ? UIColor.black : UIColor.tertiarySystemBackground
+    return Color(uiColor)
+}

@@ -81,7 +81,7 @@ struct RecentlyDeletedView: View {
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? defaultBackgroundColor : UIColor(userPreferences.entryBackgroundColor)
         let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
         let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
-        let fontColor = UIColor.fontColor(backgroundColor: blendedColor)
+        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
         return fontColor
     }
     
