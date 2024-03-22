@@ -37,6 +37,7 @@ struct NotEditingView: View {
     @State private var selectedURL: URL? = nil
     @State private var textColor: Color = Color.clear
     @State  var foregroundColor: UIColor
+    
 
 
     
@@ -228,7 +229,7 @@ struct NotEditingView: View {
     @ViewBuilder
     func entryTextView() -> some View {
         VStack {
-            if isClear(for: entry.color) || entry.stampIndex == -1 {
+            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
                 var blendedColor = foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor))
                 if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
@@ -243,16 +244,20 @@ struct NotEditingView: View {
                         .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor)))))
                 }
             } else {
+                var backgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                var blendedBackground = backgroundColor.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
                 if (userPreferences.showLinks) {
-            
                     Text(makeAttributedString(from: entry.content))
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: entry.color.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor)))))
-
+                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+//                        .foregroundStyle(Color(blendedBackground))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                        .onAppear {
+                            backgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                        }
                 } else {
                     Text(entry.content)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: entry.color.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? defaultBackgroundColor)))))
+                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
                 }
             }
             
