@@ -75,11 +75,15 @@ struct EditingEntryView: View {
                 
                 HStack() {
                     Spacer()
+          
                     if (entry.stampIcon != "") {
                         Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
                             .font(.system(size: 15))
+                    }
+                    if let reminderId = entry.reminderId {
+                        Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+                            .font(.system(size: 15))
                             .padding(.horizontal)
-                        
                     }
                 }
                 
@@ -214,7 +218,6 @@ struct EditingEntryView: View {
                         .background {
                                 ZStack {
                                     Color(UIColor.systemGroupedBackground)
-                                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                                         .ignoresSafeArea()
                                 }.cornerRadius(15.0)
                         }

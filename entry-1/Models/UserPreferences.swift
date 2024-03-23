@@ -62,7 +62,7 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 class UserPreferences: ObservableObject, Codable {
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime
     }
     
     
@@ -105,6 +105,7 @@ class UserPreferences: ObservableObject, Codable {
                self.entryBackgroundColor = preferences.entryBackgroundColor
                self.accentColor = preferences.accentColor
                self.pinColor = preferences.pinColor
+               self.reminderColor = preferences.reminderColor
                self.showLockScreen = preferences.showLockScreen
                self.showLinks = preferences.showLinks
                self.isUnlocked = preferences.isUnlocked
@@ -125,6 +126,7 @@ class UserPreferences: ObservableObject, Codable {
         self.entryBackgroundColor = try container.decodeColor(forKey: .entryBackgroundColor)
         self.accentColor = try container.decodeColor(forKey: .accentColor)
         self.pinColor = try container.decodeColor(forKey: .pinColor)
+        self.reminderColor = try container.decodeColor(forKey: .reminderColor)
         self.backgroundColors = try container.decodeColors(forKey: .backgroundColors)
         self.selectedColors = try container.decodeColors(forKey: .selectedColors)
         
@@ -159,6 +161,8 @@ class UserPreferences: ObservableObject, Codable {
         try encodeColor(container: &container, color: entryBackgroundColor, key: .entryBackgroundColor)
         try encodeColor(container: &container, color: accentColor, key: .accentColor)
         try encodeColor(container: &container, color: pinColor, key: .pinColor)
+        try encodeColor(container: &container, color: reminderColor, key: .reminderColor)
+
         try encodeColors(container: &container, colors: backgroundColors, key: .backgroundColors)
         try encodeColors(container: &container, colors: selectedColors, key: .selectedColors)
         
@@ -229,6 +233,12 @@ class UserPreferences: ObservableObject, Codable {
         }
     }
     
+    @Published var reminderColor: Color {
+        didSet {
+            UserDefaults.standard.setColor(color: reminderColor, forKey: "reminderColor")
+        }
+    }
+    
     
     @Published var showLockScreen: Bool  {
         didSet {
@@ -274,6 +284,8 @@ class UserPreferences: ObservableObject, Codable {
     init() {
         self.accentColor = UserDefaults.standard.color(forKey: "accentColor") ?? Color.blue
         self.pinColor = UserDefaults.standard.color(forKey: "pinColor") ?? Color.red
+        self.reminderColor = UserDefaults.standard.color(forKey: "reminderColor") ?? Color.teal
+
         
         let initialStamps = [
             Stamp(id: UUID(), name: "", color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),

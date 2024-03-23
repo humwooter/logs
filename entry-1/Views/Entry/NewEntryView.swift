@@ -83,6 +83,16 @@ struct NewEntryView: View {
             VStack {
                     VStack {
                         
+                        
+                        HStack() {
+                            Spacer()
+                            if let reminderId = self.reminderId {
+                                Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+                                    .font(.system(size: 15))
+                                    .padding(.horizontal)
+                            }
+                        }
+                        
                         ZStack {
                             if entryContent.isEmpty {
                                 VStack {
@@ -238,7 +248,6 @@ struct NewEntryView: View {
                                     .background {
                                             ZStack {
                                                 Color(UIColor.systemGroupedBackground)
-                                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                                                     .ignoresSafeArea()
                                             }.cornerRadius(15.0)
                                     }
@@ -264,6 +273,7 @@ struct NewEntryView: View {
                                     Text("Reminder Permissions Disabled")
                                 }
                             }
+                            
     
                             
                             .onAppear {

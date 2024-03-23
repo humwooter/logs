@@ -239,7 +239,8 @@ struct TextView : View {
     @ViewBuilder
     func entrySectionHeader() -> some View {
         HStack {
-                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
@@ -253,6 +254,10 @@ struct TextView : View {
 
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
+            
+            if let reminderId = entry.reminderId {
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
 
             if (entry.isPinned) {
                 Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)

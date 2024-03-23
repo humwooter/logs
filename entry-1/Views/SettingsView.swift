@@ -170,6 +170,17 @@ struct SettingsView: View {
             }
         }
         
+        Section {
+            ColorPicker("Reminder Color", selection: $userPreferences.pinColor)
+        } header: {
+            HStack {
+                Text("Alerts").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    .font(.system(size: UIFont.systemFontSize))
+                Spacer()
+                Label("", systemImage: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+            }
+        }
+        
         Toggle("Show most recent entry time", isOn: $userPreferences.showMostRecentEntryTime) // Make sure to add this property to UserPreferences
             .onChange(of: userPreferences.showMostRecentEntryTime) { newValue in
                 if newValue {

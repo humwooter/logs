@@ -8,6 +8,7 @@
 import Foundation
 import CoreData
 import SwiftUI
+import EventKit
 
 func getDocumentsDirectory() -> URL {
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
@@ -20,7 +21,7 @@ func printColorComponents(color: UIColor) {
     var green: CGFloat = 0
     var blue: CGFloat = 0
     var alpha: CGFloat = 0
-
+    
     if color.getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
         print("Red: \(red), Green: \(green), Blue: \(blue), Alpha: \(alpha)")
     } else {
@@ -129,8 +130,38 @@ func checkDiskSpace() {
 }
 
 
+//func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
+//    let mainContext = coreDataManager.viewContext
+//    mainContext.performAndWait {
+//        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//        fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
+//        do {
+//            let fetchedEntries = try mainContext.fetch(fetchRequest)
+//            guard let entryToDeleteInContext = fetchedEntries.first else {
+//                print("Failed to fetch entry in main context")
+//                return
+//            }
+//            print("entry to delete: \(entryToDeleteInContext)")
+//
+//            // Delete image
+//            entry.deleteImage(coreDataManager: coreDataManager)
+//
+//            // Now perform the entry deletion
+//            entry.relationship.removeFromRelationship(entryToDeleteInContext)
+//            mainContext.delete(entryToDeleteInContext)
+//
+//
+//            try mainContext.save()
+//            print("DONE!")
+//            print("entry to delete: \(entryToDeleteInContext)")
+//        } catch {
+//            print("Failed to save main context: \(error)")
+//        }
+//    }
+//}
 func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
     let mainContext = coreDataManager.viewContext
+    
     mainContext.performAndWait {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
@@ -140,24 +171,44 @@ func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
                 print("Failed to fetch entry in main context")
                 return
             }
-            print("entry to delete: \(entryToDeleteInContext)")
             
-            // Delete image
+            // If there's an associated reminder, attempt to delete it
+            if let reminderId = entryToDeleteInContext.reminderId, !reminderId.isEmpty {
+                let eventStore = EKEventStore() // Initialize EKEventStore to work with reminders
+                eventStore.requestFullAccessToReminders { granted, error in
+                    guard granted, error == nil else {
+                        print("Access to reminders denied or failed: \(String(describing: error))")
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                            do {
+                                try eventStore.remove(reminder, commit: true)
+                                print("Reminder successfully deleted")
+                            } catch {
+                                print("Failed to delete reminder: \(error)")
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Delete image associated with the entry
             entry.deleteImage(coreDataManager: coreDataManager)
             
-            // Now perform the entry deletion
+            // Perform the entry deletion
             entry.relationship.removeFromRelationship(entryToDeleteInContext)
             mainContext.delete(entryToDeleteInContext)
             
-            
             try mainContext.save()
-            print("DONE!")
-            print("entry to delete: \(entryToDeleteInContext)")
+            print("Entry successfully deleted")
         } catch {
             print("Failed to save main context: \(error)")
         }
     }
 }
+
 
 //removes entries that are older than 10 days old
 func deleteOldEntries() {
@@ -191,23 +242,23 @@ func countNewlines(in string: String) -> Int {
 //func insertOrAppendText(_ text: String, into content: String, at cursorPosition: NSRange?) -> (String, NSRange) {
 //    var modifiedContent = content
 //    var newCursorPosition = cursorPosition
-//    
+//
 //    if let cursorPosition = cursorPosition,
 //       let rangeStart = content.index(content.startIndex, offsetBy: cursorPosition.location, limitedBy: content.endIndex) {
-//        
+//
 //        // If cursorPosition.length > 0, it means text is selected, and we are replacing it.
 //        let rangeEnd = cursorPosition.length > 0 ?
 //            content.index(rangeStart, offsetBy: cursorPosition.length, limitedBy: content.endIndex) ?? rangeStart :
 //            rangeStart
 //        let stringRange = rangeStart..<rangeEnd
 //        modifiedContent.replaceSubrange(stringRange, with: text)
-//        
+//
 //        // Update cursor position to be right after the inserted text
 //        let newLocation = content.distance(from: content.startIndex, to: rangeStart) + text.count
 //        newCursorPosition = NSRange(location: newLocation, length: 0)
 //    } else {
 //        modifiedContent += text
-//        
+//
 //        // Update cursor position to the end of the content
 //        let newLocation = modifiedContent.count
 //        newCursorPosition = NSRange(location: newLocation, length: 0)
@@ -225,8 +276,8 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
         
         // If cursorPosition.length > 0, it means text is selected, and we are replacing it.
         let rangeEnd = cursorPosition.length > 0 ?
-            content.index(rangeStart, offsetBy: cursorPosition.length, limitedBy: content.endIndex) ?? rangeStart :
-            rangeStart
+        content.index(rangeStart, offsetBy: cursorPosition.length, limitedBy: content.endIndex) ?? rangeStart :
+        rangeStart
         let stringRange = rangeStart..<rangeEnd
         modifiedContent.replaceSubrange(stringRange, with: text)
         
@@ -241,7 +292,7 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
         let newLocation = modifiedContent.count
         newCursorPosition = NSRange(location: newLocation, length: 0)
     }
-
+    
     return (modifiedContent, newCursorPosition!)
 }
 
