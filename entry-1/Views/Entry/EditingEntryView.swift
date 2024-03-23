@@ -115,6 +115,11 @@ struct EditingEntryView: View {
                 }
    
             }
+            .onAppear {
+                if let reminderId = entry.reminderId {
+                    fetchAndInitializeReminderDetails(reminderId: reminderId)
+                }
+            }
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -645,7 +650,7 @@ struct EditingEntryView: View {
                 // Existing reminder found, update it
                 editAndSaveReminder(reminderId: reminderId, title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, updatedReminderId in
                     if success, let updatedReminderId = updatedReminderId {
-                        self.reminderId = updatedReminderId
+                        entry.reminderId = updatedReminderId
                         print("Reminder updated with identifier: \(updatedReminderId)")
                     } else {
                         print("Failed to update the reminder")
@@ -656,7 +661,7 @@ struct EditingEntryView: View {
                 // No existing reminder, create a new one
                 createAndSaveReminder(title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, newReminderId in
                     if success, let newReminderId = newReminderId {
-                        self.reminderId = newReminderId
+                        entry.reminderId = newReminderId
                         print("New reminder created with identifier: \(newReminderId)")
                     } else {
                         print("Failed to create a new reminder")
