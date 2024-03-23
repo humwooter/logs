@@ -54,17 +54,17 @@ struct EntryView: View {
     
     // Sorting and Custom UI Configuration
     @State private var selectedSortOption: SortOption = .timeAscending
-    init(color: UIColor) {
-        if !isClear(for: color) {
-            let textColor = UIColor(UIColor.foregroundColor(background: color))
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
-            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
-        }
-        if isClear(for: color) {
-            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-        }
-    }
+//    init(color: UIColor) {
+//        if !isClear(for: color) {
+//            let textColor = UIColor(UIColor.foregroundColor(background: color))
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+//        }
+//        if isClear(for: color) {
+//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
+//        }
+//    }
     
     
     var body : some View {

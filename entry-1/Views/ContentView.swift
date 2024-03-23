@@ -63,7 +63,8 @@ struct ContentView: View {
                             }.tag(0)
                         
                         
-                        EntryView(color: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+//                        EntryView(color: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+                        EntryView()
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .tabItem {

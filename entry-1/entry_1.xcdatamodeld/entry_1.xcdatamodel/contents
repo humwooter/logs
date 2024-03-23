@@ -3,7 +3,6 @@
     <entity name="Entry" representedClassName="Entry" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Transformable"/>
         <attribute name="content" optional="YES" attributeType="String"/>
-        <attribute name="eventIdentifier" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDrafted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isHidden" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -13,6 +12,7 @@
         <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="mediaFilename" optional="YES" attributeType="String" customClassName="UIImage"/>
         <attribute name="pageNum_pdf" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reminderId" optional="YES" attributeType="String"/>
         <attribute name="stampIcon" optional="YES" attributeType="String"/>
         <attribute name="stampIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="time" attributeType="Date" usesScalarValueType="NO"/>

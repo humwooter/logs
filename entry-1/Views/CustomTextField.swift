@@ -15,6 +15,7 @@ struct GrowingTextField: UIViewRepresentable {
     let fontSize: CGFloat
     let fontColor: UIColor
     let cursorColor: UIColor
+    var backgroundColor: UIColor?
     var initialText: String?
     
     @Binding var cursorPosition: NSRange?
@@ -23,7 +24,11 @@ struct GrowingTextField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         context.coordinator.textView = textView
-        textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
+        if let backgroundColor {
+            textView.backgroundColor = backgroundColor
+        } else {
+            textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
+        }
         textView.tintColor = cursorColor
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
         textView.textColor = fontColor  // Set font color
