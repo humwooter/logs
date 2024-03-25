@@ -171,7 +171,7 @@ struct SettingsView: View {
         }
         
         Section {
-            ColorPicker("Reminder Color", selection: $userPreferences.pinColor)
+            ColorPicker("Reminder Color", selection: $userPreferences.reminderColor)
         } header: {
             HStack {
                 Text("Alerts").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)

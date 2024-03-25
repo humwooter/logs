@@ -10,6 +10,8 @@ import CoreData
 import SwiftUI
 import EventKit
 
+
+
 func getDocumentsDirectory() -> URL {
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     return paths[0]
@@ -159,6 +161,10 @@ func checkDiskSpace() {
 //        }
 //    }
 //}
+
+
+
+
 func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
     let mainContext = coreDataManager.viewContext
     

@@ -72,7 +72,8 @@ struct NewEntryView: View {
     @State private var reminderTitle: String = ""
     @State private var reminderId: String?
     @State private var hasReminderAccess = false
-
+    
+    @State private var showDeleteReminderAlert = false
     // Define your recurrence options
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
@@ -86,7 +87,7 @@ struct NewEntryView: View {
                         
                         HStack() {
                             Spacer()
-                            if let reminderId = self.reminderId {
+                            if let reminderId = self.reminderId, !reminderId.isEmpty {
                                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
                                     .font(.system(size: 15))
                                     .padding(.horizontal)
@@ -154,6 +155,7 @@ struct NewEntryView: View {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
    
             }
+            
 
             .navigationBarTitle("New Entry")
 
@@ -176,106 +178,12 @@ struct NewEntryView: View {
                                 Label("Set Reminder", systemImage: "bell.fill")
                             }
                         }
-                     
-                        .sheet(isPresented: $showingDatePicker) {
-                            
-                                VStack {
-                                    HStack {
-                                        Button("Cancel") {
-                                            showingDatePicker = false
-                                        }.foregroundStyle(.red)
-                                        Spacer()
-                                        Button("Done") {
-                                            // Perform the action when the date is selected
-                                            showingDatePicker = false
-                                        }.foregroundStyle(Color(UIColor.label))
-                                    }
-                                    .font(.system(size: 15))
-                                    .padding()
-                                }
-                            List {
 
-                                DatePicker("Edit Date", selection: $selectedDate)
-                                    .presentationDetents([.fraction(0.25)])
-                                    .font(.system(size: 15))
-                                    .foregroundColor(userPreferences.accentColor)
-                                    .padding(.horizontal)
-                                
-                                
-                                
-                            }.navigationTitle("Select Custom Date")
+                        .sheet(isPresented: $showingDatePicker) {
+                            dateEditSheet()
                         }
                         .sheet(isPresented: $showingReminderSheet) {
-                            NavigationView {
-                                if hasReminderAccess {
-                                    List {
-                                        Section {
-                                            TextField("Title", text: $reminderTitle)
-                                                .background(Color.clear) // Set the background to clear
-                                                   .textFieldStyle(PlainTextFieldStyle()) // Use
-                                                .frame(maxWidth: .infinity)
-                                                .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-
-                                        }
-                                        Section {
-                                            DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
-                                            DatePicker("Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
-
-                                        }
-                                        .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-                                        .accentColor(userPreferences.accentColor)
-
-                                        NavigationLink {
-                                            List {
-                                                Picker("Recurrence", selection: $selectedRecurrence) {
-                                                    ForEach(recurrenceOptions, id: \.self) { option in
-                                                        Text(option).tag(option)
-                                                    }
-                                                }
-                                                .font(.system(size: 15))
-                                                .pickerStyle(.inline)
-                                                .accentColor(userPreferences.accentColor)
-
-                                            }
-                                        } label: {
-                                            Label("Repeat", systemImage: "repeat")
-                                        }
-                                        .font(.system(size: 15))
-                                        .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-                                        .accentColor(userPreferences.accentColor)
-                                    }
-                                    
-                                    .background {
-                                            ZStack {
-                                                Color(UIColor.systemGroupedBackground)
-                                                    .ignoresSafeArea()
-                                            }.cornerRadius(15.0)
-                                    }
-                                    .scrollContentBackground(.hidden)
-                                    .font(.system(size: 15))
-                                    .navigationTitle("Set Reminder")
-                                    .toolbar {
-                                        ToolbarItem(placement: .navigationBarLeading) {
-                                            Button("Cancel") {
-                                                showingReminderSheet = false
-                                            }
-                                        }
-                                        ToolbarItem(placement: .navigationBarTrailing) {
-                                            Button("Done") {
-                                                createOrUpdateReminder()
-                                            }
-
-                                        }
-                                    }
-                                    .font(.system(size: 15))
-                                    .padding()
-                                } else {
-                                    Text("Reminder Permissions Disabled")
-                                }
-                            }
-                            
-    
-                            
+                            reminderSheet()
                             .onAppear {
                                 if let reminderId = reminderId {
                                     fetchAndInitializeReminderDetails(reminderId: reminderId)
@@ -319,12 +227,14 @@ struct NewEntryView: View {
             }
    
         }
+        
         .onTapGesture {
             focusField = true
             keyboardHeight = UIScreen.main.bounds.height/3
         }
        
     }
+    
     
     func createOrUpdateReminder() {
         let eventStore = EKEventStore()
@@ -528,7 +438,145 @@ struct NewEntryView: View {
             return nil
         }
     }
+    
+    @ViewBuilder
+    func dateEditSheet() -> some View {
+        VStack {
+            HStack {
+                Button("Cancel") {
+                    showingDatePicker = false
+                }.foregroundStyle(.red)
+                Spacer()
+                Button("Done") {
+                    // Perform the action when the date is selected
+                    showingDatePicker = false
+                }.foregroundStyle(Color(UIColor.label))
+            }
+            .font(.system(size: 15))
+            .padding()
+        }
+    List {
 
+        DatePicker("Edit Date", selection: $selectedDate)
+            .presentationDetents([.fraction(0.25)])
+            .font(.system(size: 15))
+            .foregroundColor(userPreferences.accentColor)
+            .padding(.horizontal)
+    }.navigationTitle("Select Custom Date")
+    }
+
+    @ViewBuilder
+    func reminderSheet() -> some View {
+        NavigationView {
+            if hasReminderAccess {
+                List {
+                    Section {
+                        TextField("Title", text: $reminderTitle)
+                            .background(Color.clear) // Set the background to clear
+                               .textFieldStyle(PlainTextFieldStyle()) // Use
+                            .frame(maxWidth: .infinity)
+                            .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+
+                    }
+                    Section {
+                        DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
+                        DatePicker("Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
+
+                    }
+                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+                    .accentColor(userPreferences.accentColor)
+
+                    NavigationLink {
+                        List {
+                            Picker("Recurrence", selection: $selectedRecurrence) {
+                                ForEach(recurrenceOptions, id: \.self) { option in
+                                    Text(option).tag(option)
+                                }
+                            }
+                            .font(.system(size: 15))
+                            .pickerStyle(.inline)
+                            .accentColor(userPreferences.accentColor)
+
+                        }
+                    } label: {
+                        Label("Repeat", systemImage: "repeat")
+                    }
+      
+                    .font(.system(size: 15))
+                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+                    .accentColor(userPreferences.accentColor)
+                    
+                    Section {
+              
+                        
+                        Button {
+                            if let reminderId = self.reminderId, !reminderId.isEmpty {
+                                completeReminder(reminderId: reminderId) { success, error in
+                                    if success {
+                                        print("Reminder completed successfully.")
+                                        self.reminderId = ""
+                                    } else {
+                                        print("Failed to complete the reminder: \(String(describing: error))")
+                                    }
+                                }
+                                print("Reminder completed")
+                                showingReminderSheet = false
+                            }
+                        } label: {
+                            Label("Complete", systemImage: "calendar.badge.checkmark")
+                                .foregroundColor(.green)
+                        }
+
+                        Button {
+                            showDeleteReminderAlert = true
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                                .foregroundColor(.red)
+                        }
+
+                    }
+                }
+                    
+                .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
+                          Button("Delete", role: .destructive) {
+                              // Call your delete reminder function here
+                              deleteReminder(reminderId: reminderId)
+                              showingReminderSheet = false
+                          }
+                          Button("Cancel", role: .cancel) {}
+                      } message: {
+                          Text("This action cannot be undone.")
+                      }
+                
+                .background {
+                        ZStack {
+                            Color(UIColor.systemGroupedBackground)
+                                .ignoresSafeArea()
+                        }.cornerRadius(15.0)
+                }
+                .scrollContentBackground(.hidden)
+                .font(.system(size: 15))
+                .navigationTitle("Set Reminder")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button("Cancel") {
+                            showingReminderSheet = false
+                        }
+                    }
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            createOrUpdateReminder()
+                        }
+
+                    }
+                }
+                .font(.system(size: 15))
+                .padding()
+            } else {
+                Text("Reminder Permissions Disabled")
+            }
+        }
+    }
 
     @ViewBuilder
     func entryMediaView() -> some View {
