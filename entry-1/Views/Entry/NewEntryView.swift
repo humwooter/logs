@@ -60,6 +60,10 @@ struct NewEntryView: View {
     @State private var cursorPosition: NSRange? = nil
     
     @State private var selectedDate : Date = Date()
+    @State private var selectedTime = Date()
+
+    @State private var selectedReminderDate : Date = Date()
+    @State private var selectedReminderTime : Date = Date()
 
 
     @State private var showingDatePicker = false // To control the visibility of the date picker
@@ -67,7 +71,6 @@ struct NewEntryView: View {
     
     
     @State private var showingReminderSheet = false
-    @State private var selectedTime = Date()
     @State private var selectedRecurrence = "None"
     @State private var reminderTitle: String = ""
     @State private var reminderId: String?
@@ -238,7 +241,7 @@ struct NewEntryView: View {
     
     func createOrUpdateReminder() {
         let eventStore = EKEventStore()
-        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedDate) ?? Date()
+        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedReminderDate) ?? Date()
 
         eventStore.requestAccess(to: .reminder) { granted, error in
             guard granted, error == nil else {
@@ -408,8 +411,8 @@ struct NewEntryView: View {
                     // Update date and time if dueDateComponents is available
                     if let dueDateComponents = reminder.dueDateComponents,
                        let dueDate = Calendar.current.date(from: dueDateComponents) {
-                        selectedDate = dueDate
-                        selectedTime = dueDate
+                        selectedReminderDate = dueDate
+                        selectedReminderTime = dueDate
                     }
                     
                     // Update recurrence option if a recurrence rule is available
@@ -480,8 +483,8 @@ struct NewEntryView: View {
 
                     }
                     Section {
-                        DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
-                        DatePicker("Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
+                        DatePicker("Date", selection: $selectedReminderDate, displayedComponents: .date)
+                        DatePicker("Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
 
                     }
                     .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)

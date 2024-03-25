@@ -113,6 +113,13 @@ struct EditingEntryView: View {
                 if let reminderId = entry.reminderId {
                     fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
+                
+                if entry.relationship == nil {
+                    let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
+                    entry.relationship = log
+                    log.addToRelationship(entry)
+                }
+                print("ENTRY: \(entry)")
             }
             .background {
                     ZStack {
@@ -596,8 +603,20 @@ struct EditingEntryView: View {
         let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
               entry.content = editingContent
-              entry.time = selectedDate
               
+              if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
+//                  entry.removeLog(coreDataManager: coreDataManager)
+                  let previousLog = entry.relationship
+                  previousLog.removeFromRelationship(entry)
+                  if let log = fetchLogByDate(date: formattedDate(selectedDate), coreDataManager: coreDataManager) {
+                      entry.relationship = log
+                      log.addToRelationship(entry)
+                  } else {
+                      let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
+                  }
+              }
+              entry.time = selectedDate
+
               //saving new data if it is picked -> we also need to delete previous data
               if deletePrevMedia {
                   

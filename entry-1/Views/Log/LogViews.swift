@@ -198,6 +198,9 @@ struct LogsView: View {
                     .listStyle(.insetGrouped)
                 
                     .navigationTitle("Logs")
+                    .onAppear {
+                                    correctEntryLogRelationships()
+                                }
             }.font(.system(size: UIFont.systemFontSize))
 
             
@@ -209,6 +212,29 @@ struct LogsView: View {
                         print("Failed to save file: \(error)")
                     }
                 }
+        }
+    }
+    
+    func correctEntryLogRelationships() {
+        for entry in allEntries {
+            let entryDate = formattedDate(entry.time)
+            if entry.relationship.day != entryDate {
+                // Fetch or create Log for the correct date
+                let oldLog = entry.relationship
+                oldLog.removeFromRelationship(entry)
+                
+                if let correctLog = fetchLogByDate(date: entryDate, coreDataManager: coreDataManager) {
+                    entry.relationship = correctLog
+                } else {
+                    let newLog = createLog(date: entry.time, coreDataManager: coreDataManager)
+                    entry.relationship = newLog
+                }
+                do {
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    print("Failed to update entry relationship: \(error.localizedDescription)")
+                }
+            }
         }
     }
     

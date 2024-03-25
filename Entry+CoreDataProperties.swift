@@ -110,23 +110,6 @@ extension Entry {
         }
     }
     
-//    func unRemove(coreDataManager: CoreDataManager) {
-//        let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-//        
-//        let formattedDay = formattedDate(self.time)
-//        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDay)
-//        
-//        do {
-//            let results = try coreDataManager.viewContext.fetch(fetchRequest)
-//            if let matchingLog = results.first {
-//                self.relationship = matchingLog
-//                self.isRemoved = false
-//                try coreDataManager.viewContext.save()
-//            }
-//        } catch let error as NSError {
-//            print("Fetch error: \(error), \(error.userInfo)")
-//        }
-//    }
     
     func unRemove(coreDataManager: CoreDataManager) {
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
@@ -159,9 +142,6 @@ extension Entry {
             print("Fetch or save error: \(error), \(error.userInfo)")
         }
     }
-
-    
-    
 }
 
 extension Entry : Identifiable {

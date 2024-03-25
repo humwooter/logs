@@ -24,12 +24,13 @@ struct LogDetailView: View {
         if let entries = log.relationship as? Set<Entry>, !entries.isEmpty {
             Section {
                 List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
-                    EntryDetailView(entry: entry)
-                        .environmentObject(coreDataManager)
-                        .environmentObject(userPreferences)
-                        .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                        .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
-
+                    if !entry.isRemoved {
+                        EntryDetailView(entry: entry)
+                            .environmentObject(coreDataManager)
+                            .environmentObject(userPreferences)
+                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                    }
                 }
                 .background {
                         ZStack {
@@ -40,6 +41,9 @@ struct LogDetailView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .onAppear(perform: {
+                    for entry in entries {
+                        print("ENTRYY: \(entry)")
+                    }
                     print("LOG detailz: \(log)")
                 })
                 .listStyle(.automatic)
