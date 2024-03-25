@@ -30,18 +30,17 @@ struct ButtonDashboard: View {
                             ForEach(0..<3) { tabPage in
                                 dashboardSection(startIndex: tabPage*7)
                                     .tag(tabPage)
-                                    .padding(.vertical, 5)
                                 
                             }
                         }
-                        .frame(minHeight: 4.5*button_width)
                         .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
                         .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-                        .padding(.bottom, 5)
 
                         Spacer()
                     }
             }
+            .frame(minWidth: 4.3*button_width, minHeight: 4.3*button_width)
+            .scaledToFit()
 
           }
     

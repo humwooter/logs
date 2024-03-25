@@ -776,6 +776,7 @@ struct NewEntryView: View {
         newEntry.lastUpdated = nil
         print("entry time has been set")
         newEntry.stampIndex = -1
+        
         newEntry.color = UIColor.clear
         newEntry.stampIcon = ""
         newEntry.isHidden = isHidden

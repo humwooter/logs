@@ -116,6 +116,7 @@ struct SettingsView: View {
             ButtonDashboard().environmentObject(userPreferences)
                 .listStyle(.automatic)
                 .padding(.horizontal, 5)
+             
         }
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
