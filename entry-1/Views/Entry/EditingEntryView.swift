@@ -75,19 +75,7 @@ struct EditingEntryView: View {
         NavigationStack {
             VStack {
                 
-                HStack() {
-                    Spacer()
-          
-                    if (entry.stampIcon != "") {
-                        Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
-                            .font(.system(size: 15))
-                    }
-                    if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                        Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
-                            .font(.system(size: 15))
-                            .padding(.horizontal)
-                    }
-                }
+                iconHeaderView()
                 
                     VStack {
                         GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
@@ -248,6 +236,29 @@ struct EditingEntryView: View {
         }
     }
     
+    @ViewBuilder
+    func iconHeaderView() -> some View {
+        HStack() {
+            Spacer()
+            if let reminderId = entry.reminderId {
+                if (entry.stampIcon != "") {
+                    Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+                        .font(.system(size: 15))
+                    
+                }
+                if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                    Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+                        .font(.system(size: 15))
+                        .padding(.horizontal)
+                }
+            }
+            else {
+                Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+                    .font(.system(size: 15))
+                    .padding(.horizontal)
+            }
+        }
+    }
     
     @ViewBuilder
     func reminderSheet() -> some View {

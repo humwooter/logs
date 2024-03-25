@@ -439,6 +439,7 @@ struct NewEntryView: View {
         }
     }
     
+    
     @ViewBuilder
     func dateEditSheet() -> some View {
         VStack {
