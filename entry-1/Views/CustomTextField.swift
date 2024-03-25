@@ -168,7 +168,7 @@ struct GrowingTextField: UIViewRepresentable {
             } else if text == "\t• " { // Handle bullet point followed by a tab
                 if range.length == 0 { // No text is selected, apply bullet point to the current line
                     let lineStart = currentText.lineRange(for: NSRange(location: range.location, length: 0)).location
-                    let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "•\t")
+                    let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "\t• ")
                     textView.text = updatedText as String
                     range.location += 2 // Move cursor after the bullet point and tab
                 } else { // Text is selected, apply bullet point to the first line and indent the rest

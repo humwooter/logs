@@ -66,6 +66,7 @@ struct EditingEntryView: View {
     @State private var reminderTitle: String = ""
     @State private var reminderId: String?
     @State private var hasReminderAccess = false
+    @State private var dateUpdated = false
 
     // Define your recurrence options
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
@@ -120,6 +121,9 @@ struct EditingEntryView: View {
                     log.addToRelationship(entry)
                 }
                 print("ENTRY: \(entry)")
+                if let lastUpdated = entry.lastUpdated {
+                    print("\(formattedTime_long(date: lastUpdated))")
+                }
             }
             .background {
                     ZStack {
@@ -155,6 +159,7 @@ struct EditingEntryView: View {
                             Button("Done") {
                                 // Perform the action when the date is selected
                                 showingDatePicker = false
+                                dateUpdated = true
                             }.foregroundStyle(Color(UIColor.label))
                         }
                         .font(.system(size: 15))
@@ -615,7 +620,11 @@ struct EditingEntryView: View {
                       let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
                   }
               }
-              entry.time = selectedDate
+              
+              if dateUpdated {
+                  entry.time = selectedDate
+              }
+              entry.lastUpdated = Date() //added this
 
               //saving new data if it is picked -> we also need to delete previous data
               if deletePrevMedia {

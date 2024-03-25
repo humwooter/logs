@@ -236,7 +236,7 @@ struct TextView : View {
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                 if let timeLastUpdated = entry.lastUpdated {
-                    if formattedTime(time: timeLastUpdated) != formattedTime(time: entry.time), userPreferences.showMostRecentEntryTime {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
