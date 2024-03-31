@@ -224,8 +224,12 @@ struct SettingsView: View {
         ) {
             
             NavigationLink {
-                IntroViews()
-                    .environmentObject(userPreferences)
+                NavigationStack {
+                    VStack {
+                        IntroViews()
+                            .environmentObject(userPreferences)
+                    }
+                }
             } label: {
                 Label("User Guide", systemImage: "info.circle.fill")
             }

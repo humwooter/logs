@@ -50,7 +50,7 @@ struct IntroViews: View {
                 .tabViewStyle(PageTabViewStyle())
         .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    if selectedTab == 2  {
+//                    if selectedTab == 2  {
 
                     Button(action: {
                         if userPreferences.isFirstLaunch {
@@ -62,7 +62,7 @@ struct IntroViews: View {
                         Text("Done")
                             .font(.system(size: 15))
                     })
-                }
+//                }
             }
         }
         .background {
@@ -203,7 +203,7 @@ struct IntroView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 10) {
                 Spacer()
                 Text(title)
                     .font(.largeTitle)
