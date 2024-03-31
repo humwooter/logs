@@ -23,19 +23,26 @@ struct ContentView: View {
     ) var allEntries: FetchedResults<Entry>
     
     var body: some View {
-        
-        if userPreferences.isFirstLaunch {
-            IntroViews()
-                .environmentObject(userPreferences)
-        } else {
-            mainAppView().onAppear(perform: {
-                print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
-                createLog(in: coreDataManager.viewContext)
-                deleteOldEntries()
-                authenticate()
-                
-                print("Entries with nil time: \(entriesWithNilTime.count)")
-            })
+        ZStack {
+            if userPreferences.isFirstLaunch == true {
+                NavigationStack {
+                    VStack {
+                        IntroViews()
+                            .environmentObject(userPreferences)
+                    }
+                }
+            } else {
+                mainAppView().onAppear(perform: {
+                    print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
+                    createLog(in: coreDataManager.viewContext)
+                    deleteOldEntries()
+                    authenticate()
+                    
+                    print("Entries with nil time: \(entriesWithNilTime.count)")
+                })
+            }
+        } .onAppear {
+            print("isFirstLaunch: \(userPreferences.isFirstLaunch)")
         }
     }
     

@@ -86,8 +86,8 @@ struct EntryDetailView: View { //used in LogDetailView
         
     }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless 
-        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
+        let defaultEntryBackgroundColor =  Color("DefaultEntryBackground")
 
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
         let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
@@ -97,7 +97,6 @@ struct EntryDetailView: View { //used in LogDetailView
         
         let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
         let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
-//        printColorComponents(color: blendedColor)
         let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
         return fontColor
     }

@@ -127,7 +127,7 @@ extension UIColor {
             let brightness = (red * 299 + green * 587 + blue * 114) / 1000
             return brightness > 0.5 ? Color.black : Color.white
         } else {
-            let background = UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))
+            let background = UIColor(Color("DefaultEntryBackground"))
             
             var red: CGFloat = 0
             var green: CGFloat = 0

@@ -58,7 +58,7 @@ struct RecentlyDeletedView: View {
                     } header: {
                         entryHeaderView(entry: entry)
                     }
-                    .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                    .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
                 }
             
             

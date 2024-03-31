@@ -38,7 +38,8 @@ struct NotEditingView: View {
     @State private var textColor: Color = Color.clear
     @State  var foregroundColor: UIColor
     
-
+    @StateObject private var thumbnailGenerator = ThumbnailGenerator()
+     @State private var isVideoPlayerPresented = false
 
     
     var body : some View {
@@ -216,14 +217,25 @@ struct NotEditingView: View {
                     }
                 
             }
-            .foregroundColor(UIColor.foregroundColor(entry: entry, background: entry.color, userPreferences: userPreferences)).opacity(0.3)
-
-            
-        
+            .foregroundStyle(Color(getTextColor()).opacity(0.3))
         }
         .padding(.top, 5)
     }
     
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
+        let defaultEntryBackgroundColor =  Color("DefaultEntryBackground")
+
+        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
+        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        
+        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
+
+        
+        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
+        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
+        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
+        return fontColor
+    }
 
     
     @ViewBuilder
@@ -237,6 +249,8 @@ struct NotEditingView: View {
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                         .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                    
+            
 
                 } else {
                     Text(entry.content)
@@ -248,12 +262,23 @@ struct NotEditingView: View {
                 var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
                 var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
                 if (userPreferences.showLinks) {
-                    Text(makeAttributedString(from: entry.content))
-                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .onAppear {
-                            entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-                        }
+                    
+                    VStack {
+                        Text(makeAttributedString(from: entry.content))
+                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                            .onAppear {
+                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                            }
+                        
+//                        if let url = extractFirstURL(from: entry.content) {
+//                            if let thumbnail = createThumbnailOfVideoFromRemoteUrl(url: url) {
+//                                Image(uiImage: thumbnail)
+//                                    .scaledToFit()
+//                            }
+//                          
+//                        }
+                    }
                 } else {
                     Text(entry.content)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
@@ -269,4 +294,6 @@ struct NotEditingView: View {
             .blur(radius: entry.isHidden ? 7 : 0)
             .shadow(radius: 0)
     }
+    
+    
 }

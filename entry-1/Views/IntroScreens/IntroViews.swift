@@ -17,64 +17,54 @@ struct IntroViews: View {
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            // Category 1: Core Note-Taking
-            IntroView(title: "Essentials", content: [
-                (description: "Quick Entries: Easily jot down thoughts, plans, and notes. Each entry is timestamped and can be tagged with custom stamps", imageName: "note.text"),
-                (description: "Stamps: Activate in Settings, swipe right to expose, tap to use. Up to 21 custom icons/colors for easy identification and organization.", imageName: "bookmark.fill"),
-                (description: "Easy Deletion: Swipe left to delete, recover/remove from Recently Deleted. Auto-delete after 10 days.", imageName: "trash")
-            ], color: userPreferences.accentColor)
-            .tag(0)
-            .transition(.slide)
-
-            // Category 2: Organization and Customization
-            IntroView(title: "Organization and Customization", content: [
-                (description: "Pinning: Keep important entries accessible in main view across days.", imageName: "pin.fill"),
-                (description: "Add reminders to your entries with custom times and recurrence patterns for staying on top of tasks and notes.", imageName: "bell.fill"),
-                (description: "Personalization: Customize fonts, colors, reminders, pins, accents, and more.", imageName: "wand.and.stars")
-            ], color: userPreferences.accentColor)
-            .tag(1)
-            .transition(.slide)
-
-            // Category 3: Multimedia and Data Management
-//            VStack {
-                IntroView(title: "Multimedia and Data Management", content: [
-                    (description: "Add photos, GIFs, PDFs. Intuitive PDF reader for note-taking.", imageName: "photo.on.rectangle.angled"),
-                    (description: "Data Backup: Backup logs, preferences, and stamps in Settings. Share stamp packs with friends and ensure your data is always safe.", imageName: "externaldrive.badge.icloud"),
-                    (description: "Lock your logs to keep it private.", imageName: "lock.fill")
-                ], color: userPreferences.accentColor)
-                .tag(2)
-                .transition(.slide)
-                
-//                Button(action: {
-//                    presentationMode.wrappedValue.dismiss()
-//                    userPreferences.isFirstLaunch = false
-//                }, label: {
-//                    Text("Continue")
-//                        .font(.system(size: 20))
-//                }).buttonStyle(BackupButtonStyle())
-//            }
-
-        }
-        .tabViewStyle(PageTabViewStyle())
-        .toolbar(content: {
-            if selectedTab == 2 {
+                TabView(selection: $selectedTab) {
+                    // Category 1: Core Note-Taking
+                    IntroView(title: "Essentials", content: [
+                        (description: "Quick Entries: Easily jot down thoughts, plans, and notes. Each entry is timestamped and can be tagged with custom stamps", imageName: "note.text"),
+                        (description: "Stamps: Activate in Settings, swipe right to expose, tap to use. Up to 21 custom icons/colors for easy identification and organization.", imageName: "bookmark.fill"),
+                        (description: "Easy Deletion: Swipe left to delete, recover/remove from Recently Deleted. Auto-delete after 10 days.", imageName: "trash")
+                    ], color: userPreferences.accentColor)
+                    .tag(0)
+                    .transition(.slide)
+                    
+                    // Category 2: Organization and Customization
+                    IntroView(title: "Organization and Customization", content: [
+                        (description: "Pinning: Keep important entries accessible in main view across days.", imageName: "pin.fill"),
+                        (description: "Add reminders to your entries with custom times and recurrence patterns for staying on top of tasks and notes.", imageName: "bell.fill"),
+                        (description: "Personalization: Customize fonts, colors, reminders, pins, accents, and more.", imageName: "wand.and.stars")
+                    ], color: userPreferences.accentColor)
+                    .tag(1)
+                    .transition(.slide)
+                    
+                    // Category 3: Multimedia and Data Management
+                    //            VStack {
+                    IntroView(title: "Multimedia and Data Management", content: [
+                        (description: "Add photos, GIFs, PDFs. Intuitive PDF reader for note-taking.", imageName: "photo.on.rectangle.angled"),
+                        (description: "Data Backup: Backup logs, preferences, and stamps in Settings. Share stamp packs with friends and ensure your data is always safe.", imageName: "externaldrive.badge.icloud"),
+                        (description: "Lock your logs to keep it private.", imageName: "lock.fill")
+                    ], color: userPreferences.accentColor)
+                    .tag(2)
+                    .transition(.slide)
+                    
+                }
+                .tabViewStyle(PageTabViewStyle())
+        .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
+                    if selectedTab == 2  {
+
                     Button(action: {
-                        presentationMode.wrappedValue.dismiss()
                         if userPreferences.isFirstLaunch {
                             userPreferences.isFirstLaunch = false
                         }
+                        presentationMode.wrappedValue.dismiss()
+                 
                     }, label: {
                         Text("Done")
                             .font(.system(size: 15))
                     })
                 }
             }
-        })
-//        .onAppear {
-//            userPreferences.isFirstLaunch = false
-//        }
+        }
         .background {
             ZStack {
                 Color(UIColor.systemGroupedBackground)

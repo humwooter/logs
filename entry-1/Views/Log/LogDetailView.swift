@@ -29,7 +29,7 @@ struct LogDetailView: View {
                             .environmentObject(coreDataManager)
                             .environmentObject(userPreferences)
                             .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                            .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                            .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
                     }
                 }
                 .background {

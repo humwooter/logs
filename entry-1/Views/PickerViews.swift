@@ -271,7 +271,7 @@ struct ThemePicker: View {
     @ViewBuilder
     func entryBackgroundBlock(color: Color) -> some View {
         if isClear(for: UIColor(color)) {
-            let newColor = getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+            let newColor = Color("DefaultEntryBackground")
             RoundedRectangle(cornerRadius: 15)
                 .fill(newColor)
                 .aspectRatio(1, contentMode: .fit) // Keep the block square-shaped
@@ -459,7 +459,7 @@ struct IconPicker: View {
                             ForEach(filteredImages, id: \.self) { image in
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 10)
-                                        .fill(selectedImage != image ? Color(UIColor.secondarySystemBackground).opacity(1) : selectedColor)
+                                        .fill(selectedImage != image ? Color("DefaultEntryBackground").opacity(1) : selectedColor)
                                         .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
                                     
                                     

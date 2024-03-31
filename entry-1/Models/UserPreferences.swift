@@ -296,7 +296,7 @@ class UserPreferences: ObservableObject, Codable {
 
         
         let initialStamps = [
-            Stamp(id: UUID(), name: "", color: Color(hex: "#FF5733"), imageName: "star.fill", isActive: false),
+            Stamp(id: UUID(), name: "", color: Color.yellow, imageName: "star.fill", isActive: true),
             Stamp(id: UUID(), name: "",color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
             Stamp(id: UUID(), name: "",color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
             Stamp(id: UUID(), name: "",color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
@@ -311,7 +311,7 @@ class UserPreferences: ObservableObject, Codable {
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []
         
         
-        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: .indigo, imageName: "pencil", isActive: false), count: 14)
+        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: .accentColor, imageName: "pencil", isActive: false), count: 14)
         self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
         
         
@@ -325,8 +325,18 @@ class UserPreferences: ObservableObject, Codable {
         self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
         
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen")
-        self.isFirstLaunch = UserDefaults.standard.bool(forKey: "isFirstLaunch") ?? true
+        
 
+        let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+         if !hasLaunchedBefore  {
+             print("First launch, setting UserDefault.")
+             UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+             self.isFirstLaunch = true
+         } else {
+             print("Not first launch.")
+             self.isFirstLaunch = false
+         }
+        
         self.showMostRecentEntryTime = UserDefaults.standard.bool(forKey: "showMostRecentEntryTime")
     }
 }
