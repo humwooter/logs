@@ -74,6 +74,10 @@ struct EntryRowView: View {
     }
     
     private func activateButton(entry: Entry, index: Int) {
+        print("ENTERED AACTIVATE BUTTON")
+        print("INDEX IS: \(index)")
+        print("ENTRY INDEX: \(entry.stampIndex)")
+
         let mainContext = coreDataManager.viewContext
         mainContext.performAndWait {
             
@@ -86,6 +90,7 @@ struct EntryRowView: View {
                     entry.stampIndex = Int16(index)
                     entry.stampIcon = userPreferences.stamps[index].imageName
                     entry.color = UIColor(userPreferences.stamps[index].color)
+                print("SUCCESFULLY UPDATED")
             }
 
             do {
@@ -93,6 +98,8 @@ struct EntryRowView: View {
             } catch {
                 print("Failed to save mainContext: \(error)")
             }
+            print("ENTRY INDEX: \(entry.stampIndex)")
+            print("UPDATED ENTRY ICON: \(entry.stampIcon)")
         }
     }
 }

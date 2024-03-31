@@ -31,11 +31,13 @@ extension UIColor {
         color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
         color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
 
-
+        if (a1 == 1) { //foreground color is completely opaque
+            return color1
+        }
         let rBlended = (r1 * a1) + (r2 * a2)
         let gBlended = (g1 * a1) + (g2 * a2)
         let bBlended = (b1 * a1) + (b2 * a2)
-        let aBlended = a1 + (a2 * (1 - a1))
+        let aBlended = min(1, a1 + (a2 * (1 - a1)))
         print("aBlended")
         
         printColorComponents(color: color1)
@@ -173,7 +175,7 @@ extension UIColor {
     static func backgroundColor(entry: Entry, colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
         let opacity_val = colorScheme == .dark ? 0.90 : 0.85
 //        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        let color = Color("DefaultEntryBackground")
+        let color = getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
         if  entry.stampIndex == -1 || entry.stampIndex == nil {
             
