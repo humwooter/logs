@@ -199,6 +199,7 @@
 		4AD9E40C2B318B7800A3C444 /* EditingEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */; };
 		4AE3AF2D2B3B1757002CA8B1 /* DataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */; };
 		4AFCF99C2B1619A000088460 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* TextView.swift */; };
+		4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -352,6 +353,7 @@
 		4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingEntryView.swift; sourceTree = "<group>"; };
 		4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFuncs.swift; sourceTree = "<group>"; };
 		4AFCF99B2B1619A000088460 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
+		4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -480,6 +482,7 @@
 				345E99172A90DE35004A81E2 /* ImagePicker.swift */,
 				34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */,
 				4A7264462AEDD0E10099EA84 /* UserPreferences.swift */,
+				4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -932,6 +935,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */,
+				4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */,
 				4AD9E40C2B318B7800A3C444 /* EditingEntryView.swift in Sources */,
 				4A5E53192B8DB14D00F4521D /* EntryRowView.swift in Sources */,
 				4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */,

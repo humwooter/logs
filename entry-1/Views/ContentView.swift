@@ -9,6 +9,8 @@ struct ContentView: View {
     @State private var selectedIndex = 1
     @State private var indices : [Bool] = [false, true, false]
     @ObservedObject private var userPreferences = UserPreferences()
+    @ObservedObject var datesModel = DatesModel()
+
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
     @FetchRequest(
            entity: Entry.entity(),
@@ -70,6 +72,7 @@ struct ContentView: View {
                     LogParentView()
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
+                        .environmentObject(datesModel)
                         .tabItem {
                             Label("Logs", systemImage: "book.fill")
                         }.tag(0)
@@ -84,6 +87,7 @@ struct ContentView: View {
                     SettingsView()
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
+                        .environmentObject(datesModel)
                         .tabItem {
                             Label("Settings", systemImage: "gearshape")
                         }.tag(2)

@@ -40,6 +40,7 @@ struct SettingsView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
     ) var logs: FetchedResults<Log>
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var datesModel: DatesModel
 
     // document picker and file handling
     @State private var isExportDocumentPickerPresented = false
@@ -239,6 +240,7 @@ struct SettingsView: View {
         }
         LogsDataView()
             .environmentObject(userPreferences)
+            .environmentObject(datesModel)
 
         
         Section(header: Text("Advanced Settings").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)

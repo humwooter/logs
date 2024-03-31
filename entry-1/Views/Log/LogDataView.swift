@@ -13,6 +13,8 @@ import CoreData
 struct LogsDataView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var datesModel: DatesModel
+
     @Environment(\.colorScheme) var colorScheme
     @FetchRequest(
         entity: Log.entity(),
@@ -21,7 +23,7 @@ struct LogsDataView: View {
     
     @State private var isExporting = false
     @State private var isImporting = false
-    
+
     var body: some View {
         Section(header: Text("Logs Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
@@ -80,6 +82,22 @@ struct LogsDataView: View {
             .zIndex(1) // Ensure it lays on top if using ZStack
         }
         .background(.clear) // Use a clear background to prevent any visual breaks
+    }
+    
+    func updateDates() {
+        print("updating the date range")
+        // Fetch all logs after import is done
+                    let logFetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+                    do {
+                        let allLogs = try coreDataManager.viewContext.fetch(logFetchRequest)
+                        // Assuming you have an instance of your DateRangeModel and a way to convert logs to the expected format for updateDateRange
+                        self.datesModel.updateDateRange(with: allLogs)
+//                        DispatchQueue.main.async {
+//                            self.datesModel.updateDateRange(with: allLogs)
+//                        }
+                    } catch {
+                        print("Failed to fetch logs for date range update: \(error)")
+                    }
     }
     
     func importData(from url: URL) async throws {
@@ -148,6 +166,7 @@ struct LogsDataView: View {
                                 }
                             }
                         }
+                        updateDates() //added this
                         try coreDataManager.backgroundContext.save()
                     } catch {
                         print("Failed to import data: \(error)")
@@ -158,6 +177,7 @@ struct LogsDataView: View {
             print("Failed to parse JSON: \(error)")
         }
     }
+    
     
     private func exportData() {
         do {

@@ -84,24 +84,25 @@ struct LogsView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
     ) var logs: FetchedResults<Log>
     
-    @State private var startDate: Date = .distantPast
-
-    @State private var endDate: Date = Date() // Current day
+//    @State private var startDate: Date = .distantPast
+//
+//    @State private var endDate: Date = Date() // Current day
     var calendar = Calendar.current
     var timeZone = TimeZone.current
 
-    var bounds: Range<Date> {
-        return startDate..<endDate
-    }
+//    var bounds: Range<Date> {
+//        return datesModel.startDate..<datesModel.endDate
+//    }
 
-    @State private var dates: Set<DateComponents> = {
-        var set = Set<DateComponents>()
-        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-            set.insert(todayComponents)
-        
-        return set
-    }()
-    
+//    @State private var dates: Set<DateComponents> = {
+//        var set = Set<DateComponents>()
+//        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+//            set.insert(todayComponents)
+//        
+//        return set
+//    }()
+    @EnvironmentObject var datesModel: DatesModel
+
     
     @State var image: UIImage?
     @State var shareSheetShown = false
@@ -118,8 +119,8 @@ struct LogsView: View {
         
         if let earliestDate = dateLogs.min(),
            let latestDate = dateLogs.max() {
-            startDate = earliestDate
-            endDate = latestDate
+            datesModel.startDate = earliestDate
+            datesModel.endDate = latestDate
         }
     }
     
@@ -152,7 +153,7 @@ struct LogsView: View {
                                 calendarView()
                                 logsListView()
                                     .onTapGesture {
-                                        print("DATES: \(dates)")
+                                        print("DATES: \(datesModel.dates)")
                                     }
                                 .alert(isPresented: $showingDeleteConfirmation) {
                                     Alert(title: Text("Delete log"),
@@ -176,6 +177,9 @@ struct LogsView: View {
                             }
                         }
                     }
+                    .onAppear {
+                        updateDateRange()
+                    }
                 
                     .background {
                             ZStack {
@@ -187,7 +191,7 @@ struct LogsView: View {
                     .scrollContentBackground(.hidden)
                     .refreshable {
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        dates.insert(todayComponents)
+                        datesModel.dates.insert(todayComponents)
                         updateFetchRequests()
                         updateDateRange()
                     }
@@ -370,13 +374,13 @@ struct LogsView: View {
     func calendarView() -> some View {
         Section {
             if showCalendar {
-                MultiDatePicker("Dates Available", selection: $dates, in: bounds).datePickerStyle(.graphical)
+                MultiDatePicker("Dates Available", selection: $datesModel.dates, in: datesModel.bounds).datePickerStyle(.graphical)
                     .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
                     .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                     .accentColor(userPreferences.accentColor)
                     .onAppear {
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        dates.insert(todayComponents)
+                        datesModel.dates.insert(todayComponents)
                         updateFetchRequests()
                         updateDateRange()
                         print("UPDATING DATES")
@@ -551,7 +555,7 @@ struct LogsView: View {
         case "By Date":
             return sortedAndFlattenedLogs.filter { log in
                 guard let logDate = dateFormatter.date(from: log.day) else { return false }
-                return dates.contains { dateComponent in
+                return datesModel.dates.contains { dateComponent in
                     guard let selectedDate = calendar.date(from: dateComponent) else { return false }
                     let startOfDay = Calendar.current.startOfDay(for: selectedDate)
                     let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
@@ -747,6 +751,8 @@ struct LogsView: View {
 struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var datesModel: DatesModel
+
     @StateObject private var searchModel = SearchModel()
     @FocusState private var isSearchFieldFocused: Bool
 
@@ -754,6 +760,7 @@ struct LogParentView : View {
     var body: some View {
         
         LogsView(searchModel: searchModel)
+            .environmentObject(datesModel)
             .environmentObject(userPreferences)
             .environmentObject(coreDataManager)
             .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens) { token in

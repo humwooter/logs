@@ -16,11 +16,6 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-//import SwiftyGif
-//import Giffy
-
-
-
 
 
 class DayChange: ObservableObject {
