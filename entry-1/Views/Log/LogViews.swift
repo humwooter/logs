@@ -235,6 +235,26 @@ struct LogsView: View {
                     print("Failed to update entry relationship: \(error.localizedDescription)")
                 }
             }
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                if !reminderExists(with: reminderId) {
+                    entry.reminderId = ""
+                }
+                reminderIsComplete(reminderId: reminderId) { isCompleted in
+                    DispatchQueue.main.async {
+                        if isCompleted {
+                            entry.reminderId = ""
+                        } else {
+                            print("The reminder is not completed or does not exist.")
+                        }
+                    }
+                }
+                do {
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    print("Failed to save viewContext: \(error)")
+                }
+            }
         }
     }
     

@@ -223,7 +223,7 @@ struct NotEditingView: View {
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  Color("DefaultEntryBackground")
+        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
         let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
@@ -248,8 +248,21 @@ struct NotEditingView: View {
             
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-                    
+//                        .foregroundStyle(Color(foregroundColor))
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor)))
+                        .onTapGesture {
+                            print()
+                            print("ENTERED THIS AND FOREGROUND COLOR IS: ")
+                            printColorComponents(color: foregroundColor)
+                            print("ENTERED THIS AND BACKGROUND COLOR IS: ")
+                            printColorComponents(color: UIColor(backgroundColor))
+                            print("ENTERED THIS AND BLENDED COLOR IS: ")
+                            printColorComponents(color: blendedColor)
+                            print("FONT COLOR IS")
+                            printColorComponents(color: UIColor.fontColor(forBackgroundColor: blendedColor))
+                            print("ENTRY COLOR")
+                            printColorComponents(color: entry.color)
+                        }
             
 
                 } else {

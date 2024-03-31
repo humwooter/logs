@@ -173,11 +173,12 @@ extension UIColor {
     static func backgroundColor(entry: Entry, colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
         let opacity_val = colorScheme == .dark ? 0.90 : 0.85
 //        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        let color = colorScheme == .dark ? defaultEntryBackgroundColor_dark : defaultEntryBackground_light
+        let color = Color("DefaultEntryBackground")
 
         if  entry.stampIndex == -1 || entry.stampIndex == nil {
             
             if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+                print("default color returned for entry background color")
                 return color
             } else {
                 return userPreferences.entryBackgroundColor

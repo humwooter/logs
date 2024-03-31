@@ -173,12 +173,12 @@ struct SettingsView: View {
             }
         }
         
-        NavigationLink {
-            ThemePicker()
-                .environmentObject(userPreferences)
-        } label: {
-            Image(systemName: "questionmark.square.dashed")
-        }
+//        NavigationLink {
+//            ThemePicker()
+//                .environmentObject(userPreferences)
+//        } label: {
+//            Image(systemName: "questionmark.square.dashed")
+//        }
 
 
         Section {

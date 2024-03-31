@@ -42,6 +42,7 @@ struct RecentlyDeletedView: View {
                 ForEach(filteredEntries, id: \.self) { entry in
                     Section {
                         EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                      
                             .contextMenu {
                                 Button {
                                     entry.unRemove(coreDataManager: coreDataManager)
@@ -58,8 +59,10 @@ struct RecentlyDeletedView: View {
                     } header: {
                         entryHeaderView(entry: entry)
                     }
+                    
                     .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
                 }
+  
             
             
         }

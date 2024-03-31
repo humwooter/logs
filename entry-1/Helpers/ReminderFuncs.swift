@@ -12,6 +12,15 @@ import SwiftUI
 import EventKit
 
 
+func reminderExists(with identifier: String) -> Bool {
+    let eventStore = EKEventStore()
+    if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+        return true
+    } else {
+        return false
+    }
+}
+
 func reminderIsComplete(reminderId: String, completion: @escaping (Bool) -> Void) {
     let eventStore = EKEventStore()
     

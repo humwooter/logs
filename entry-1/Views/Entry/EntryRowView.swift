@@ -48,6 +48,10 @@ struct EntryRowView: View {
                 .swipeActions(edge: .leading) {
                     stampsRowView()
                 }
+                .onTapGesture {
+                    print("ENTRY COLOR IS: \(entry.color)")
+                    printColorComponents(color: entry.color)
+                }
         }
     }
     

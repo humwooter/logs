@@ -77,12 +77,15 @@ struct TextView : View {
         if (!entry.isFault) {
             Section {
                 if (entry.isShown) {
-                    NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(Color("DefaultEntryBackground"))).environmentObject(userPreferences).environmentObject(coreDataManager)
+                    NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))).environmentObject(userPreferences).environmentObject(coreDataManager)
                         .contextMenu {
                             entryContextMenuButtons()
                         }
                         .onAppear {
                             if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                                if !reminderExists(with: reminderId) {
+                                    entry.reminderId = ""
+                                }
                                 reminderIsComplete(reminderId: reminderId) { isCompleted in
                                     DispatchQueue.main.async {
                                         if isCompleted {
@@ -91,6 +94,11 @@ struct TextView : View {
                                             print("The reminder is not completed or does not exist.")
                                         }
                                     }
+                                }
+                                do {
+                                    try coreDataManager.viewContext.save()
+                                } catch {
+                                    print("Failed to save viewContext: \(error)")
                                 }
                             }
                         }
@@ -143,7 +151,7 @@ struct TextView : View {
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  Color("DefaultEntryBackground")
+        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
         let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear

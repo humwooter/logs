@@ -311,7 +311,7 @@ class UserPreferences: ObservableObject, Codable {
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []
         
         
-        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: .accentColor, imageName: "pencil", isActive: false), count: 14)
+        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: Color.blue, imageName: "pencil", isActive: false), count: 14)
         self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
         
         

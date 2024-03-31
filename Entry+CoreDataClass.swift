@@ -11,6 +11,23 @@ import CoreData
 import SwiftUI
 
 
+//
+//@NSManaged public var content: String
+//@NSManaged public var time: Date
+//@NSManaged public var lastUpdated: Date?
+//@NSManaged public var relationship: Log
+//@NSManaged public var id: UUID
+//@NSManaged public var color: UIColor
+//@NSManaged public var stampIcon: String
+//@NSManaged public var reminderId: String?
+//@NSManaged public var mediaFilename: String?
+//@NSManaged public var isHidden: Bool
+//@NSManaged public var isShown: Bool
+//@NSManaged public var isPinned: Bool
+//@NSManaged public var isRemoved: Bool
+//@NSManaged public var isDrafted: Bool
+//@NSManaged public var stampIndex: Int16
+//@NSManaged public var pageNum_pdf: Int16
 
 
 enum DecoderConfigurationError: Error {
@@ -34,13 +51,18 @@ public class Entry: NSManagedObject, Codable {
         time = try values.decodeIfPresent(Date.self, forKey: .time)!
 
         if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
-            color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor()
+            color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear
         }
 
         stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon)!
         mediaFilename = try values.decodeIfPresent(String.self, forKey: .mediaFilename) ?? ""
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
         isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned)!
+        
+        isShown = try values.decode(Bool.self, forKey: .isShown)
+           isRemoved = try values.decode(Bool.self, forKey: .isRemoved)
+           isDrafted = try values.decode(Bool.self, forKey: .isDrafted)
+           pageNum_pdf = try values.decode(Int16.self, forKey: .pageNum_pdf)
 
     }
     
@@ -60,12 +82,18 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(mediaFilename, forKey: .mediaFilename)
         try container.encodeIfPresent(isHidden, forKey: .isHidden)
         try container.encodeIfPresent(isPinned, forKey: .isPinned)
+        
+        try container.encode(isShown, forKey: .isShown)
+        try container.encode(isRemoved, forKey: .isRemoved)
+        try container.encode(isDrafted, forKey: .isDrafted)
+        try container.encode(pageNum_pdf, forKey: .pageNum_pdf)
 
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, mediaFilename, isHidden, isPinned, stampIndex
+        case id, time, content, color, stampIcon, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, stampIndex
     }
+
     
 }
 

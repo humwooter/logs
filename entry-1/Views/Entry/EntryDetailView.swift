@@ -87,7 +87,7 @@ struct EntryDetailView: View { //used in LogDetailView
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  Color("DefaultEntryBackground")
+        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
         let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
