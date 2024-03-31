@@ -530,43 +530,67 @@ struct LogsView: View {
     }
     
     func filteredLogs() -> [Log] {
-        print("Entered filtered logs!")
-        print("All logs: \(logs)")
+        print("Entered filteredLogs!")
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
 
         // Parse dates once and store them
         let parsedLogs = logs.compactMap { log -> (Log, Date)? in
-            guard let logDate = dateFormatter.date(from: log.day) else { return nil }
+            guard let logDate = dateFormatter.date(from: log.day) else {
+                print("Failed to parse date from log.day: \(log.day)")
+                return nil
+            }
             return (log, logDate)
         }
+        print("Parsed logs count: \(parsedLogs.count)")
 
         // Group logs by year
-        let groupedByYear = Dictionary(grouping: parsedLogs) { (log, date) -> Int in
+        let groupedByYear = Dictionary(grouping: parsedLogs) { (_, date) -> Int in
             Calendar.current.component(.year, from: date)
         }
+        print("Grouped by year count: \(groupedByYear.keys.count)")
 
         // Sort groups by year and flatten
         let sortedAndFlattenedLogs = groupedByYear.sorted { $0.key > $1.key } // Previous year logs first
-                                            .flatMap { $0.value.map { $0.0 } }
+                                                .flatMap { $0.value.map { $0.0 } }
+        print("Sorted and flattened logs count: \(sortedAndFlattenedLogs.count)")
 
         switch selectedTimeframe {
         case "By Date":
-            return sortedAndFlattenedLogs.filter { log in
-                guard let logDate = dateFormatter.date(from: log.day) else { return false }
-                return datesModel.dates.contains { dateComponent in
-                    guard let selectedDate = calendar.date(from: dateComponent) else { return false }
+            print("Filtering by Date...")
+            let filteredLogs = sortedAndFlattenedLogs.filter { log in
+                guard let logDate = dateFormatter.date(from: log.day) else {
+                    print("Failed to parse date from log.day in filter: \(log.day)")
+                    return false
+                }
+                let isContained = datesModel.dates.contains { dateComponent in
+                    guard let selectedDate = calendar.date(from: dateComponent) else {
+                        print("Failed to create date from dateComponent")
+                        return false
+                    }
                     let startOfDay = Calendar.current.startOfDay(for: selectedDate)
                     let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
-                    return logDate >= startOfDay && logDate <= endOfDay
+                    let result = logDate >= startOfDay && logDate <= endOfDay
+                    if result {
+                        print("Log date \(logDate) is within selected day \(selectedDate)")
+                    }
+                    return result
                 }
+                if !isContained {
+                    print("Log date \(logDate) is not within any selected day")
+                }
+                return isContained
             }
+            print("Filtered logs by date count: \(filteredLogs.count)")
+            return filteredLogs
 
         default:
+            print("Returning sorted and flattened logs without additional filtering.")
             return sortedAndFlattenedLogs
         }
     }
+
 
     
 

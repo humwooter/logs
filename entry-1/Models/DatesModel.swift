@@ -49,5 +49,7 @@ class DatesModel: ObservableObject {
             // Adjust endDate to potentially include the whole last day
             endDate = Calendar.current.date(byAdding: .day, value: 1, to: latestDate) ?? latestDate
         }
+        print("FINISHED")
+        print("END DATE IS: \(endDate)")
     }
 }
