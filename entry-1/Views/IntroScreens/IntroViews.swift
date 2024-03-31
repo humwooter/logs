@@ -50,7 +50,6 @@ struct IntroViews: View {
                 .tabViewStyle(PageTabViewStyle())
         .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-//                    if selectedTab == 2  {
 
                     Button(action: {
                         if userPreferences.isFirstLaunch {
@@ -62,7 +61,6 @@ struct IntroViews: View {
                         Text("Done")
                             .font(.system(size: 15))
                     })
-//                }
             }
         }
         .background {
@@ -222,11 +220,8 @@ struct IntroView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(maxWidth: 35, maxHeight: 35)
-                            //                                    .resizable()
-                            //                                    .scaledToFit()
                                 .foregroundStyle(color)
                                 .padding()
-                            //                                    .padding()
                         }
                         
                         Text(item.description)
@@ -236,13 +231,10 @@ struct IntroView: View {
                         
                         Spacer()
                     }
-                    //                        .frame(maxHeight: 60)
                 }
                 Spacer()
                 Spacer()
             }
         }.padding(.horizontal)
     }
-//            .navigationTitle(title)
-
 }

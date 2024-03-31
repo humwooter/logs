@@ -11,25 +11,6 @@ import CoreData
 import SwiftUI
 
 
-//
-//@NSManaged public var content: String
-//@NSManaged public var time: Date
-//@NSManaged public var lastUpdated: Date?
-//@NSManaged public var relationship: Log
-//@NSManaged public var id: UUID
-//@NSManaged public var color: UIColor
-//@NSManaged public var stampIcon: String
-//@NSManaged public var reminderId: String?
-//@NSManaged public var mediaFilename: String?
-//@NSManaged public var isHidden: Bool
-//@NSManaged public var isShown: Bool
-//@NSManaged public var isPinned: Bool
-//@NSManaged public var isRemoved: Bool
-//@NSManaged public var isDrafted: Bool
-//@NSManaged public var stampIndex: Int16
-//@NSManaged public var pageNum_pdf: Int16
-
-
 enum DecoderConfigurationError: Error {
   case missingManagedObjectContext
 }
@@ -64,6 +45,7 @@ public class Entry: NSManagedObject, Codable {
            isRemoved = try values.decode(Bool.self, forKey: .isRemoved)
            isDrafted = try values.decode(Bool.self, forKey: .isDrafted)
            pageNum_pdf = try values.decode(Int16.self, forKey: .pageNum_pdf)
+        reminderId = try values.decodeIfPresent(String.self, forKey: .reminderId)
 
     }
     
@@ -73,6 +55,7 @@ public class Entry: NSManagedObject, Codable {
         print("entry: \(self)")
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(id, forKey: .id)
+        try container.encodeIfPresent(reminderId, forKey: .reminderId)
         try container.encodeIfPresent(content, forKey: .content)
         try container.encodeIfPresent(time, forKey: .time)
         try container.encode(stampIndex, forKey: .stampIndex)
@@ -92,7 +75,7 @@ public class Entry: NSManagedObject, Codable {
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf
+        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId
     }
 
     

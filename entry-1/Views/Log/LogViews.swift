@@ -151,6 +151,9 @@ struct LogsView: View {
                             if !isSearching {
                                 calendarView()
                                 logsListView()
+                                    .onTapGesture {
+                                        print("DATES: \(dates)")
+                                    }
                                 .alert(isPresented: $showingDeleteConfirmation) {
                                     Alert(title: Text("Delete log"),
                                           message: Text("Are you sure you want to delete this log? This action cannot be undone."),
