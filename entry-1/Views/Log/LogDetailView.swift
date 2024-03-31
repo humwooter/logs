@@ -21,7 +21,7 @@ struct LogDetailView: View {
     let log: Log
     
     var body: some View {
-        if let entries = log.relationship as? Set<Entry>, !entries.isEmpty {
+        if let entries = (log.relationship as? Set<Entry>)?.filter({ !$0.isRemoved }), !entries.isEmpty {
             Section {
                 List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
                     if !entry.isRemoved {
@@ -50,12 +50,33 @@ struct LogDetailView: View {
             }
 
             .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(convertDate(from: log.day))
         } else {
             Text("No entries available")
                 .foregroundColor(.gray)
         }
     }
 
+    func convertDate(from dateString: String) -> String {
+        // Create a DateFormatter to parse the input string
+        let inputFormatter = DateFormatter()
+        // Set the input format to match the new input string pattern
+        inputFormatter.dateFormat = "MM/dd/yyyy"
+        
+        // Create another DateFormatter to format the output string
+        let outputFormatter = DateFormatter()
+        // Set the output format to "Month Day"
+        outputFormatter.dateFormat = "MMMM d"
+        
+        // Attempt to parse the input string into a Date object
+        if let date = inputFormatter.date(from: dateString) {
+            // If parsing succeeds, format the Date object into the desired output string
+            return outputFormatter.string(from: date)
+        } else {
+            // If parsing fails, return an error message or handle the error as needed
+            return "Invalid date"
+        }
+    }
     
     func getDefaultEntryBackgroundColor() -> Color {
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground

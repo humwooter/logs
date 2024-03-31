@@ -247,8 +247,7 @@ struct LogsView: View {
         ForEach(entries, id: \.self) { entry in
             
             Section(header:
-                        Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
-                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                        entryHeaderView(entry: entry)
             ) {
                 EntryDetailView(entry: entry)
                     .environmentObject(userPreferences)
@@ -258,6 +257,20 @@ struct LogsView: View {
             }
             .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
 
+        }
+    }
+    
+    @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
+        HStack {
+            Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            Spacer()
+            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
         }
     }
     
@@ -290,17 +303,32 @@ struct LogsView: View {
             }
             
             Button {
-                searchModel.tokens.append(.stampIndexEntries)
+                searchModel.tokens.append(.reminderEntries)
             } label: {
                 HStack {
-                    Image(systemName: "number.circle.fill")
+                    Image(systemName: "bell.fill")
                         .foregroundStyle(userPreferences.accentColor)
                         .padding(.horizontal, 5)
 
-                    Text("Stamp Number")
+                    Text("Entries with Reminder")
                         .foregroundStyle(Color(UIColor.label))
                 }
             }
+            
+//            Button {
+//                searchModel.tokens.append(.stampIndexEntries)
+//            } label: {
+//                HStack {
+//                    Image(systemName: "number.circle.fill")
+//                        .foregroundStyle(userPreferences.accentColor)
+//                        .padding(.horizontal, 5)
+//
+//                    Text("Stamp Number")
+//                        .foregroundStyle(Color(UIColor.label))
+//                }
+//            }
+//            
+    
             Button {
                 searchModel.tokens.append(.stampNameEntries)
             } label: {
@@ -438,6 +466,12 @@ struct LogsView: View {
                         return false
                     case .searchTextEntries:
                         return entry.content.lowercased().contains(searchText.lowercased())
+                    case .reminderEntries:
+                        if let reminderId = entry.reminderId {
+                            return !reminderId.isEmpty
+                        } else {
+                            return false
+                        }
                     }
                 }
             }
@@ -715,6 +749,8 @@ struct LogParentView : View {
 //                            Label("Name", systemImage: "circle")
                         case .searchTextEntries:
                             Text(searchModel.searchText)
+                        case .reminderEntries:
+                            Text("Reminder")
                         }
                 
             }

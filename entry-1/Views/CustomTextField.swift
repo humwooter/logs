@@ -83,73 +83,31 @@ struct GrowingTextField: UIViewRepresentable {
         }
         
         //
-        //        private func insertTextAtCursor(text: String) {
-        //            print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
-        ////            DispatchQueue.main.async {
-        //                guard let textView = self.textView else { return }
-        //
-        //                let currentText = textView.text as NSString
-        //                var range = textView.selectedRange
-        //                let updatedText = currentText.replacingCharacters(in: range, with: text)
-        //
-        //                // Update the text directly to prevent cursor jump
-        //                textView.text = updatedText as String
-        //
-        //                // Adjust range location to account for new text insertion
-        //                range.location += text.utf16.count
-        //                range.length = 0
-        //
-        //                // Restore cursor position
-        //                textView.selectedRange = range
-        //
-        //                // Update the parent view's text to keep it in sync
-        //                self.parent.text = updatedText as String
-        ////            }
-        //        }
+//                private func insertTextAtCursor(text: String) {
+//                    print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
+//        //            DispatchQueue.main.async {
+//                        guard let textView = self.textView else { return }
+//        
+//                        let currentText = textView.text as NSString
+//                        var range = textView.selectedRange
+//                        let updatedText = currentText.replacingCharacters(in: range, with: text)
+//        
+//                        // Update the text directly to prevent cursor jump
+//                        textView.text = updatedText as String
+//        
+//                        // Adjust range location to account for new text insertion
+//                        range.location += text.utf16.count
+//                        range.length = 0
+//        
+//                        // Restore cursor position
+//                        textView.selectedRange = range
+//        
+//                        // Update the parent view's text to keep it in sync
+//                        self.parent.text = updatedText as String
+//        //            }
+//                }
         
-        //        private func insertTextAtCursor(text: String) {
-        //            print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
-        //            guard let textView = self.textView else { return }
-        //
-        //            let currentText = textView.text as NSString
-        //            var range = textView.selectedRange
-        //
-        //            // Check if the text to insert is a tab character or any specific indentation string
-        //            if text == "\t" { // Assuming "\t" is used for indentation
-        //                // Get the selected text
-        //                let selectedText = currentText.substring(with: range)
-        //
-        //                // Split the selected text into lines
-        //                let lines = selectedText.components(separatedBy: .newlines)
-        //
-        //                // Indent each line
-        //                let indentedLines = lines.map { "\t\($0)" } // Add a tab character at the start of each line
-        //                let updatedText = indentedLines.joined(separator: "\n")
-        //
-        //                // Replace the selected text with the indented text
-        //                textView.text = currentText.replacingCharacters(in: range, with: updatedText)
-        //
-        //                // Adjust the selection range to include the newly indented text
-        //                range.length = updatedText.utf16.count
-        //            } else {
-        //                // For non-indentation text, insert it as before
-        //                let updatedText = currentText.replacingCharacters(in: range, with: text)
-        //                textView.text = updatedText as String
-        //
-        //                // Adjust range location to account for new text insertion
-        //                range.location += text.utf16.count
-        //                range.length = 0
-        //            }
-        //
-        //            // Restore cursor position
-        //            textView.selectedRange = range
-        //
-        //            // Update the parent view's text to keep it in sync
-        //            self.parent.text = textView.text
-        //        }
-        //
-        //    }
-        //}
+ 
         
         private func insertTextAtCursor(text: String) {
             print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
@@ -158,41 +116,106 @@ struct GrowingTextField: UIViewRepresentable {
             let currentText = textView.text as NSString
             var range = textView.selectedRange
             
-            if text == "\t" { // Handle tab for indentation
-                let selectedText = currentText.substring(with: range)
-                let lines = selectedText.components(separatedBy: .newlines)
-                let indentedLines = lines.map { "\t\($0)" }
-                let updatedText = indentedLines.joined(separator: "\n")
-                textView.text = currentText.replacingCharacters(in: range, with: updatedText)
-                range.length = updatedText.utf16.count
-            } else if text == "\t• " { // Handle bullet point followed by a tab
-                if range.length == 0 { // No text is selected, apply bullet point to the current line
-                    let lineStart = currentText.lineRange(for: NSRange(location: range.location, length: 0)).location
-                    let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "\t• ")
-                    textView.text = updatedText as String
-                    range.location += 2 // Move cursor after the bullet point and tab
-                } else { // Text is selected, apply bullet point to the first line and indent the rest
-                    let selectedText = currentText.substring(with: range)
-                    var lines = selectedText.components(separatedBy: .newlines)
-                    lines[0] = "\t• " + lines[0] // Add bullet point and tab to the first line
-                    for i in 1..<lines.count {
-                        lines[i] = "\t" + lines[i] // Indent remaining lines
-                    }
-                    let updatedText = lines.joined(separator: "\n")
-                    textView.text = currentText.replacingCharacters(in: range, with: updatedText)
-                    range.length = updatedText.utf16.count
-                }
-            } else {
-                // For non-special text, insert it as before
+            print("RANGE LENGTH: \(range.length)")
+            print("RANGE UPPER BOUND: \(range.upperBound)")
+            print("RANGE LOWER BOUND: \(range.lowerBound)")
+            
+            // Check if the text is neither a tab for indentation nor a bullet point with a tab, and there is no highlighted text
+            if range.length == 0 {
+                // Use the logic from the previous function for simple text insertion
                 let updatedText = currentText.replacingCharacters(in: range, with: text)
                 textView.text = updatedText as String
                 range.location += text.utf16.count
                 range.length = 0
+                textView.selectedRange = range
+                self.parent.text = updatedText as String
+            } else {
+                // Special handling for tabs and bullet points, or if there is highlighted text
+                if text == "\t" {
+                    let selectedText = currentText.substring(with: range)
+                    let lines = selectedText.components(separatedBy: .newlines)
+                    let indentedLines = lines.map { "\t\($0)" }
+                    let updatedText = indentedLines.joined(separator: "\n")
+                    textView.text = currentText.replacingCharacters(in: range, with: updatedText)
+                    range.length = updatedText.utf16.count
+                } else if text == "\t• " {
+                    if range.length == 0 { // No text is selected, apply bullet point to the current line
+                        let lineStart = currentText.lineRange(for: NSRange(location: range.location, length: 0)).location
+                        let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "\t• ")
+                        textView.text = updatedText as String
+                        range.location += 3 // Move cursor after the bullet point and tab
+                    } else { // Text is selected, apply bullet point to the first line and indent the rest
+                        let selectedText = currentText.substring(with: range)
+                        var lines = selectedText.components(separatedBy: .newlines)
+                        lines[0] = "\t• " + lines[0] // Add bullet point and tab to the first line
+                        for i in 1..<lines.count {
+                            lines[i] = "\t" + lines[i] // Indent remaining lines
+                        }
+                        let updatedText = lines.joined(separator: "\n")
+                        textView.text = currentText.replacingCharacters(in: range, with: updatedText)
+                        range.length = updatedText.utf16.count
+                    }
+                } else {
+                    // For other types of text when there is highlighted text
+                    let updatedText = currentText.replacingCharacters(in: range, with: text)
+                    textView.text = updatedText as String
+                    range.location += text.utf16.count
+                    range.length = 0
+                }
+                
+                textView.selectedRange = range
+                self.parent.text = textView.text
             }
-            
-            textView.selectedRange = range
-            self.parent.text = textView.text
         }
+
+        
+//        private func insertTextAtCursor(text: String) {
+//            print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
+//            guard let textView = self.textView else { return }
+//            
+//            let currentText = textView.text as NSString
+//            var range = textView.selectedRange
+//            
+//            print("RANGE LENGTH: \(range.length)")
+//            print("RANGE UPPER BOUND: \(range.upperBound)")
+//            print("RANGE LOWER BOUND: \(range.lowerBound)")
+//
+//            
+//            if text == "\t" { // Handle tab for indentation
+//                let selectedText = currentText.substring(with: range)
+//                let lines = selectedText.components(separatedBy: .newlines)
+//                let indentedLines = lines.map { "\t\($0)" }
+//                let updatedText = indentedLines.joined(separator: "\n")
+//                textView.text = currentText.replacingCharacters(in: range, with: updatedText)
+//                range.length = updatedText.utf16.count
+//            } else if text == "\t• " { // Handle bullet point followed by a tab
+//                if range.length == 0 { // No text is selected, apply bullet point to the current line
+//                    let lineStart = currentText.lineRange(for: NSRange(location: range.location, length: 0)).location
+//                    let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "\t• ")
+//                    textView.text = updatedText as String
+//                    range.location += 3 // Move cursor after the bullet point and tab
+//                } else { // Text is selected, apply bullet point to the first line and indent the rest
+//                    let selectedText = currentText.substring(with: range)
+//                    var lines = selectedText.components(separatedBy: .newlines)
+//                    lines[0] = "\t• " + lines[0] // Add bullet point and tab to the first line
+//                    for i in 1..<lines.count {
+//                        lines[i] = "\t" + lines[i] // Indent remaining lines
+//                    }
+//                    let updatedText = lines.joined(separator: "\n")
+//                    textView.text = currentText.replacingCharacters(in: range, with: updatedText)
+//                    range.length = updatedText.utf16.count
+//                }
+//            } else {
+//                // For non-special text, insert it as before
+//                let updatedText = currentText.replacingCharacters(in: range, with: text)
+//                textView.text = updatedText as String
+//                range.location += text.utf16.count
+//                range.length = 0
+//            }
+//            
+//            textView.selectedRange = range
+//            self.parent.text = textView.text
+//        }
     }
 }
 

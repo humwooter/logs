@@ -189,7 +189,7 @@ struct PDFReader: View {
                             textFormattingButtonBar()
                                 .padding(.horizontal)
                         }
-                        buttonBar(data: data)
+//                        buttonBar(data: data)
                         
                     } else {
                         Text("Unable to load PDF.")

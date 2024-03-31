@@ -30,12 +30,12 @@ var defaultEntryBackground_light = Color.white
 
 
 let fontCategories: [String: [String]] = [
-    "Traditional": ["Gill Sans", "Menlo Regular", "Didot", "Futura", "Georgia", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],
-    "Monospace": ["Courier New", "STIX Two Math"],
-    "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin", "BarelyEnough-Regular", "MotleyForces-Regular", "ClickerScript-Regular", "Mueda-City", "SunnySpellsBasic-Regular", "Papyrus Condensed", "Nathan-CondensedRegular", "Lilly", "NjalBold", "Darlin\'Pop", "Chalkboard SE Regular", "Cute_Aurora_demo", "Catread", "Catbrother", "Calloveya", "BadComic", "Mini Story", "Spicy Potatos", "New Boba"],
-    "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript", "Magiera-Script", "Barrbar", "Crafty For You"],
+    "Traditional": ["STIX Two Math", "Gill Sans",  "Didot", "Georgia", "Futura", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],
+    "Monospace": ["Courier New",  "Menlo Regular", "Copperplate Light",],
+    "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin", "BarelyEnough-Regular", "MotleyForces-Regular",  "Mueda-City", "SunnySpellsBasic-Regular",  "Lilly", "Chalkboard SE Regular", "Cute_Aurora_demo", "Catread", "Catbrother", "Calloveya", "BadComic", "Mini Story", "Spicy Potatos", "New Boba", ],
+    "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript", "Magiera-Script", "Barrbar"],
     "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "MageScript", "HaraldRunic", "LuciusCipher", "AutumnDingbats"],
-    "Unique": ["Spicy-Chips",  "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme", "PixelDigivolve", "Academy Engraved LET Plain:1.0", "Copperplate Light", "Copyduck", "ZukaDoodle", "Milkmoustachio"],
+    "Unique": [ "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme", "PixelDigivolve", "Academy Engraved LET Plain:1.0",  "Copyduck", "ZukaDoodle", "Milkmoustachio", "Papyrus Condensed", "ClickerScript-Regular"],
     "Bold": ["Impact"],
     "Antique": ["aAnggaranDasar", "IrishUncialfabeta-Bold", "QuaeriteRegnumDei"],
     "Calligraphy": []

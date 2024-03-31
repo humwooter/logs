@@ -252,17 +252,15 @@ struct EditingEntryView: View {
     func iconHeaderView() -> some View {
         HStack() {
             Spacer()
-            if let reminderId = entry.reminderId {
+            if let reminderId = entry.reminderId,  !reminderId.isEmpty {
                 if (entry.stampIcon != "") {
                     Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
                         .font(.system(size: 15))
                     
                 }
-                if let reminderId = entry.reminderId, !reminderId.isEmpty {
                     Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
                         .font(.system(size: 15))
                         .padding(.horizontal)
-                }
             }
             else {
                 Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))

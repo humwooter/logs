@@ -86,12 +86,18 @@ struct EntryDetailView: View { //used in LogDetailView
         
     }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless userPreferences.entryBackgroundColor != .clear
-        let defaultBackgroundColor =  colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless 
+        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
-        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? defaultBackgroundColor : UIColor(userPreferences.entryBackgroundColor)
-        let blendedBackgroundColors = UIColor.blendColors(foregroundColor: UIColor(userPreferences.backgroundColors[1].opacity(0.5) ?? Color.clear), backgroundColor: UIColor(userPreferences.backgroundColors[0] ?? Color.clear))
-        let blendedColor = UIColor.blendColors(foregroundColor: foregroundColor, backgroundColor: UIColor(Color(blendedBackgroundColors).opacity(0.4)))
+        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
+        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        
+        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
+
+        
+        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
+        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
+//        printColorComponents(color: blendedColor)
         let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
         return fontColor
     }
@@ -119,18 +125,18 @@ struct EntryDetailView: View { //used in LogDetailView
             Image(systemName: "doc.on.doc")
         }
         
-        Button(action: {
-            let pdfData = createPDFData_entry(entry: entry)
-            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
-            try? pdfData.write(to: tmpURL)
-            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                let window = windowScene.windows.first
-                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-            }
-        }, label: {
-            Label("Share Entry", systemImage: "square.and.arrow.up")
-        })
+//        Button(action: {
+//            let pdfData = createPDFData_entry(entry: entry)
+//            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
+//            try? pdfData.write(to: tmpURL)
+//            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+//                let window = windowScene.windows.first
+//                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+//            }
+//        }, label: {
+//            Label("Share Entry", systemImage: "square.and.arrow.up")
+//        })
         
         Button(action: {
             withAnimation(.easeOut) {

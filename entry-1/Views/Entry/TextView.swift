@@ -81,6 +81,19 @@ struct TextView : View {
                         .contextMenu {
                             entryContextMenuButtons()
                         }
+                        .onAppear {
+                            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                                reminderIsComplete(reminderId: reminderId) { isCompleted in
+                                    DispatchQueue.main.async {
+                                        if isCompleted {
+                                            entry.reminderId = ""
+                                        } else {
+                                            print("The reminder is not completed or does not exist.")
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         .onChange(of: isEditing) { newValue in
                             if newValue {
                                 editingContent = entry.content
@@ -250,6 +263,7 @@ struct TextView : View {
             Spacer()
             
             if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
 

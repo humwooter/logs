@@ -23,90 +23,70 @@ struct ContentView: View {
     ) var allEntries: FetchedResults<Entry>
     
     var body: some View {
-                    
-            VStack {
-//                    List {
-//                        ForEach(entriesWithNilTime, id: \.self) { entry in
-//                            EntryDetailView(entry: entry)
-//                                .environmentObject(userPreferences)
-//                                .onAppear {
-//                                    print("entry: \(entry)")
-//                                }
-////                            Text(entry.content ?? "No content") // Displaying entry content
-//                        }
-//                    }
-                
-               
-                if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                    ZStack {
-                        Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                        
-                            .ignoresSafeArea()
-                        
-                        Button {
-                            authenticate()
-                        } label: {
-                            Label("Locked", systemImage: "lock")
-                                .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
-                        }
-                    }
-                    
-                }
-                else {
-                    TabView(selection: $selectedIndex) {
-                        LogParentView()
-                            .environmentObject(userPreferences)
-                            .environmentObject(coreDataManager)
-                            .tabItem {
-                                Label("Logs", systemImage: "book.fill")
-                            }.tag(0)
-                        
-                        
-//                        EntryView(color: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-                        EntryView()
-                            .environmentObject(userPreferences)
-                            .environmentObject(coreDataManager)
-                            .tabItem {
-                                Label("Entries", systemImage: "pencil")
-                            }.tag(1)
-                        
-                        
-                        SettingsView()
-                            .environmentObject(userPreferences)
-                            .environmentObject(coreDataManager)
-                            .tabItem {
-                                Label("Settings", systemImage: "gearshape")
-                            }.tag(2)
-                    }
-                    .accentColor(userPreferences.accentColor)
-                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
-                }
-                
-            }.onAppear(perform: {
+        
+        if userPreferences.isFirstLaunch {
+            IntroViews()
+                .environmentObject(userPreferences)
+        } else {
+            mainAppView().onAppear(perform: {
+                print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
                 createLog(in: coreDataManager.viewContext)
                 deleteOldEntries()
                 authenticate()
                 
                 print("Entries with nil time: \(entriesWithNilTime.count)")
-                
-                
-//                for entry in allEntries {
-//                       entry.pageNum_pdf = -1
-//                   }
-//                   
-//                   // Save the changes to the persistent store
-//                   do {
-//                       try coreDataManager.viewContext.save()
-//                   } catch {
-//                       // Handle the error, e.g., log it or show an alert to the user
-//                       print("Failed to save context: \(error)")
-//                   }
-                
-                
             })
+        }
     }
     
+    @ViewBuilder
+    func mainAppView() -> some View {
+        VStack {
+            if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
+                ZStack {
+                    Color(UIColor.systemGroupedBackground)
+                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                    
+                        .ignoresSafeArea()
+                    
+                    Button {
+                        authenticate()
+                    } label: {
+                        Label("Locked", systemImage: "lock")
+                            .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
+                    }
+                }
+                
+            }
+            else {
+                TabView(selection: $selectedIndex) {
+                    LogParentView()
+                        .environmentObject(userPreferences)
+                        .environmentObject(coreDataManager)
+                        .tabItem {
+                            Label("Logs", systemImage: "book.fill")
+                        }.tag(0)
+                    EntryView()
+                        .environmentObject(userPreferences)
+                        .environmentObject(coreDataManager)
+                        .tabItem {
+                            Label("Entries", systemImage: "pencil")
+                        }.tag(1)
+                    
+                    
+                    SettingsView()
+                        .environmentObject(userPreferences)
+                        .environmentObject(coreDataManager)
+                        .tabItem {
+                            Label("Settings", systemImage: "gearshape")
+                        }.tag(2)
+                }
+                .accentColor(userPreferences.accentColor)
+                .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+            }
+            
+        }
+    }
 
     func authenticate() {
         if userPreferences.showLockScreen {
@@ -139,10 +119,3 @@ struct ContentView: View {
         }
     }
 }
-
-//struct ContentView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-//    }
-//}
-

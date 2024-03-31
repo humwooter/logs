@@ -40,8 +40,7 @@ struct RecentlyDeletedView: View {
             ) {}
                 
                 ForEach(filteredEntries, id: \.self) { entry in
-                    Section(header: Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                    ) {
+                    Section {
                         EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                             .contextMenu {
                                 Button {
@@ -55,6 +54,9 @@ struct RecentlyDeletedView: View {
                                 }
                                 
                             }
+                  
+                    } header: {
+                        entryHeaderView(entry: entry)
                     }
                     .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
                 }
@@ -73,6 +75,20 @@ struct RecentlyDeletedView: View {
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
         
         
+    }
+    
+    @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
+        HStack {
+            Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            Spacer()
+            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless userPreferences.entryBackgroundColor != .clear

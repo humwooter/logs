@@ -154,11 +154,32 @@ struct SettingsView: View {
             .padding()
         }
 
-        Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-            .font(.system(size: UIFont.systemFontSize))
-        ) {
+//        Section(header: Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//            .font(.system(size: UIFont.systemFontSize))
+//        ) {
+//            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+//        }
+        
+        Section {
             BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+
+        } header: {
+            
+            HStack {
+                Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    .font(.system(size: UIFont.systemFontSize))
+
+                
+            }
         }
+        
+        NavigationLink {
+            ThemePicker()
+                .environmentObject(userPreferences)
+        } label: {
+            Image(systemName: "questionmark.square.dashed")
+        }
+
 
         Section {
             ColorPicker("Pin Color", selection: $userPreferences.pinColor)

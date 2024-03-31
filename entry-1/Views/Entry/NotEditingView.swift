@@ -231,28 +231,28 @@ struct NotEditingView: View {
         VStack {
             if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-                var blendedColor = foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor))
+                var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
                 if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
             
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor)))))
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
 
                 } else {
                     Text(entry.content)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor.blended(withBackgroundColor: UIColor(backgroundColor)))))
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
                 }
             } else {
-                var backgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-                var blendedBackground = backgroundColor.blended(withBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+                var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
                 if (userPreferences.showLinks) {
                     Text(makeAttributedString(from: entry.content))
                         .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//                        .foregroundStyle(Color(blendedBackground))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                         .onAppear {
-                            backgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                            entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
                         }
                 } else {
                     Text(entry.content)

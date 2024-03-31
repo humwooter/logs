@@ -34,7 +34,7 @@
 		4A197A6D2B46BEB600A4F14D /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */; };
 		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
 		4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */; };
-		4A4647652B3EA36C002B2164 /* SearchViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4647642B3EA36C002B2164 /* SearchViews.swift */; };
+		4A4647652B3EA36C002B2164 /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4647642B3EA36C002B2164 /* SearchModel.swift */; };
 		4A4AFF802B92C57800632C4D /* ButtonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4AFF7F2B92C57800632C4D /* ButtonViews.swift */; };
 		4A5E53152B8D9ED400F4521D /* UpdatedEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */; };
 		4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53162B8DB12400F4521D /* NotEditingView.swift */; };
@@ -155,8 +155,6 @@
 		4ACE30D52AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30D42AEE1ECF00807858 /* SparkyStonesRegular.ttf */; };
 		4ACE30D62AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30D42AEE1ECF00807858 /* SparkyStonesRegular.ttf */; };
 		4ACE30D72AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30D42AEE1ECF00807858 /* SparkyStonesRegular.ttf */; };
-		4ACE30D92AEE1F2E00807858 /* SpicyChips.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30D82AEE1F2E00807858 /* SpicyChips.ttf */; };
-		4ACE30DA2AEE1F2E00807858 /* SpicyChips.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30D82AEE1F2E00807858 /* SpicyChips.ttf */; };
 		4ACE30DC2AEE1FA800807858 /* ShootingStars.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30DB2AEE1FA800807858 /* ShootingStars.ttf */; };
 		4ACE30DD2AEE1FA800807858 /* ShootingStars.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30DB2AEE1FA800807858 /* ShootingStars.ttf */; };
 		4ACE30DF2AEE1FBE00807858 /* NathanCondensedRegular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE30DE2AEE1FBE00807858 /* NathanCondensedRegular.ttf */; };
@@ -193,15 +191,13 @@
 		4ACE310E2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */; };
 		4ACE31102AEE414100807858 /* AutumnDingbats.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */; };
 		4ACE31112AEE414200807858 /* AutumnDingbats.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */; };
-		4ACE31132AEE415C00807858 /* HarryPotter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter.ttf */; };
-		4ACE31142AEE415C00807858 /* HarryPotter.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31122AEE415C00807858 /* HarryPotter.ttf */; };
 		4ACE31162AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */; };
 		4ACE31172AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */; };
 		4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACEB3D32B5F6BC500B76634 /* Stamp.swift */; };
 		4ACEB3D62B5F74C800B76634 /* IntroViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACEB3D52B5F74C800B76634 /* IntroViews.swift */; };
 		4AD9E40C2B318B7800A3C444 /* EditingEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */; };
 		4AE3AF2D2B3B1757002CA8B1 /* DataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */; };
-		4AFCF99C2B1619A000088460 /* EntryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* EntryViews.swift */; };
+		4AFCF99C2B1619A000088460 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* TextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -266,7 +262,7 @@
 		4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
 		4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataView.swift; sourceTree = "<group>"; };
-		4A4647642B3EA36C002B2164 /* SearchViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViews.swift; sourceTree = "<group>"; };
+		4A4647642B3EA36C002B2164 /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
 		4A4AFF7F2B92C57800632C4D /* ButtonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonViews.swift; sourceTree = "<group>"; };
 		4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatedEntryView.swift; sourceTree = "<group>"; };
 		4A5E53162B8DB12400F4521D /* NotEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotEditingView.swift; sourceTree = "<group>"; };
@@ -330,7 +326,6 @@
 		4ACE30CE2AEE1C4B00807858 /* PixelDigivolve.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = PixelDigivolve.ttf; sourceTree = "<group>"; };
 		4ACE30D12AEE1CC500807858 /* MuedaCity.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MuedaCity.ttf; sourceTree = "<group>"; };
 		4ACE30D42AEE1ECF00807858 /* SparkyStonesRegular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SparkyStonesRegular.ttf; sourceTree = "<group>"; };
-		4ACE30D82AEE1F2E00807858 /* SpicyChips.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SpicyChips.ttf; sourceTree = "<group>"; };
 		4ACE30DB2AEE1FA800807858 /* ShootingStars.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ShootingStars.ttf; sourceTree = "<group>"; };
 		4ACE30DE2AEE1FBE00807858 /* NathanCondensedRegular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = NathanCondensedRegular.ttf; sourceTree = "<group>"; };
 		4ACE30E12AEE201000807858 /* Lilly.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Lilly.ttf; sourceTree = "<group>"; };
@@ -349,13 +344,12 @@
 		4ACE31092AEE40A200807858 /* Floralia-Ea8Xr.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Floralia-Ea8Xr.ttf"; sourceTree = "<group>"; };
 		4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Greenleaf-1GRqe.ttf"; sourceTree = "<group>"; };
 		4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AutumnDingbats.ttf; sourceTree = "<group>"; };
-		4ACE31122AEE415C00807858 /* HarryPotter.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = HarryPotter.ttf; sourceTree = "<group>"; };
 		4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "HffBirdStencil-2e1l.ttf"; sourceTree = "<group>"; };
 		4ACEB3D32B5F6BC500B76634 /* Stamp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stamp.swift; sourceTree = "<group>"; };
 		4ACEB3D52B5F74C800B76634 /* IntroViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroViews.swift; sourceTree = "<group>"; };
 		4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditingEntryView.swift; sourceTree = "<group>"; };
 		4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFuncs.swift; sourceTree = "<group>"; };
-		4AFCF99B2B1619A000088460 /* EntryViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryViews.swift; sourceTree = "<group>"; };
+		4AFCF99B2B1619A000088460 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -477,6 +471,7 @@
 		34C43B992A9C4122005C1296 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				4A4647642B3EA36C002B2164 /* SearchModel.swift */,
 				4A45D8172B7C9CB6008739A6 /* Documents */,
 				4ACEB3D32B5F6BC500B76634 /* Stamp.swift */,
 				345E99172A90DE35004A81E2 /* ImagePicker.swift */,
@@ -506,7 +501,6 @@
 		4A4647632B3EA357002B2164 /* SearchViews */ = {
 			isa = PBXGroup;
 			children = (
-				4A4647642B3EA36C002B2164 /* SearchViews.swift */,
 			);
 			path = SearchViews;
 			sourceTree = "<group>";
@@ -533,13 +527,13 @@
 		4A7264322AEBAF610099EA84 /* Entry */ = {
 			isa = PBXGroup;
 			children = (
-				4AFCF99B2B1619A000088460 /* EntryViews.swift */,
+				4AFCF99B2B1619A000088460 /* TextView.swift */,
 				34973C182AB7E8E3003C8902 /* EntryContentViews.swift */,
 				4A7264342AEBAFAC0099EA84 /* EntryDetailView.swift */,
 				4A7264422AECECB60099EA84 /* NewEntryView.swift */,
 				4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */,
-				4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */,
 				4A5E53162B8DB12400F4521D /* NotEditingView.swift */,
+				4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */,
 				4A5E53182B8DB14D00F4521D /* EntryRowView.swift */,
 			);
 			path = Entry;
@@ -624,7 +618,6 @@
 				4A942A532B75990300C60BCC /* Shabina.otf */,
 				4A942A4F2B7598E700C60BCC /* Copyduck.ttf */,
 				4ACE31152AEE417B00807858 /* HffBirdStencil-2e1l.ttf */,
-				4ACE31122AEE415C00807858 /* HarryPotter.ttf */,
 				4ACE310F2AEE414100807858 /* AutumnDingbats.ttf */,
 				4ACE310C2AEE40FE00807858 /* Greenleaf-1GRqe.ttf */,
 				4ACE31092AEE40A200807858 /* Floralia-Ea8Xr.ttf */,
@@ -640,7 +633,6 @@
 				4ACE30ED2AEE28B700807858 /* QuaeriteRegnumDei.otf */,
 				4ACE30F32AEE28CE00807858 /* AnggaranDasar.ttf */,
 				4ACE30DB2AEE1FA800807858 /* ShootingStars.ttf */,
-				4ACE30D82AEE1F2E00807858 /* SpicyChips.ttf */,
 				4ACE30D42AEE1ECF00807858 /* SparkyStonesRegular.ttf */,
 				4ACE30D12AEE1CC500807858 /* MuedaCity.ttf */,
 				4ACE30CE2AEE1C4B00807858 /* PixelDigivolve.ttf */,
@@ -808,14 +800,12 @@
 				4ACE30D52AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
 				4A942A702B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */,
 				4A942A682B759C7400C60BCC /* Snickles.ttf in Resources */,
-				4ACE30D92AEE1F2E00807858 /* SpicyChips.ttf in Resources */,
 				4ACE31012AEE2FE100807858 /* TheNightOne.otf in Resources */,
 				4ACE30C02AEE1A0700807858 /* NjalBold.otf in Resources */,
 				4A942A602B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
 				4ACE31072AEE305600807858 /* Emperialisme.otf in Resources */,
 				34A808322A8A167800B9BB5C /* Assets.xcassets in Resources */,
 				4ACE30B02AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
-				4ACE31132AEE415C00807858 /* HarryPotter.ttf in Resources */,
 				4ACE30F72AEE28DA00807858 /* AliceInWonderland.ttf in Resources */,
 				4A942A502B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30902AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */,
@@ -890,7 +880,6 @@
 				4A942A6E2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
 				4ACE30E92AEE203300807858 /* CuteAurora.ttf in Resources */,
 				4ACE30EF2AEE28B700807858 /* QuaeriteRegnumDei.otf in Resources */,
-				4ACE30DA2AEE1F2E00807858 /* SpicyChips.ttf in Resources */,
 				4ACE30D72AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
 				4ACE30B62AEE158F00807858 /* StainellaScript.ttf in Resources */,
 				4A942A5A2B7599A500C60BCC /* Catbrother.ttf in Resources */,
@@ -915,7 +904,6 @@
 				4ACE30DD2AEE1FA800807858 /* ShootingStars.ttf in Resources */,
 				4ACE30BA2AEE18C800807858 /* MagieraScript.ttf in Resources */,
 				4ACE30FB2AEE294300807858 /* IrishuncialfabetaBold.ttf in Resources */,
-				4ACE31142AEE415C00807858 /* HarryPotter.ttf in Resources */,
 				4ACE31172AEE417B00807858 /* HffBirdStencil-2e1l.ttf in Resources */,
 				4ACE30AE2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
 				4ACE30B22AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
@@ -959,9 +947,9 @@
 				4A72643F2AEC62BC0099EA84 /* RainbowAnimatedView.swift in Sources */,
 				4A89FCFD2AC2AE9F0076EAAC /* GlobalFuncs.swift in Sources */,
 				4A0FF6DA2AFADBCD0078F319 /* ImageViewer.swift in Sources */,
-				4AFCF99C2B1619A000088460 /* EntryViews.swift in Sources */,
+				4AFCF99C2B1619A000088460 /* TextView.swift in Sources */,
 				34973C192AB7E8E3003C8902 /* EntryContentViews.swift in Sources */,
-				4A4647652B3EA36C002B2164 /* SearchViews.swift in Sources */,
+				4A4647652B3EA36C002B2164 /* SearchModel.swift in Sources */,
 				34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */,
 				4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */,
 				34A8085F2A8A183700B9BB5C /* Log+CoreDataProperties.swift in Sources */,

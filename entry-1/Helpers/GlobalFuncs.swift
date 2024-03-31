@@ -40,7 +40,7 @@ func isClear(for color: UIColor) -> Bool {
     
     color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
     
-    return ((red + green + blue + alpha) == 0)
+    return ((red + green + blue + alpha) == 0 || alpha == 0)
 }
 func textColor(for backgroundColor: UIColor) -> Color {
     var red: CGFloat = 0
@@ -305,10 +305,10 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
 
 
 func getDefaultEntryBackgroundColor(colorScheme: ColorScheme) -> Color {
-    return colorScheme == .dark ? defaultEntryBackgroundColor_dark : defaultEntryBackground_light
+    return colorScheme == .dark ? defaultEntryBackgroundColor_dark : .white
 }
 
 func getDefaultBackgroundColor(colorScheme: ColorScheme) -> Color {
-    let uiColor = colorScheme == .dark ? UIColor.black : UIColor.tertiarySystemBackground
+    let uiColor = colorScheme == .dark ? UIColor.black : UIColor(defaultBackgroundColor)
     return Color(uiColor)
 }

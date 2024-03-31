@@ -31,58 +31,22 @@ extension UIColor {
         color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
         color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
 
-        // New blending approach
-        let rBlended = (r1 * a1) + (r2 * (1 - a1))
-        let gBlended = (g1 * a1) + (g2 * (1 - a1))
-        let bBlended = (b1 * a1) + (b2 * (1 - a1))
-        let aBlended = a1 + (a2 * (1 - a1))
 
+        let rBlended = (r1 * a1) + (r2 * a2)
+        let gBlended = (g1 * a1) + (g2 * a2)
+        let bBlended = (b1 * a1) + (b2 * a2)
+        let aBlended = a1 + (a2 * (1 - a1))
         print("aBlended")
+        
+        printColorComponents(color: color1)
+        printColorComponents(color: color2)
+
 
         return UIColor(red: rBlended, green: gBlended, blue: bBlended, alpha: aBlended)
     }
-//    
-    static func blendColors(foregroundColor: UIColor, backgroundColor: UIColor) -> UIColor {
-        // extract components of foreground color
-        guard let foregroundComponents = foregroundColor.cgColor.components, foregroundColor.cgColor.numberOfComponents == 4 else { return foregroundColor }
-        let foregroundRed = foregroundComponents[0]
-        let foregroundGreen = foregroundComponents[1]
-        let foregroundBlue = foregroundComponents[2]
-        let foregroundAlpha = foregroundComponents[3]
 
-        // extract components of background color
-        guard let backgroundComponents = backgroundColor.cgColor.components, backgroundColor.cgColor.numberOfComponents == 4 else { return backgroundColor }
-        let backgroundRed = backgroundComponents[0]
-        let backgroundGreen = backgroundComponents[1]
-        let backgroundBlue = backgroundComponents[2]
-
-        // blend the components
-        let blendedRed = (foregroundAlpha * foregroundRed) + (1 - foregroundAlpha) * backgroundRed
-        let blendedGreen = (foregroundAlpha * foregroundGreen) + (1 - foregroundAlpha) * backgroundGreen
-        let blendedBlue = (foregroundAlpha * foregroundBlue) + (1 - foregroundAlpha) * backgroundBlue
-
-        // create and return the blended color
-        return UIColor(red: blendedRed, green: blendedGreen, blue: blendedBlue, alpha: 1.0)
-    }
     
-    func blended(withBackgroundColor backgroundColor: UIColor) -> UIColor {
-         // Extract the components of the foreground color
-         var fgRed: CGFloat = 0, fgGreen: CGFloat = 0, fgBlue: CGFloat = 0, fgAlpha: CGFloat = 0
-         self.getRed(&fgRed, green: &fgGreen, blue: &fgBlue, alpha: &fgAlpha)
-         
-         // Extract the components of the background color
-         var bgRed: CGFloat = 0, bgGreen: CGFloat = 0, bgBlue: CGFloat = 0, bgAlpha: CGFloat = 0
-         backgroundColor.getRed(&bgRed, green: &bgGreen, blue: &bgBlue, alpha: &bgAlpha)
-         
-         // Calculate the blended color components
-         let red = fgRed + (bgRed * (1 - fgAlpha))
-         let green = fgGreen + (bgGreen * (1 - fgAlpha))
-         let blue = fgBlue + (bgBlue * (1 - fgAlpha))
-         let alpha = fgAlpha + (bgAlpha * (1 - fgAlpha)) // Optional: Compute the blended alpha
-         
-         // Create a new UIColor with the blended components
-         return UIColor(red: red, green: green, blue: blue, alpha: alpha)
-     }
+
     
     func toHexString() -> String {
         var red: CGFloat = 0
@@ -129,7 +93,7 @@ extension UIColor {
     static func foregroundColor(entry: Entry, background: UIColor, userPreferences: UserPreferences) -> Color {
         if entry.stampIndex == -1 {
             if userPreferences.entryBackgroundColor != .clear {
-                let blendedColor = background.blended(withBackgroundColor: UIColor(userPreferences.entryBackgroundColor))
+                let blendedColor = blendedColor(from: background, with: UIColor(userPreferences.entryBackgroundColor))
                 var red: CGFloat = 0
                 var green: CGFloat = 0
                 var blue: CGFloat = 0
@@ -154,7 +118,7 @@ extension UIColor {
 
     static func foregroundColor2(colorScheme: ColorScheme, userPreferences: UserPreferences) -> Color {
         if userPreferences.entryBackgroundColor != .clear {
-            let blendedColor = UIColor(userPreferences.backgroundColors.first!).blended(withBackgroundColor: UIColor(userPreferences.entryBackgroundColor))
+            let blendedColor = blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor))
             var red: CGFloat = 0
             var green: CGFloat = 0
             var blue: CGFloat = 0

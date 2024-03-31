@@ -11,6 +11,24 @@ import CoreData
 import SwiftUI
 import EventKit
 
+
+func reminderIsComplete(reminderId: String, completion: @escaping (Bool) -> Void) {
+    let eventStore = EKEventStore()
+    
+    eventStore.requestAccess(to: .reminder) { granted, error in
+        guard granted, error == nil else {
+            completion(false)
+            return
+        }
+        
+        if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+            completion(reminder.isCompleted)
+        } else {
+            completion(false) // Reminder not found or access not granted
+        }
+    }
+}
+
 func completeReminder(reminderId: String, completion: @escaping (Bool, Error?) -> Void) {
     let eventStore = EKEventStore()
     
