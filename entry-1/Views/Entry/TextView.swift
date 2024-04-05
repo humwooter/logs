@@ -80,20 +80,21 @@ struct TextView : View {
                             if let reminderId = entry.reminderId, !reminderId.isEmpty {
                                 if !reminderExists(with: reminderId) {
                                     entry.reminderId = ""
-                                }
-                                reminderIsComplete(reminderId: reminderId) { isCompleted in
-                                    DispatchQueue.main.async {
-                                        if isCompleted {
-                                            entry.reminderId = ""
-                                        } else {
-                                            print("The reminder is not completed or does not exist.")
+                                } else {
+                                    reminderIsComplete(reminderId: reminderId) { isCompleted in
+                                        DispatchQueue.main.async {
+                                            if isCompleted {
+                                                entry.reminderId = ""
+                                            } else {
+                                                print("The reminder is not completed or does not exist.")
+                                            }
                                         }
                                     }
-                                }
-                                do {
-                                    try coreDataManager.viewContext.save()
-                                } catch {
-                                    print("Failed to save viewContext: \(error)")
+                                    do {
+                                        try coreDataManager.viewContext.save()
+                                    } catch {
+                                        print("Failed to save viewContext: \(error)")
+                                    }
                                 }
                             }
                         }
@@ -260,6 +261,28 @@ struct TextView : View {
     }
     
 
+    func updateReminders() {
+        if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+            if !reminderExists(with: reminderId) {
+                entry.reminderId = ""
+                print("reminder doesn't exist")
+            }
+            reminderIsComplete(reminderId: reminderId) { isCompleted in
+                DispatchQueue.main.async {
+                    if isCompleted {
+                        entry.reminderId = ""
+                    } else {
+                        print("The reminder is not completed or does not exist.")
+                    }
+                }
+            }
+            do {
+                try coreDataManager.viewContext.save()
+            } catch {
+                print("Failed to save viewContext: \(error)")
+            }
+        }
+    }
     
     @ViewBuilder
     func entrySectionHeader() -> some View {
@@ -280,7 +303,7 @@ struct TextView : View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
@@ -293,6 +316,7 @@ struct TextView : View {
             Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                 .contentTransition(.symbolEffect(.replace.offUp))
         }
+
         .font(.system(size: UIFont.systemFontSize))
         .onTapGesture {
             vibration_light.impactOccurred()

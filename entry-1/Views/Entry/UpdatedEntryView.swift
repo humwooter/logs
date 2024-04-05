@@ -54,6 +54,7 @@ struct EntryView: View {
     
     // Sorting and Custom UI Configuration
     @State private var selectedSortOption: SortOption = .timeAscending
+    @State var backgroundColors: [Color]
 //    init(color: UIColor) {
 //        if !isClear(for: color) {
 //            let textColor = UIColor(UIColor.foregroundColor(background: color))
@@ -65,6 +66,12 @@ struct EntryView: View {
 //            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
 //        }
 //    }
+    
+    init(backgroundColors: [Color]) {
+        
+        self.backgroundColors = backgroundColors
+        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(self.backgroundColors[1]))).opacity(0.5))
+    }
     
     
     var body : some View {
@@ -87,7 +94,7 @@ struct EntryView: View {
             }
             .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())
-            
+            .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             .navigationBarItems(trailing:
                                     HStack {
                 
@@ -245,7 +252,7 @@ struct EntryView: View {
             Color(UIColor.systemGroupedBackground)
             LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.all)
     }
     @ViewBuilder
     func sortedEntriesView() -> some View {

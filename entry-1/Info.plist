@@ -2,10 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string></string>
 	</array>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>This app uses your calendar to create events and reminders based on your activities.</string>
 	<key>NSRemindersFullAccessUsageDescription</key>
 	<string>This app requires access to reminders to create new reminders for your tasks</string>
 	<key>UIAppFonts</key>

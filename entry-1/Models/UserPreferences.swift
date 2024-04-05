@@ -62,7 +62,7 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 class UserPreferences: ObservableObject, Codable {
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, isUnlocked, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch
     }
     
     
@@ -108,7 +108,6 @@ class UserPreferences: ObservableObject, Codable {
                self.reminderColor = preferences.reminderColor
                self.showLockScreen = preferences.showLockScreen
                self.showLinks = preferences.showLinks
-               self.isUnlocked = preferences.isUnlocked
                self.fontSize = preferences.fontSize
                self.lineSpacing = preferences.lineSpacing
                self.fontName = preferences.fontName
@@ -134,10 +133,12 @@ class UserPreferences: ObservableObject, Codable {
         self.activatedButtons = try container.decode([Bool].self, forKey: .activatedButtons)
         self.selectedImages = try container.decode([String].self, forKey: .selectedImages)
         self.showLockScreen = try container.decode(Bool.self, forKey: .showLockScreen)
-        self.isFirstLaunch = try container.decode(Bool.self, forKey: .isFirstLaunch)
+//        self.isFirstLaunch = try container.decode(Bool.self, forKey: .isFirstLaunch)
+        self.isFirstLaunch = try container.decodeIfPresent(Bool.self, forKey: .isFirstLaunch) ?? false
+
 
         self.showLinks = try container.decode(Bool.self, forKey: .showLinks)
-        self.isUnlocked = try container.decode(Bool.self, forKey: .isUnlocked)
+//        self.isUnlocked = try container.decode(Bool.self, forKey: .isUnlocked)
         self.fontSize = try container.decode(CGFloat.self, forKey: .fontSize)
         self.lineSpacing = try container.decode(CGFloat.self, forKey: .lineSpacing)
         self.fontName = try container.decode(String.self, forKey: .fontName)

@@ -75,6 +75,7 @@ struct RecentlyDeletedView: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Recently Deleted")
+        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
         .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic)).font(.system(size: UIFont.systemFontSize))
         
         
@@ -84,7 +85,7 @@ struct RecentlyDeletedView: View {
         HStack {
             Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
             Spacer()
-            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
             if (entry.isPinned) {

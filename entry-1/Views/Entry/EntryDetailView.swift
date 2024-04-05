@@ -92,7 +92,7 @@ struct EntryDetailView: View { //used in LogDetailView
         let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
         let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
         
-        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
+        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1])) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1]
 
         
         let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
@@ -111,6 +111,10 @@ struct EntryDetailView: View { //used in LogDetailView
             if (entry.stampIndex != -1 ) {
                 Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                     .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+            }
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+                Spacer()
+                Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
             }
         }
     }

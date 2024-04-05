@@ -52,4 +52,35 @@ class DatesModel: ObservableObject {
         print("FINISHED")
         print("END DATE IS: \(endDate)")
     }
+    
+//    func updateDateRange(with logs: [Log]) {
+//        print("ENTERED THIS updateDateRange")
+//
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "MM/dd/yyyy"
+//        
+//        var newDatesSet = Set<DateComponents>()
+//        
+//        // Use the passed logs to compute the date range and update dates Set
+//        let dateLogs = logs.compactMap { logEntry -> Date? in
+//            return dateFormatter.date(from: logEntry.day)
+//        }
+//        
+//        for date in dateLogs {
+//            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
+//            newDatesSet.insert(components)
+//        }
+//        
+//        if let earliestDate = dateLogs.min(), let latestDate = dateLogs.max() {
+//            startDate = earliestDate
+//            // Adjust endDate to potentially include the whole last day
+//            endDate = Calendar.current.date(byAdding: .day, value: 1, to: latestDate) ?? latestDate
+//        }
+//        
+//        // Update the dates Set
+//        DispatchQueue.main.async {
+//            self.dates = newDatesSet
+//        }
+//        print("FINISHED updating date range and dates Set")
+//    }
 }

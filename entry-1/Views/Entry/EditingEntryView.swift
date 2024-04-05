@@ -315,7 +315,7 @@ struct EditingEntryView: View {
               
                         
                         Button {
-                            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
                                 completeReminder(reminderId: reminderId) { success, error in
                                     if success {
                                         print("Reminder completed successfully.")
@@ -608,14 +608,13 @@ struct EditingEntryView: View {
               entry.content = editingContent
               
               if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
-//                  entry.removeLog(coreDataManager: coreDataManager)
                   let previousLog = entry.relationship
                   previousLog.removeFromRelationship(entry)
                   if let log = fetchLogByDate(date: formattedDate(selectedDate), coreDataManager: coreDataManager) {
                       entry.relationship = log
                       log.addToRelationship(entry)
                   } else {
-                      let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
+                      createLog(date: selectedDate, coreDataManager: coreDataManager)
                   }
               }
               
@@ -770,17 +769,24 @@ struct EditingEntryView: View {
     
     func requestReminderAccess(completion: @escaping (Bool) -> Void) {
         let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .reminder) { granted, error in
+//        eventStore.requestAccess(to: .reminder) { granted, error in
+//            DispatchQueue.main.async {
+//                completion(granted)
+//            }
+//        }
+        
+        eventStore.requestFullAccessToReminders { granted, error in
             DispatchQueue.main.async {
                 completion(granted)
             }
         }
+
     }
 
     func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
         let eventStore = EKEventStore()
 
-        eventStore.requestAccess(to: .reminder) { granted, error in
+        eventStore.requestFullAccessToReminders { granted, error in
             guard granted, error == nil else {
                 DispatchQueue.main.async {
                     completion(false, nil)
@@ -851,7 +857,7 @@ struct EditingEntryView: View {
     
     func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
         let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .event) { (granted, error) in
+        eventStore.requestFullAccessToEvents { granted, error in
             DispatchQueue.main.async {
                 completion(granted)
             }
@@ -880,7 +886,7 @@ struct EditingEntryView: View {
         guard let reminderId = reminderId, !reminderId.isEmpty else { return }
 
         let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .reminder) { granted, error in
+        eventStore.requestFullAccessToReminders { granted, error in
             guard granted, error == nil else {
                 print("Access to reminders denied or failed.")
                 return

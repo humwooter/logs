@@ -73,6 +73,43 @@ struct SettingsView: View {
                         stampsTabView()
                     }
                 }
+//                .onChange(of: userPreferences.backgroundColors) { oldValue, newValue in
+//                    print("ENETERED UPDATING TAB VIEW")
+//                    let newValue = userPreferences.backgroundColors
+//                    let newBottomBackgroundColor = newValue[1]
+//                    let appearance = UITabBarAppearance()
+//                    appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+//                    let tabBackgroundColor = UIColor.fontColor(forBackgroundColor: UIColor(newBottomBackgroundColor))
+//                    appearance.backgroundColor = tabBackgroundColor
+//                    
+//                    print("TAB BACKGROUND COLOR: ")
+//                    printColorComponents(color: tabBackgroundColor)
+//                    
+//                    // Use this appearance when scrolling behind the TabView:
+//                    UITabBar.appearance().standardAppearance = appearance
+//                    // Use this appearance when scrolled all the way up:
+//                    UITabBar.appearance().scrollEdgeAppearance = appearance
+//                }
+//                .onChange(of: userPreferences.backgroundColors, { oldValue, newValue in
+//                    print("CHANGING STUFF")
+//                    let newBottomBackgroundColor =  isClear(for: UIColor(newValue[1])) ? Color(getDefaultBackgroundColor(colorScheme: colorScheme)) : newValue[1]
+//                    let appearance = UITabBarAppearance()
+//                    appearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+//                    let tabBackgroundColor = UIColor.fontColor(forBackgroundColor: UIColor(newBottomBackgroundColor))
+//                 appearance.backgroundColor = tabBackgroundColor
+//                    
+//                    // Use this appearance when scrolling behind the TabView:
+//                    UITabBar.appearance().standardAppearance = appearance
+//                    // Use this appearance when scrolled all the way up:
+//                    UITabBar.appearance().scrollEdgeAppearance = appearance
+//                    
+//                    let topBackgroundColor =  isClear(for: UIColor(newValue[0])) ? UIColor(getDefaultBackgroundColor(colorScheme: colorScheme)) : UIColor(newValue[0])
+//
+//                    let navigationBarTextColor = UIColor.fontColor(forBackgroundColor: topBackgroundColor)
+//                    UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
+//                    UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
+//                    
+//                })
 
             }
 
@@ -85,6 +122,7 @@ struct SettingsView: View {
             }
             .scrollContentBackground(.hidden)
             .navigationTitle("Settings")
+            .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
             .accentColor(userPreferences.accentColor)
 

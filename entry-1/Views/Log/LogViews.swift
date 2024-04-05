@@ -76,6 +76,7 @@ struct LogsView: View {
     @State private var showingDeleteConfirmation = false
     @State private var logToDelete: Log?
     @State private var selectedDates: Set<DateComponents> = []
+    @State private var isDatesUpdated = false
     
     
     
@@ -111,18 +112,47 @@ struct LogsView: View {
     @State var heights: [UUID: CGFloat] = [:]
 
     
+//    func updateDateRange() {
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "MM/dd/yyyy"
+//        
+//        let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
+//        
+//        if let earliestDate = dateLogs.min(),
+//           let latestDate = dateLogs.max() {
+//            datesModel.startDate = earliestDate
+//            datesModel.endDate = latestDate
+//        }
+//    }
+    
     func updateDateRange() {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         
         let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
         
-        if let earliestDate = dateLogs.min(),
-           let latestDate = dateLogs.max() {
-            datesModel.startDate = earliestDate
-            datesModel.endDate = latestDate
+        guard let earliestDate = dateLogs.min(), let latestDate = dateLogs.max() else {
+            return // Return early if there are no dates
+        }
+        
+        // Update the start date to the earliest date from the logs
+        datesModel.startDate = earliestDate
+        
+        // Check if the latest date from the logs is today or in the past
+        if Calendar.current.isDateInToday(latestDate) || latestDate < Date() {
+            // If so, set the end date to today
+            datesModel.endDate = Date()
+        } else {
+            // If the latest date is in the future, set the end date to the day after the latest date
+            if let dayAfterLatestDate = Calendar.current.date(byAdding: .day, value: 1, to: latestDate) {
+                datesModel.endDate = dayAfterLatestDate
+            } else {
+                // Fallback to the latest date if unable to calculate the next day (unlikely to fail)
+                datesModel.endDate = latestDate
+            }
         }
     }
+
     
     @State private var showCalendar = true
     
@@ -177,9 +207,10 @@ struct LogsView: View {
                             }
                         }
                     }
-                    .onAppear {
-                        updateDateRange()
-                    }
+            
+//                    .onAppear {
+//                        updateDateRange()
+//                    }
                 
                     .background {
                             ZStack {
@@ -205,6 +236,7 @@ struct LogsView: View {
                     .listStyle(.insetGrouped)
                 
                     .navigationTitle("Logs")
+                    .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
                     .onAppear {
                                     correctEntryLogRelationships()
                                 }
@@ -291,7 +323,7 @@ struct LogsView: View {
         HStack {
             Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
             Spacer()
-            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
             if (entry.isPinned) {
@@ -382,8 +414,8 @@ struct LogsView: View {
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
                         datesModel.dates.insert(todayComponents)
                         updateFetchRequests()
-                        updateDateRange()
-                        print("UPDATING DATES")
+//                        updateDateRange()
+//                        print("UPDATING DATES")
                         //dates is a set so if the current date exists already then nothing happens
                     }
                 
@@ -529,8 +561,28 @@ struct LogsView: View {
         return false
     }
     
+//    func updateDates() {
+//        print("updating the date range")
+//        // Fetch all logs after import is done
+//                    let logFetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+//                    do {
+//                        let allLogs = try coreDataManager.viewContext.fetch(logFetchRequest)
+//                        // Assuming you have an instance of your DateRangeModel and a way to convert logs to the expected format for updateDateRange
+//                        self.datesModel.updateDateRange(with: allLogs)
+////                        DispatchQueue.main.async {
+////                            self.datesModel.updateDateRange(with: allLogs)
+////                        }
+//                    } catch {
+//                        print("Failed to fetch logs for date range update: \(error)")
+//                    }
+//    }
+    
     func filteredLogs() -> [Log] {
         print("Entered filteredLogs!")
+        print("dates have been updated once again")
+        
+        print("datesModel.startDate: \(datesModel.startDate)")
+        print("datesModel.endDate: \(datesModel.startDate)")
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"

@@ -21,10 +21,6 @@ public class Log: NSManagedObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try values.decodeIfPresent(UUID.self, forKey: .id)!
-//        if (logExists(id: id, inContext: CoreDataManager.shared.viewContext)) {
-//            print("LOG ALREADY EXISTS SO WE DO NOTHING")
-//            return;
-//        }
         day = try values.decodeIfPresent(String.self, forKey: .day)!
         relationship = try (values.decode(Set<Entry>?.self, forKey: .relationship) as NSSet?)!
     }

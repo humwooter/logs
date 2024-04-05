@@ -37,7 +37,6 @@ struct IntroViews: View {
                     .transition(.slide)
                     
                     // Category 3: Multimedia and Data Management
-                    //            VStack {
                     IntroView(title: "Multimedia and Data Management", content: [
                         (description: "Add photos, GIFs, PDFs. Intuitive PDF reader for note-taking.", imageName: "photo.on.rectangle.angled"),
                         (description: "Data Backup: Backup logs, preferences, and stamps in Settings. Share stamp packs with friends and ensure your data is always safe.", imageName: "externaldrive.badge.icloud"),

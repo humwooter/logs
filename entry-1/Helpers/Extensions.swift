@@ -10,6 +10,16 @@ import SwiftUI
 
 
 
+extension View {
+    @available(iOS 14, *)
+    func navigationBarTitleTextColor(_ color: Color) -> some View {
+        let uiColor = UIColor(color)
+        UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: uiColor ]
+        UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: uiColor ]
+        return self
+    }
+}
+
 extension UIColor {
     
     func getAlpha() -> CGFloat {
@@ -199,6 +209,31 @@ extension UIColor {
 
         // Decompose the UIColor into its RGBA components
         backgroundColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+
+        // Calculate luminance using the RGB values
+        let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+
+        // Determine and return the font color based on luminance to maximize contrast
+        // If the luminance is greater than 0.5 (more light), we choose black font color, otherwise white.
+        print("luminance: \(luminance)")
+        return luminance > 0.5 ? .black : .white
+    }
+    
+    static func fontColor(forBackgroundColor backgroundColor: UIColor, colorScheme: ColorScheme) -> UIColor {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        var color = backgroundColor
+        
+        if isClear(for: backgroundColor) {
+            print("background color is clear")
+                color = UIColor(getDefaultBackgroundColor(colorScheme: colorScheme))
+        }
+
+        // Decompose the UIColor into its RGBA components
+        color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
 
         // Calculate luminance using the RGB values
         let luminance = 0.299 * red + 0.587 * green + 0.114 * blue

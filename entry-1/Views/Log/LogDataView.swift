@@ -166,7 +166,6 @@ struct LogsDataView: View {
                                 }
                             }
                         }
-                        updateDates() //added this
                         try coreDataManager.backgroundContext.save()
                     } catch {
                         print("Failed to import data: \(error)")
@@ -176,6 +175,7 @@ struct LogsDataView: View {
         } catch {
             print("Failed to parse JSON: \(error)")
         }
+        updateDates() //added this
     }
     
     

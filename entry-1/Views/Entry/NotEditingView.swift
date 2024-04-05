@@ -95,7 +95,6 @@ struct NotEditingView: View {
             
                 
                 if let data = data, isGIF(data: data) {
-                    let asyncImage = UIImage(data: data)
                     AnimatedImageView(url: fileURL).scaledToFit()
                         .blur(radius: entry.isHidden ? 10 : 0)
                         .quickLookPreview($selectedURL)
@@ -108,7 +107,6 @@ struct NotEditingView: View {
                             HStack {
                                 Spacer()
                                 Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
-//                                    .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!).blended(withBackgroundColor: UIColor(userPreferences.entryBackgroundColor)))))
 
                                     .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
                                     .onTapGesture {

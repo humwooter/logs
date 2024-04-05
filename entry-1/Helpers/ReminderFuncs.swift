@@ -15,8 +15,10 @@ import EventKit
 func reminderExists(with identifier: String) -> Bool {
     let eventStore = EKEventStore()
     if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+        print("reminder does exist")
         return true
     } else {
+        print("reminder doesn't exist")
         return false
     }
 }

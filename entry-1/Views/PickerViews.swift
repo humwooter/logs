@@ -625,6 +625,11 @@ struct BackgroundColorPickerView: View {
             }
         }
 
+//        .onChange(of: bottomColor) { oldValue, newValue in
+//            print("CHANGED TAB BAR")
+//            UITabBar.appearance().unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(newValue))).opacity(0.5))
+//        }
+
     }
 }
 
