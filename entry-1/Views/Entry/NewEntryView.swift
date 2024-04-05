@@ -672,7 +672,7 @@ struct NewEntryView: View {
             
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
-                    .foregroundColor(isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
+                    .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
                     .font(.system(size: 20))
             }
             Spacer()

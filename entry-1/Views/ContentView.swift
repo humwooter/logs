@@ -114,6 +114,8 @@ struct ContentView: View {
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .environmentObject(datesModel)
+                    .accentColor(userPreferences.accentColor)
+                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 
             }
             
