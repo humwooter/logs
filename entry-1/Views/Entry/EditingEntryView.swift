@@ -357,7 +357,7 @@ struct EditingEntryView: View {
                         ZStack {
                             Color(UIColor.systemGroupedBackground)
                                 .ignoresSafeArea()
-                        }.cornerRadius(15.0)
+                        }
                 }
                 .scrollContentBackground(.hidden)
                 .font(.system(size: 15))

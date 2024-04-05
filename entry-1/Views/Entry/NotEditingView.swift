@@ -47,6 +47,7 @@ struct NotEditingView: View {
             VStack {
                 entryHeaderView()
                 entryTextView()
+//                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
                 entryMediaView()
             }
         }
@@ -246,7 +247,6 @@ struct NotEditingView: View {
             
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle(Color(foregroundColor))
                         .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor)))
                         .onTapGesture {
                             print()
@@ -281,14 +281,6 @@ struct NotEditingView: View {
                             .onAppear {
                                 entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
                             }
-                        
-//                        if let url = extractFirstURL(from: entry.content) {
-//                            if let thumbnail = createThumbnailOfVideoFromRemoteUrl(url: url) {
-//                                Image(uiImage: thumbnail)
-//                                    .scaledToFit()
-//                            }
-//                          
-//                        }
                     }
                 } else {
                     Text(entry.content)
@@ -298,6 +290,7 @@ struct NotEditingView: View {
             }
             
         }
+        .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
             .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
             .padding(2)
             .padding(.vertical, 5)

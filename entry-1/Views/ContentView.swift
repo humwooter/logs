@@ -193,17 +193,21 @@ struct TabBarController: UIViewControllerRepresentable {
         // Customize the UITabBar appearance
         let tabBarAppearance = UITabBarAppearance()
         
-        tabBarAppearance.backgroundColor = UIColor(userPreferences.backgroundColors[1]) // Set the background color to the user's accent color
-        let unselectedColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))
-        let selectedColor = UIColor(userPreferences.accentColor)
+        var backgroundColor = UIColor.clear
+
+        tabBarAppearance.configureWithDefaultBackground()
+        tabBarAppearance.backgroundColor = backgroundColor
+
+        var opacity_val = 0.35
+        var unselectedColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(opacity_val))
         
         //stacked
-        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))]
-        tabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))
+        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))]
+        tabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))
         
         //inline
-        tabBarAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))]
-        tabBarAppearance.inlineLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))
+        tabBarAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))]
+        tabBarAppearance.inlineLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))
         
         
         // Ensure the tab bar stretches to the bottom and uses the accent color
@@ -220,16 +224,20 @@ struct TabBarController: UIViewControllerRepresentable {
         uiViewController.tabBar.tintColor = UIColor(userPreferences.accentColor)
         let updatedAppearance = UITabBarAppearance()
         
-        updatedAppearance.backgroundColor = UIColor(userPreferences.backgroundColors[1])
-        
+        var backgroundColor = UIColor.clear
+
+        updatedAppearance.configureWithDefaultBackground()
+        updatedAppearance.backgroundColor = backgroundColor
+
+        var opacity_val = 0.35
         //stacked
-        updatedAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))]
-        updatedAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))
+        updatedAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))]
+        updatedAppearance.stackedLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))
 //        updatedAppearance.stackedLayoutAppearance.selected.iconColor = UIColor(userPreferences.accentColor)
         
         //inline
-        updatedAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))]
-        updatedAppearance.inlineLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]), colorScheme: colorScheme)).opacity(0.5))
+        updatedAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [NSAttributedString.Key.foregroundColor:  UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))]
+        updatedAppearance.inlineLayoutAppearance.normal.iconColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: backgroundColor, colorScheme: colorScheme)).opacity(opacity_val))
 //        updatedAppearance.inlineLayoutAppearance.selected.iconColor = UIColor(userPreferences.accentColor)
         
         
