@@ -154,9 +154,8 @@ struct NewEntryView: View {
                     }
                     .ignoresSafeArea()
             }
-            .sheet(isPresented: $isCameraPresented) {
-                ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
-   
+            .fullScreenCover(isPresented: $isCameraPresented) {
+                ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
             }
             
 

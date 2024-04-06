@@ -32,6 +32,8 @@
 		4A0FF6DC2AFB8D110078F319 /* LogChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */; };
 		4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A143A372B78983A007C55B5 /* PDFReader.swift */; };
 		4A197A6D2B46BEB600A4F14D /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */; };
+		4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */; };
+		4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */; };
 		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
 		4A45D81B2B7C9E3C008739A6 /* LogDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */; };
 		4A4647652B3EA36C002B2164 /* SearchModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4647642B3EA36C002B2164 /* SearchModel.swift */; };
@@ -262,6 +264,8 @@
 		4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogChartView.swift; sourceTree = "<group>"; };
 		4A143A372B78983A007C55B5 /* PDFReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReader.swift; sourceTree = "<group>"; };
 		4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
+		4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionModifiers.swift; sourceTree = "<group>"; };
+		4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
 		4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogDataView.swift; sourceTree = "<group>"; };
 		4A4647642B3EA36C002B2164 /* SearchModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModel.swift; sourceTree = "<group>"; };
@@ -483,6 +487,7 @@
 				34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */,
 				4A7264462AEDD0E10099EA84 /* UserPreferences.swift */,
 				4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */,
+				4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -585,6 +590,7 @@
 				4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */,
 				4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */,
 				4AB0ABA12BB1663200EF3548 /* CoreDataFuncs.swift */,
+				4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -937,6 +943,7 @@
 				4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */,
 				4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */,
 				4AD9E40C2B318B7800A3C444 /* EditingEntryView.swift in Sources */,
+				4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */,
 				4A5E53192B8DB14D00F4521D /* EntryRowView.swift in Sources */,
 				4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */,
 				4A6EC0E92B32EABC0031DDFA /* Tips.swift in Sources */,
@@ -946,6 +953,7 @@
 				4A4AFF802B92C57800632C4D /* ButtonViews.swift in Sources */,
 				4ABBEF872AE7BF71005BD78A /* PickerViews.swift in Sources */,
 				34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */,
+				4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */,
 				34C43B9B2A9DA51F005C1296 /* CoreDataManager.swift in Sources */,
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
 				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
@@ -1183,7 +1191,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dodum.logs;
+				PRODUCT_BUNDLE_IDENTIFIER = gnupes.dodum.logs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1232,7 +1240,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = dodum.logs;
+				PRODUCT_BUNDLE_IDENTIFIER = gnupes.dodum.logs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

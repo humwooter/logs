@@ -54,25 +54,9 @@ struct EntryView: View {
     
     // Sorting and Custom UI Configuration
     @State private var selectedSortOption: SortOption = .timeAscending
-    @State var backgroundColors: [Color]
-//    init(color: UIColor) {
-//        if !isClear(for: color) {
-//            let textColor = UIColor(UIColor.foregroundColor(background: color))
-//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: textColor]
-//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: textColor]
-//        }
-//        if isClear(for: color) {
-//            UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-//            UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: UIColor(Color("TextColor"))]
-//        }
-//    }
-    
-    init(backgroundColors: [Color]) {
-        
-        self.backgroundColors = backgroundColors
-        UITabBar.appearance().unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(self.backgroundColors[1]))).opacity(0.5))
-    }
-    
+    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+
+
     
     var body : some View {
         NavigationStack {

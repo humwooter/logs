@@ -30,6 +30,17 @@ struct GrowingTextField: UIViewRepresentable {
             textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
         }
         textView.tintColor = cursorColor
+        
+//        for familyName in UIFont.familyNames {
+//            print("\n-- \(familyName) --")
+//            for fontName in UIFont.fontNames(forFamilyName: familyName) {
+//                print(fontName)
+//            }
+//        }
+//
+//        print("FONT NAME: \(fontName)")
+//        print("FONT SIZE: \(fontSize)")
+
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
         textView.textColor = fontColor  // Set font color
         textView.isScrollEnabled = true
@@ -39,7 +50,7 @@ struct GrowingTextField: UIViewRepresentable {
         
         print("makeUIView called for GrowingTextField")
         
-        
+
         return textView
     }
     

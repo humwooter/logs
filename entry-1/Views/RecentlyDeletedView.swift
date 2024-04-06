@@ -34,10 +34,11 @@ struct RecentlyDeletedView: View {
         
         
         List {
-            Section(header: Text("Entries are available here for 10 days, after which they will be permanently deleted")
+            Section(header: Text("Entries are available here for 10 days, after which they will be permanently deleted").textCase(.none)
                 .font(.caption)
                 .foregroundColor(Color(getTextColor()).opacity(0.5))
             ) {}
+
                 
                 ForEach(filteredEntries, id: \.self) { entry in
                     Section {

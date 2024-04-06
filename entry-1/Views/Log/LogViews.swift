@@ -194,7 +194,7 @@ struct LogsView: View {
                                           secondaryButton: .cancel())
                                 }
                                 
-                                NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                                NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences).dismissOnTabTap()) {
                                     Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
                                 }
                         }
@@ -441,7 +441,7 @@ struct LogsView: View {
             
             ScrollView {
                 LazyVStack {
-                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
+                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log).dismissOnTabTap()
                         .environmentObject(userPreferences)) {
                             HStack {
                                 Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)

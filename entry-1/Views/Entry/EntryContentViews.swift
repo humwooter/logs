@@ -172,8 +172,8 @@ struct EditingView: View {
                 }
             }
         }
-        .sheet(isPresented: $showCamera) {
-            ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
+        .fullScreenCover(isPresented: $showCamera) {
+            ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
         }
         
     }

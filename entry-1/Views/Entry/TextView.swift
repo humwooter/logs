@@ -110,8 +110,6 @@ struct TextView : View {
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
                                 .environmentObject(coreDataManager)
-                            
-
                         }
                     
                         .sheet(isPresented: $isExporting) {

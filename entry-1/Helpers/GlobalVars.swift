@@ -30,7 +30,7 @@ var defaultEntryBackground_light = Color.white
 
 
 let fontCategories: [String: [String]] = [
-    "Traditional": ["STIX Two Math", "Gill Sans",  "Didot", "Georgia", "Futura", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],
+    "Traditional": ["Helvetica", "TrebuchetMS", "AvenirNext-Regular", "STIX Two Math", "Gill Sans",  "Didot", "Georgia", "Futura", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],
     "Monospace": ["Courier New",  "Menlo Regular", "Copperplate Light",],
     "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin",  "MotleyForces-Regular",  "Mueda-City", "SunnySpellsBasic-Regular",  "Lilly", "Chalkboard SE Regular", "Cute_Aurora_demo", "Catread", "Catbrother", "Calloveya", "BadComic", "Mini Story", "Spicy Potatos", "New Boba", ],
     "Cursive" : ["Savoye LET", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript", "Magiera-Script", "Barrbar"],

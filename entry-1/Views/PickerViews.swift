@@ -425,7 +425,7 @@ struct IconPicker: View {
             .font(.system(size: UIFont.systemFontSize))
 
         ) {
-            NavigationLink(destination: imageListView()) {
+            NavigationLink(destination: imageListView().dismissOnTabTap()) {
                 HStack {
                     Text(selectedImage)
                     Spacer()
@@ -525,7 +525,7 @@ struct FontPicker: View {
     @Binding var bottomColor_background: Color
     
     var body: some View {
-            NavigationLink(destination: fontListView()) {
+            NavigationLink(destination: fontListView().dismissOnTabTap()) {
                 HStack {
                     Text("Font Family")
                     Spacer()

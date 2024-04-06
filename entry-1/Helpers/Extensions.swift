@@ -18,6 +18,10 @@ extension View {
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: uiColor ]
         return self
     }
+    
+    func dismissOnTabTap(isRootTabView: Bool = false) -> some View {
+        self.modifier(DismissOnTabTapModifier(isRootTabView: isRootTabView))
+    }
 }
 
 extension UIColor {
