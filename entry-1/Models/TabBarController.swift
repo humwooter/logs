@@ -113,40 +113,29 @@ struct TabBarController: UIViewControllerRepresentable {
             self.parent = parent
         }
         
-//        func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-//            let selectedIndex = tabBarController.selectedIndex
-//
-//            // Check if the newly selected tab is the same as the last selected tab
-//            if selectedIndex == lastSelectedIndex {
-//                print("SAME TAB PRESSED AGAIN")
-//                // Attempt to pop to root if the view controller is embedded in a navigation controller
-//                if let navController = viewController.navigationController {
-//                    navController.popToRootViewController(animated: true)
-//                    print("popped to root view")
-//                } else if let hostingController = viewController as? UIHostingController<AnyView>, let navController = hostingController.navigationController {
-//                    // If your UIHostingController is contained within a UINavigationController
-//                    navController.popToRootViewController(animated: true)
-//                    print("did not to root view")
-//
-//                }
-//            } else {
-//                lastSelectedIndex = selectedIndex // Update the last selected index to the new selection
-//            }
-//        }
+
         
         func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-            // Assuming TabSelectionInfo is accessible and has been initialized
-            let selectedIndex = tabBarController.selectedIndex
+            let currentIndex = tabBarController.selectedIndex
+            let previousIndex = self.parent.tabSelectionInfo.selectedIndex // Use the current selectedIndex as the previousIndex
 
-            // Update the observable object
-            DispatchQueue.main.async {
-                self.parent.tabSelectionInfo.selectedIndex = selectedIndex
-                self.parent.tabSelectionInfo.tabJustTapped = true
-                
-                // Reset tabJustTapped after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.parent.tabSelectionInfo.tabJustTapped = false
+            // Immediately update the selectedIndex to the new value
+            self.parent.tabSelectionInfo.selectedIndex = currentIndex
+
+            // Determine if the same tab was tapped twice
+            if previousIndex == currentIndex {
+                // Execute logic for when the same tab is tapped twice
+                DispatchQueue.main.async {
+                    // Set tabJustTapped to true only if the same tab is tapped twice
+                    self.parent.tabSelectionInfo.tabJustTapped = true
+                    
+                    // Optionally reset tabJustTapped after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.parent.tabSelectionInfo.tabJustTapped = false
+                    }
                 }
+            } else {
+                //do nothing here
             }
         }
     }
