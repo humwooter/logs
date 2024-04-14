@@ -9,6 +9,22 @@ import Foundation
 import SwiftUI
 
 
+extension Double {
+    /// Returns a formatted string representing the file size in appropriate units.
+    func fileSizeFormatted() -> String {
+        if self >= 1_000 {
+            return String(format: "%.2f GB", self / 1_000)
+        } else if self >= 1 {
+            return String(format: "%.2f MB", self)
+        } else if self >= 0.001 {
+            return String(format: "%.2f KB", self * 1_000)
+        } else {
+            return String(format: "%.2f bytes", self * 1_000_000)
+        }
+    }
+}
+
+
 
 extension View {
     @available(iOS 14, *)

@@ -62,7 +62,7 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 class UserPreferences: ObservableObject, Codable {
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon
     }
     
     
@@ -113,6 +113,7 @@ class UserPreferences: ObservableObject, Codable {
                self.fontName = preferences.fontName
 //               self.stamps = preferences.stamps //don't update stamps for now
                self.stampStorage = preferences.stampStorage
+               self.activeAppIcon = preferences.activeAppIcon
            }
        }
     
@@ -142,6 +143,8 @@ class UserPreferences: ObservableObject, Codable {
         self.fontSize = try container.decode(CGFloat.self, forKey: .fontSize)
         self.lineSpacing = try container.decode(CGFloat.self, forKey: .lineSpacing)
         self.fontName = try container.decode(String.self, forKey: .fontName)
+        self.activeAppIcon = try container.decode(String.self, forKey: .activeAppIcon)
+
         self.showMostRecentEntryTime = try container.decode(Bool.self, forKey: .showMostRecentEntryTime)
     }
 
@@ -177,6 +180,7 @@ class UserPreferences: ObservableObject, Codable {
         try container.encode(fontSize, forKey: .fontSize)
         try container.encode(lineSpacing, forKey: .lineSpacing)
         try container.encode(fontName, forKey: .fontName)
+        try container.encode(activeAppIcon, forKey: .activeAppIcon)
     }
     
     
@@ -288,6 +292,11 @@ class UserPreferences: ObservableObject, Codable {
         }
     }
     
+    @Published var activeAppIcon: String {
+        didSet {
+            UserDefaults.standard.set(activeAppIcon, forKey: "activeAppIcon")
+        }
+    }
     
     
     init() {
@@ -326,7 +335,8 @@ class UserPreferences: ObservableObject, Codable {
         self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
         
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen")
-        
+//        self.isUnlocked = UserDefaults.standard.bool(forKey: "isUnlocked")
+
 
         let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
          if !hasLaunchedBefore  {
@@ -339,6 +349,7 @@ class UserPreferences: ObservableObject, Codable {
          }
         
         self.showMostRecentEntryTime = UserDefaults.standard.bool(forKey: "showMostRecentEntryTime")
+        self.activeAppIcon = UserDefaults.standard.string(forKey: "activeAppIcon") ?? "AppIcon"
     }
 }
 

@@ -122,7 +122,7 @@ struct EditingView: View {
                         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                         let fileURL = documentsDirectory.appendingPathComponent(filename)
                         
-                        if imageExists(at: fileURL) {
+                        if mediaExists(at: fileURL) {
                             let data = try? Data(contentsOf: fileURL)
                             
                             if let data = data, isGIF(data: data) {

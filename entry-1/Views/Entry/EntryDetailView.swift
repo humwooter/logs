@@ -155,7 +155,7 @@ struct EntryDetailView: View { //used in LogDetailView
         if let filename = entry.mediaFilename {
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentsDirectory.appendingPathComponent(filename)
-            if imageExists(at: fileURL) {
+            if mediaExists(at: fileURL) {
                 if let data =  getMediaData(fromFilename: filename) {
                     if isPDF(data: data) {
                     } else {
@@ -207,7 +207,7 @@ struct EntryDetailView: View { //used in LogDetailView
                     CustomAsyncPDFThumbnailView(pdfURL: fileURL).scaledToFit()
                 }
                 else {
-                    if imageExists(at: fileURL) {
+                    if mediaExists(at: fileURL) {
                         CustomAsyncImageView(url: fileURL).scaledToFit()
                         
                     }

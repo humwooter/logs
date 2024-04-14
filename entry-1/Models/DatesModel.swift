@@ -9,6 +9,17 @@ import Foundation
 import Foundation
 import Combine
 
+struct LogDate: Identifiable, Equatable {
+    let id = UUID()  // Unique identifier for each LogDate
+    var date: DateComponents
+    var isSelected: Bool
+    var hasLog = false
+    
+    static func ==(lhs: LogDate, rhs: LogDate) -> Bool {
+        return lhs.date == rhs.date  // Equality based only on date, ignoring selection status
+    }
+}
+
 class DatesModel: ObservableObject {
     @Published var startDate: Date = .distantPast
     @Published var endDate: Date = Date()
@@ -16,12 +27,12 @@ class DatesModel: ObservableObject {
     var calendar = Calendar.current
     var timeZone = TimeZone.current
     
-    @Published var dates: Set<DateComponents> = {
-        var set = Set<DateComponents>()
+    @Published var dates: [LogDate] = {  // Changed to array for easier management of isSelected
+        var list = [LogDate]()
         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-        set.insert(todayComponents)
-        
-        return set
+        list.append(LogDate(date: todayComponents, isSelected: false))  // Start with today not selected
+
+        return list
     }()
     
     var bounds: Range<Date> {

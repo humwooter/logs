@@ -10,6 +10,15 @@ import SwiftUI
 import UniformTypeIdentifiers
 import CoreData
 
+
+func defaultLogsName() -> String {
+    let date = Date()
+    let formatter = DateFormatter()
+    formatter.dateFormat = "M-d-yy"
+    let dateString = formatter.string(from: date)
+    return "logs backup \(dateString)"
+}
+
 struct LogsDataView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -23,67 +32,87 @@ struct LogsDataView: View {
     
     @State private var isExporting = false
     @State private var isImporting = false
+    
+    @State private var isHidden = false
 
     var body: some View {
-        Section(header: Text("Logs Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
-        ) {
-            HStack {
-                Spacer()
-                Button {
-                    exportData()
-                    print("Export button tapped")
-                    isExporting = true
-                } label: {
-                    VStack(spacing: 2) {
-                        Image(systemName: "arrow.up.doc")
-                        Text("BACKUP").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                    }
-                }
-                .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
-                    switch result {
-                    case .success(let url):
-                        print("File successfully saved at \(url)")
-                    case .failure(let error):
-                        print("Failed to save file: \(error)")
-                    }
-                }
-                .buttonStyle(BackupButtonStyle())
-                .foregroundColor(Color(UIColor.tertiarySystemBackground))
-                
-                Spacer()
-                Button {
-                    isImporting = true
-                } label: {
-                    VStack(spacing: 2) {
-                        Image(systemName: "arrow.down.doc")
-                        Text("RESTORE").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                    }
-                }
-                .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
-                    Task {
-                        switch result {
-                        case .success(let url):
-                            do {
-                                try await importData(from: url)
-                            } catch {
-                                print("Failed to import data: \(error)")
-                            }
-                        case .failure(let error):
-                            print("Failed to import file: \(error)")
-                        }
-                    }
-                }
-                .buttonStyle(RestoreButtonStyle())
-                .foregroundColor(colorScheme == .dark ? .black : .white)
-                
-                Spacer()
+        Section {
+            if !isHidden {
+                mainView()
             }
-            .zIndex(1) // Ensure it lays on top if using ZStack
+        } header: {
+            
+            HStack {
+                Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                Text("Logs Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    .font(.system(size: UIFont.systemFontSize))
+
+                Spacer()
+                Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                
+            }
+            .onTapGesture {
+                isHidden.toggle()
+            }
         }
         .background(.clear) // Use a clear background to prevent any visual breaks
     }
     
+    @ViewBuilder
+    func mainView() -> some View {
+        HStack {
+            Spacer()
+            Button {
+                exportData()
+                print("Export button tapped")
+                isExporting = true
+            } label: {
+                VStack(spacing: 2) {
+                    Image(systemName: "arrow.up.doc")
+                    Text("BACKUP").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                }
+            }
+            .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
+                switch result {
+                case .success(let url):
+                    print("File successfully saved at \(url)")
+                case .failure(let error):
+                    print("Failed to save file: \(error)")
+                }
+            }
+            .buttonStyle(BackupButtonStyle())
+            .foregroundColor(Color(UIColor.tertiarySystemBackground))
+            
+            Spacer()
+            Button {
+                isImporting = true
+            } label: {
+                VStack(spacing: 2) {
+                    Image(systemName: "arrow.down.doc")
+                    Text("RESTORE").fontWeight(.bold).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                }
+            }
+            .fileImporter(isPresented: $isImporting, allowedContentTypes: [.json]) { result in
+                Task {
+                    switch result {
+                    case .success(let url):
+                        do {
+                            try await importData(from: url)
+                        } catch {
+                            print("Failed to import data: \(error)")
+                        }
+                    case .failure(let error):
+                        print("Failed to import file: \(error)")
+                    }
+                }
+            }
+            .buttonStyle(RestoreButtonStyle())
+            .foregroundColor(colorScheme == .dark ? .black : .white)
+            
+            Spacer()
+        }
+        .zIndex(1) // Ensure it lays on top if using ZStack
+    }
     func updateDates() {
         print("updating the date range")
         // Fetch all logs after import is done

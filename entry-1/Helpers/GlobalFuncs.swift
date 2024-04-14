@@ -30,22 +30,22 @@ func createThumbnailOfVideoFromRemoteUrl(url: URL) -> UIImage? {
     }
 }
 
-func extractFirstURL(from text: String) -> URL? {
-    print("ENTERED extractFirstURL")
-    let pattern = "https?://[a-zA-Z0-9_./-]+\\??[a-zA-Z0-9_=&./-]*"
-    if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-        let nsText = text as NSString
-        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsText.length))
-        
-        if let match = matches.first {
-            let range = match.range
-            let urlString = nsText.substring(with: range)
-            print("URL STRING: \(urlString)")
-            return URL(string: urlString)
-        }
-    }
-    return nil
-}
+//func extractFirstURL(from text: String) -> URL? {
+//    print("ENTERED extractFirstURL")
+//    let pattern = "https?://[a-zA-Z0-9_./-]+\\??[a-zA-Z0-9_=&./-]*"
+//    if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+//        let nsText = text as NSString
+//        let matches = regex.matches(in: text, options: [], range: NSRange(location: 0, length: nsText.length))
+//        
+//        if let match = matches.first {
+//            let range = match.range
+//            let urlString = nsText.substring(with: range)
+//            print("URL STRING: \(urlString)")
+//            return URL(string: urlString)
+//        }
+//    }
+//    return nil
+//}
 
 func getDocumentsDirectory() -> URL {
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)

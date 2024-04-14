@@ -786,6 +786,7 @@ struct NewEntryView: View {
         newEntry.isDrafted = false
         newEntry.isPinned = false
         newEntry.isShown = true
+        newEntry.shouldSyncWithCloudKit = false
   
     
         

@@ -12,6 +12,8 @@ import TipKit
 public class TabSelectionInfo: ObservableObject {
     @Published public var selectedIndex: Int = 0
     @Published public var tabJustTapped: Bool = false
+    @Published public var isRootTabView: Bool = false
+
 }
 
 @main

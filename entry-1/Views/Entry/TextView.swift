@@ -223,7 +223,7 @@ struct TextView : View {
         if let filename = entry.mediaFilename {
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
             let fileURL = documentsDirectory.appendingPathComponent(filename)
-            if imageExists(at: fileURL) {
+            if mediaExists(at: fileURL) {
                 if let data =  getMediaData(fromFilename: filename) {
                     
                     if !isPDF(data: data) {

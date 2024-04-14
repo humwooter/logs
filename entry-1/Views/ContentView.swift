@@ -26,7 +26,8 @@ struct ContentView: View {
         entity: Entry.entity(),
         sortDescriptors: []  // Empty array implies no sorting
     ) var allEntries: FetchedResults<Entry>
-    
+    @State private var isUnlocked: Bool = false
+
     
     var body: some View {
         ZStack {
@@ -42,19 +43,33 @@ struct ContentView: View {
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
                     createLog(in: coreDataManager.viewContext)
                     deleteOldEntries()
-                    authenticate()
+                    
+                    if userPreferences.showLockScreen {
+                        authenticate()
+                    }
                     
                     
-                    
-                    print("Entries with nil time: \(entriesWithNilTime.count)")
+//                    print("Entries with nil time: \(entriesWithNilTime.count)")
                 })
-                .onAppear {
-                    UITabBar.appearance().unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1]))).opacity(0.5))
-                }
-                
             }
-        } .onAppear {
-            print("isFirstLaunch: \(userPreferences.isFirstLaunch)")
+        }
+    }
+    
+    
+    
+    @ViewBuilder
+    func lockScreenView() -> some View {
+        ZStack {
+            Color(UIColor.systemGroupedBackground)
+            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            
+            Button {
+                authenticate()
+            } label: {
+                Label("Locked", systemImage: "lock")
+                    .foregroundStyle(userPreferences.accentColor)
+            }
         }
     }
     
@@ -62,24 +77,19 @@ struct ContentView: View {
     @ViewBuilder
     func mainAppView() -> some View {
         VStack {
-            if (!userPreferences.isUnlocked && userPreferences.showLockScreen){
-                ZStack {
-                    Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                    
-                        .ignoresSafeArea()
-                    
-                    Button {
-                        authenticate()
-                    } label: {
-                        Label("Locked", systemImage: "lock")
-                            .foregroundStyle(Color(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first!) )))
-                    }
-                }
-                
+            if (!self.isUnlocked && userPreferences.showLockScreen){
+                lockScreenView()
             }
             else {
-                TabBarController().ignoresSafeArea()
+//                TabBarController(isUnlocked: $isUnlocked).ignoresSafeArea()
+//                    .environmentObject(coreDataManager)
+//                    .environmentObject(userPreferences)
+//                    .environmentObject(datesModel)
+//                    .environmentObject(tabSelectionInfo)
+//                    .accentColor(userPreferences.accentColor)
+//                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                
+                CustomTabViewModel(isUnlocked: $isUnlocked)
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .environmentObject(datesModel)
@@ -93,8 +103,8 @@ struct ContentView: View {
     }
 
     func authenticate() {
-        if userPreferences.showLockScreen {
-            print("userPreferences.isUnlocked: \(userPreferences.isUnlocked)")
+        if !self.isUnlocked {
+            print("userPreferences.isUnlocked: \(self.isUnlocked)")
             print("userPreferences.showLockScreen: \(userPreferences.showLockScreen)")
 
             let context = LAContext()
@@ -109,8 +119,10 @@ struct ContentView: View {
                     // Authentication has now completed
                     DispatchQueue.main.async {
                         if success {
-                            userPreferences.isUnlocked = true
+                            self.isUnlocked = true
+                            print("authentication succeeded")
                         } else {
+                            print("authentication failed")
                             // Biometrics failed and the user either cancelled the passcode screen or entered an incorrect passcode
                             // Handle the failure or fallback to a custom password prompt if needed
                         }

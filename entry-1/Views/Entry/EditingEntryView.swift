@@ -139,13 +139,14 @@ struct EditingEntryView: View {
                     selectedData = previousMediaData
                 }
                 if !entry.content.isEmpty {
-                    previousEntryContent = entry.content
+//                    previousEntryContent = entry.content
                     editingContent = entry.content
                 }
 
             }
             .fullScreenCover(isPresented: $showCamera) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
+                
             }
             .sheet(isPresented: $showingDatePicker) {
                 

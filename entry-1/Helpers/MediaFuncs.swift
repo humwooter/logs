@@ -46,7 +46,7 @@ func isHeic(data: Data) -> Bool {
     return data.prefix(4) == Data([0x89, 0x48, 0x45, 0x49]) // Prefix for HEIC
 }
 
-public func imageExists(at url: URL) -> Bool {
+public func mediaExists(at url: URL) -> Bool {
     if FileManager.default.fileExists(atPath: url.path) {
         print("IMAGE EXISTS!")
     }
@@ -110,7 +110,29 @@ func getMediaData(fromFilename filename: String) -> Data? {
     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
     let fileURL = documentsDirectory.appendingPathComponent(filename)
     
-    if imageExists(at: fileURL) {
+    if mediaExists(at: fileURL) {
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                let data = try Data(contentsOf: fileURL)
+                return data
+            } catch {
+                print("Error reading image file: \(error)")
+                return nil
+            }
+        } else {
+            print("File does not exist at path: \(fileURL.path)")
+            return nil
+        }
+    }
+    else {
+        return nil
+    }
+}
+
+func getMediaData(fromURL fileURL: URL) -> Data? {
+
+    if mediaExists(at: fileURL) {
         
         if FileManager.default.fileExists(atPath: fileURL.path) {
             do {
@@ -168,4 +190,26 @@ func deleteImage(with mediaFilename: String?, coreDataManager: CoreDataManager) 
     } else {
         print("File does not exist at path: \(fileURL.path)")
     }
+}
+
+func generateComplementaryColors(baseColor: Color) -> [Color] {
+    // Convert SwiftUI Color to HSB color space
+    let uiColor = UIColor(baseColor)
+    var hue: CGFloat = 0
+    var saturation: CGFloat = 0
+    var brightness: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    uiColor.getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha)
+    
+    // Generate five new colors
+    var colors: [Color] = []
+    for i in 1...5 {
+        // Calculate new hue, shifted by 1/6th of the color wheel
+        let newHue = (hue + CGFloat(i) * 0.2).truncatingRemainder(dividingBy: 1.0)
+        let newColor = UIColor(hue: newHue, saturation: saturation, brightness: brightness, alpha: alpha)
+        colors.append(Color(newColor))
+    }
+    
+    return colors
 }

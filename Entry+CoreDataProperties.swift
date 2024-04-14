@@ -19,6 +19,7 @@ extension Entry {
     
     
     @NSManaged public var content: String
+    @NSManaged public var previousContent: String?
     @NSManaged public var time: Date
     @NSManaged public var lastUpdated: Date?
     @NSManaged public var relationship: Log
@@ -32,6 +33,7 @@ extension Entry {
     @NSManaged public var isPinned: Bool
     @NSManaged public var isRemoved: Bool
     @NSManaged public var isDrafted: Bool
+    @NSManaged public var shouldSyncWithCloudKit: Bool
     @NSManaged public var stampIndex: Int16
     @NSManaged public var pageNum_pdf: Int16
 
@@ -82,7 +84,7 @@ extension Entry {
 
         if let mediaFilename = self.mediaFilename, !mediaFilename.isEmpty { //deleting existing image
             let existingURL = documentsDirectory.appendingPathComponent(mediaFilename)
-            if imageExists(at: existingURL) {
+            if mediaExists(at: existingURL) {
                 self.deleteImage(coreDataManager: coreDataManager)
             }
         }

@@ -375,7 +375,21 @@ struct ButtonDashboard: View {
                 VStack(alignment: .center, spacing: 2) {
                         Image(systemName: stamp.imageName).fontWeight(.bold)
                         .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
-                            .padding(.vertical, 5)
+                        .padding(.vertical, 5).onTapGesture {
+                            if userPreferences.stamps.filter({ $0.isActive }).count < 3 {
+                            
+//                                vibration_medium.prepare()
+                                userPreferences.stamps[index].isActive = !userPreferences.stamps[index].isActive //toggle
+//                                vibration_medium.impactOccurred()
+                            } else {
+                                if userPreferences.stamps.filter({ $0.isActive }).count == 3 && userPreferences.stamps[index].isActive {
+//                                    vibration_medium.impactOccurred()
+                                    userPreferences.stamps[index].isActive = false
+                                } else {
+                                    showAlert = true
+                                }
+                            }
+                        }
                     ToggleButton(isOn: Binding(
                                        get: { stamp.isActive },
                                        set: { newValue in
@@ -603,7 +617,6 @@ struct BackgroundColorPickerView: View {
               
                     ColorPicker("Bottom Color", selection: $bottomColor, supportsOpacity: false)
                 }
-                .padding()
                 .shadow(radius: 1)
                 
                 
@@ -613,16 +626,16 @@ struct BackgroundColorPickerView: View {
                     .shadow(radius: 1)
             }
         } header: {
-            HStack {
-                Spacer()
-                Label("Reset to default", systemImage: "gobackward").foregroundStyle(.red)
-                    .onTapGesture {
-                        vibration_light.impactOccurred()
-                        topColor = defaultColor
-                        bottomColor = defaultColor
-                    }
-                    .padding(1)
-            }
+//            HStack {
+//                Spacer()
+//                Label("Reset to default", systemImage: "gobackward").foregroundStyle(.red)
+//                    .onTapGesture {
+//                        vibration_light.impactOccurred()
+//                        topColor = defaultColor
+//                        bottomColor = defaultColor
+//                    }
+//                    .padding(1)
+//            }
         }
 
 //        .onChange(of: bottomColor) { oldValue, newValue in

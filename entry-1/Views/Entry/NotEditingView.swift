@@ -14,7 +14,7 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-
+import AVKit
 
 
 struct NotEditingView: View {
@@ -94,7 +94,6 @@ struct NotEditingView: View {
                 let fileURL = documentsDirectory.appendingPathComponent(filename)
                 let data = try? Data(contentsOf: fileURL)
             
-                
                 if let data = data, isGIF(data: data) {
                     AnimatedImageView(url: fileURL).scaledToFit()
                         .blur(radius: entry.isHidden ? 10 : 0)
@@ -124,7 +123,7 @@ struct NotEditingView: View {
                     }
 
                 } else {
-                    if imageExists(at: fileURL) {
+                    if mediaExists(at: fileURL) {
                         CustomAsyncImageView(url: fileURL).scaledToFit()
                             .blur(radius: entry.isHidden ? 10 : 0)
                             .quickLookPreview($selectedURL)
@@ -175,7 +174,7 @@ struct NotEditingView: View {
                 if let filename = entry.mediaFilename {
                     let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                     let fileURL = documentsDirectory.appendingPathComponent(filename)
-                    if imageExists(at: fileURL) {
+                    if mediaExists(at: fileURL) {
                         if let data =  getMediaData(fromFilename: filename) {
                             if isPDF(data: data) {
                             }
@@ -236,6 +235,17 @@ struct NotEditingView: View {
         return fontColor
     }
 
+    @ViewBuilder
+    func videoPlayerView() -> some View { //make sure it's only for mp4's
+        if let url_string = extractFirstURL(from: entry.content) {
+            if let url = URL(string: url_string) {
+                VideoPlayer(player: AVPlayer(url: url)).scaledToFit()
+                    .onAppear {
+                        print("URL: \(url)")
+                    }
+            }
+        }
+    }
     
     @ViewBuilder
     func entryTextView() -> some View {
@@ -244,10 +254,11 @@ struct NotEditingView: View {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
                 var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
                 if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
+                    
             
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: foregroundColor)))
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
                         .onTapGesture {
                             print()
                             print("ENTERED THIS AND FOREGROUND COLOR IS: ")

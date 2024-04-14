@@ -17,6 +17,7 @@ struct TabBarController: UIViewControllerRepresentable {
     @Environment(\.colorScheme) var colorScheme
     
     @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+    @Binding var isUnlocked: Bool
 
     
     // Initialize TabSelectionInfo within TabBarController
@@ -47,7 +48,7 @@ struct TabBarController: UIViewControllerRepresentable {
         entryVC.tabBarItem = UITabBarItem(title: "Entries", image: UIImage(systemName: "pencil"), tag: 1)
 
         let settingsVC = UIHostingController(rootView:
-                                                SettingsView()
+                                                SettingsView(isUnlocked: $isUnlocked)
                                                     .environmentObject(userPreferences)
                                                     .environmentObject(coreDataManager)
                                                     .environmentObject(datesModel)
@@ -59,8 +60,7 @@ struct TabBarController: UIViewControllerRepresentable {
 
         tabBarController.setViewControllers([logVC, entryVC, settingsVC], animated: false)
         
-        // Omitted UITabBar customization for brevity...
-
+        tabBarController.selectedIndex = 1
         tabBarController.delegate = context.coordinator
 
         return tabBarController
@@ -106,14 +106,21 @@ struct TabBarController: UIViewControllerRepresentable {
         @EnvironmentObject var coreDataManager: CoreDataManager
         @EnvironmentObject var datesModel: DatesModel
 
-        // Track the last selected index to compare against new selections
-        private var lastSelectedIndex = -1
 
         init(_ parent: TabBarController) {
             self.parent = parent
         }
         
-
+//        func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
+//            // If the selected view controller is already the currently displayed one, pop to the root.
+//            if let navController = viewController as? UINavigationController {
+//                if navController.visibleViewController !== navController.viewControllers.first {
+//                    navController.popToRootViewController(animated: true)
+//                    return false // Prevent the selection from triggering the normal tab switch action
+//                }
+//            }
+//            return true // Allow the tab to be selected normally otherwise
+//        }
         
         func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
             let currentIndex = tabBarController.selectedIndex
@@ -130,7 +137,7 @@ struct TabBarController: UIViewControllerRepresentable {
                     self.parent.tabSelectionInfo.tabJustTapped = true
                     
                     // Optionally reset tabJustTapped after a short delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         self.parent.tabSelectionInfo.tabJustTapped = false
                     }
                 }
@@ -141,3 +148,119 @@ struct TabBarController: UIViewControllerRepresentable {
     }
 }
 
+
+struct CustomTabViewModel: View {
+    @State private var selection = 1
+    @State private var resetNavigationID = UUID()
+    @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var datesModel: DatesModel
+    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+    @Environment(\.colorScheme) var colorScheme
+    @Binding var isUnlocked: Bool
+    
+    var opacity_val = 0.35
+
+    var body: some View {
+        let selectable = Binding(
+            get: { self.selection },
+            set: {
+                if self.selection == $0 {
+                        withAnimation(.easeInOut(duration: 3.0)) {
+                            self.resetNavigationID = UUID() // Resets navigation stack
+
+                        }
+                }
+                self.selection = $0
+            }
+        )
+
+        return TabView(selection: selectable) {
+            NavigationView {
+                LogParentView()
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+                    .environmentObject(datesModel)
+                    .environmentObject(tabSelectionInfo)
+            }.dismissOnTabTap(isRootTabView: true)
+            .tabItem {
+                Label("Logs", systemImage: "book.fill")
+            }
+            .background(TabBarAccessor { tabBar in
+                let tabBarAppearance = UITabBarAppearance()
+                tabBarAppearance.configureWithDefaultBackground()
+                tabBar.unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor.clear, colorScheme: colorScheme)).opacity(opacity_val))
+                tabBar.standardAppearance = tabBarAppearance
+                tabBar.scrollEdgeAppearance = tabBarAppearance
+                  })
+            .tag(0)
+            .id(resetNavigationID)
+
+            NavigationView {
+                EntryView()
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+                    .environmentObject(tabSelectionInfo)
+            }
+            .tabItem {
+                Label("Entries", systemImage: "pencil")
+            }
+            .background(TabBarAccessor { tabBar in
+                let tabBarAppearance = UITabBarAppearance()
+                tabBarAppearance.configureWithDefaultBackground()
+                tabBar.unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor.clear, colorScheme: colorScheme)).opacity(opacity_val))
+                tabBar.standardAppearance = tabBarAppearance
+                tabBar.scrollEdgeAppearance = tabBarAppearance
+                  })
+            .tag(1)
+            .id(resetNavigationID)
+
+            NavigationView {
+                SettingsView(isUnlocked: $isUnlocked)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+                    .environmentObject(datesModel)
+                    .environmentObject(tabSelectionInfo)
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gearshape.fill")
+            }
+            .background(TabBarAccessor { tabBar in
+                let tabBarAppearance = UITabBarAppearance()
+                tabBarAppearance.configureWithDefaultBackground()
+                tabBar.unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor.clear, colorScheme: colorScheme)).opacity(opacity_val))
+                tabBar.standardAppearance = tabBarAppearance
+                tabBar.scrollEdgeAppearance = tabBarAppearance
+                  })
+            .tag(2)
+            .id(resetNavigationID)
+        }
+    }
+}
+
+struct TabBarAccessor: UIViewControllerRepresentable {
+    var callback: (UITabBar) -> Void
+    private let proxyController = ViewController()
+
+    func makeUIViewController(context: UIViewControllerRepresentableContext<TabBarAccessor>) ->
+                              UIViewController {
+        proxyController.callback = callback
+        return proxyController
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<TabBarAccessor>) {
+    }
+    
+    typealias UIViewControllerType = UIViewController
+
+    private class ViewController: UIViewController {
+        var callback: (UITabBar) -> Void = { _ in }
+
+        override func viewWillAppear(_ animated: Bool) {
+            super.viewWillAppear(animated)
+            if let tabBar = self.tabBarController {
+                self.callback(tabBar.tabBar)
+            }
+        }
+    }
+}

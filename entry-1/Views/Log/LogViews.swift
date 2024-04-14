@@ -207,10 +207,7 @@ struct LogsView: View {
                             }
                         }
                     }
-            
-//                    .onAppear {
-//                        updateDateRange()
-//                    }
+
                 
                     .background {
                             ZStack {
@@ -222,7 +219,16 @@ struct LogsView: View {
                     .scrollContentBackground(.hidden)
                     .refreshable {
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        datesModel.dates.insert(todayComponents)
+                        // Check if today's date already exists in the dates array
+                        if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
+                            // If it exists, you can decide to update its isSelected property or leave it as is
+                            // For example, you could toggle the selection:
+                            datesModel.dates[index].isSelected.toggle()
+                        } else {
+                            // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
+                            datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
+                        }
+                        
                         updateFetchRequests()
                         updateDateRange()
                     }
@@ -335,7 +341,7 @@ struct LogsView: View {
     
     @ViewBuilder
     func suggestedSearchView() -> some View {
-        Section(header: Text("Suggested")) {
+        Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)) {
             Button {
                 searchModel.tokens.append(.hiddenEntries)
             } label: {
@@ -406,24 +412,28 @@ struct LogsView: View {
     func calendarView() -> some View {
         Section {
             if showCalendar {
-                MultiDatePicker("Dates Available", selection: $datesModel.dates, in: datesModel.bounds).datePickerStyle(.graphical)
-                    .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
-                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                    .accentColor(userPreferences.accentColor)
+                CalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))  // Use a specific color for selection
+                            .padding()
+//                MultiDatePicker("Dates Available", selection: $datesModel.dates, in: datesModel.bounds).datePickerStyle(.graphical)
+//                    .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
+//                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                    .accentColor(userPreferences.accentColor)
                     .onAppear {
                         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        datesModel.dates.insert(todayComponents)
+                        // Check if today's date already exists in the dates array
+                        if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
+                        } else {
+                            datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
+                        }
+                        
                         updateFetchRequests()
-//                        updateDateRange()
-//                        print("UPDATING DATES")
-                        //dates is a set so if the current date exists already then nothing happens
                     }
                 
             }
             
         } header: {
             HStack {
-                Text("Dates").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Calendar").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                 
                 Spacer()
                 Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
@@ -616,18 +626,20 @@ struct LogsView: View {
                     print("Failed to parse date from log.day in filter: \(log.day)")
                     return false
                 }
-                let isContained = datesModel.dates.contains { dateComponent in
-                    guard let selectedDate = calendar.date(from: dateComponent) else {
+                let isContained = datesModel.dates.contains { logDateEntry in
+                    guard let selectedDate = calendar.date(from: logDateEntry.date) else {
                         print("Failed to create date from dateComponent")
                         return false
                     }
                     let startOfDay = Calendar.current.startOfDay(for: selectedDate)
                     let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
-                    let result = logDate >= startOfDay && logDate <= endOfDay
-                    if result {
+                    let isWithinDay = logDate >= startOfDay && logDate <= endOfDay
+                    let isSelected = logDateEntry.isSelected
+                    
+                    if isWithinDay && isSelected {
                         print("Log date \(logDate) is within selected day \(selectedDate)")
                     }
-                    return result
+                    return isWithinDay && isSelected
                 }
                 if !isContained {
                     print("Log date \(logDate) is not within any selected day")
@@ -858,6 +870,7 @@ struct LogParentView : View {
                         case .reminderEntries:
                             Text("Reminder")
                         }
+                
                 
             }
             .font(.system(size: UIFont.systemFontSize))
