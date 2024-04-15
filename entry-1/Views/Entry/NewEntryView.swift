@@ -23,6 +23,7 @@ struct NewEntryView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var datesModel: DatesModel
     @Environment(\.colorScheme) var colorScheme
     
     
@@ -814,11 +815,18 @@ struct NewEntryView: View {
                 newEntry.relationship = log
             } else {
                 // Create a new log if needed
+                let dateStringManager = DateStrings()
                 let newLog = Log(context: viewContext)
                 newLog.day = formattedDate(newEntry.time)
+                dateStringManager.addDate(newLog.day)
                 newLog.addToRelationship(newEntry)
                 newLog.id = UUID()
                 newEntry.relationship = newLog
+                
+                let todayDate = Date()
+                let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                let todayDateString = formattedDate(todayDate)  // Using formattedDate function
+                datesModel.dates.append(LogDate(date: todayComponents, isSelected: false, hasLog: true))  // Start with today not selected
             }
             try viewContext.save()
         } catch {

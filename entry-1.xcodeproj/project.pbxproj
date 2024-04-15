@@ -46,6 +46,12 @@
 		4A5E53152B8D9ED400F4521D /* UpdatedEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */; };
 		4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53162B8DB12400F4521D /* NotEditingView.swift */; };
 		4A5E53192B8DB14D00F4521D /* EntryRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5E53182B8DB14D00F4521D /* EntryRowView.swift */; };
+		4A6235DE2BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A6235DD2BCBC05C00AF8875 /* Borel-Regular.ttf */; };
+		4A6235DF2BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A6235DD2BCBC05C00AF8875 /* Borel-Regular.ttf */; };
+		4A6235E02BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A6235DD2BCBC05C00AF8875 /* Borel-Regular.ttf */; };
+		4A6235EA2BCD0DE000AF8875 /* DateStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6235E92BCD0DE000AF8875 /* DateStrings.swift */; };
+		4A6235EB2BCD0DE000AF8875 /* DateStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6235E92BCD0DE000AF8875 /* DateStrings.swift */; };
+		4A6235EC2BCD0DE000AF8875 /* DateStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6235E92BCD0DE000AF8875 /* DateStrings.swift */; };
 		4A6EC0E92B32EABC0031DDFA /* Tips.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A6EC0E82B32EABC0031DDFA /* Tips.swift */; };
 		4A72642D2AEBAC100099EA84 /* MediaFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A72642C2AEBAC100099EA84 /* MediaFuncs.swift */; };
 		4A72642F2AEBAC920099EA84 /* TimeFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A72642E2AEBAC920099EA84 /* TimeFuncs.swift */; };
@@ -282,6 +288,8 @@
 		4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatedEntryView.swift; sourceTree = "<group>"; };
 		4A5E53162B8DB12400F4521D /* NotEditingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotEditingView.swift; sourceTree = "<group>"; };
 		4A5E53182B8DB14D00F4521D /* EntryRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryRowView.swift; sourceTree = "<group>"; };
+		4A6235DD2BCBC05C00AF8875 /* Borel-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Borel-Regular.ttf"; sourceTree = "<group>"; };
+		4A6235E92BCD0DE000AF8875 /* DateStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateStrings.swift; sourceTree = "<group>"; };
 		4A6EC0E82B32EABC0031DDFA /* Tips.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tips.swift; sourceTree = "<group>"; };
 		4A72642C2AEBAC100099EA84 /* MediaFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFuncs.swift; sourceTree = "<group>"; };
 		4A72642E2AEBAC920099EA84 /* TimeFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFuncs.swift; sourceTree = "<group>"; };
@@ -500,6 +508,7 @@
 				4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */,
 				4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */,
 				4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */,
+				4A6235E92BCD0DE000AF8875 /* DateStrings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -630,6 +639,7 @@
 				4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */,
 				4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */,
 				4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */,
+				4A6235DD2BCBC05C00AF8875 /* Borel-Regular.ttf */,
 				4A942A772B759D3300C60BCC /* BadComic.ttf */,
 				4A942A732B759CF100C60BCC /* ZukaDoodle.ttf */,
 				4A942A6F2B759CBA00C60BCC /* Milkmoustachio.ttf */,
@@ -815,6 +825,7 @@
 				4ACE310D2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */,
 				4A942A782B759D3400C60BCC /* BadComic.ttf in Resources */,
 				4A942A6C2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
+				4A6235DE2BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */,
 				4A942A7C2B759DEB00C60BCC /* MiniStory.ttf in Resources */,
 				4ACE30EB2AEE28AD00807858 /* GothicStraightFaced.ttf in Resources */,
 				4ACE30B42AEE158F00807858 /* StainellaScript.ttf in Resources */,
@@ -876,6 +887,7 @@
 				4ACE30A12AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30C12AEE1A0700807858 /* NjalBold.otf in Resources */,
 				4ACE30B92AEE18C800807858 /* MagieraScript.ttf in Resources */,
+				4A6235DF2BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */,
 				4A942A852B759F1000C60BCC /* SpicyPotatos.ttf in Resources */,
 				4A942A512B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30AD2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
@@ -939,6 +951,7 @@
 				4A942A522B7598E700C60BCC /* Copyduck.ttf in Resources */,
 				4ACE30BE2AEE19D200807858 /* HeyOctober.ttf in Resources */,
 				4A942A662B759AEA00C60BCC /* Calloveya.ttf in Resources */,
+				4A6235E02BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */,
 				4ACE31052AEE304000807858 /* Boekopi.otf in Resources */,
 				4A942A7A2B759D3400C60BCC /* BadComic.ttf in Resources */,
 				4ACE30E02AEE1FBE00807858 /* NathanCondensedRegular.ttf in Resources */,
@@ -996,6 +1009,7 @@
 				4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
 				4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */,
+				4A6235EA2BCD0DE000AF8875 /* DateStrings.swift in Sources */,
 				34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */,
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */,
@@ -1020,6 +1034,7 @@
 			files = (
 				4A9982CF2B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */,
 				34A808402A8A167800B9BB5C /* entry_1Tests.swift in Sources */,
+				4A6235EB2BCD0DE000AF8875 /* DateStrings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1027,6 +1042,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A6235EC2BCD0DE000AF8875 /* DateStrings.swift in Sources */,
 				4A9982D02B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */,
 				34A8084A2A8A167800B9BB5C /* entry_1UITests.swift in Sources */,
 				34A8084C2A8A167800B9BB5C /* entry_1UITestsLaunchTests.swift in Sources */,

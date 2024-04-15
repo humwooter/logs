@@ -12,6 +12,31 @@ import SwiftUI
 
 
 
+func dateComponents(from dateString: String) -> DateComponents? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "MM/dd/yyyy"
+    let calendar = Calendar.current
+
+    if let date = dateFormatter.date(from: dateString) {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        return components
+    } else {
+        // Return nil if the dateString does not convert to a valid Date
+        return nil
+    }
+}
+
+func formattedDateString(from components: DateComponents) -> String? {
+    let calendar = Calendar.current
+    if let date = calendar.date(from: components) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"
+        return dateFormatter.string(from: date)
+    } else {
+        return nil  // Return nil if the DateComponents don't form a valid date
+    }
+}
+
 func formattedTime(time: Date) -> String {
     let formatter = DateFormatter()
     formatter.timeStyle = .short

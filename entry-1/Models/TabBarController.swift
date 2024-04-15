@@ -201,6 +201,7 @@ struct CustomTabViewModel: View {
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .environmentObject(tabSelectionInfo)
+                    .environmentObject(datesModel)
             }
             .tabItem {
                 Label("Entries", systemImage: "pencil")

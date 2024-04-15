@@ -22,6 +22,8 @@ struct EntryView: View {
     
     // Core Data Management
     @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var datesModel: DatesModel
+
     @FetchRequest(
         entity: Log.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
@@ -100,6 +102,7 @@ struct EntryView: View {
                     .environmentObject(userPreferences)
                     .foregroundColor(userPreferences.accentColor)
                     .presentationDragIndicator(.hidden)
+                    .environmentObject(datesModel)
             }
         }
     }
@@ -113,8 +116,10 @@ struct EntryView: View {
             entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
         }
         else {
+            let dateStringManager = DateStrings()
             let newLog = Log(context: coreDataManager.viewContext)
             newLog.day = currentDay
+            dateStringManager.addDate(currentDay)
             newLog.id = UUID()
             entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
         }

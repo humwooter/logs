@@ -126,8 +126,10 @@ extension Entry {
                 log = matchingLog
             } else {
                 // Create a new log if none exists for the given day
+                let datesStringManager = DateStrings()
                 log = Log(context: coreDataManager.viewContext)
                 log.day = formattedDay
+                datesStringManager.addDate(log.day)
                 log.id = UUID() // Assuming 'id' is required; generate a new UUID
             }
 

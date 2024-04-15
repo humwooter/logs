@@ -31,17 +31,17 @@ struct MediaManagerView: View {
             NavigationLink(destination: detailsView()) {
                 Text("Larger than 5 MB").font(.caption)
             }
-            mainView()
+                mainView()
         }
     }
     
     @ViewBuilder
     func mainView() -> some View {
+        
         ScrollView {
+            
             LazyVGrid(columns: columns, spacing: 16) {
-                if mediaFiles.count == 0 {
-                    Text("No media data")
-                }
+        
 
                 ForEach(mediaFiles.sorted{$0.size > $1.size}.prefix(3)) { file in
                         AsyncMediaView(file: file)

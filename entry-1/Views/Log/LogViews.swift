@@ -99,7 +99,7 @@ struct LogsView: View {
 //        var set = Set<DateComponents>()
 //        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
 //            set.insert(todayComponents)
-//        
+//
 //        return set
 //    }()
     @EnvironmentObject var datesModel: DatesModel
@@ -115,9 +115,9 @@ struct LogsView: View {
 //    func updateDateRange() {
 //        let dateFormatter = DateFormatter()
 //        dateFormatter.dateFormat = "MM/dd/yyyy"
-//        
+//
 //        let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
-//        
+//
 //        if let earliestDate = dateLogs.min(),
 //           let latestDate = dateLogs.max() {
 //            datesModel.startDate = earliestDate
@@ -392,7 +392,7 @@ struct LogsView: View {
 //                        .foregroundStyle(Color(UIColor.label))
 //                }
 //            }
-//            
+//
     
             Button {
                 searchModel.tokens.append(.stampNameEntries)
@@ -677,7 +677,9 @@ struct LogsView: View {
     
     
     private func deleteLog(log: Log?) {
+        let dateStringsManager = DateStrings()
         guard let log = log else { return }
+        dateStringsManager.removeDate(log.day)
         if let entries = log.relationship as? Set<Entry> {
             for entry in entries {
                 deleteEntry(entry: entry, coreDataManager: coreDataManager)

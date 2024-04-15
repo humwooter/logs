@@ -10,8 +10,10 @@ struct ContentView: View {
 //    @State private var selectedIndex = 1
     @State private var indices : [Bool] = [false, true, false]
     @ObservedObject private var userPreferences = UserPreferences()
-    @ObservedObject var datesModel = DatesModel()
+//    @ObservedObject var datesModel = DatesModel()
     @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+    @ObservedObject var datesModel = DatesModel()
+//    @State var dateStringsManager = DateStrings()
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
     @FetchRequest(
@@ -27,7 +29,10 @@ struct ContentView: View {
         sortDescriptors: []  // Empty array implies no sorting
     ) var allEntries: FetchedResults<Entry>
     @State private var isUnlocked: Bool = false
-
+    @FetchRequest(
+        entity: Log.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
+    ) var logs: FetchedResults<Log>
     
     var body: some View {
         ZStack {
@@ -43,7 +48,7 @@ struct ContentView: View {
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
                     createLog(in: coreDataManager.viewContext)
                     deleteOldEntries()
-                    
+                    datesModel.updateDateRange(with: Array(logs))
                     if userPreferences.showLockScreen {
                         authenticate()
                     }

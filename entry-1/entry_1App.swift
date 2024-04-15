@@ -16,12 +16,12 @@ public class TabSelectionInfo: ObservableObject {
 
 }
 
+
 @main
 struct entry_1App: App {
     // let persistenceController = PersistenceController.shared
     let persistenceController = CoreDataManager.shared
     @ObservedObject  var tabSelectionInfo = TabSelectionInfo()
-
     
     init() {
     }

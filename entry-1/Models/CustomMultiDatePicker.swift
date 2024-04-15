@@ -153,21 +153,65 @@ struct CalendarView: View {
         }
     }
 
-    private func dayButton(_ day: DateComponents, isSelected: Bool) -> some View {
-        Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
-//            .padding(1)
-            .frame(width: 35, height: 35)
-            .background(isSelected ? selectionColor : backgroundColor)
-            .foregroundStyle ( isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
-                                            Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-            .cornerRadius(35)
-            .onTapGesture {
-                if let index = datesModel.dates.firstIndex(where: { $0.date == day }) {
-                    datesModel.dates[index].isSelected.toggle()
-                } else {
-                        datesModel.dates.append(LogDate(date: day, isSelected: true))
-                }
+    @ViewBuilder
+    func dayButton(_ day: DateComponents, isSelected: Bool) -> some View {
+        
+        let dateStringManager = DateStrings()
+        
+        if let monthDates = dateStringManager.dates(forMonthYear: dateStringManager.monthYear(from: format(dateComponents: day)!)!) {
+            
+            let dayString = format(dateComponents: day)!
+            if monthDates.contains(dayString) && !isSelected { //hasLog
+                 Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+                    .frame(width: 35, height: 35)
+                    .background(selectionColor .opacity(0.3))
+                    .foregroundStyle ( isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
+                                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+                    .cornerRadius(35)
+                    .onTapGesture {
+                        if let index = datesModel.dates.firstIndex(where: { $0.date == day }) {
+                            datesModel.dates[index].isSelected.toggle()
+                        } else {
+                            datesModel.dates.append(LogDate(date: day, isSelected: true))
+                        }
+                    }
+            } else {
+                 Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+                    .frame(width: 35, height: 35)
+                    .background(isSelected ? selectionColor : backgroundColor)
+                    .foregroundStyle ( isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
+                                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+                    .cornerRadius(35)
+                    .onTapGesture {
+                        if let index = datesModel.dates.firstIndex(where: { $0.date == day }) {
+                            datesModel.dates[index].isSelected.toggle()
+                        } else {
+                            datesModel.dates.append(LogDate(date: day, isSelected: true))
+                        }
+                    }
             }
+        } else {
+            Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2)).opacity(0.5)
+               .frame(width: 35, height: 35)
+               .background(backgroundColor)
+               .foregroundStyle (Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+               .cornerRadius(35)
+        }
+//        else {
+//            return Text("Error")
+//        }
+    }
+    
+    func format(dateComponents: DateComponents) -> String? {
+        // Ensure the date components include at least month, day, and year.
+        guard let date = Calendar.current.date(from: dateComponents) else {
+            print("Invalid date components")
+            return nil
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd/yyyy"  // Set the date format
+        return dateFormatter.string(from: date)
     }
     
     private var dateFormatter: DateFormatter {

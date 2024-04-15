@@ -108,8 +108,10 @@ func isColorLight(_ color: Color) -> Bool {
 
 func createLog(in viewContext: NSManagedObjectContext) {
     if (!logExists(day: Date(), inContext: viewContext)) {
+        let dateStringManager = DateStrings()
         let newLog = Log(context: viewContext)
         newLog.day = formattedDate(Date())
+        dateStringManager.addDate(formattedDate(Date()))
         newLog.id = UUID()
         do {
             try viewContext.save()

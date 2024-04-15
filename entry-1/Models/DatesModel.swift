@@ -8,6 +8,7 @@
 import Foundation
 import Foundation
 import Combine
+import CoreData
 
 struct LogDate: Identifiable, Equatable {
     let id = UUID()  // Unique identifier for each LogDate
@@ -30,8 +31,7 @@ class DatesModel: ObservableObject {
     @Published var dates: [LogDate] = {  // Changed to array for easier management of isSelected
         var list = [LogDate]()
         let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-        list.append(LogDate(date: todayComponents, isSelected: false))  // Start with today not selected
-
+        list.append(LogDate(date: todayComponents, isSelected: true))  // Start with today not selected
         return list
     }()
     
@@ -43,7 +43,7 @@ class DatesModel: ObservableObject {
     // Now accepting logs as a parameter
     func updateDateRange(with logs: [Log]) {
         print("ENTRED THIS updateDateRange")
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd/yyyy"
         
@@ -63,35 +63,4 @@ class DatesModel: ObservableObject {
         print("FINISHED")
         print("END DATE IS: \(endDate)")
     }
-    
-//    func updateDateRange(with logs: [Log]) {
-//        print("ENTERED THIS updateDateRange")
-//
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MM/dd/yyyy"
-//        
-//        var newDatesSet = Set<DateComponents>()
-//        
-//        // Use the passed logs to compute the date range and update dates Set
-//        let dateLogs = logs.compactMap { logEntry -> Date? in
-//            return dateFormatter.date(from: logEntry.day)
-//        }
-//        
-//        for date in dateLogs {
-//            let components = Calendar.current.dateComponents([.year, .month, .day], from: date)
-//            newDatesSet.insert(components)
-//        }
-//        
-//        if let earliestDate = dateLogs.min(), let latestDate = dateLogs.max() {
-//            startDate = earliestDate
-//            // Adjust endDate to potentially include the whole last day
-//            endDate = Calendar.current.date(byAdding: .day, value: 1, to: latestDate) ?? latestDate
-//        }
-//        
-//        // Update the dates Set
-//        DispatchQueue.main.async {
-//            self.dates = newDatesSet
-//        }
-//        print("FINISHED updating date range and dates Set")
-//    }
 }
