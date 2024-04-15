@@ -20,9 +20,6 @@ extension Date {
 }
 
 
-
-
-
 struct CalendarView: View {
     @ObservedObject var datesModel: DatesModel
     let selectionColor: Color
@@ -56,7 +53,6 @@ struct CalendarView: View {
                 .datePickerStyle(.wheel)
             }
         }
-//        .gesture(DragGesture().onEnded(handleSwipe))
     }
     
     
@@ -79,13 +75,7 @@ struct CalendarView: View {
                                withAnimation {
                                    showingDatePicker.toggle()
                                }
-                           }//                   .sheet(isPresented: $showingDatePicker) {
-//                       // DatePicker in a modal sheet
-//                       datePickerSheet
-//                   }
-
-//            Text("\(currentMonth, formatter: dateFormatter)")
-//                .font(.headline)
+                           }
 
             Spacer()
 
@@ -97,26 +87,6 @@ struct CalendarView: View {
         .font(.system(size: UIFont.systemFontSize + 3))
     }
     
-//    private var datePickerSheet: some View {
-//        NavigationView {
-//            DatePicker(
-//                "",
-//                selection: $currentMonth,
-//                displayedComponents: [.date]  // Adjust if you only want the month and year
-//            )
-//            .datePickerStyle(.wheel)
-//            .padding()
-//            .navigationTitle("Pick a Month")
-//            .toolbar {
-//                ToolbarItem(placement: .confirmationAction) {
-//                    Button("Done") {
-//                        showingDatePicker = false
-//                    }
-//                }
-//            }
-//        }
-//    }
-
 
     private func weekDaysHeader() -> some View {
         HStack {
@@ -225,44 +195,6 @@ struct CalendarView: View {
             currentMonth = newMonth
         }
     }
-
-//    private func handleSwipe(_ gesture: DragGesture.Value) {
-//        let horizontalSwipe = gesture.translation.width
-//        if horizontalSwipe > 50 {
-//            withAnimation {
-//                shiftMonth(value: -1)
-//            }
-//        } else if horizontalSwipe < -50 {
-//            withAnimation {
-//                shiftMonth(value: 1)
-//            }
-//        }
-//    }
-//    private func handleSwipe(_ gesture: DragGesture.Value) {
-//           let horizontalSwipe = gesture.translation.width
-//           if horizontalSwipe > 50 {
-////               withAnimation(.easeOut) {
-//                   offset = CGSize(width: 1000, height: 0)
-//                   shiftMonth(value: -1)
-////               }
-//               offset = .zero // Reset offset after animation
-//           } else if horizontalSwipe < -50 {
-////               withAnimation(.easeOut) {
-//                   offset = CGSize(width: -1000, height: 0)
-//                   shiftMonth(value: 1)
-////               }
-//               offset = .zero // Reset offset after animation
-//           }
-//       }
-
-
-//    private func toggleDaySelection(day: DateComponents) {
-//        if datesModel.dates.contains(day) {
-//            datesModel.dates.remove(day)
-//        } else {
-//            datesModel.dates.insert(day)
-//        }
-//    }
 }
 
 extension Array {

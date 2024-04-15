@@ -48,19 +48,21 @@ struct ContentView: View {
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
                     createLog(in: coreDataManager.viewContext)
                     deleteOldEntries()
-                    datesModel.updateDateRange(with: Array(logs))
+                    initializeDateStrings()
                     if userPreferences.showLockScreen {
                         authenticate()
                     }
-                    
-                    
-//                    print("Entries with nil time: \(entriesWithNilTime.count)")
                 })
             }
         }
     }
     
-    
+    func initializeDateStrings() {
+        let dateStringsManager = DateStrings()
+        for log in logs {
+            dateStringsManager.addDate(log.day)
+        }
+    }
     
     @ViewBuilder
     func lockScreenView() -> some View {
