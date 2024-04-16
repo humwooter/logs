@@ -469,23 +469,23 @@ struct LogsView: View {
                                     .foregroundColor(.red)
                                 
                             }
-                            Button(action: {
-                                Task {
-                                    DispatchQueue.main.async {
-                                        let pdfData = createPDFData_log(log: log)
-                                        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
-                                        try? pdfData.write(to: tmpURL)
-                                        let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                                            let window = windowScene.windows.first
-                                            window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-                                        }
-                                    }
-                                }
-                                
-                            }, label: {
-                                Label("Share Log PDF", systemImage: "square.and.arrow.up")
-                            })
+//                            Button(action: {
+//                                Task {
+//                                    DispatchQueue.main.async {
+//                                        let pdfData = createPDFData_log(log: log)
+//                                        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
+//                                        try? pdfData.write(to: tmpURL)
+//                                        let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+//                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+//                                            let window = windowScene.windows.first
+//                                            window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+//                                        }
+//                                    }
+//                                }
+//                                
+//                            }, label: {
+//                                Label("Share Log PDF", systemImage: "square.and.arrow.up")
+//                            })
                             
                         }
                 }
@@ -684,6 +684,13 @@ struct LogsView: View {
             for entry in entries {
                 entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
 //                deleteEntry(entry: entry, coreDataManager: coreDataManager)
+                do {
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    let nsError = error as NSError
+                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                }
+
             }
         }
         coreDataManager.viewContext.delete(log)

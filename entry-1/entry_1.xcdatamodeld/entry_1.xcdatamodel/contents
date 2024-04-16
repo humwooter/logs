@@ -23,7 +23,7 @@
     <entity name="Log" representedClassName="Log" syncable="YES">
         <attribute name="day" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
-        <relationship name="relationship" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Entry" inverseName="relationship" inverseEntity="Entry"/>
+        <relationship name="relationship" optional="YES" toMany="YES" deletionRule="No Action" destinationEntity="Entry" inverseName="relationship" inverseEntity="Entry"/>
     </entity>
     <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Transformable"/>
