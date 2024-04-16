@@ -438,11 +438,11 @@ struct LogsView: View {
                 Spacer()
                 Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
                     .contentTransition(.symbolEffect(.replace.offUp))
-                
-                    .onTapGesture {
-                        showCalendar.toggle()
-                    }
             }
+            .onTapGesture {
+                showCalendar.toggle()
+            }
+
         }
     }
     @ViewBuilder
@@ -682,7 +682,8 @@ struct LogsView: View {
         dateStringsManager.removeDate(log.day)
         if let entries = log.relationship as? Set<Entry> {
             for entry in entries {
-                deleteEntry(entry: entry, coreDataManager: coreDataManager)
+                entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
+//                deleteEntry(entry: entry, coreDataManager: coreDataManager)
             }
         }
         coreDataManager.viewContext.delete(log)
@@ -838,6 +839,32 @@ struct LogsView: View {
 
 
 
+//class SearchBar: UISearchBar, UISearchBarDelegate {
+//
+//    var textField: UITextField? {
+//        if #available(iOS 13.0, *) {
+//            return self.searchTextField
+//        }
+//        return subviews.first?.subviews.first(where: { $0 as? UITextField != nil }) as? UITextField
+//    }
+//
+//
+//    override func awakeFromNib() {
+//        super.awakeFromNib()
+//
+//        delegate = self
+//
+//        if let textField = textField {
+//            textField.tintColor = UIColor.red
+//            textField.textColor = .red
+//            textField.clearButtonMode = .whileEditing
+//            textField.returnKeyType = .search
+//        }
+//    }
+//
+//}
+
+
 struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -845,6 +872,7 @@ struct LogParentView : View {
 
     @StateObject private var searchModel = SearchModel()
     @FocusState private var isSearchFieldFocused: Bool
+    @Environment(\.colorScheme) var colorScheme
 
 
     var body: some View {
@@ -875,6 +903,7 @@ struct LogParentView : View {
                 
                 
             }
+            .searchBarTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             .font(.system(size: UIFont.systemFontSize))
             .focused($isSearchFieldFocused)
     }

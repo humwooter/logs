@@ -35,7 +35,6 @@
 		4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */; };
 		4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */; };
 		4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */; };
-		4A28BCCD2BC78CC20026ACE9 /* NewSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCC2BC78CC20026ACE9 /* NewSettingsView.swift */; };
 		4A28BCCF2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */; };
 		4A28BCD12BCAB1E70026ACE9 /* MediaManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCD02BCAB1E70026ACE9 /* MediaManagerView.swift */; };
 		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
@@ -277,7 +276,6 @@
 		4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionModifiers.swift; sourceTree = "<group>"; };
 		4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
-		4A28BCCC2BC78CC20026ACE9 /* NewSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewSettingsView.swift; sourceTree = "<group>"; };
 		4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMultiDatePicker.swift; sourceTree = "<group>"; };
 		4A28BCD02BCAB1E70026ACE9 /* MediaManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManagerView.swift; sourceTree = "<group>"; };
 		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
@@ -489,7 +487,6 @@
 				4A6EC0E82B32EABC0031DDFA /* Tips.swift */,
 				4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */,
 				4A511CF62BB907C100418554 /* ThumbnailView.swift */,
-				4A28BCCC2BC78CC20026ACE9 /* NewSettingsView.swift */,
 				4A28BCD02BCAB1E70026ACE9 /* MediaManagerView.swift */,
 			);
 			path = Views;
@@ -992,7 +989,6 @@
 				4A89FCFD2AC2AE9F0076EAAC /* GlobalFuncs.swift in Sources */,
 				4A0FF6DA2AFADBCD0078F319 /* ImageViewer.swift in Sources */,
 				4AFCF99C2B1619A000088460 /* TextView.swift in Sources */,
-				4A28BCCD2BC78CC20026ACE9 /* NewSettingsView.swift in Sources */,
 				34973C192AB7E8E3003C8902 /* EntryContentViews.swift in Sources */,
 				4A4647652B3EA36C002B2164 /* SearchModel.swift in Sources */,
 				34A808632A8AFBC400B9BB5C /* LogViews.swift in Sources */,

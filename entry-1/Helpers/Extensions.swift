@@ -24,7 +24,60 @@ extension Double {
     }
 }
 
+extension UISearchBar {
 
+       var textColor:UIColor? {
+           get {
+               if let textField = self.value(forKey: "searchField") as?
+   UITextField  {
+                   return textField.textColor
+               } else {
+                   return nil
+               }
+           }
+
+           set (newValue) {
+               if let textField = self.value(forKey: "searchField") as?
+   UITextField  {
+                   textField.textColor = newValue
+               }
+           }
+       }
+   }
+
+func which_colorScheme(for color: UIColor) -> UIUserInterfaceStyle {
+    // Extract RGB components from UIColor
+    var red: CGFloat = 0
+    var green: CGFloat = 0
+    var blue: CGFloat = 0
+    var alpha: CGFloat = 0
+    
+    color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+    
+    // Calculate luminance assuming sRGB
+    let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+    
+    // Standard threshold for determining if color is light or dark
+    // This threshold can be adjusted based on desired sensitivity
+    return luminance > 0.5 ? .dark : .light
+}
+
+func isDark(for color: UIColor) -> Bool {
+        // Extract RGB components from UIColor
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        
+        color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        
+        // Calculate luminance assuming sRGB
+        let luminance = 0.299 * red + 0.587 * green + 0.114 * blue
+        
+        // Standard threshold for determining if color is light or dark
+        // This threshold can be adjusted based on desired sensitivity
+        return luminance > 0.5
+}
 
 extension View {
     @available(iOS 14, *)
@@ -32,6 +85,12 @@ extension View {
         let uiColor = UIColor(color)
         UINavigationBar.appearance().titleTextAttributes = [.foregroundColor: uiColor ]
         UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: uiColor ]
+        return self
+    }
+    
+    func searchBarTextColor(_ color: Color) -> some View { //either black or white depending on background color
+        let uiColor = UIColor(color)
+        UITextField.appearance().overrideUserInterfaceStyle = which_colorScheme(for: uiColor) //this works!!
         return self
     }
     

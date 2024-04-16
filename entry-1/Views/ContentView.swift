@@ -52,6 +52,8 @@ struct ContentView: View {
                     if userPreferences.showLockScreen {
                         authenticate()
                     }
+                    
+                    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)
                 })
             }
         }

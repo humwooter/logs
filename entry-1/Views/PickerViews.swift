@@ -116,14 +116,14 @@ struct ThemePicker: View {
 //                        combinedBlock(topColor: theme.topColor, bottomColor: theme.bottomColor, entryColor: theme.entryBackgroundColor, accentColor: theme.accentColor, pinColor: theme.pinColor, reminderColor: theme.reminderColor)
 //
 //                    }
-//                    
+//
 ////                    .contextMenu(ContextMenu(menuItems: {
 ////                        NavigationLink(destination: ThemeEditView(theme: $newThemePresets[0])) {
 ////                            Text("Edit")
 ////                        }
 ////                    }))
 //                    .padding(10)
-//                    
+//
 //                }
 //            }
 //            .padding()
@@ -186,15 +186,15 @@ struct ThemePicker: View {
                         .frame(maxHeight: .infinity) // Ensures VStack takes up maximum available height
 
 //                        VStack {
-//                        
+//
 //                            HStack {
 //                                // Pin icon on the left/top
 //                                Image(systemName: "pin.fill").imageScale(.large)
 //                                    .foregroundColor(pinColor)
 //            //                        .scaleEffect(0.5) // Adjust based on your design needs
-//                                
+//
 //                                Spacer()
-//                                
+//
 //                                // Bell icon on the right/top
 //                                Image(systemName: "bell.fill").imageScale(.large)
 //                                    .foregroundColor(reminderColor)
@@ -203,10 +203,10 @@ struct ThemePicker: View {
 //                            .padding(.horizontal) // Add some padding to push icons to the edges
 //                            .padding(.top, 20)
 //
-//                            
+//
 //                            entryBackgroundBlock(color: entryColor)
 //                                .scaleEffect(0.6) // Adjust this value to control the size relative to the background block
-//                            
+//
 //                        }
 //                        .padding(.top, 10) // This pushes the icons slightly down from the top edge
                     }
@@ -221,16 +221,16 @@ struct ThemePicker: View {
 //                    Image(systemName: "pin.fill").imageScale(.large)
 //                        .foregroundColor(pinColor)
 ////                        .scaleEffect(0.5) // Adjust based on your design needs
-//                    
+//
 //                    Spacer()
-//                    
+//
 //                    // Bell icon on the right/top
 //                    Image(systemName: "bell.fill").imageScale(.large)
 //                        .foregroundColor(reminderColor)
 ////                        .scaleEffect(0.5) // Adjust based on your design needs
 //                }
 //                .padding(.horizontal) // Add some padding to push icons to the edges
-//                
+//
 //                Spacer()
 //                Spacer()
 //                Spacer()
@@ -434,7 +434,7 @@ struct IconPicker: View {
     
     var body: some View {
         
-        Section(header: 
+        Section(header:
                     Text("Stamp \(buttonIndex + 1)").foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
 
@@ -597,7 +597,7 @@ struct FontPicker: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Font Type")
-        .searchable(text: $searchText)
+        .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
     }
     
 }
@@ -626,26 +626,9 @@ struct BackgroundColorPickerView: View {
                     .shadow(radius: 1)
             }
         } header: {
-//            HStack {
-//                Spacer()
-//                Label("Reset to default", systemImage: "gobackward").foregroundStyle(.red)
-//                    .onTapGesture {
-//                        vibration_light.impactOccurred()
-//                        topColor = defaultColor
-//                        bottomColor = defaultColor
-//                    }
-//                    .padding(1)
-//            }
         }
-
-//        .onChange(of: bottomColor) { oldValue, newValue in
-//            print("CHANGED TAB BAR")
-//            UITabBar.appearance().unselectedItemTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(newValue))).opacity(0.5))
-//        }
-
     }
 }
-
 
 
 
