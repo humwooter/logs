@@ -412,9 +412,10 @@ struct ButtonDashboard: View {
 struct IconPicker: View {
     @Binding var selectedImage: String
     @Binding var selectedColor: Color
+    @State var defaultTopColor: Color
     @Binding var accentColor: Color
     @State private var searchText = ""
-    
+
 //    @State var backgroundColors: [Color]
     
     @Binding var topColor_background: Color
@@ -450,10 +451,12 @@ struct IconPicker: View {
             ColorPicker("Stamp Color", selection: $selectedColor)
 
         }
+        .font(.system(size: UIFont.systemFontSize))
     }
     
     func imageListView() -> some View {
-        NavigationStack {
+        let backgroundColor = isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background
+        return NavigationStack {
             ScrollView {
                 ForEach(inputCategories.keys.sorted(), id: \.self) { category in
                     let filteredImages = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
@@ -461,7 +464,7 @@ struct IconPicker: View {
                         // Display the category header
                         Text(category)
                             .bold()
-                            .font(.headline)
+                            .font(.headline).foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor))))
                             .padding(.top, 10)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 10) // Left padding for alignment
@@ -523,6 +526,7 @@ struct IconPicker: View {
             .scrollContentBackground(.hidden)
             .navigationTitle("Button \(buttonIndex + 1)")
             .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+            .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
         }
 
     }
@@ -537,6 +541,7 @@ struct FontPicker: View {
     
     @Binding var topColor_background: Color
     @Binding var bottomColor_background: Color
+    @State var defaultTopColor: Color
     
     var body: some View {
             NavigationLink(destination: fontListView().dismissOnTabTap()) {
@@ -598,6 +603,7 @@ struct FontPicker: View {
         .scrollContentBackground(.hidden)
         .navigationTitle("Font Type")
         .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+        .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
     }
     
 }

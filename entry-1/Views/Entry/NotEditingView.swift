@@ -45,10 +45,14 @@ struct NotEditingView: View {
     var body : some View {
         ZStack(alignment: .topTrailing) {
             VStack {
-                entryHeaderView()
+                entryHeaderView().font(.system(size: UIFont.systemFontSize))
                 entryTextView()
 //                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-                entryMediaView()
+                if let url = getUrl(for: entry.mediaFilename ?? "") {
+                    if mediaExists(at: url) {
+                        entryMediaView()
+                    }
+                }
             }
         }
         .onChange(of: colorScheme, { oldValue, newValue in
@@ -92,6 +96,7 @@ struct NotEditingView: View {
             if let filename = entry.mediaFilename {
                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                 let fileURL = documentsDirectory.appendingPathComponent(filename)
+                
                 let data = try? Data(contentsOf: fileURL)
             
                 if let data = data, isGIF(data: data) {

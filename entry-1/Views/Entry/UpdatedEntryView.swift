@@ -202,6 +202,14 @@ struct EntryView: View {
                     Text("Word Count")
                     Image(systemName: selectedSortOption == .wordCount ? "checkmark" : "")
                 }
+                
+                Button(action: {
+                    selectedSortOption = .hasPin
+                }) {
+                    Text("Pinned")
+                    Image(systemName: selectedSortOption == .hasPin ? "checkmark" : "")
+                }
+                
             } label: {
                 Text("Sort")
             }
@@ -307,6 +315,26 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
             
+        case .hasPin:
+            let sortedEntries = entries.sorted {
+                      if $0.isPinned != $1.isPinned {
+                          return $0.isPinned && !$1.isPinned
+                      } else {
+                          return $0.time > $1.time
+                      }
+                  }
+            ForEach(sortedEntries) { entry in
+                if (!entry.isFault && !entry.isRemoved) {
+                    EntryRowView(entry: entry)
+                        .environmentObject(userPreferences)
+                        .environmentObject(coreDataManager)
+                        .id("\(entry.id)")
+                    
+                }
+            }
+            .onDelete { indexSet in
+                deleteEntries(from: indexSet, entries: sortedEntries)
+            }
         case .isShown:
             let sortedEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
             

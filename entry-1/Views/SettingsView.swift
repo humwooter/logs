@@ -57,6 +57,10 @@ struct SettingsView: View {
     @State private var isHiddenMediaManager = false
 
 
+    @State private var showNotification = false
+    @State private var isSuccess = false
+    @State private var isFailure = false
+    
     
     var body: some View {
 
@@ -68,6 +72,7 @@ struct SettingsView: View {
                         }
 
                 }
+                
             }
             .onChange(of: userPreferences.accentColor, { oldValue, newValue in
                 var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
@@ -85,6 +90,7 @@ struct SettingsView: View {
                 UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
                 UISegmentedControl.appearance().backgroundColor = UIColor.clear
             })
+          
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -161,7 +167,7 @@ struct SettingsView: View {
                     List {
                         preferencesTabView().dismissOnTabTap()
                         
-                    }.navigationTitle("Apperance")
+                    }.navigationTitle("Appearance")
                     .background {
                         ZStack {
                             Color(UIColor.systemGroupedBackground)
@@ -198,6 +204,7 @@ struct SettingsView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
+
         } label: {
             Label(
                 title: { Text("Data").font(.system(size: UIFont.systemFontSize))
@@ -360,22 +367,21 @@ struct SettingsView: View {
     }
     @ViewBuilder
     func stampsTabView() -> some View {
+//        let defaultTopColor = getDefaultBackgroundColor(colorScheme: colorScheme)
         Section(header: Text("Stamp Dashboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         ) {
             ButtonDashboard().environmentObject(userPreferences)
+                .font(.system(size: UIFont.systemFontSize))
                 .listStyle(.automatic)
                 .padding(.horizontal, 5)
              
         }
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
-                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, inputCategories: imageCategories)
+                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, inputCategories: imageCategories)
             }
         }
-
-//        StampDataView() // for importing and exporting stamp data
-//            .environmentObject(userPreferences)
     }
     
     @ViewBuilder
@@ -385,7 +391,7 @@ struct SettingsView: View {
             .font(.system(size: UIFont.systemFontSize))
         ) {
             ColorPicker("Accent Color", selection: $userPreferences.accentColor)
-            FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1])
+            FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
             HStack {
                 Text("Line Spacing")
                 Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
@@ -400,7 +406,7 @@ struct SettingsView: View {
                 Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
-                Label("reset", systemImage: "gobackward").foregroundStyle(.red)
+                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
                     .onTapGesture {
                         vibration_light.impactOccurred()
                         userPreferences.backgroundColors[0] = .clear
@@ -417,7 +423,7 @@ struct SettingsView: View {
                 Text("Entry Background").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
-                Label("reset", systemImage: "gobackward").foregroundStyle(.red)
+                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
                     .onTapGesture {
                         vibration_light.impactOccurred()
                         userPreferences.entryBackgroundColor = .clear
@@ -433,8 +439,8 @@ struct SettingsView: View {
                 Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
-                Label("", systemImage: "pin.fill").foregroundStyle(userPreferences.pinColor)
-            }
+                Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
+            }.font(.system(size: UIFont.systemFontSize))
         }
         
         Section {
@@ -444,8 +450,8 @@ struct SettingsView: View {
                 Text("Alerts").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
-                Label("", systemImage: "bell.fill").foregroundStyle(userPreferences.reminderColor)
-            }
+                Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+            }.font(.system(size: UIFont.systemFontSize))
         }
 
         
@@ -462,13 +468,12 @@ struct SettingsView: View {
                 HStack {
                     Image(systemName: "photo.on.rectangle.angled").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                     Text("Manage Data")
-                        .font(.system(size: UIFont.systemFontSize))
                         .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     
                     Spacer()
                     Image(systemName: isHiddenMediaManager ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                    
                 }
+                .font(.system(size: UIFont.systemFontSize))
                 .onTapGesture {
                     isHiddenMediaManager.toggle()
                 }
@@ -476,14 +481,14 @@ struct SettingsView: View {
         
 
      
-            LogsDataView()
+        LogsDataView(showNotification: $showNotification, isSuccess: $isSuccess, isFailure: $isFailure)
                 .environmentObject(userPreferences)
                 .environmentObject(datesModel)
             
-            UserPreferencesView() //for backing up and restoring user preferences data
+        UserPreferencesView(showNotification: $showNotification, isSuccess: $isSuccess, isFailure: $isFailure) //for backing up and restoring user preferences data
                 .environmentObject(userPreferences)
             
-            StampDataView() // for importing and exporting stamp data
+        StampDataView(showNotification: $showNotification, isSuccess: $isSuccess, isFailure: $isFailure) // for importing and exporting stamp data
                         .environmentObject(userPreferences)
                 
 
@@ -505,9 +510,9 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "lock.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Passcode").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
                 Spacer()
             }
+            .font(.system(size: UIFont.systemFontSize))
         }
         
         Section {
@@ -521,9 +526,9 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "link").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Link Detection").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
                 Spacer()
             }
+            .font(.system(size: UIFont.systemFontSize))
         }
 
         Toggle("Show most recent entry time", isOn: $userPreferences.showMostRecentEntryTime) // Make sure to add this property to UserPreferences

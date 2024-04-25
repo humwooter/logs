@@ -52,8 +52,6 @@ struct ContentView: View {
                     if userPreferences.showLockScreen {
                         authenticate()
                     }
-                    
-                    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)
                 })
             }
         }
@@ -73,16 +71,32 @@ struct ContentView: View {
             LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
-            Button {
-                authenticate()
-            } label: {
-                Label("Locked", systemImage: "lock")
-                    .foregroundStyle(userPreferences.accentColor)
-            }
+            VStack(alignment: .center, spacing: 5) {
+                Button {
+                    authenticate()
+                } label: {
+                    Image(systemName: "lock.circle.fill").resizable().frame(width: 80, height: 80)
+                        .foregroundStyle(userPreferences.accentColor)
+                }.padding(.vertical, 30)
+                
+                Text("Logs are Locked").font(.title)
+                Text("Use Face ID to View Logs").opacity(0.5)
+                Button {
+                    authenticate()
+                } label: {
+                    HStack(alignment: .center) {
+                            Text("View Logs").padding(.top,1)
+//                        Image(uiImage: UIImage(named: "app_icon.svg")!).resizable().scaledToFit().foregroundStyle(userPreferences.accentColor).frame(maxHeight: 25)
+                    }.foregroundStyle(userPreferences.accentColor)
+                        .frame(height: 25)
+                    
+                }.padding(.vertical, 30)
+            }.foregroundColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
         }
     }
     
     
+
     @ViewBuilder
     func mainAppView() -> some View {
         VStack {
@@ -128,7 +142,9 @@ struct ContentView: View {
                     // Authentication has now completed
                     DispatchQueue.main.async {
                         if success {
-                            self.isUnlocked = true
+                            withAnimation {
+                                self.isUnlocked = true
+                            }
                             print("authentication succeeded")
                         } else {
                             print("authentication failed")

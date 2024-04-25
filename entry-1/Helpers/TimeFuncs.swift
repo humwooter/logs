@@ -12,6 +12,15 @@ import SwiftUI
 
 
 
+func dateFromString(_ dateString: String) -> Date? {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "MM/dd/yyyy"  // Set date format
+    dateFormatter.locale = Locale(identifier: "en_US_POSIX")  // Use POSIX to ensure consistent parsing
+    dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)  // Optional: Adjust timezone if necessary
+    return dateFormatter.date(from: dateString)
+}
+
+
 func dateComponents(from dateString: String) -> DateComponents? {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MM/dd/yyyy"

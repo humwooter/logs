@@ -10,6 +10,13 @@ import CoreData
 import SwiftUI
 import PDFKit
 
+
+func getUrl(for filename: String) -> URL? {
+    let fileManager = FileManager.default
+    guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }
+    return documentsDirectory.appendingPathComponent(filename)
+}
+
 func isGIF(data: Data) -> Bool {
     return data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) || data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
 }

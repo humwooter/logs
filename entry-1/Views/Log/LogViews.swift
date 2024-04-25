@@ -380,6 +380,19 @@ struct LogsView: View {
                 }
             }
             
+            Button {
+                searchModel.tokens.append(.pinnedEntries)
+            } label: {
+                HStack {
+                    Image(systemName: "pin.fill")
+                        .foregroundStyle(userPreferences.accentColor)
+                        .padding(.horizontal, 5)
+
+                    Text("Pinned Entries")
+                        .foregroundStyle(Color(UIColor.label))
+                }
+            }
+            
 //            Button {
 //                searchModel.tokens.append(.stampIndexEntries)
 //            } label: {
@@ -541,12 +554,14 @@ struct LogsView: View {
                         } else {
                             return false
                         }
+                    case .pinnedEntries:
+                        return entry.isPinned
                     }
                 }
             }
 
             
-            if tags.first == .mediaEntries || tags.first == .hiddenEntries {
+            if tags.first == .mediaEntries || tags.first == .hiddenEntries || tags.first == .pinnedEntries { //to consider both tag and search text
                 return matchesTags && matchesSearchText
             }
             if tags.isEmpty {
@@ -892,25 +907,23 @@ struct LogParentView : View {
                         switch token {
                         case .hiddenEntries:
                             Text("Hidden")
-//                            Label("Hidden", systemImage: "eye.fill")
                         case .mediaEntries:
                             Text("Media")
-//                            Label("Media", systemImage: "paperclip")
                         case .stampIndexEntries:
                             Text("Index")
-//                            Label("Index", systemImage: "circle.fill")
                         case .stampNameEntries:
                             Text("Name")
-//                            Label("Name", systemImage: "circle")
                         case .searchTextEntries:
                             Text(searchModel.searchText)
                         case .reminderEntries:
                             Text("Reminder")
+                        case .pinnedEntries:
+                            Text("Pinned")
                         }
                 
                 
             }
-            .searchBarTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+            .searchBarTextColor(isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear)
             .font(.system(size: UIFont.systemFontSize))
             .focused($isSearchFieldFocused)
     }

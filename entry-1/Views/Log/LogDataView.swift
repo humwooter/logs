@@ -34,6 +34,10 @@ struct LogsDataView: View {
     @State private var isImporting = false
     
     @State private var isHidden = false
+    @Binding  var showNotification: Bool
+    @Binding  var isSuccess: Bool
+    @Binding  var isFailure: Bool
+    @State private var notificationMessage = ""
 
     var body: some View {
         Section {
@@ -45,17 +49,18 @@ struct LogsDataView: View {
             HStack {
                 Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Logs Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
 
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 
             }
+            .font(.system(size: UIFont.systemFontSize))
             .onTapGesture {
                 isHidden.toggle()
             }
         }
         .background(.clear) // Use a clear background to prevent any visual breaks
+
     }
     
     @ViewBuilder
@@ -75,8 +80,16 @@ struct LogsDataView: View {
             .fileExporter(isPresented: $isExporting, document: LogDocument(logs: Array(logs)), contentType: .json, defaultFilename: "\(defaultLogsName()).json") { result in
                 switch result {
                 case .success(let url):
+                    showNotification = true
+                    isSuccess = true
+                    isFailure = false
+                    notificationMessage = "Export Complete"
                     print("File successfully saved at \(url)")
                 case .failure(let error):
+                    showNotification = true
+                    isSuccess = false
+                    isFailure = true
+                    notificationMessage = "Export Cancelled"
                     print("Failed to save file: \(error)")
                 }
             }
@@ -96,16 +109,35 @@ struct LogsDataView: View {
                 Task {
                     switch result {
                     case .success(let url):
+                        
                         do {
                             try await importData(from: url)
+                            showNotification = true
+                            isSuccess = true
+                            isFailure = false
+                            notificationMessage = "Imported Completed"
                         } catch {
                             print("Failed to import data: \(error)")
                         }
                     case .failure(let error):
+                        showNotification = true
+                        isSuccess = false
+                        isFailure = true
+                        notificationMessage = "Import Cancelled"
                         print("Failed to import file: \(error)")
                     }
                 }
             }
+            .alert(isPresented: $showNotification) {
+                if isSuccess {
+                    Alert(title: Text("Success"), message: Text(notificationMessage), dismissButton: .default(Text("OK")))
+                } else if isFailure {
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                } else{
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                }
+              }
+    
             .buttonStyle(RestoreButtonStyle())
             .foregroundColor(colorScheme == .dark ? .black : .white)
             
@@ -119,11 +151,7 @@ struct LogsDataView: View {
                     let logFetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
                     do {
                         let allLogs = try coreDataManager.viewContext.fetch(logFetchRequest)
-                        // Assuming you have an instance of your DateRangeModel and a way to convert logs to the expected format for updateDateRange
                         self.datesModel.updateDateRange(with: allLogs)
-//                        DispatchQueue.main.async {
-//                            self.datesModel.updateDateRange(with: allLogs)
-//                        }
                     } catch {
                         print("Failed to fetch logs for date range update: \(error)")
                     }

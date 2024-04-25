@@ -21,6 +21,7 @@ enum SortOption {
     case wordCount
     case isShown
     case isHidden
+    case hasPin
 }
 
 var defaultBackgroundColor = Color(UIColor.systemGroupedBackground)

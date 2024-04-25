@@ -213,7 +213,7 @@ struct NewEntryView: View {
                             keyboardHeight = 0
                         }) {
                             Text("Done")
-                                .font(.system(size: 15))
+//                                .font(.system(size: 15))
                                 .foregroundColor(userPreferences.accentColor)
                         }
                     }
@@ -224,10 +224,11 @@ struct NewEntryView: View {
                         presentationMode.wrappedValue.dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 15))
+//                            .font(.system(size: 15))
                     }
                 }
             }
+            .font(.system(size: UIFont.systemFontSize))
    
         }
         

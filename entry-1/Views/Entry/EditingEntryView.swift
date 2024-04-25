@@ -226,7 +226,7 @@ struct EditingEntryView: View {
                             focusField = false
                         }) {
                             Text("Done")
-                                .font(.system(size: 15))
+//                                .font(.system(size: 15))
                                 .foregroundColor(userPreferences.accentColor)
                         }
                     }
@@ -237,10 +237,11 @@ struct EditingEntryView: View {
                         cancelEdit() // Function to discard changes
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 15))
+//                            .font(.system(size: 15))
                     }
                 }
             }
+            .font(.system(size: UIFont.systemFontSize))
         }
    
         .onTapGesture {

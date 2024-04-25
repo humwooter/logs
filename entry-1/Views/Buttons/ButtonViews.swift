@@ -31,6 +31,7 @@ struct ToggleButton: View {
 struct BackupButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .font(.system(size: UIFont.systemFontSize))
             .padding(15)
             .padding(.horizontal, 10)
             .background {
@@ -44,6 +45,7 @@ struct BackupButtonStyle: ButtonStyle {
 struct RestoreButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .font(.system(size: UIFont.systemFontSize))
             .padding(15)
             .padding(.horizontal, 10)
             .background {

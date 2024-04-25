@@ -17,6 +17,6 @@ class SearchModel: ObservableObject {
 }
 
 enum FilterTokens: String, Identifiable, Hashable, CaseIterable {
-    case hiddenEntries, stampNameEntries, stampIndexEntries, mediaEntries, reminderEntries, searchTextEntries
+    case hiddenEntries, stampNameEntries, stampIndexEntries, mediaEntries, reminderEntries, pinnedEntries, searchTextEntries
     var id: Self { self }
 }

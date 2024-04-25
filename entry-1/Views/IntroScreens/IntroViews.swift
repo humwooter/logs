@@ -56,8 +56,8 @@ struct IntroViews: View {
 //                    UIPageControl.appearance().currentPageIndicatorTintColor = UIColor(userPreferences.accentColor)
 //                    UIPageControl.appearance().pageIndicatorTintColor = UIColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors[1] ?? Color.clear), colorScheme: colorScheme)).opacity(0.35))
 //                }
-                .tabViewStyle(PageTabViewStyle())
-        .toolbar {
+                .tabViewStyle(PageTabViewStyle()).pickerColor(userPreferences.backgroundColors[1] ?? Color.clear)
+                .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
 
                     Button(action: {

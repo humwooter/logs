@@ -17,6 +17,11 @@ struct StampDataView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var isHidden = true
 
+    @Binding  var showNotification: Bool
+    @Binding  var isSuccess: Bool
+    @Binding  var isFailure: Bool
+    @State private var notificationMessage = ""
+    
     var body: some View {
         
         Section {
@@ -27,10 +32,10 @@ struct StampDataView: View {
             HStack {
                 Image(systemName: "hare.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Stamp Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
             }
+            .font(.system(size: UIFont.systemFontSize))
             .onTapGesture {
                 isHidden.toggle()
             }
@@ -55,8 +60,16 @@ struct StampDataView: View {
             .fileExporter(isPresented: $isExporting, document: StampsDocument(stamps: userPreferences.stamps), contentType: .json, defaultFilename: "my stamps - \(formattedDateShort(from: Date())).json") { result in
                 switch result {
                 case .success(let url):
+                    showNotification = true
+                    isSuccess = true
+                    isFailure = false
+                    notificationMessage = "Stamps Export Complete"
                     print("File successfully saved at \(url)")
                 case .failure(let error):
+                    showNotification = true
+                    isSuccess = false
+                    isFailure = true
+                    notificationMessage = "Stamps Export Cancelled"
                     print("Failed to save file: \(error)")
                 }
             }
@@ -75,10 +88,27 @@ struct StampDataView: View {
                 switch result {
                 case .success(let url):
                     importStamps(from: url)
+                    showNotification = true
+                    isSuccess = true
+                    isFailure = false
+                    notificationMessage = "Stamps Import Complete"
                 case .failure(let error):
+                    showNotification = true
+                    isSuccess = false
+                    isFailure = true
+                    notificationMessage = "Stamps Import Cancelled"
                     print("Failed to import file: \(error)")
                 }
             }
+            .alert(isPresented: $showNotification) {
+                if isSuccess {
+                    Alert(title: Text("Success"), message: Text(notificationMessage), dismissButton: .default(Text("OK")))
+                } else if isFailure {
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                } else{
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                }
+              }
 
             Spacer()
         }

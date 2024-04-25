@@ -15,6 +15,12 @@ struct UserPreferencesView: View {
     @State private var isImporting = false
     @Environment(\.colorScheme) var colorScheme
     @State private var isHidden = true
+    
+    @Binding  var showNotification: Bool
+    @Binding  var isSuccess: Bool
+    @Binding  var isFailure: Bool
+    @State private var notificationMessage = ""
+    
     var body: some View {
         
         Section {
@@ -25,11 +31,11 @@ struct UserPreferencesView: View {
             HStack {
                 Image(systemName: "paintpalette.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Preferences Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
 
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
             }
+            .font(.system(size: UIFont.systemFontSize))
             .onTapGesture {
                 isHidden.toggle()
             }
@@ -55,8 +61,16 @@ struct UserPreferencesView: View {
             .fileExporter(isPresented: $isExporting, document: UserPreferencesDocument(userPreferences: userPreferences), contentType: .json, defaultFilename: "my theme - \(formattedDateShort(from: Date())).json") { result in
                 switch result {
                 case .success(let url):
+                    showNotification = true
+                    isSuccess = true
+                    isFailure = false
+                    notificationMessage = "Preferences Export Complete"
                     print("File successfully saved at \(url)")
                 case .failure(let error):
+                    showNotification = true
+                    isSuccess = false
+                    isFailure = true
+                    notificationMessage = "Preferences Export Cancelled"
                     print("Failed to save file: \(error)")
                 }
             }
@@ -76,10 +90,27 @@ struct UserPreferencesView: View {
                 switch result {
                 case .success(let url):
                     importUserPreferences(from: url)
+                    showNotification = true
+                    isSuccess = true
+                    isFailure = false
+                    notificationMessage = "Preferences Import Complete"
                 case .failure(let error):
+                    showNotification = true
+                    isSuccess = false
+                    isFailure = true
+                    notificationMessage = "Preferences Import Cancelled"
                     print("Failed to import file: \(error)")
                 }
             }
+            .alert(isPresented: $showNotification) {
+                if isSuccess {
+                    Alert(title: Text("Success"), message: Text(notificationMessage), dismissButton: .default(Text("OK")))
+                } else if isFailure {
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                } else{
+                    Alert(title: Text("Failure"), message: Text("Data failed to export or import"), dismissButton: .default(Text("OK")))
+                }
+              }
 
             Spacer()
         }

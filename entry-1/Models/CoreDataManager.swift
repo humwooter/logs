@@ -109,5 +109,29 @@ func mergeChanges(from context: NSManagedObjectContext) {
         }
     }
 }
+    
+    func fetchEntriesByLog() -> [Log: [Entry]] {
+        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+        do {
+            let entries = try persistentContainer.viewContext.fetch(fetchRequest)
+            return Dictionary(grouping: entries, by: { $0.relationship })
+        } catch {
+            print("Failed to fetch entries: \(error)")
+            return [:]
+        }
+    }
+
+    func fetchEntriesCountByStampIcon() -> [String: Int] {
+        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+        do {
+            let entries = try persistentContainer.viewContext.fetch(fetchRequest)
+            return Dictionary(grouping: entries, by: { $0.stampIcon ?? "Unknown" })
+                .mapValues { $0.count }
+        } catch {
+            print("Failed to fetch entries: \(error)")
+            return [:]
+        }
+    }
+
   
 }

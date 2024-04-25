@@ -26,7 +26,9 @@ struct EntryDetailView: View { //used in LogDetailView
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 VStack(alignment: .leading) {
-                        entryHeaderView()
+                        entryHeaderView()           
+                        .font(.system(size: UIFont.systemFontSize))
+
 
                     VStack {
                         
