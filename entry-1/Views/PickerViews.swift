@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 import TipKit
 
-var button_width : CGFloat = 82
+var button_width : CGFloat = UIScreen.main.bounds.height/10
 
 
 struct Theme: Identifiable, Hashable {
@@ -370,7 +370,7 @@ struct ButtonDashboard: View {
 
                     .frame(width: button_width, height: button_width)
                     .opacity(stamp.isActive ? 1 : 0.3)
-                    .cornerRadius(40)
+                    .cornerRadius(100)
                     .shadow(radius: stamp.isActive ? 5 : 0)
                 VStack(alignment: .center, spacing: 2) {
                         Image(systemName: stamp.imageName).fontWeight(.bold)
@@ -378,9 +378,7 @@ struct ButtonDashboard: View {
                         .padding(.vertical, 5).onTapGesture {
                             if userPreferences.stamps.filter({ $0.isActive }).count < 3 {
                             
-//                                vibration_medium.prepare()
                                 userPreferences.stamps[index].isActive = !userPreferences.stamps[index].isActive //toggle
-//                                vibration_medium.impactOccurred()
                             } else {
                                 if userPreferences.stamps.filter({ $0.isActive }).count == 3 && userPreferences.stamps[index].isActive {
 //                                    vibration_medium.impactOccurred()
@@ -415,14 +413,16 @@ struct IconPicker: View {
     @State var defaultTopColor: Color
     @Binding var accentColor: Color
     @State private var searchText = ""
+    @FocusState private var focusField: Bool
 
 //    @State var backgroundColors: [Color]
     
     @Binding var topColor_background: Color
     @Binding var bottomColor_background: Color
-
+    @State var isEditingStampName = false
     
     var buttonIndex: Int
+    @Binding var buttonName: String
     var inputCategories: [String: [String]]
     let gridLayout: [GridItem] = [
         .init(.flexible(), spacing: 10),
@@ -435,12 +435,8 @@ struct IconPicker: View {
     
     var body: some View {
         
-        Section(header:
-                    Text("Stamp \(buttonIndex + 1)").foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
-            .font(.system(size: UIFont.systemFontSize))
-
-        ) {
-            NavigationLink(destination: imageListView().dismissOnTabTap()) {
+        Section {
+            NavigationLink(destination: imageListView()) {
                 HStack {
                     Text(selectedImage)
                     Spacer()
@@ -450,8 +446,36 @@ struct IconPicker: View {
             }
             ColorPicker("Stamp Color", selection: $selectedColor)
 
+        } header:{
+            HStack {
+                if isEditingStampName {
+                    TextField("Stamp Name", text: $buttonName, prompt:
+                                Text( "Enter Stamp Name").foregroundStyle(accentColor))
+                        .focused($focusField)
+
+                    Spacer()
+                    Image(systemName: "checkmark").foregroundStyle(.green)
+                        .onTapGesture {
+                            withAnimation {
+                                isEditingStampName = false
+                            }
+                        }
+                } else {
+                    if buttonName.isEmpty {
+                        Text("Stamp \(buttonIndex + 1)")
+                    } else {
+                        Text(buttonName)
+                    }
+                    Spacer()
+                    Image(systemName: "pencil").foregroundStyle(accentColor)
+                        .onTapGesture {
+                            isEditingStampName.toggle()
+                        }
+                }
+            }
+            .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
+            .font(.system(size: UIFont.systemFontSize))
         }
-        .font(.system(size: UIFont.systemFontSize))
     }
     
     func imageListView() -> some View {
@@ -544,7 +568,7 @@ struct FontPicker: View {
     @State var defaultTopColor: Color
     
     var body: some View {
-            NavigationLink(destination: fontListView().dismissOnTabTap()) {
+            NavigationLink(destination: fontListView()) {
                 HStack {
                     Text("Font Family")
                     Spacer()

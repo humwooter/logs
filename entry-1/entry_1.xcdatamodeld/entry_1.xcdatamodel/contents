@@ -17,6 +17,7 @@
         <attribute name="shouldSyncWithCloudKit" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="stampIcon" optional="YES" attributeType="String"/>
         <attribute name="stampIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="stampName" optional="YES" attributeType="String"/>
         <attribute name="time" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
     </entity>

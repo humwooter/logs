@@ -98,25 +98,8 @@ struct NewEntryView: View {
                             }
                         }
                         
-                        ZStack {
-                            if entryContent.isEmpty {
-                                VStack {
-                                    HStack {
-                                        Text("Start typing here...")
-                                            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
-                                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                                        Spacer()
-                                    }.padding(20)
-                                    Spacer()
-                                }
-                            }
-                            GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
-                        }
-                            .padding()
-
-                            .onSubmit {
-                                finalizeCreation()
-                            }
+        
+                            textFieldView()
                     }
                     .onTapGesture {
                         focusField = true
@@ -144,7 +127,7 @@ struct NewEntryView: View {
                     }
                     buttonBar()
 
-                    entryMediaView()
+//                    entryMediaView()
                 }
            
             }
@@ -445,6 +428,44 @@ struct NewEntryView: View {
     
     
     @ViewBuilder
+    func textFieldView() -> some View {
+        VStack (alignment: .leading) {
+            ZStack(alignment: .topTrailing) {
+                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+                if selectedData != nil {
+                    Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15).onTapGesture {
+                        vibration_light.impactOccurred()
+                        selectedData = nil
+                        imageHeight = 0
+                    }
+                }
+            }
+            ZStack {
+                if entryContent.isEmpty {
+                    VStack {
+                        HStack {
+                            Text("Start typing here...")
+                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            Spacer()
+                        }.padding(20)
+                        Spacer()
+                    }
+                }
+                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+            }
+        }.background {
+            ZStack {
+                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
+            }.ignoresSafeArea(.all)
+        }.cornerRadius(15)
+        .padding()
+        .onSubmit {
+            finalizeCreation()
+        }
+    }
+    
+    @ViewBuilder
     func dateEditSheet() -> some View {
         VStack {
             HStack {
@@ -472,7 +493,7 @@ struct NewEntryView: View {
 
     @ViewBuilder
     func reminderSheet() -> some View {
-        NavigationView {
+        NavigationStack {
             if hasReminderAccess {
                 List {
                     Section {

@@ -27,7 +27,9 @@ struct GrowingTextField: UIViewRepresentable {
         if let backgroundColor {
             textView.backgroundColor = backgroundColor
         } else {
-            textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
+//            textView.backgroundColor = UIColor(Color(fontColor).opacity(0.05))
+            textView.backgroundColor = UIColor.clear
+
         }
         textView.tintColor = cursorColor
         

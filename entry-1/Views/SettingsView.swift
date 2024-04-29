@@ -74,22 +74,22 @@ struct SettingsView: View {
                 }
                 
             }
-            .onChange(of: userPreferences.accentColor, { oldValue, newValue in
-                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue))
-                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(newValue)
-                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))], for: .selected)
-                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
-                UISegmentedControl.appearance().backgroundColor = UIColor.clear
-            })
-            .onChange(of: userPreferences.backgroundColors.first, { oldValue, newValue in
-                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))
-                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor))
-                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(userPreferences.accentColor)
-                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor ?? Color.clear))], for: .selected)
-                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
-                UISegmentedControl.appearance().backgroundColor = UIColor.clear
-            })
+//            .onChange(of: userPreferences.accentColor, { oldValue, newValue in
+//                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+//                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue))
+//                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(newValue)
+//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))], for: .selected)
+//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
+//                UISegmentedControl.appearance().backgroundColor = UIColor.clear
+//            })
+//            .onChange(of: userPreferences.backgroundColors.first, { oldValue, newValue in
+//                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))
+//                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor))
+//                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(userPreferences.accentColor)
+//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor ?? Color.clear))], for: .selected)
+//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
+//                UISegmentedControl.appearance().backgroundColor = UIColor.clear
+//            })
           
             .background {
                     ZStack {
@@ -165,7 +165,7 @@ struct SettingsView: View {
             NavigationLink {
                 NavigationStack {
                     List {
-                        preferencesTabView().dismissOnTabTap()
+                        preferencesTabView()
                         
                     }.navigationTitle("Appearance")
                     .background {
@@ -213,12 +213,37 @@ struct SettingsView: View {
             )
         }
         
+//        NavigationLink {
+//            NavigationStack {
+//                List {
+//                    LogStatsView(logs: Array(logs))
+//                }
+//                .navigationTitle("Stats")
+//                .background {
+//                        ZStack {
+//                            Color(UIColor.systemGroupedBackground)
+//                            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+//                        }
+//                        .ignoresSafeArea()
+//                }
+//                .scrollContentBackground(.hidden)
+//            }
+//
+//        } label: {
+//            Label(
+//                title: { Text("Stats").font(.system(size: UIFont.systemFontSize))
+//                },
+//                icon: { settingsIconView(systemImage: "chart.bar.fill")}
+//            )
+//        }
+        
         NavigationLink {
             NavigationStack {
                 List {
                     introScreenViews()
                 }
                 .navigationTitle("Information").font(.system(size: UIFont.systemFontSize))
+   
                 .background {
                         ZStack {
                             Color(UIColor.systemGroupedBackground)
@@ -254,6 +279,7 @@ struct SettingsView: View {
                 }
                 .scrollContentBackground(.hidden)
             }
+            
         } label: {
             Label(
                 title: { Text("App Icon").font(.system(size: UIFont.systemFontSize))
@@ -304,7 +330,6 @@ struct SettingsView: View {
                     VStack {
                         IntroViews()
                             .environmentObject(userPreferences)
-                            .dismissOnTabTap()
                     }
                 }
             } label: {
@@ -371,7 +396,7 @@ struct SettingsView: View {
         Section(header: Text("Stamp Dashboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         ) {
-            ButtonDashboard().environmentObject(userPreferences)
+            ButtonDashboard().environmentObject(userPreferences).scaledToFit()
                 .font(.system(size: UIFont.systemFontSize))
                 .listStyle(.automatic)
                 .padding(.horizontal, 5)
@@ -379,7 +404,7 @@ struct SettingsView: View {
         }
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
-                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, inputCategories: imageCategories)
+                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
             }
         }
     }

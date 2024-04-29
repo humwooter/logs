@@ -89,7 +89,10 @@ struct EntryRowView: View {
             else {
                     entry.stampIndex = Int16(index)
                     entry.stampIcon = userPreferences.stamps[index].imageName
+                    entry.stampName = userPreferences.stamps[index].name
+
                     entry.color = UIColor(userPreferences.stamps[index].color)
+                
                 print("SUCCESFULLY UPDATED")
             }
 

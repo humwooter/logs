@@ -167,13 +167,13 @@ struct NotEditingView: View {
                 
                 Button(action: {
                     withAnimation(.easeOut) {
-                        showEntry.toggle()
-                        entry.isHidden = !showEntry
+//                        showEntry.toggle()
+                        entry.isHidden.toggle()
                         coreDataManager.save(context: coreDataManager.viewContext)
                     }
                     
                 }, label: {
-                    Label(showEntry ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
+                    Label(!entry.isHidden ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
                 })
                 
                 if let filename = entry.mediaFilename {

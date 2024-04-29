@@ -111,6 +111,7 @@
 		4A942A862B759F1000C60BCC /* SpicyPotatos.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */; };
 		4A9982CF2B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		4A9982D02B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
+		4A9FB8BB2BDDC2D500349AA9 /* LogStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9FB8BA2BDDC2D500349AA9 /* LogStatsView.swift */; };
 		4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAF710A2B738DB400C94555 /* PDFKitView.swift */; };
 		4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */; };
 		4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0ABA12BB1663200EF3548 /* CoreDataFuncs.swift */; };
@@ -325,6 +326,7 @@
 		4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SpicyPotatos.ttf; path = "../../../../Downloads/spicy-potatos-font/SpicyPotatos.ttf"; sourceTree = "<group>"; };
 		4A9982CE2B401BDF00AEA8BC /* entry_ 4.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "entry_ 4.xcdatamodel"; sourceTree = "<group>"; };
 		4A9982D12B40241E00AEA8BC /* entry_5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_5.xcdatamodel; sourceTree = "<group>"; };
+		4A9FB8BA2BDDC2D500349AA9 /* LogStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStatsView.swift; sourceTree = "<group>"; };
 		4AA29F682ADB7930009FDD36 /* entry_ 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 3.xcdatamodel"; sourceTree = "<group>"; };
 		4AAF710A2B738DB400C94555 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
 		4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderFuncs.swift; sourceTree = "<group>"; };
@@ -584,6 +586,7 @@
 				4A7264392AEBB0570099EA84 /* LogDetailView.swift */,
 				4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */,
 				4A45D81A2B7C9E3C008739A6 /* LogDataView.swift */,
+				4A9FB8BA2BDDC2D500349AA9 /* LogStatsView.swift */,
 			);
 			path = Log;
 			sourceTree = "<group>";
@@ -1033,6 +1036,7 @@
 				4A72643C2AEBB0AE0099EA84 /* RecentlyDeletedView.swift in Sources */,
 				4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */,
 				4ABBEF892AE8EB03005BD78A /* GlobalVars.swift in Sources */,
+				4A9FB8BB2BDDC2D500349AA9 /* LogStatsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1235,7 +1239,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = gnupes.dodum.logs;
+				PRODUCT_BUNDLE_IDENTIFIER = dodum.logs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -1286,7 +1290,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = gnupes.dodum.logs;
+				PRODUCT_BUNDLE_IDENTIFIER = dodum.logs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

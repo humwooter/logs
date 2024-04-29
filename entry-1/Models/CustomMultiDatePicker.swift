@@ -10,6 +10,7 @@ import SwiftUI
 import UIKit
 
 
+
 // Helper extensions to manage dates:
 extension Date {
     var startOfMonth: Date {
@@ -29,6 +30,7 @@ struct CalendarView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var offset = CGSize.zero
     @State private var showingDatePicker = false  // State to toggle DatePicker visibility
+    @State var calendar_item_dimension = UIScreen.main.bounds.width/10
 
     
     init(datesModel: DatesModel, selectionColor: Color, backgroundColor: Color) {
@@ -37,13 +39,16 @@ struct CalendarView: View {
         self.backgroundColor = backgroundColor
         _currentMonth = State(initialValue: Calendar.current.startOfMonth(for: Date()))
     }
+    @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
 
     var body: some View {
         VStack {
             monthHeaderView()
             if !showingDatePicker {
                 weekDaysHeader()
-                daysGridView()
+                daysGridView().onAppear {
+                    calendar_item_dimension = UIScreen.main.bounds.width/10
+                }
             } else {
                 DatePicker(
                     "",
@@ -55,9 +60,6 @@ struct CalendarView: View {
         }
     }
     
-    
-    
-
     private func monthHeaderView() -> some View {
         HStack {
             Image(systemName: "chevron.left").foregroundColor(selectionColor)
@@ -66,8 +68,6 @@ struct CalendarView: View {
                 }
 
             Spacer()
-
-   
                        Text("\(currentMonth, formatter: dateFormatter)")
                            .font(.headline)
                            .foregroundColor(colorScheme == .dark ? .white : .black) // Adjusting color based on the theme
@@ -89,10 +89,11 @@ struct CalendarView: View {
     
 
     private func weekDaysHeader() -> some View {
-        HStack {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
+            // Insert padding items for the first row if necessary
             ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                 Text(day).fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
+//                    .frame(width: calendar_item_dimension, height: calendar_item_dimension)
                     .padding(.vertical, 5)
                     .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.3))
             }.scaledToFit()
@@ -105,11 +106,12 @@ struct CalendarView: View {
         let monthStart = Calendar.current.startOfMonth(for: currentMonth)
         let padding = Calendar.current.weekDayAndPadding(for: monthStart)
         
+        
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 7), spacing: 8) {
             // Insert padding items for the first row if necessary
             ForEach(0..<padding, id: \.self) { _ in
                 Text("")
-                    .frame(width: 35, height: 35) // Empty frame for padding
+//                    .frame(width: calendar_item_dimension, height: calendar_item_dimension)
             }
             // Now insert actual day items
             ForEach(daysInMonth, id: \.self) { day in
@@ -126,18 +128,19 @@ struct CalendarView: View {
     @ViewBuilder
     func dayButton(_ day: DateComponents, isSelected: Bool) -> some View {
         
+        let calendarButton_dim : CGFloat = isIpad ? 55 : 35
         let dateStringManager = DateStrings()
         
         if let monthDates = dateStringManager.dates(forMonthYear: dateStringManager.monthYear(from: format(dateComponents: day)!)!) {
             
             let dayString = format(dateComponents: day)!
             if monthDates.contains(dayString) && !isSelected { //hasLog
-                 Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
-                    .frame(width: 35, height: 35)
+                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+                    .frame(width: calendarButton_dim, height: calendarButton_dim)
                     .background(selectionColor .opacity(0.3))
                     .foregroundStyle ( isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
                                         Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-                    .cornerRadius(35)
+                    .cornerRadius(100)
                     .onTapGesture {
                         if let index = datesModel.dates.firstIndex(where: { $0.date == day }) {
                             datesModel.dates[index].isSelected.toggle()
@@ -146,12 +149,12 @@ struct CalendarView: View {
                         }
                     }
             } else {
-                 Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
-                    .frame(width: 35, height: 35)
+                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+                    .frame(width: calendarButton_dim, height: calendarButton_dim)
                     .background(isSelected ? selectionColor : backgroundColor)
                     .foregroundStyle ( isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
                                         Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-                    .cornerRadius(35)
+                    .cornerRadius(100)
                     .onTapGesture {
                         if let index = datesModel.dates.firstIndex(where: { $0.date == day }) {
                             datesModel.dates[index].isSelected.toggle()
@@ -162,14 +165,11 @@ struct CalendarView: View {
             }
         } else {
             Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2)).opacity(0.5)
-               .frame(width: 35, height: 35)
+                .frame(width: calendarButton_dim, height: calendarButton_dim)
                .background(backgroundColor)
                .foregroundStyle (Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-               .cornerRadius(35)
+               .cornerRadius(100)
         }
-//        else {
-//            return Text("Error")
-//        }
     }
     
     func format(dateComponents: DateComponents) -> String? {

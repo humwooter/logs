@@ -18,6 +18,7 @@ struct PDFKitView: UIViewRepresentable {
         let pdfView = PDFView()
         pdfView.document = PDFDocument(data: self.data)
         pdfView.autoScales = true
+        pdfView.backgroundColor = UIColor.clear
         return pdfView
     }
     

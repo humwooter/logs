@@ -77,13 +77,8 @@ struct EditingEntryView: View {
             VStack {
                 
                 iconHeaderView()
-                
-                    VStack {
-                        GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
-                                         cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
-                            .padding()
-    
-                    }
+                textFieldView()
+
 
                 VStack {
                     HStack {
@@ -106,7 +101,7 @@ struct EditingEntryView: View {
                         Spacer()
                     }
                     buttonBar()
-                    entryMediaView()
+//                    entryMediaView()
                 }
    
             }
@@ -271,9 +266,52 @@ struct EditingEntryView: View {
         }
     }
     
+
+    
+    @ViewBuilder
+    func textFieldView() -> some View {
+        VStack (alignment: .leading) {
+            ZStack(alignment: .topTrailing) {
+                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+                if selectedData != nil {
+                    Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15).onTapGesture {
+                        vibration_light.impactOccurred()
+                        selectedData = nil
+                        selectedImage = nil
+                    deletePrevMedia = true
+                    }
+                }
+            }
+            ZStack {
+                if editingContent.isEmpty {
+                    VStack {
+                        HStack {
+                            Text("Start typing here...")
+                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            Spacer()
+                        }.padding(20)
+                        Spacer()
+                    }
+                }
+                GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
+                                 cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+            }
+        }.background {
+            ZStack {
+                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
+            }.ignoresSafeArea(.all)
+        }.cornerRadius(15)
+        .padding()
+        .onSubmit {
+            finalizeEdit()
+        }
+    }
+    
+    
     @ViewBuilder
     func reminderSheet() -> some View {
-        NavigationView {
+        NavigationStack {
             if hasReminderAccess {
                 List {
                     Section {
@@ -408,7 +446,8 @@ struct EditingEntryView: View {
                             Button(role: .destructive, action: {
                                     selectedData = nil
                                     selectedImage = nil
-                                    entry.deleteImage(coreDataManager: coreDataManager)
+                                deletePrevMedia = true
+//                                    entry.deleteImage(coreDataManager: coreDataManager)
                                     
                             }) {
                                 Text("Delete")

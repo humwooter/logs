@@ -14,6 +14,7 @@ struct ContentView: View {
     @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
     @ObservedObject var datesModel = DatesModel()
 //    @State var dateStringsManager = DateStrings()
+    @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
     @FetchRequest(
@@ -112,13 +113,23 @@ struct ContentView: View {
 //                    .accentColor(userPreferences.accentColor)
 //                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 
-                CustomTabViewModel(isUnlocked: $isUnlocked)
-                    .environmentObject(coreDataManager)
-                    .environmentObject(userPreferences)
-                    .environmentObject(datesModel)
-                    .environmentObject(tabSelectionInfo)
-                    .accentColor(userPreferences.accentColor)
-                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                if !isIpad {
+                    CustomTabViewModel(isUnlocked: $isUnlocked)
+                        .environmentObject(coreDataManager)
+                        .environmentObject(userPreferences)
+                        .environmentObject(datesModel)
+                        .environmentObject(tabSelectionInfo)
+                        .accentColor(userPreferences.accentColor)
+                        .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                } else {
+                    CustomNavigationViewModel(isUnlocked: $isUnlocked)
+                        .environmentObject(coreDataManager)
+                        .environmentObject(userPreferences)
+                        .environmentObject(datesModel)
+                        .environmentObject(tabSelectionInfo)
+                        .accentColor(userPreferences.accentColor)
+                        .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+                }
                 
             }
             

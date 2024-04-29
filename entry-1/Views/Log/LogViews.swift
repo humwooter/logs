@@ -176,7 +176,7 @@ struct LogsView: View {
 
     var body: some View {
 
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                     List {
                             if !isSearching {
@@ -194,7 +194,7 @@ struct LogsView: View {
                                           secondaryButton: .cancel())
                                 }
                                 
-                                NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences).dismissOnTabTap()) {
+                                NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
                                     Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
                                 }
                         }

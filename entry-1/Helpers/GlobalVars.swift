@@ -53,6 +53,7 @@ let imageCategories: [String: [String]] = [
     "Human": ["brain", "ear.fill", "mouth.fill", "mustache.fill", "hand.raised.fill", "brain.filled.head.profile", "shoe.fill", "lungs.fill"],
     "Fashion": ["tshirt.fill", "shoe.fill", "eyebrow"],
     "Gaming" : ["gamecontroller.fill", "arcade.stick.console.fill", "dpad.fill",  "playstation.logo", "xbox.logo", "flag.2.crossed.fill"],
+    "Communication" : ["bubble.fill", "exclamationmark.bubble.fill", "quote.bubble.fill", "star.bubble.fill", "text.bubble.fill", "person.bubble.fill"],
     "Food" : ["frying.pan.fill", "cup.and.saucer.fill", "popcorn.fill", "wineglass.fill", "carrot", "fork.knife", "waterbottle.fill"],
     "Actions": ["figure.run", "figure.skating", "figure.bowling",  "figure.mind.and.body", "figure.dance", "book.fill", "paintpalette.fill", "eye.fill", "list.clipboard" ,  "figure.yoga", "music.mic", "pencil.and.scribble",  "figure.strengthtraining.traditional", "paintbrush.fill", "pianokeys.inverse", "paintbrush.pointed.fill"],
     "Fitness": ["gym.bag.fill", "dumbbell.fill", "surfboard.fill", "snowboard.fill", "volleyball.fill", "tennis.racket", "basketball.fill", "baseball.fill", "soccerball", "football", "football.fill",  "figure.jumprope", ],

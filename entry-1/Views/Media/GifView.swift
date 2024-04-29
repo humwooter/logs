@@ -56,6 +56,7 @@ struct AnimatedImageView_data: UIViewRepresentable {
         let view = UIView()
         let animatedView = FLAnimatedImageView()
         animatedView.contentMode = .scaleAspectFit
+        animatedView.backgroundColor = .black
         view.addSubview(animatedView)
         animatedView.translatesAutoresizingMaskIntoConstraints = false
         
