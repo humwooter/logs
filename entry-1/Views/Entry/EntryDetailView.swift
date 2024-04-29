@@ -22,6 +22,8 @@ struct EntryDetailView: View { //used in LogDetailView
 
     
 @State var showEntry = true
+@State var isPinned = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
@@ -53,6 +55,7 @@ struct EntryDetailView: View { //used in LogDetailView
         }.padding(.vertical, 5)
             .onAppear {
                 showEntry = !entry.isHidden
+                isPinned = entry.isPinned
             }
 
             .fullScreenCover(isPresented: $isFullScreen) {
@@ -175,11 +178,12 @@ struct EntryDetailView: View { //used in LogDetailView
         
         Button(action: {
             withAnimation {
-                entry.isPinned.toggle()
+                isPinned.toggle()
+                entry.isPinned = isPinned
                 coreDataManager.save(context: coreDataManager.viewContext)
             }
         }) {
-            Text(entry.isPinned ? "Unpin" : "Pin")
+            Text(isPinned ? "Unpin" : "Pin")
             Image(systemName: "pin.fill")
                 .foregroundColor(.red)
         }
