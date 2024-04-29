@@ -110,6 +110,21 @@ struct TextView : View {
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
                                 .environmentObject(coreDataManager)
+//                                .onChange(of: editingContent) { _ in
+//                                    // Store the current content in `previousContent` before updating
+////                                    entry.previousContent = editingContent
+//                                    
+////                                     Cancel any existing save operation and schedule a new one
+////                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+////                                        entry.previousContent = editingContent
+////                                        // Ensure the content has not changed in the last second before saving
+////                                        if self.editingContent == entry.previousContent {
+////                                            coreDataManager.save(context: coreDataManager.viewContext)
+////                                        }
+////                                    }
+//                                }
+
+
                         }
                     
                         .sheet(isPresented: $isExporting) {

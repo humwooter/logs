@@ -94,33 +94,7 @@ struct GrowingTextField: UIViewRepresentable {
             parent.text = textView.text
             self.textView = textView // Keep a reference to the textView
         }
-        
-        //
-//                private func insertTextAtCursor(text: String) {
-//                    print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
-//        //            DispatchQueue.main.async {
-//                        guard let textView = self.textView else { return }
-//        
-//                        let currentText = textView.text as NSString
-//                        var range = textView.selectedRange
-//                        let updatedText = currentText.replacingCharacters(in: range, with: text)
-//        
-//                        // Update the text directly to prevent cursor jump
-//                        textView.text = updatedText as String
-//        
-//                        // Adjust range location to account for new text insertion
-//                        range.location += text.utf16.count
-//                        range.length = 0
-//        
-//                        // Restore cursor position
-//                        textView.selectedRange = range
-//        
-//                        // Update the parent view's text to keep it in sync
-//                        self.parent.text = updatedText as String
-//        //            }
-//                }
-        
- 
+         
         
         private func insertTextAtCursor(text: String) {
             print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")

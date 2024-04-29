@@ -71,7 +71,6 @@ struct LogStatsView: View {
              
      
             
-            //661713
 //
 //            Chart {
 //                      ForEach(data, id: \.id) { logData in

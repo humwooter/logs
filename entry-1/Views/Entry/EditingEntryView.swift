@@ -133,11 +133,9 @@ struct EditingEntryView: View {
                     previousMediaData = getMediaData(fromFilename: filename)
                     selectedData = previousMediaData
                 }
-                if !entry.content.isEmpty {
-//                    previousEntryContent = entry.content
+                if editingContent.isEmpty {
                     editingContent = entry.content
                 }
-
             }
             .fullScreenCover(isPresented: $showCamera) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
@@ -274,12 +272,16 @@ struct EditingEntryView: View {
             ZStack(alignment: .topTrailing) {
                 entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
                 if selectedData != nil {
-                    Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15).onTapGesture {
+                    
+                    Button(role: .destructive, action: {
                         vibration_light.impactOccurred()
                         selectedData = nil
                         selectedImage = nil
                     deletePrevMedia = true
+                    }) {
+                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
                     }
+
                 }
             }
             ZStack {
@@ -719,7 +721,7 @@ struct EditingEntryView: View {
     }
     
     func cancelEdit() {
-        editingContent = entry.content // Reset to the original content
+        editingContent = entry.previousContent ?? entry.content // Reset to the original content
         if !previousMediaFilename.isEmpty, let data = previousMediaData { //restore previous media
             entry.saveImage(data: data, coreDataManager: coreDataManager)
         }

@@ -11,7 +11,7 @@ import CoreData
 import UIKit
 import TipKit
 
-var button_width : CGFloat = UIScreen.main.bounds.height/10
+//var button_width : CGFloat = UIScreen.main.bounds.height/10
 
 
 struct Theme: Identifiable, Hashable {
@@ -295,51 +295,59 @@ struct ButtonDashboard: View {
     @State private var showAlert = false
     @State private var selectedTab = 0
     var customStampTip: CustomStampTip = CustomStampTip()
-
+    @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
 
         var body: some View {
-            VStack(alignment: .center) {
-                    HStack {
-                        Spacer()
+            let buttonWidth = isIpad ? UIScreen.main.bounds.width/5 : UIScreen.main.bounds.width/4.5
 
-                        TabView(selection: $selectedTab) {
-                            ForEach(0..<3) { tabPage in
-                                dashboardSection(startIndex: tabPage*7)
-                                    .tag(tabPage)
-                                
-                            }
-                        }
-                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
-
-                        Spacer()
-                    }
-            }
-            .frame(minWidth: 4.3*button_width, minHeight: 4.3*button_width)
-            .scaledToFit()
+                dashboardView(button_width: buttonWidth)
 
           }
     
     
     @ViewBuilder
-    private func dashboardSection(startIndex: Int) -> some View {
+    func dashboardView(button_width: CGFloat) -> some View {
+        VStack(alignment: .center) {
+                HStack {
+                    Spacer()
+
+                    TabView(selection: $selectedTab) {
+                        ForEach(0..<3) { tabPage in
+                            dashboardSection(startIndex: tabPage*7, buttonWidth: button_width)
+                                .tag(tabPage)
+                            
+                        }
+                    }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+
+                    Spacer()
+                }
+        }
+        .frame(minWidth: 4.3*button_width, minHeight: 4.3*button_width)
+        .scaledToFit()
+    }
+    
+    
+    @ViewBuilder
+    private func dashboardSection(startIndex: Int, buttonWidth: CGFloat) -> some View {
         VStack {
             Spacer()
             HStack(alignment: .center, spacing: 20) {
                 ForEach(startIndex..<startIndex+2, id: \.self) { index in
                     
-                    buttonSection(index: index)
+                    buttonSection(index: index, button_width: buttonWidth)
                     
                 }
             }
             HStack(alignment: .center, spacing: 20) {
                 ForEach(startIndex+2..<startIndex+5, id: \.self) { index in
-                    buttonSection(index: index)
+                    buttonSection(index: index, button_width: buttonWidth)
                 }
             }
             HStack(alignment: .center, spacing: 20) {
                 ForEach(startIndex+5..<startIndex+7, id: \.self) { index in
-                    buttonSection(index: index)
+                    buttonSection(index: index, button_width: buttonWidth)
                 }
             }
             Spacer()
@@ -350,8 +358,9 @@ struct ButtonDashboard: View {
     }
     
     @ViewBuilder
-    private func buttonSection(index: Int) -> some View {
+    private func buttonSection(index: Int, button_width: CGFloat) -> some View {
         let stamp = userPreferences.stamps[index]
+//        let button_width = isIpad ? UIScreen.main.bounds.width/5 : UIScreen.main.bounds.width/5
         VStack {
             ZStack {
                 Rectangle()
@@ -373,7 +382,7 @@ struct ButtonDashboard: View {
                     .cornerRadius(100)
                     .shadow(radius: stamp.isActive ? 5 : 0)
                 VStack(alignment: .center, spacing: 2) {
-                        Image(systemName: stamp.imageName).fontWeight(.bold)
+                    Image(systemName: stamp.imageName).resizable().scaledToFit().frame(width: button_width/5, height: button_width/5)
                         .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
                         .padding(.vertical, 5).onTapGesture {
                             if userPreferences.stamps.filter({ $0.isActive }).count < 3 {

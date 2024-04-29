@@ -429,14 +429,17 @@ struct NewEntryView: View {
     
     @ViewBuilder
     func textFieldView() -> some View {
+        
         VStack (alignment: .leading) {
             ZStack(alignment: .topTrailing) {
                 entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
                 if selectedData != nil {
-                    Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15).onTapGesture {
+                    Button(role: .destructive, action: {
                         vibration_light.impactOccurred()
                         selectedData = nil
                         imageHeight = 0
+                    }) {
+                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
                     }
                 }
             }
