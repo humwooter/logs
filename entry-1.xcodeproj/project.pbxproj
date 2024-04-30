@@ -112,6 +112,7 @@
 		4A9982CF2B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		4A9982D02B401FD200AEA8BC /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		4A9FB8BB2BDDC2D500349AA9 /* LogStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9FB8BA2BDDC2D500349AA9 /* LogStatsView.swift */; };
+		4A9FB8BD2BE0AA6900349AA9 /* AlternateNewEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9FB8BC2BE0AA6900349AA9 /* AlternateNewEntryView.swift */; };
 		4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAF710A2B738DB400C94555 /* PDFKitView.swift */; };
 		4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */; };
 		4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0ABA12BB1663200EF3548 /* CoreDataFuncs.swift */; };
@@ -327,6 +328,7 @@
 		4A9982CE2B401BDF00AEA8BC /* entry_ 4.xcdatamodel */ = {isa = PBXFileReference; explicitFileType = wrapper.xcdatamodel; path = "entry_ 4.xcdatamodel"; sourceTree = "<group>"; };
 		4A9982D12B40241E00AEA8BC /* entry_5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_5.xcdatamodel; sourceTree = "<group>"; };
 		4A9FB8BA2BDDC2D500349AA9 /* LogStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStatsView.swift; sourceTree = "<group>"; };
+		4A9FB8BC2BE0AA6900349AA9 /* AlternateNewEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlternateNewEntryView.swift; sourceTree = "<group>"; };
 		4AA29F682ADB7930009FDD36 /* entry_ 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 3.xcdatamodel"; sourceTree = "<group>"; };
 		4AAF710A2B738DB400C94555 /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
 		4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderFuncs.swift; sourceTree = "<group>"; };
@@ -575,6 +577,7 @@
 				4A5E53162B8DB12400F4521D /* NotEditingView.swift */,
 				4A5E53142B8D9ED400F4521D /* UpdatedEntryView.swift */,
 				4A5E53182B8DB14D00F4521D /* EntryRowView.swift */,
+				4A9FB8BC2BE0AA6900349AA9 /* AlternateNewEntryView.swift */,
 			);
 			path = Entry;
 			sourceTree = "<group>";
@@ -1019,6 +1022,7 @@
 				4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
 				4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */,
+				4A9FB8BD2BE0AA6900349AA9 /* AlternateNewEntryView.swift in Sources */,
 				4A6235EA2BCD0DE000AF8875 /* DateStrings.swift in Sources */,
 				34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */,
 				4A45684C2BCFB1E300C0C655 /* ChartViewModel.swift in Sources */,

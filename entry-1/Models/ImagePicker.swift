@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 import UIKit
-
+import PhotosUI
 
 
 struct ImagePicker: UIViewControllerRepresentable {
@@ -59,6 +59,52 @@ struct ImagePicker: UIViewControllerRepresentable {
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
             print("entered func imagePickerControllerDidCancel")
             parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+
+
+struct MultiImagePicker: UIViewControllerRepresentable {
+    @Binding var selectedImages: [UIImage]
+    @Environment(\.presentationMode) private var presentationMode
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.selectionLimit = 0  // Set to 0 for unlimited selection
+        config.filter = .any(of: [.images, .videos]) // Allow both images and videos
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {
+        // No update needed
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        var parent: MultiImagePicker
+
+        init(_ parent: MultiImagePicker) {
+            self.parent = parent
+        }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.presentationMode.wrappedValue.dismiss()
+            for result in results {
+                result.itemProvider.loadObject(ofClass: UIImage.self) { (object, error) in
+                    if let image = object as? UIImage {
+                        DispatchQueue.main.async {
+                            self.parent.selectedImages.append(image)
+                        }
+                    }
+                }
+            }
         }
     }
 }

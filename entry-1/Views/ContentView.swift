@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var indices : [Bool] = [false, true, false]
     @ObservedObject private var userPreferences = UserPreferences()
 //    @ObservedObject var datesModel = DatesModel()
-    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+//    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
     @ObservedObject var datesModel = DatesModel()
 //    @State var dateStringsManager = DateStrings()
     @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
@@ -52,6 +52,18 @@ struct ContentView: View {
                     initializeDateStrings()
                     if userPreferences.showLockScreen {
                         authenticate()
+                    }
+                    
+                    for entry in allEntries {
+                        if let mediaFilename = entry.mediaFilename {
+                            if entry.mediaFilenames == nil {
+                                entry.mediaFilenames = []
+                                entry.mediaFilenames?.append(mediaFilename)
+                            }
+                            
+                            print("ENTRY MEDIA FILES: \(entry.mediaFilenames ?? [])")
+                            coreDataManager.save(context: coreDataManager.viewContext)
+                        }
                     }
                 })
             }
@@ -118,7 +130,6 @@ struct ContentView: View {
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)
-                        .environmentObject(tabSelectionInfo)
                         .accentColor(userPreferences.accentColor)
                         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 } else {
@@ -126,7 +137,6 @@ struct ContentView: View {
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)
-                        .environmentObject(tabSelectionInfo)
                         .accentColor(userPreferences.accentColor)
                         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 }

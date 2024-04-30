@@ -318,6 +318,7 @@ struct LogsView: View {
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                    .lineSpacing(userPreferences.lineSpacing)
                
             }
             .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
@@ -464,7 +465,7 @@ struct LogsView: View {
             
             ScrollView {
                 LazyVStack {
-                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log).dismissOnTabTap()
+                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
                         .environmentObject(userPreferences)) {
                             HStack {
                                 Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)

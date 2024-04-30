@@ -10,19 +10,19 @@ import Foundation
 
 import SwiftUI
 
-struct DismissOnTabTapModifier: ViewModifier {
-    @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
-    let isRootTabView: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .onReceive(tabSelectionInfo.$tabJustTapped) { tabJustTapped in
-                if tabJustTapped && !isRootTabView {
-                    self.presentationMode.wrappedValue.dismiss()
-                }
-            }
-    }
-}
+//struct DismissOnTabTapModifier: ViewModifier {
+//    @Environment(\.presentationMode) var presentationMode
+//    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
+//    let isRootTabView: Bool
+//
+//    func body(content: Content) -> some View {
+//        content
+//            .onReceive(tabSelectionInfo.$tabJustTapped) { tabJustTapped in
+//                if tabJustTapped && !isRootTabView {
+//                    self.presentationMode.wrappedValue.dismiss()
+//                }
+//            }
+//    }
+//}
 
 

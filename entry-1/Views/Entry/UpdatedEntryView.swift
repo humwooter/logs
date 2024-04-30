@@ -56,7 +56,6 @@ struct EntryView: View {
     
     // Sorting and Custom UI Configuration
     @State private var selectedSortOption: SortOption = .timeAscending
-    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
 
 
     

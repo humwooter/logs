@@ -107,10 +107,10 @@ extension View {
         UIPageControl.appearance().overrideUserInterfaceStyle = which_colorScheme(for: uiColor) //this works!!
         return self
     }
-    
-    func dismissOnTabTap(isRootTabView: Bool = false) -> some View {
-        self.modifier(DismissOnTabTapModifier(isRootTabView: isRootTabView))
-    }
+//    
+//    func dismissOnTabTap(isRootTabView: Bool = false) -> some View {
+//        self.modifier(DismissOnTabTapModifier(isRootTabView: isRootTabView))
+//    }
 }
 
 extension UIColor {

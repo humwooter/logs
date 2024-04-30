@@ -29,6 +29,7 @@ extension Entry {
     @NSManaged public var stampName: String?
     @NSManaged public var reminderId: String?
     @NSManaged public var mediaFilename: String?
+    @NSManaged public var mediaFilenames: [String]?
     @NSManaged public var isHidden: Bool
     @NSManaged public var isShown: Bool
     @NSManaged public var isPinned: Bool
@@ -37,6 +38,8 @@ extension Entry {
     @NSManaged public var shouldSyncWithCloudKit: Bool
     @NSManaged public var stampIndex: Int16
     @NSManaged public var pageNum_pdf: Int16
+    
+    
 
     
     func deleteImage(coreDataManager: CoreDataManager) {

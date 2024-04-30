@@ -49,7 +49,6 @@ struct SettingsView: View {
     // user interface state
     @State var advancedSettings = false
     @State private var selectedTab = 0
-    @EnvironmentObject var tabSelectionInfo: TabSelectionInfo
 
     @Binding var isUnlocked: Bool
     @State var settingIconColors: [Color] = []

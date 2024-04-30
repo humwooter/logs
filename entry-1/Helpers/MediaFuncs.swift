@@ -9,7 +9,8 @@ import Foundation
 import CoreData
 import SwiftUI
 import PDFKit
-
+import AVFoundation
+import AVKit
 
 func getUrl(for filename: String) -> URL? {
     let fileManager = FileManager.default
@@ -17,6 +18,26 @@ func getUrl(for filename: String) -> URL? {
     return documentsDirectory.appendingPathComponent(filename)
 }
 
+func isVideo(data: Data) -> Bool {
+    // Write data to a temporary file
+    let temporaryFileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".tmp")
+    do {
+        try data.write(to: temporaryFileURL)
+        
+        // Create an asset from this temporary file
+        let asset = AVAsset(url: temporaryFileURL)
+        let videoTracks = asset.tracks(withMediaType: .video)
+        
+        // Clean up: remove the temporary file
+        try FileManager.default.removeItem(at: temporaryFileURL)
+        
+        // Return true if there are video tracks
+        return !videoTracks.isEmpty
+    } catch {
+        print("Failed to write to or delete temporary file, or failed to read video tracks: \(error)")
+        return false
+    }
+}
 func isGIF(data: Data) -> Bool {
     return data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x37, 0x61]) || data.prefix(6) == Data([0x47, 0x49, 0x46, 0x38, 0x39, 0x61])
 }

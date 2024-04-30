@@ -382,21 +382,39 @@ struct ButtonDashboard: View {
                     .cornerRadius(100)
                     .shadow(radius: stamp.isActive ? 5 : 0)
                 VStack(alignment: .center, spacing: 2) {
-                    Image(systemName: stamp.imageName).resizable().scaledToFit().frame(width: button_width/5, height: button_width/5)
-                        .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
-                        .padding(.vertical, 5).onTapGesture {
-                            if userPreferences.stamps.filter({ $0.isActive }).count < 3 {
-                            
-                                userPreferences.stamps[index].isActive = !userPreferences.stamps[index].isActive //toggle
-                            } else {
-                                if userPreferences.stamps.filter({ $0.isActive }).count == 3 && userPreferences.stamps[index].isActive {
-//                                    vibration_medium.impactOccurred()
-                                    userPreferences.stamps[index].isActive = false
+                    if isIpad {
+                        Image(systemName: stamp.imageName).resizable().scaledToFit().frame(width: button_width/5, height: button_width/5)
+                            .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
+                            .padding(.vertical, 5).onTapGesture {
+                                if userPreferences.stamps.filter({ $0.isActive }).count < 3 {
+                                    
+                                    userPreferences.stamps[index].isActive = !userPreferences.stamps[index].isActive //toggle
                                 } else {
-                                    showAlert = true
+                                    if userPreferences.stamps.filter({ $0.isActive }).count == 3 && userPreferences.stamps[index].isActive {
+                                        //                                    vibration_medium.impactOccurred()
+                                        userPreferences.stamps[index].isActive = false
+                                    } else {
+                                        showAlert = true
+                                    }
                                 }
                             }
-                        }
+                    } else {
+                        Image(systemName: stamp.imageName).bold()
+                            .foregroundColor(stamp.isActive ? stamp.color : Color.gray.opacity(0.3))
+                            .padding(.vertical, 5).onTapGesture {
+                                if userPreferences.stamps.filter({ $0.isActive }).count < 3 {
+                                    
+                                    userPreferences.stamps[index].isActive = !userPreferences.stamps[index].isActive //toggle
+                                } else {
+                                    if userPreferences.stamps.filter({ $0.isActive }).count == 3 && userPreferences.stamps[index].isActive {
+                                        //                                    vibration_medium.impactOccurred()
+                                        userPreferences.stamps[index].isActive = false
+                                    } else {
+                                        showAlert = true
+                                    }
+                                }
+                            }
+                    }
                     ToggleButton(isOn: Binding(
                                        get: { stamp.isActive },
                                        set: { newValue in

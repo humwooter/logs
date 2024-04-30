@@ -11,6 +11,7 @@
         <attribute name="isShown" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="lastUpdated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="mediaFilename" optional="YES" attributeType="String" customClassName="UIImage"/>
+        <attribute name="mediaFilenames" optional="YES" attributeType="Transformable"/>
         <attribute name="pageNum_pdf" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="previousContent" optional="YES" attributeType="String"/>
         <attribute name="reminderId" optional="YES" attributeType="String"/>

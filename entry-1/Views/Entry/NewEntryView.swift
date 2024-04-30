@@ -431,18 +431,7 @@ struct NewEntryView: View {
     func textFieldView() -> some View {
         
         VStack (alignment: .leading) {
-            ZStack(alignment: .topTrailing) {
-                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
-                if selectedData != nil {
-                    Button(role: .destructive, action: {
-                        vibration_light.impactOccurred()
-                        selectedData = nil
-                        imageHeight = 0
-                    }) {
-                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-                    }
-                }
-            }
+
             ZStack {
                 if entryContent.isEmpty {
                     VStack {
@@ -456,6 +445,19 @@ struct NewEntryView: View {
                     }
                 }
                 GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+            }
+            
+            ZStack(alignment: .topTrailing) {
+                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+                if selectedData != nil {
+                    Button(role: .destructive, action: {
+                        vibration_light.impactOccurred()
+                        selectedData = nil
+                        imageHeight = 0
+                    }) {
+                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+                    }
+                }
             }
         }.background {
             ZStack {
