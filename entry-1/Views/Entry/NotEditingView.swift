@@ -345,7 +345,7 @@ struct NotEditingView_thumbnail: View {
     
     var body : some View {
         VStack {
-            entryTextView().frame(maxHeight: 50)
+            entryTextView()
                 //                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
                 if let url = getUrl(for: entry.mediaFilename ?? "") {
                     if mediaExists(at: url) {
@@ -471,7 +471,7 @@ struct NotEditingView_thumbnail: View {
     
     @ViewBuilder
     func entryTextView() -> some View {
-        let truncatedText = truncatedText(entry.content, wordLimit: 7)
+        let truncatedText = truncatedText(entry.content, wordLimit: 3, maxCharacterLimit: 20)
         VStack {
             if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
@@ -509,7 +509,7 @@ struct NotEditingView_thumbnail: View {
             }
             
         }
-        .font(.custom(userPreferences.fontName, size: max(CGFloat(userPreferences.fontSize-3),5)))
+        .font(.custom(userPreferences.fontName, size: max(CGFloat(userPreferences.fontSize*0.7),5)))
             .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
             .padding(1)
             .padding(.vertical, 3)
@@ -518,14 +518,31 @@ struct NotEditingView_thumbnail: View {
             .shadow(radius: 0)
     }
     
-    func truncatedText(_ text: String, wordLimit: Int) -> String {
-        let words = text.split(separator: " ")
-        if words.count > wordLimit {
-            return words.prefix(wordLimit).joined(separator: " ") + "..."
-        } else {
-            return text
+    func truncatedText(_ text: String, wordLimit: Int, maxCharacterLimit: Int) -> String {
+        // Split the text into segments based on spaces or new lines
+        let segments = text.components(separatedBy: .whitespacesAndNewlines)
+        
+        // Use a temporary variable to build the truncated text
+        var truncated = ""
+        
+        // Iterate over the segments and append them to the truncated string until the word limit or character limit is reached
+        for segment in segments.prefix(wordLimit) {
+            // Check if adding this segment would exceed the character limit
+            if truncated.count + segment.count + 1 > maxCharacterLimit { // +1 for space
+                break
+            }
+            // Append the segment followed by a space
+            truncated += (truncated.isEmpty ? "" : " ") + segment
         }
+        
+        // Check if the original text is different from the truncated text, then append "..."
+        if truncated != text {
+            truncated += "..."
+        }
+        
+        return truncated
     }
+
     
     
 }

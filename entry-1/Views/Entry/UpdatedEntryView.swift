@@ -59,7 +59,9 @@ struct EntryView: View {
     // Sorting and Custom UI Configuration
     @State private var selectedSortOption: SortOption = .timeAscending
 
-
+    private var shouldShowReplySheet: Bool {
+         isShowingReplyCreationView && repliedEntryId != nil
+     }
     
     var body : some View {
         NavigationStack {
@@ -121,6 +123,9 @@ struct EntryView: View {
                         }
                 }
             }
+            .onChange(of: repliedEntryId) { _ in
+                      isShowingReplyCreationView = shouldShowReplySheet // Update the state when repliedEntryId changes
+                  }       
         }
     }
     
