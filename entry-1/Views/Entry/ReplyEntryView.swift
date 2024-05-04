@@ -452,19 +452,6 @@ struct ReplyEntryView: View {
             
             HStack {
                 ZStack(alignment: .topTrailing) {
-                    entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
-                    if selectedData != nil {
-                        Button(role: .destructive, action: {
-                            vibration_light.impactOccurred()
-                            selectedData = nil
-                            imageHeight = 0
-                        }) {
-                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-                        }
-                    }
-                    
-                }
-                ZStack(alignment: .topTrailing) {
                     repliedEntryView().padding(10).scaledToFit()
                         .onAppear {
                             print("REPLY ID: \(replyEntryId)")
@@ -472,14 +459,17 @@ struct ReplyEntryView: View {
                     
 //                    if !replyEntryId.isEmpty {
 //                        Button(role: .destructive, action: {
-//                            vibration_light.impactOccurred()
-//                            replyEntryId = ""
+////                            vibration_light.impactOccurred()
+////                            replyEntryId = ""
 //                        }) {
 ////                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
 //                            Spacer().padding(15)
 //                        }
 //                    }
                 }
+                    entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+             
+      
             }
         }.background {
             ZStack {
@@ -694,6 +684,7 @@ struct ReplyEntryView: View {
 
     @ViewBuilder
     func entryMediaView() -> some View {
+        ZStack(alignment: .topTrailing) {
         if let data = selectedData {
             if isGIF(data: data) {
                 AnimatedImageView_data(data: data)
@@ -733,6 +724,18 @@ struct ReplyEntryView: View {
                         }
                     }
             }
+        }
+            if selectedData != nil {
+                Button(role: .destructive, action: {
+                    vibration_light.impactOccurred()
+                    selectedData = nil
+                    imageHeight = 0
+                }) {
+                    Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(2)
+                        .foregroundColor(.red)
+                }
+            }
+            
         }
     }
     @ViewBuilder
