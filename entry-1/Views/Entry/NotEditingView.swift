@@ -314,6 +314,218 @@ struct NotEditingView: View {
             .blur(radius: entry.isHidden ? 7 : 0)
             .shadow(radius: 0)
     }
+}
+
+
+
+
+struct NotEditingView_thumbnail: View {
+    // data management objects
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    @EnvironmentObject var userPreferences: UserPreferences
+    @ObservedObject var entry: Entry
+
+    // environment and view state
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var showEntry = true
+
+    // editing state
+    @State private var cursorPosition: NSRange? = nil
+
+    // media handling
+    @State var currentMediaData: Data?
+    @State private var isFullScreen = false
+    @State private var selectedURL: URL? = nil
+    @State private var textColor: Color = Color.clear
+    @State  var foregroundColor: UIColor
+    
+    @StateObject private var thumbnailGenerator = ThumbnailGenerator()
+     @State private var isVideoPlayerPresented = false
+
+    
+    var body : some View {
+        VStack {
+            entryTextView().frame(maxHeight: 50)
+                //                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
+                if let url = getUrl(for: entry.mediaFilename ?? "") {
+                    if mediaExists(at: url) {
+                        entryMediaView().scaledToFit()
+                    }
+                }
+            }
+        .padding()
+        .blur(radius: showEntry ? 0 : 7)
+    }
+    
+    @ViewBuilder
+    func entryMediaView() -> some View {
+        if entry.mediaFilename != "" {
+            
+            if let filename = entry.mediaFilename {
+                let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                let fileURL = documentsDirectory.appendingPathComponent(filename)
+                
+                let data = try? Data(contentsOf: fileURL)
+            
+                if let data = data, isGIF(data: data) {
+                    AnimatedImageView(url: fileURL).scaledToFit()
+                        .blur(radius: entry.isHidden ? 10 : 0)
+                        .quickLookPreview($selectedURL)
+                        .onTapGesture {
+                            selectedURL = fileURL
+                        }
+                    // Add imageView
+                } else if let data, isPDF(data: data) {
+                    VStack {
+                            HStack {
+                                Spacer()
+                                Label("Expand PDF", systemImage: "arrow.up.left.and.arrow.down.right")
+
+                                    .foregroundColor(Color(UIColor.foregroundColor(background: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first!), with: UIColor(userPreferences.entryBackgroundColor)))))
+                                    .onTapGesture {
+                                    isFullScreen.toggle()
+                                }
+                                .padding(.horizontal, 3)
+                                .cornerRadius(20)
+                            }
+
+                       
+                        AsyncPDFKitView(url: fileURL).scaledToFit()
+                            .blur(radius: entry.isHidden ? 10 : 0)
+                      
+                    }
+
+                } else {
+                    if mediaExists(at: fileURL) {
+                        CustomAsyncImageView(url: fileURL).scaledToFit()
+                            .blur(radius: entry.isHidden ? 10 : 0)
+                            .quickLookPreview($selectedURL)
+                            .onTapGesture {
+                                selectedURL = fileURL
+                            }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func entrySectionHeader() -> some View {
+        HStack {
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+                
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
+        .font(.system(size: UIFont.systemFontSize))
+
+    }
+    
+    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
+        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+
+        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
+        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        
+        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
+
+        
+        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
+        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
+        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
+        return fontColor
+    }
+
+    @ViewBuilder
+    func videoPlayerView() -> some View { //make sure it's only for mp4's
+        if let url_string = extractFirstURL(from: entry.content) {
+            if let url = URL(string: url_string) {
+                VideoPlayer(player: AVPlayer(url: url)).scaledToFit()
+                    .onAppear {
+                        print("URL: \(url)")
+                    }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func entryTextView() -> some View {
+        let truncatedText = truncatedText(entry.content, wordLimit: 7)
+        VStack {
+            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
+                var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+                var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+                if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
+                    
+            
+                    Text(makeAttributedString(from: truncatedText))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                } else {
+                    Text(truncatedText)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                }
+            } else {
+                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+                var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+                if (userPreferences.showLinks) {
+                    
+                    VStack {
+                        Text(makeAttributedString(from: truncatedText))
+                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                            .onAppear {
+                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                            }
+                    }
+                } else {
+                    Text(truncatedText)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                }
+            }
+            
+        }
+        .font(.custom(userPreferences.fontName, size: max(CGFloat(userPreferences.fontSize-3),5)))
+            .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
+            .padding(1)
+            .padding(.vertical, 3)
+            .lineSpacing(userPreferences.lineSpacing)
+            .blur(radius: entry.isHidden ? 7 : 0)
+            .shadow(radius: 0)
+    }
+    
+    func truncatedText(_ text: String, wordLimit: Int) -> String {
+        let words = text.split(separator: " ")
+        if words.count > wordLimit {
+            return words.prefix(wordLimit).joined(separator: " ") + "..."
+        } else {
+            return text
+        }
+    }
     
     
 }

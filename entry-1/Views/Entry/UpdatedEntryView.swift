@@ -43,6 +43,8 @@ struct EntryView: View {
     @State private var selectedEntry: Entry?
     @State private var editingEntry: Entry?
     @State private var isShowingEntryCreationView = false
+    @State private var isShowingReplyCreationView = false
+    @State private var repliedEntryId: String? = nil
     @State private var showDeleteAlert = false
     @State private var showingDeleteConfirmation = false
     @State private var toBeDeleted: IndexSet?
@@ -73,7 +75,7 @@ struct EntryView: View {
                     sortedEntriesView()
                 }
             }
-
+            
             .background {
                 backgroundView()
             }
@@ -102,6 +104,22 @@ struct EntryView: View {
                     .foregroundColor(userPreferences.accentColor)
                     .presentationDragIndicator(.hidden)
                     .environmentObject(datesModel)
+                    .onAppear {
+                        print("REPLY ID: \(repliedEntryId)")
+                    }
+            }
+            .sheet(isPresented: $isShowingReplyCreationView) {
+                if let repliedId = repliedEntryId {
+                    ReplyEntryView(replyEntryId: repliedId)
+                        .environmentObject(coreDataManager)
+                        .environmentObject(userPreferences)
+                        .foregroundColor(userPreferences.accentColor)
+                        .presentationDragIndicator(.hidden)
+                        .environmentObject(datesModel)
+                        .onAppear {
+                            print("REPLY ID: \(repliedEntryId)")
+                        }
+                }
             }
         }
     }
@@ -258,7 +276,7 @@ struct EntryView: View {
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -272,7 +290,7 @@ struct EntryView: View {
             let sortedEntries = entries.sorted { $0.time < $1.time }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -287,7 +305,7 @@ struct EntryView: View {
             let sortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -302,7 +320,7 @@ struct EntryView: View {
             let sortedEntries = entries.sorted { $0.content.count > $1.content.count }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -324,7 +342,7 @@ struct EntryView: View {
                   }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -339,7 +357,7 @@ struct EntryView: View {
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -354,7 +372,7 @@ struct EntryView: View {
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")

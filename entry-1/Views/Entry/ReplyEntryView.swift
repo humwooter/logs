@@ -1,9 +1,11 @@
 //
-//  NewEntryView.swift
+//  ReplyEntryView.swift
 //  entry-1
 //
-//  Created by Katyayani G. Raman on 10/28/23.
+//  Created by Katyayani G. Raman on 5/4/24.
 //
+
+import Foundation
 
 import Foundation
 import SwiftUI
@@ -19,7 +21,7 @@ import PDFKit
 import EventKit
 
 
-struct NewEntryView: View {
+struct ReplyEntryView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var userPreferences: UserPreferences
@@ -76,7 +78,7 @@ struct NewEntryView: View {
     @State private var selectedRecurrence = "None"
     @State private var reminderTitle: String = ""
     @State private var reminderId: String?
-//    @State var replyEntryId: String? //the id of the entry that is being replied to with this current new one
+    @State var replyEntryId: String //the id of the entry that is being replied to with this current new one
     @State private var hasReminderAccess = false
     
     @State private var showDeleteReminderAlert = false
@@ -88,6 +90,7 @@ struct NewEntryView: View {
     var body: some View {
         NavigationStack {
             VStack {
+
                     VStack {
                         
                         
@@ -99,9 +102,9 @@ struct NewEntryView: View {
                                     .padding(.horizontal)
                             }
                         }
-                        
-        
+                        Spacer().frame(height: 20)
                             textFieldView()
+                        Spacer()
                     }
                     .onTapGesture {
                         focusField = true
@@ -128,8 +131,6 @@ struct NewEntryView: View {
                         Spacer()
                     }
                     buttonBar()
-
-//                    entryMediaView()
                 }
            
             }
@@ -145,7 +146,7 @@ struct NewEntryView: View {
             }
             
 
-            .navigationBarTitle("New Entry")
+            .navigationBarTitle("New Reply")
 
 
             .toolbar {
@@ -449,18 +450,36 @@ struct NewEntryView: View {
                 GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
             }
             
-            ZStack(alignment: .topTrailing) {
-                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
-                if selectedData != nil {
-                    Button(role: .destructive, action: {
-                        vibration_light.impactOccurred()
-                        selectedData = nil
-                        imageHeight = 0
-                    }) {
-                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+            HStack {
+                ZStack(alignment: .topTrailing) {
+                    entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+                    if selectedData != nil {
+                        Button(role: .destructive, action: {
+                            vibration_light.impactOccurred()
+                            selectedData = nil
+                            imageHeight = 0
+                        }) {
+                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+                        }
                     }
+                    
                 }
-     
+                ZStack(alignment: .topTrailing) {
+                    repliedEntryView().padding(10).scaledToFit()
+                        .onAppear {
+                            print("REPLY ID: \(replyEntryId)")
+                        }
+                    
+//                    if !replyEntryId.isEmpty {
+//                        Button(role: .destructive, action: {
+//                            vibration_light.impactOccurred()
+//                            replyEntryId = ""
+//                        }) {
+////                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+//                            Spacer().padding(15)
+//                        }
+//                    }
+                }
             }
         }.background {
             ZStack {
@@ -612,6 +631,65 @@ struct NewEntryView: View {
         }
     }
     
+    @ViewBuilder
+    func entrySectionHeader(entry: Entry) -> some View {
+        HStack {
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+                
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
+        .font(.system(size: 0.8*UIFont.systemFontSize))
+
+    }
+    
+    @ViewBuilder
+    func repliedEntryView() -> some View {
+        if !replyEntryId.isEmpty {
+            if let repliedEntry = fetchEntryById(id: replyEntryId, coreDataManager: coreDataManager) {
+                VStack(alignment: .leading) {
+                    //                entrySectionHeader(entry: repliedEntry).padding(.horizontal, 5)
+                    //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
+                    Section {
+                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .cornerRadius(15.0)
+                        
+                    } header: {
+                        entrySectionHeader(entry: repliedEntry).padding(.horizontal, 2)
+                    } footer: {
+                        //                    Image(systemName: "arrow.uturn.left")
+                    }
+                    
+                }
+                .scaledToFit()
+                //            .frame(maxWidth: .infinity, maxHeight: 100, alignment: .leading) // Use maxWidth to ensure full width
+            }
+        }
+    }
 
 
     @ViewBuilder
@@ -836,6 +914,9 @@ struct NewEntryView: View {
             newEntry.reminderId = reminderId
         }
         
+        if !replyEntryId.isEmpty {
+            newEntry.entryReplyId = replyEntryId
+        }
 
         // Fetch the log with the appropriate day
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
@@ -928,22 +1009,3 @@ struct NewEntryView: View {
     
 }
 
-
-
-struct PDFThumbnailRepresented : UIViewRepresentable {
-    var pdfView : PDFView
-    
-    func makeUIView(context: Context) -> PDFThumbnailView {
-        let thumbnail = PDFThumbnailView()
-        thumbnail.pdfView = pdfView
-        thumbnail.thumbnailSize = CGSize(width: 100, height: 100)
-        thumbnail.layoutMode = .horizontal
-        return thumbnail
-    }
-    
-    func updateUIView(_ uiView: PDFThumbnailView, context: Context) {
-        //do any updates you need
-        //you could update the thumbnailSize to the size of the view here if you want, for example
-        //uiView.thumbnailSize = uiView.bounds.size
-    }
-}

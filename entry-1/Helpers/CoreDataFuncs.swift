@@ -38,3 +38,18 @@ func createLog(date: Date, coreDataManager: CoreDataManager) -> Log{
     
     return newLog
 }
+
+func fetchEntryById(id: String, coreDataManager: CoreDataManager) -> Entry? {
+    let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "id == %@", UUID(uuidString: id) as CVarArg? ?? "")
+
+    
+    do {
+        let entries = try coreDataManager.viewContext.fetch(fetchRequest)
+        return entries.first // Assuming there's either one log per date or you're interested in the first one
+    } catch let error as NSError {
+        print("Could not fetch entry with id \(id): \(error), \(error.userInfo)")
+        return nil
+    }
+    
+}

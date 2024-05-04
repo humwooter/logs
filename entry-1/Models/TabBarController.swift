@@ -299,7 +299,6 @@ struct CustomNavigationViewModel: View { // For iPad
                     NavigationLink(destination: LogParentView()
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
-//                        .environmentObject(datesModel)
                         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
 
                         .environmentObject(datesModel), tag: 0, selection: $selection) {
@@ -309,7 +308,6 @@ struct CustomNavigationViewModel: View { // For iPad
                     NavigationLink(destination: EntryView()
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
-//                        .environmentObject(datesModel)
                         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
                         .environmentObject(datesModel), tag: 1, selection: $selection) {
                             Label("Entries", systemImage: "pencil")
@@ -318,7 +316,6 @@ struct CustomNavigationViewModel: View { // For iPad
                     NavigationLink(destination: SettingsView(isUnlocked: $isUnlocked)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
-//                        .environmentObject(datesModel)
                         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
                         .environmentObject(datesModel), tag: 2, selection: $selection) {
                             Label("Settings", systemImage: "gearshape.fill")

@@ -22,7 +22,10 @@ struct EntryRowView: View {
     @ObservedObject var entry: Entry
 
     // user interface state
-    @State private var isShowingEntryCreationView = false
+    @Binding  var isShowingEntryCreationView: Bool
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding  var repliedEntryId: String?
+
     @State private var selectedEntry: Entry?
     @State private var showDeleteAlert = false
     @State private var editingEntry: Entry?
@@ -40,7 +43,7 @@ struct EntryRowView: View {
     
     var body: some View {
         if !entry.isFault {
-            TextView(entry: entry)
+            TextView(entry: entry, repliedEntryId: $repliedEntryId, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView)
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
                 .listRowBackground( UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))

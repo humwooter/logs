@@ -66,6 +66,9 @@ struct TextView : View {
     @State private var pdfData: Data?
     @State private var isExporting = false
     
+    @Binding var repliedEntryId: String? //should store the id of the current entry
+    @Binding var isShowingEntryCreationView: Bool
+    @Binding var isShowingReplyCreationView: Bool
     
     var body : some View {
         
@@ -110,21 +113,6 @@ struct TextView : View {
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
                                 .environmentObject(coreDataManager)
-//                                .onChange(of: editingContent) { _ in
-//                                    // Store the current content in `previousContent` before updating
-////                                    entry.previousContent = editingContent
-//                                    
-////                                     Cancel any existing save operation and schedule a new one
-////                                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-////                                        entry.previousContent = editingContent
-////                                        // Ensure the content has not changed in the last second before saving
-////                                        if self.editingContent == entry.previousContent {
-////                                            coreDataManager.save(context: coreDataManager.viewContext)
-////                                        }
-////                                    }
-//                                }
-
-
                         }
                     
                         .sheet(isPresented: $isExporting) {
@@ -217,6 +205,17 @@ struct TextView : View {
         }
         
         Button(action: {
+            withAnimation {
+                repliedEntryId = entry.id.uuidString
+                isShowingReplyCreationView = true
+            }
+        }) {
+            Text("Reply")
+            Image(systemName: "arrow.uturn.left")
+                .foregroundColor(userPreferences.accentColor)
+        }
+        
+        Button(action: {
             UIPasteboard.general.string = entry.content
         }) {
             Text("Copy Message")
@@ -226,11 +225,9 @@ struct TextView : View {
         
         Button(action: {
             withAnimation(.easeOut) {
-//                showEntry.toggle()
                 entry.isHidden.toggle()
                 coreDataManager.save(context: coreDataManager.viewContext)
             }
-            
 
         }, label: {
             Label(!entry.isHidden ? "Hide Entry" : "Unhide Entry", systemImage: entry.isHidden ? "eye.slash.fill" : "eye.fill")
