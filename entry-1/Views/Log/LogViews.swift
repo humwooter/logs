@@ -77,7 +77,8 @@ struct LogsView: View {
     @State private var logToDelete: Log?
     @State private var selectedDates: Set<DateComponents> = []
     @State private var isDatesUpdated = false
-    
+    @Binding var replyEntryId: String?
+
     
     
     @FetchRequest(
@@ -91,17 +92,6 @@ struct LogsView: View {
     var calendar = Calendar.current
     var timeZone = TimeZone.current
 
-//    var bounds: Range<Date> {
-//        return datesModel.startDate..<datesModel.endDate
-//    }
-
-//    @State private var dates: Set<DateComponents> = {
-//        var set = Set<DateComponents>()
-//        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-//            set.insert(todayComponents)
-//
-//        return set
-//    }()
     @EnvironmentObject var datesModel: DatesModel
 
     
@@ -110,20 +100,9 @@ struct LogsView: View {
     
     @State private var height: CGFloat = 0
     @State var heights: [UUID: CGFloat] = [:]
+    @Binding var isShowingReplyCreationView: Bool
 
-    
-//    func updateDateRange() {
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateFormat = "MM/dd/yyyy"
-//
-//        let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
-//
-//        if let earliestDate = dateLogs.min(),
-//           let latestDate = dateLogs.max() {
-//            datesModel.startDate = earliestDate
-//            datesModel.endDate = latestDate
-//        }
-//    }
+
     
     func updateDateRange() {
         let dateFormatter = DateFormatter()
@@ -194,7 +173,7 @@ struct LogsView: View {
                                           secondaryButton: .cancel())
                                 }
                                 
-                                NavigationLink(destination: RecentlyDeletedView().environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                                NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
                                     Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
                                 }
                         }
@@ -314,7 +293,7 @@ struct LogsView: View {
             Section(header:
                         entryHeaderView(entry: entry)
             ) {
-                EntryDetailView(entry: entry)
+                EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
@@ -465,7 +444,7 @@ struct LogsView: View {
             
             ScrollView {
                 LazyVStack {
-                    NavigationLink(destination: LogDetailView(totalHeight: $height, log: log)
+                    NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, log: log)
                         .environmentObject(userPreferences)) {
                             HStack {
                                 Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
@@ -748,7 +727,7 @@ struct LogsView: View {
         var totalHeight: CGFloat = 0
             if let entries = log.relationship as? Set<Entry> { // Cast NSSet to Set<Entry>
                 for entry in entries {
-                    let entry_view = EntryDetailView(entry: entry)
+                    let entry_view = EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .getHeight { height in
@@ -896,11 +875,13 @@ struct LogParentView : View {
     @StateObject private var searchModel = SearchModel()
     @FocusState private var isSearchFieldFocused: Bool
     @Environment(\.colorScheme) var colorScheme
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding var replyEntryId: String?
 
 
     var body: some View {
         
-        LogsView(searchModel: searchModel)
+        LogsView(replyEntryId: $replyEntryId, isShowingReplyCreationView: $isShowingReplyCreationView, searchModel: searchModel)
             .environmentObject(datesModel)
             .environmentObject(userPreferences)
             .environmentObject(coreDataManager)

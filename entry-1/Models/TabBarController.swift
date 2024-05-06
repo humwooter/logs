@@ -279,6 +279,8 @@ struct CustomNavigationViewModel: View { // For iPad
     @EnvironmentObject var datesModel: DatesModel
     @Environment(\.colorScheme) var colorScheme
     @Binding var isUnlocked: Bool
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding var repliedEntryId: String?
 
     @State private var selection: Int? = 1 // Active tab index, now optional
 @State private var isShown_firstTab = true
@@ -296,7 +298,7 @@ struct CustomNavigationViewModel: View { // For iPad
                 }.font(.system(size: UIFont.systemFontSize + 3))
                 
                 if isShown_firstTab {
-                    NavigationLink(destination: LogParentView()
+                    NavigationLink(destination: LogParentView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
@@ -305,7 +307,7 @@ struct CustomNavigationViewModel: View { // For iPad
                             Label("Logs", systemImage: "book.fill")
                         }
                     
-                    NavigationLink(destination: EntryView()
+                    NavigationLink(destination: EntryView(isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
@@ -330,14 +332,14 @@ struct CustomNavigationViewModel: View { // For iPad
                 if let selection = selection {
                     switch selection {
                     case 0:
-                        LogParentView()
+                        LogParentView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $repliedEntryId)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .environmentObject(datesModel)
                             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
 
                     case 1:
-                        EntryView()
+                        EntryView(isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .environmentObject(datesModel)
@@ -373,6 +375,8 @@ struct CustomTabViewModel: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var isUnlocked: Bool
     @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding var repliedEntryId: String?
 
     var opacity_val = 0.35
 
@@ -391,7 +395,7 @@ struct CustomTabViewModel: View {
 
         return TabView(selection: selectable) {
             NavigationView {
-                LogParentView()
+                LogParentView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $repliedEntryId)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .environmentObject(datesModel)
@@ -412,7 +416,7 @@ struct CustomTabViewModel: View {
             
 
             NavigationView {
-                EntryView()
+                EntryView( isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
                     .environmentObject(datesModel)

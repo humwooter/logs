@@ -17,6 +17,7 @@ struct RecentlyDeletedView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var showingPopover = false
     @State private var isEditing = false
+    @Binding var isShowingReplyCreationView: Bool
 
     @FetchRequest(
         entity: Entry.entity(),
@@ -33,6 +34,7 @@ struct RecentlyDeletedView: View {
     }
     
     @State private var selectedEntries = Set<Entry>()
+    @Binding var replyEntryId: String?
 
     
     var body: some View {
@@ -48,20 +50,20 @@ struct RecentlyDeletedView: View {
             
                 ForEach(filteredEntries, id: \.self) { entry in
                     Section {
-                        EntryDetailView(entry: entry).font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                      
-                            .contextMenu {
-                                Button {
-                                    entry.unRemove(coreDataManager: coreDataManager)
-                                } label: {
-                                    Label("Recovery entry", systemImage: "arrow.up")
-                                }
-                                
-                                Button("Delete", role: .destructive) {
-                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
-                                }
-                                
-                            }
+                        EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
+//                      
+//                            .contextMenu {
+//                                Button {
+//                                    entry.unRemove(coreDataManager: coreDataManager)
+//                                } label: {
+//                                    Label("Recovery entry", systemImage: "arrow.up")
+//                                }
+//                                
+//                                Button("Delete", role: .destructive) {
+//                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
+//                                }
+//                                
+//                            }
                   
                     } header: {
                         entryHeaderView(entry: entry)

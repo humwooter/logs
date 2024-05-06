@@ -75,7 +75,7 @@ struct TextView : View {
         if (!entry.isFault) {
             Section {
                 if (entry.isShown) {
-                    NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))).environmentObject(userPreferences).environmentObject(coreDataManager)
+                    NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
                         .contextMenu {
                             entryContextMenuButtons()
                         }

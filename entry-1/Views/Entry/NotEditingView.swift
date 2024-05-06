@@ -40,21 +40,11 @@ struct NotEditingView: View {
     
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
      @State private var isVideoPlayerPresented = false
+    @State var replyEntryId: String?
 
     
     var body : some View {
-        ZStack(alignment: .topTrailing) {
-            VStack {
-                entryHeaderView().font(.system(size: UIFont.systemFontSize))
-                entryTextView()
-//                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-                if let url = getUrl(for: entry.mediaFilename ?? "") {
-                    if mediaExists(at: url) {
-                        entryMediaView()
-                    }
-                }
-            }
-        }
+     finalView()
         .onChange(of: colorScheme, { oldValue, newValue in
             foregroundColor = UIColor(getDefaultEntryBackgroundColor(colorScheme: newValue))
                     })
@@ -87,6 +77,127 @@ struct NotEditingView: View {
         
         }
         .blur(radius: showEntry ? 0 : 7)
+    }
+    
+    @ViewBuilder
+    func finalView() -> some View {
+        ZStack(alignment: .topTrailing) {
+            VStack {
+                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7)
+                if let repliedId = replyEntryId {
+                    finalRepliedView()
+                } else {
+                    entryView()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func entryView() -> some View {
+            VStack {
+//                entryHeaderView().font(.system(size: UIFont.systemFontSize))
+                entryTextView()
+                if let url = getUrl(for: entry.mediaFilename ?? "") {
+                    if mediaExists(at: url) {
+                        entryMediaView()
+                    }
+                }
+            }
+    }
+    
+    
+    func getIdealTextColor() -> Color {
+        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+    }
+    
+    @ViewBuilder
+    func finalRepliedView() -> some View {
+
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer()
+                repliedEntryView().padding([.leading, .top, .bottom]).padding([.leading, .top])
+                    .overlay {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
+                                    .stroke(lineWidth: 2)
+                                    .foregroundStyle(getIdealTextColor().opacity(0.3))
+                                    .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
+                                Spacer()
+                            }
+                        }.padding(.bottom)
+                    }
+               
+
+            }.padding(.horizontal)
+            entryView()
+            Spacer()
+           }
+    }
+    
+    @ViewBuilder
+    func entrySectionHeader(entry: Entry) -> some View {
+        HStack {
+
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(getIdealTextColor().opacity(0.5))
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(getIdealTextColor().opacity(0.5))
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+                
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
+        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+
+    }
+
+    
+    @ViewBuilder
+    func repliedEntryView() -> some View {
+        if let replyId = replyEntryId, !replyId.isEmpty {
+            if let repliedEntry = fetchEntryById(id: replyId, coreDataManager: coreDataManager) {
+                
+                VStack(alignment: .trailing) {
+                                    entrySectionHeader(entry: repliedEntry)
+                    //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
+                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .cornerRadius(15.0)
+                            .frame(maxWidth: .infinity)
+                        
+          
+                    
+                }
+                .frame(maxWidth: .infinity)
+                .scaledToFill()
+            }
+        }
     }
     
     @ViewBuilder
@@ -143,6 +254,15 @@ struct NotEditingView: View {
     
     @ViewBuilder
     func entryHeaderView() -> some View {
+        
+//        var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+//        var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+//        
+            var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+            var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+            var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+
+        
         HStack {
             Spacer()
             
@@ -220,7 +340,8 @@ struct NotEditingView: View {
                     }
                 
             }
-            .foregroundStyle(Color(getTextColor()).opacity(0.3))
+            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)).opacity(0.3))
+//            .foregroundStyle(Color(getTextColor()).opacity(0.3))
         }
         .padding(.top, 5)
     }
@@ -349,7 +470,7 @@ struct NotEditingView_thumbnail: View {
                 //                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
                 if let url = getUrl(for: entry.mediaFilename ?? "") {
                     if mediaExists(at: url) {
-                        entryMediaView().scaledToFit()
+                        entryMediaView()
                     }
                 }
             }
@@ -410,10 +531,18 @@ struct NotEditingView_thumbnail: View {
     }
     
     @ViewBuilder
-    func entrySectionHeader() -> some View {
+    func entrySectionHeader(entry: Entry) -> some View {
+        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+
+        
         HStack {
+//            Image(systemName: "arrow.uturn.left")
+//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)).opacity(0.3))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
@@ -428,7 +557,7 @@ struct NotEditingView_thumbnail: View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
@@ -438,7 +567,7 @@ struct NotEditingView_thumbnail: View {
 
             }
         }
-        .font(.system(size: UIFont.systemFontSize))
+        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
 
     }
     
@@ -469,9 +598,19 @@ struct NotEditingView_thumbnail: View {
         }
     }
     
+    private func entryHasMedia() -> Bool {
+        if let filename = entry.mediaFilename {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentsDirectory.appendingPathComponent(filename)
+            
+            return entry_1.mediaExists(at: fileURL)
+        }
+        return false
+    }
+    
     @ViewBuilder
     func entryTextView() -> some View {
-        let truncatedText = truncatedText(entry.content, wordLimit: 3, maxCharacterLimit: 20)
+        let truncatedText = entryHasMedia() ? truncatedText(entry.content, wordLimit: 3, maxCharacterLimit: 15) : truncatedText(entry.content, wordLimit: 20, maxCharacterLimit: 100)
         VStack {
             if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
@@ -509,7 +648,7 @@ struct NotEditingView_thumbnail: View {
             }
             
         }
-        .font(.custom(userPreferences.fontName, size: max(CGFloat(userPreferences.fontSize*0.7),5)))
+        .font(.custom(userPreferences.fontName, size: max(CGFloat(userPreferences.fontSize*0.6),5)))
             .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
             .padding(1)
             .padding(.vertical, 3)

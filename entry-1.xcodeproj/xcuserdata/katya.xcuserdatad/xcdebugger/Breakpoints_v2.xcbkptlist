@@ -46,8 +46,8 @@
             filePath = "entry-1/Views/Log/LogViews.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "779"
-            endingLineNumber = "779"
+            startingLineNumber = "758"
+            endingLineNumber = "758"
             landmarkName = "createPDFData_log(log:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -94,8 +94,8 @@
             filePath = "entry-1/Views/Entry/EntryDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "156"
-            endingLineNumber = "156"
+            startingLineNumber = "290"
+            endingLineNumber = "290"
             landmarkName = "entryContextMenuButtons()"
             landmarkType = "7">
          </BreakpointContent>

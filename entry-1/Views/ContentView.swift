@@ -15,6 +15,7 @@ struct ContentView: View {
     @ObservedObject var datesModel = DatesModel()
 //    @State var dateStringsManager = DateStrings()
     @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
+    @State private var isShowingReplyCreationView = false
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
     @FetchRequest(
@@ -34,6 +35,8 @@ struct ContentView: View {
         entity: Log.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
     ) var logs: FetchedResults<Log>
+    @State private var repliedEntryId: String? = nil
+
     
     var body: some View {
         ZStack {
@@ -126,14 +129,14 @@ struct ContentView: View {
 //                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 
                 if !isIpad {
-                    CustomTabViewModel(isUnlocked: $isUnlocked)
+                    CustomTabViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)
                         .accentColor(userPreferences.accentColor)
                         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 } else {
-                    CustomNavigationViewModel(isUnlocked: $isUnlocked)
+                    CustomNavigationViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)

@@ -17,6 +17,8 @@ struct LogDetailView: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @Environment(\.colorScheme) var colorScheme
     @Binding var totalHeight: CGFloat
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding var replyEntryId: String?
 
     let log: Log
     
@@ -25,7 +27,7 @@ struct LogDetailView: View {
             Section {
                 List(entries.sorted(by: { $0.time > $1.time }), id: \.self) { entry in
                     if !entry.isRemoved {
-                        EntryDetailView(entry: entry)
+                        EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
                             .environmentObject(coreDataManager)
                             .environmentObject(userPreferences)
                             .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))

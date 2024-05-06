@@ -56,7 +56,6 @@ struct ReplyEntryView: View {
     
     
     @State private var entryContent = ""
-    @State private var dynamicHeight: CGFloat = 100
     @State private var imageHeight: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var isFullScreen = false
@@ -98,12 +97,12 @@ struct ReplyEntryView: View {
                             Spacer()
                             if let reminderId = self.reminderId, !reminderId.isEmpty {
                                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
-                                    .font(.system(size: 15))
+                                    .font(.system(size: 20))
                                     .padding(.horizontal)
                             }
                         }
-                        Spacer().frame(height: 20)
-                            textFieldView()
+//                            textFieldView()
+                        finalRepliedView()
                         Spacer()
                     }
                     .onTapGesture {
@@ -121,7 +120,7 @@ struct ReplyEntryView: View {
                                 Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
                                     .font(.system(size: 20))
                                     .foregroundColor(userPreferences.accentColor)
-                                    .padding()
+                                    .padding([.leading, .bottom])
                             }
                         }
                         
@@ -131,9 +130,11 @@ struct ReplyEntryView: View {
                         Spacer()
                     }
                     buttonBar()
-                }
+                }.padding(.bottom)
+              
            
             }
+
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -429,6 +430,35 @@ struct ReplyEntryView: View {
         }
     }
     
+    @ViewBuilder
+    func finalRepliedView() -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer()
+//                VStack {
+//                    Spacer()
+//
+//                }
+                repliedEntryView().padding([.leading, .top, .bottom]).padding([.leading, .top])
+                    .overlay {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
+                                    .stroke(lineWidth: 2)
+                                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.13))
+                                    .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
+                                Spacer()
+                            }
+                        }.padding(.bottom)
+                    }
+               
+
+            }.padding(.horizontal)
+            textFieldView()
+            Spacer()
+           }
+    }
     
     @ViewBuilder
     func textFieldView() -> some View {
@@ -448,26 +478,30 @@ struct ReplyEntryView: View {
                     }
                 }
                 GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                    .frame(minHeight: 50)
+      
+       
+                     
             }
             
             HStack {
-                ZStack(alignment: .topTrailing) {
-                    repliedEntryView().padding(10).scaledToFit()
-                        .onAppear {
-                            print("REPLY ID: \(replyEntryId)")
-                        }
-                    
-//                    if !replyEntryId.isEmpty {
-//                        Button(role: .destructive, action: {
-////                            vibration_light.impactOccurred()
-////                            replyEntryId = ""
-//                        }) {
-////                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-//                            Spacer().padding(15)
+//                ZStack(alignment: .topTrailing) {
+//                    repliedEntryView().padding(10).scaledToFit()
+//                        .onAppear {
+//                            print("REPLY ID: \(replyEntryId)")
 //                        }
-//                    }
-                }
-                    entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+//                    
+////                    if !replyEntryId.isEmpty {
+////                        Button(role: .destructive, action: {
+//////                            vibration_light.impactOccurred()
+//////                            replyEntryId = ""
+////                        }) {
+//////                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+////                            Spacer().padding(15)
+////                        }
+////                    }
+//                }
+                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit().frame(minHeight: 0)
              
       
             }
@@ -476,7 +510,8 @@ struct ReplyEntryView: View {
                 Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
             }.ignoresSafeArea(.all)
         }.cornerRadius(15)
-        .padding()
+            .padding([.leading, .trailing, .top])
+//        .padding()
         .onSubmit {
             finalizeCreation()
         }
@@ -624,6 +659,9 @@ struct ReplyEntryView: View {
     @ViewBuilder
     func entrySectionHeader(entry: Entry) -> some View {
         HStack {
+//            Image(systemName: "arrow.uturn.left")
+//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                 if let timeLastUpdated = entry.lastUpdated {
@@ -650,7 +688,7 @@ struct ReplyEntryView: View {
 
             }
         }
-        .font(.system(size: 0.8*UIFont.systemFontSize))
+        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
 
     }
     
@@ -658,24 +696,21 @@ struct ReplyEntryView: View {
     func repliedEntryView() -> some View {
         if !replyEntryId.isEmpty {
             if let repliedEntry = fetchEntryById(id: replyEntryId, coreDataManager: coreDataManager) {
-                VStack(alignment: .leading) {
-                    //                entrySectionHeader(entry: repliedEntry).padding(.horizontal, 5)
+                
+                VStack(alignment: .trailing) {
+                                    entrySectionHeader(entry: repliedEntry)
                     //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                    Section {
                         NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
                             .cornerRadius(15.0)
+                            .frame(maxWidth: .infinity)
                         
-                    } header: {
-                        entrySectionHeader(entry: repliedEntry).padding(.horizontal, 2)
-                    } footer: {
-                        //                    Image(systemName: "arrow.uturn.left")
-                    }
+          
                     
-                }
-                .scaledToFit()
+                }.scaledToFit()
+
                 //            .frame(maxWidth: .infinity, maxHeight: 100, alignment: .leading) // Use maxWidth to ensure full width
             }
         }
@@ -774,7 +809,8 @@ struct ReplyEntryView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+  
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05)).ignoresSafeArea(.all)
         .cornerRadius(15)
     }
 
@@ -794,14 +830,16 @@ struct ReplyEntryView: View {
                 vibration_heavy.impactOccurred()
                 isHidden.toggle()
             } label: {
-                Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
+                Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
             }
             
             
             PhotosPicker(selection:$selectedItem, matching: .images) {
                 Image(systemName: "photo.fill")
                     .font(.system(size: 20))
-                
+
             }
             .onChange(of: selectedItem) { _ in
                 selectedData = nil
@@ -879,8 +917,13 @@ struct ReplyEntryView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
-//        .background(Color(UIColor.label).opacity(0.05))
+        .background {
+            ZStack {
+                Color.clear
+                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }//        .background(Color(UIColor.label).opacity(0.05))
 
     }
     

@@ -16,6 +16,8 @@ struct EntryDetailView: View { //used in LogDetailView
     @EnvironmentObject var userPreferences: UserPreferences
     @State var image: UIImage?
     @State var shareSheetShown = false
+    @Binding var isShowingReplyCreationView: Bool
+    @Binding var replyEntryId: String?
     let entry: Entry
     @State private var isFullScreen = false
     
@@ -25,34 +27,7 @@ struct EntryDetailView: View { //used in LogDetailView
 @State var isPinned = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                VStack(alignment: .leading) {
-                        entryHeaderView()           
-                        .font(.system(size: UIFont.systemFontSize))
-
-
-                    VStack {
-                        
-                        if (userPreferences.showLinks) {
-                            Text(makeAttributedString(from: entry.content))
-
-                        } else {
-                            Text(entry.content)
-                        }
-                    } 
-                    .foregroundStyle(Color(getTextColor()))
-                    .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-                        .contextMenu {
-                            entryContextMenuButtons()
-                        }
-                }
-                Spacer() // Push the image to the right
-            }
-            
-            entryMediaView()
-
-        }.padding(.vertical, 5)
+        finalView().padding(.vertical, 5)
             .onAppear {
                 showEntry = !entry.isHidden
                 isPinned = entry.isPinned
@@ -91,6 +66,152 @@ struct EntryDetailView: View { //used in LogDetailView
         
     }
     
+    func getIdealTextColor() -> Color {
+        var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+    }
+    
+    
+    @ViewBuilder
+    func finalView() -> some View {
+        ZStack(alignment: .topTrailing) {
+            VStack(alignment: .leading) {
+                HStack {
+                    entryHeaderView()
+                        .font(.system(size: UIFont.systemFontSize))
+                    Spacer()
+                }
+                Spacer()
+//                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7)
+                if let repliedId = entry.entryReplyId {
+                    VStack {
+                        finalRepliedView()
+                    }
+                } else {
+                    entryView()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func entrySectionHeader(entry: Entry) -> some View {
+        HStack {
+
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(getIdealTextColor().opacity(0.5))
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(getIdealTextColor().opacity(0.5))
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+                
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
+        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+
+    }
+    
+    @ViewBuilder
+    func repliedEntryView() -> some View {
+        if let replyId = entry.entryReplyId, !replyId.isEmpty {
+            if let repliedEntry = fetchEntryById(id: replyId, coreDataManager: coreDataManager) {
+                
+                VStack(alignment: .trailing) {
+                                    entrySectionHeader(entry: repliedEntry)
+                    //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
+                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .cornerRadius(15.0)
+                }
+                .frame(maxWidth: .infinity)
+                .scaledToFill()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func finalRepliedView() -> some View {
+
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer()
+                repliedEntryView().padding([.leading, .top, .bottom]).padding([.leading, .top])
+                
+         
+                    .overlay {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
+                                    .stroke(lineWidth: 2)
+                                    .foregroundStyle(getIdealTextColor().opacity(0.3))
+                                    .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
+                                    .padding(.bottom)
+                                Spacer()
+                            }
+                        }.padding(.bottom)
+                    }
+               
+
+            }.padding(.horizontal)
+            entryView()
+            Spacer()
+           }
+    }
+    
+    @ViewBuilder
+    func entryView() -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                VStack(alignment: .leading) {
+//                        entryHeaderView()
+//                        .font(.system(size: UIFont.systemFontSize))
+
+
+                    VStack {
+                        
+                        if (userPreferences.showLinks) {
+                            Text(makeAttributedString(from: entry.content))
+
+                        } else {
+                            Text(entry.content)
+                        }
+                    }
+                    .foregroundStyle(Color(getTextColor()))
+                    .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
+                        .contextMenu {
+                            entryContextMenuButtons()
+                        }
+                }
+                Spacer() // Push the image to the right
+            }
+            
+            entryMediaView()
+
+        }
+    }
+    
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
         let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
@@ -125,6 +246,19 @@ struct EntryDetailView: View { //used in LogDetailView
     }
     @ViewBuilder
     func entryContextMenuButtons() -> some View {
+        
+        Button(action: {
+            withAnimation {
+//                 = entry.id.uuidString
+                isShowingReplyCreationView = true
+                replyEntryId = entry.id.uuidString
+            }
+        }) {
+            Text("Reply")
+            Image(systemName: "arrow.uturn.left")
+                .foregroundColor(userPreferences.accentColor)
+        }
+        
         Button(action: {
             UIPasteboard.general.string = entry.content
             print("entry color : \(entry.color)")

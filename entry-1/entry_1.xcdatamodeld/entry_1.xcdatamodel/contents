@@ -3,7 +3,7 @@
     <entity name="Entry" representedClassName="Entry" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Transformable"/>
         <attribute name="content" optional="YES" attributeType="String"/>
-        <attribute name="entryReplyIds" optional="YES" attributeType="Transformable"/>
+        <attribute name="entryReplyId" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDrafted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isHidden" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>

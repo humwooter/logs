@@ -43,8 +43,9 @@ struct EntryView: View {
     @State private var selectedEntry: Entry?
     @State private var editingEntry: Entry?
     @State private var isShowingEntryCreationView = false
-    @State private var isShowingReplyCreationView = false
-    @State private var repliedEntryId: String? = nil
+    @Binding var isShowingReplyCreationView: Bool
+
+    @Binding var repliedEntryId: String?
     @State private var showDeleteAlert = false
     @State private var showingDeleteConfirmation = false
     @State private var toBeDeleted: IndexSet?
