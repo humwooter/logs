@@ -202,8 +202,10 @@ struct EntryDetailView: View { //used in LogDetailView
                             Text(entry.content)
                         }
                     }
-                    .foregroundStyle(Color(getTextColor()))
+                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
+                    .padding(2)
+                    .foregroundStyle(Color(getTextColor()))
                         .contextMenu {
                             entryContextMenuButtons()
                         }
@@ -214,6 +216,7 @@ struct EntryDetailView: View { //used in LogDetailView
             entryMediaView()
 
         }
+ 
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless

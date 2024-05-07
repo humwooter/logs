@@ -94,8 +94,8 @@
             filePath = "entry-1/Views/Entry/EntryDetailView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "293"
-            endingLineNumber = "293"
+            startingLineNumber = "296"
+            endingLineNumber = "296"
             landmarkName = "entryContextMenuButtons()"
             landmarkType = "7">
          </BreakpointContent>

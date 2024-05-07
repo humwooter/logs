@@ -51,19 +51,18 @@ struct RecentlyDeletedView: View {
                 ForEach(filteredEntries, id: \.self) { entry in
                     Section {
                         EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
-//                      
-//                            .contextMenu {
-//                                Button {
-//                                    entry.unRemove(coreDataManager: coreDataManager)
-//                                } label: {
-//                                    Label("Recovery entry", systemImage: "arrow.up")
-//                                }
-//                                
-//                                Button("Delete", role: .destructive) {
-//                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
-//                                }
-//                                
-//                            }
+                            .contextMenu {
+                                Button {
+                                    entry.unRemove(coreDataManager: coreDataManager)
+                                } label: {
+                                    Label("Recovery entry", systemImage: "arrow.up")
+                                }
+                                
+                                Button("Delete", role: .destructive) {
+                                    deleteEntry(entry: entry, coreDataManager: coreDataManager)
+                                }
+                                
+                            }
                   
                     } header: {
                         entryHeaderView(entry: entry)
