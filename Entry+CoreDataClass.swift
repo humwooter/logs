@@ -36,6 +36,7 @@ public class Entry: NSManagedObject, Codable {
         }
 
         stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon)!
+        entryReplyId = try values.decodeIfPresent(String.self, forKey: .entryReplyId)!
         stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex)!
         mediaFilename = try values.decodeIfPresent(String.self, forKey: .mediaFilename) ?? ""
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
@@ -63,6 +64,8 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: true), forKey: .color)
 
         try container.encodeIfPresent(stampIcon, forKey: .stampIcon)
+        try container.encodeIfPresent(entryReplyId, forKey: .entryReplyId)
+
         try container.encodeIfPresent(mediaFilename, forKey: .mediaFilename)
         try container.encodeIfPresent(isHidden, forKey: .isHidden)
         try container.encodeIfPresent(isPinned, forKey: .isPinned)
@@ -75,7 +78,7 @@ public class Entry: NSManagedObject, Codable {
      }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId
+        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId
     }
 
     

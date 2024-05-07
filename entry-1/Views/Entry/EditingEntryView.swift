@@ -75,35 +75,11 @@ struct EditingEntryView: View {
     var body : some View {
         NavigationStack {
             VStack {
-                
-                iconHeaderView()
-                textFieldView()
+                iconHeaderView().scaledToFit()
+//                textFieldView()
+                finalRepliedView()
 
-
-                VStack {
-                    HStack {
-                        Button(action: {
-                            withAnimation(.easeOut(duration: 0.5)) {
-                                isTextButtonBarVisible.toggle()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(userPreferences.accentColor)
-                                    .padding()
-                            }
-                        }
-                        
-                        if isTextButtonBarVisible {
-                            textFormattingButtonBar()
-                        }
-                        Spacer()
-                    }
-                    buttonBar()
-//                    entryMediaView()
-                }
-   
+     buttonBars()
             }
             .onAppear {
                 if let reminderId = entry.reminderId {
@@ -243,6 +219,114 @@ struct EditingEntryView: View {
     }
     
     @ViewBuilder
+    func finalRepliedView() -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 0) {
+                Spacer()
+
+                repliedEntryView().padding([.leading, .top, .bottom]).padding([.leading, .top])
+                    .overlay {
+                        VStack {
+                            Spacer()
+                            HStack {
+                                UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
+                                    .stroke(lineWidth: 2)
+                                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.13))
+                                    .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
+                                Spacer()
+                            }
+                        }.padding(.bottom)
+                    }
+               
+
+            }.padding(.horizontal)
+            textFieldView()
+            Spacer()
+           }
+    }
+    
+    @ViewBuilder
+    func entrySectionHeader(entry: Entry) -> some View {
+        HStack {
+                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                if let timeLastUpdated = entry.lastUpdated {
+                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                        HStack {
+                            Image(systemName: "arrow.right")
+                            Text(formattedTime_long(date: timeLastUpdated))
+                        }
+                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                    }
+
+                }
+
+            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Spacer()
+            
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+                
+                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+
+            if (entry.isPinned) {
+                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
+
+            }
+        }
+        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+
+    }
+    
+    @ViewBuilder
+    func repliedEntryView() -> some View {
+        if let replyEntryId = entry.entryReplyId, !replyEntryId.isEmpty {
+            if let repliedEntry = fetchEntryById(id: replyEntryId, coreDataManager: coreDataManager) {
+                
+                VStack(alignment: .trailing) {
+                                    entrySectionHeader(entry: repliedEntry)
+                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                            .environmentObject(userPreferences)
+                            .environmentObject(coreDataManager)
+                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .cornerRadius(15.0)
+                            .frame(maxWidth: .infinity)
+                        
+          
+                    
+                }.scaledToFit()
+            }
+        }
+    }
+
+    @ViewBuilder
+    func buttonBars() -> some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        isTextButtonBarVisible.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+                            .font(.system(size: 20))
+                            .foregroundColor(userPreferences.accentColor)
+                            .padding()
+                    }
+                }
+                
+                if isTextButtonBarVisible {
+                    textFormattingButtonBar()
+                }
+                Spacer()
+            }
+            buttonBar()
+        }
+        .padding(.bottom)
+    }
+    
+    @ViewBuilder
     func iconHeaderView() -> some View {
         HStack() {
             Spacer()
@@ -283,9 +367,11 @@ struct EditingEntryView: View {
                 }
                 GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
                                  cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                    .frame(minHeight: 50)
+
             }
             ZStack(alignment: .topTrailing) {
-                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit().frame(minHeight: 0)
                 if selectedData != nil {
                     
                     Button(role: .destructive, action: {
@@ -637,7 +723,13 @@ struct EditingEntryView: View {
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .background {
+            ZStack {
+                Color.clear
+                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
         .foregroundColor(userPreferences.accentColor)
     }
     

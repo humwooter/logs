@@ -22,7 +22,8 @@ struct EntryDetailView: View { //used in LogDetailView
     @State private var isFullScreen = false
     
 
-    
+    @State private var mediaDim: CGFloat = 100
+
 @State var showEntry = true
 @State var isPinned = false
     
@@ -86,9 +87,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 Spacer()
 //                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7)
                 if let repliedId = entry.entryReplyId {
-                    VStack {
                         finalRepliedView()
-                    }
                 } else {
                     entryView()
                 }
@@ -138,13 +137,18 @@ struct EntryDetailView: View { //used in LogDetailView
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
                     //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
+                            .overlay(
+                                  RoundedRectangle(cornerRadius: 15)
+                                      .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
+                            )
+
                             .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
                             .cornerRadius(15.0)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: UIScreen.main.bounds.width * 0.6)
                 .scaledToFill()
             }
         }
@@ -249,7 +253,6 @@ struct EntryDetailView: View { //used in LogDetailView
         
         Button(action: {
             withAnimation {
-//                 = entry.id.uuidString
                 isShowingReplyCreationView = true
                 replyEntryId = entry.id.uuidString
             }

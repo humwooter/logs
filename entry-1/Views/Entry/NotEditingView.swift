@@ -136,7 +136,8 @@ struct NotEditingView: View {
                
 
             }.padding(.horizontal)
-            entryView()
+            entryView().padding(.top, 3)
+
             Spacer()
            }
     }
@@ -187,14 +188,21 @@ struct NotEditingView: View {
                         NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
+                            .overlay(
+                                  RoundedRectangle(cornerRadius: 15)
+                                      .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
+                            )
+
                             .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
                             .cornerRadius(15.0)
+                          
                             .frame(maxWidth: .infinity)
+
                         
           
                     
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: UIScreen.main.bounds.width * 0.5)
                 .scaledToFill()
             }
         }
@@ -461,7 +469,8 @@ struct NotEditingView_thumbnail: View {
     @State  var foregroundColor: UIColor
     
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
-     @State private var isVideoPlayerPresented = false
+    @State private var isVideoPlayerPresented = false
+    @State private var mediaDim: CGFloat = 100
 
     
     var body : some View {
@@ -473,9 +482,17 @@ struct NotEditingView_thumbnail: View {
                         entryMediaView()
                     }
                 }
-            }
+        }
+      
         .padding()
         .blur(radius: showEntry ? 0 : 7)
+    }
+    
+    func getIdealTextColor() -> Color {
+        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
     }
     
     @ViewBuilder

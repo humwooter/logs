@@ -435,10 +435,7 @@ struct ReplyEntryView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
                 Spacer()
-//                VStack {
-//                    Spacer()
-//
-//                }
+
                 repliedEntryView().padding([.leading, .top, .bottom]).padding([.leading, .top])
                     .overlay {
                         VStack {
@@ -659,9 +656,6 @@ struct ReplyEntryView: View {
     @ViewBuilder
     func entrySectionHeader(entry: Entry) -> some View {
         HStack {
-//            Image(systemName: "arrow.uturn.left")
-//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                 if let timeLastUpdated = entry.lastUpdated {
@@ -699,7 +693,6 @@ struct ReplyEntryView: View {
                 
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
-                    //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
                         NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
@@ -710,8 +703,6 @@ struct ReplyEntryView: View {
           
                     
                 }.scaledToFit()
-
-                //            .frame(maxWidth: .infinity, maxHeight: 100, alignment: .leading) // Use maxWidth to ensure full width
             }
         }
     }
@@ -923,7 +914,7 @@ struct ReplyEntryView: View {
                 LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
             }
             .ignoresSafeArea()
-        }//        .background(Color(UIColor.label).opacity(0.05))
+        }
 
     }
     
