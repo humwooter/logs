@@ -305,9 +305,19 @@ struct LogsView: View {
         }
     }
     
+    func getIdealTextColor() -> Color {
+        var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+    }
+    
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
-            Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
+                .foregroundStyle(getIdealTextColor().opacity(0.5))
+//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            
             Spacer()
             if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)

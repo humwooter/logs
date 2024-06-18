@@ -19,10 +19,7 @@ class CloudKitManager {
     func fetchEntries(completion: @escaping ([Entry]?, Error?) -> Void) {
         let query = CKQuery(recordType: "Entry", predicate: NSPredicate(value: true))
         let operation = CKQueryOperation(query: query)
-        // Optionally, specify a results limit and desired keys if needed
-        // operation.resultsLimit = CKQueryOperation.maximumResults
-        // operation.desiredKeys = ["id", "content", "time", ...]
-
+        
         var fetchedRecords: [CKRecord] = []
 
         operation.recordFetchedBlock = { record in
@@ -35,6 +32,7 @@ class CloudKitManager {
                     completion(nil, error)
                 } else {
                     let entries = fetchedRecords.map { self.recordToEntry($0) }
+                    CoreDataManager.shared.saveFetchedEntries(entries)
                     completion(entries, nil)
                 }
             }
@@ -42,15 +40,62 @@ class CloudKitManager {
 
         privateDatabase.add(operation)
     }
+
+
+
     
     // Helper to convert a CKRecord back into an Entry object
     private func recordToEntry(_ record: CKRecord) -> Entry {
-        // Assuming you have a method to create a new Entry object
-        let entry = Entry() // This should be adapted to your data model creation logic
-        // Map record fields back to Entry properties
+        let context = CoreDataManager.shared.viewContext
+        let entry = Entry(context: context)
+        entry.id = UUID(uuidString: record.recordID.recordName) ?? UUID()
+        entry.content = record["content"] as? String ?? ""
+        entry.time = record["time"] as? Date ?? Date()
+        entry.lastUpdated = record["lastUpdated"] as? Date
+        entry.stampIcon = record["stampIcon"] as? String ?? ""
+        entry.name = record["name"] as? String
+        entry.reminderId = record["reminderId"] as? String
+        entry.mediaFilename = record["mediaFilename"] as? String
+        entry.mediaFilenames = record["mediaFilenames"] as? [String]
+        entry.entryReplyId = record["entryReplyId"] as? String
+        entry.isHidden = record["isHidden"] as? Bool ?? false
+        entry.isShown = record["isShown"] as? Bool ?? true
+        entry.isPinned = record["isPinned"] as? Bool ?? false
+        entry.isRemoved = record["isRemoved"] as? Bool ?? false
+        entry.isDrafted = record["isDrafted"] as? Bool ?? false
+        entry.shouldSyncWithCloudKit = record["shouldSyncWithCloudKit"] as? Bool ?? true
+        entry.stampIndex = record["stampIndex"] as? Int16 ?? 0
+        entry.pageNum_pdf = record["pageNum_pdf"] as? Int16 ?? 0
+        
         return entry
     }
     
+    // Helper to convert an Entry to a CloudKit record
+    private func entryToRecord(entry: Entry) -> CKRecord {
+        let recordID = CKRecord.ID(recordName: entry.id.uuidString)
+        let record = CKRecord(recordType: "Entry", recordID: recordID)
+        record["content"] = entry.content as CKRecordValue
+        record["time"] = entry.time as CKRecordValue
+        record["lastUpdated"] = entry.lastUpdated as CKRecordValue?
+        record["stampIcon"] = entry.stampIcon as CKRecordValue
+        record["name"] = entry.name as CKRecordValue?
+        record["reminderId"] = entry.reminderId as CKRecordValue?
+        record["mediaFilename"] = entry.mediaFilename as CKRecordValue?
+        record["mediaFilenames"] = entry.mediaFilenames as CKRecordValue?
+        record["entryReplyId"] = entry.entryReplyId as CKRecordValue?
+        record["isHidden"] = entry.isHidden as CKRecordValue
+        record["isShown"] = entry.isShown as CKRecordValue
+        record["isPinned"] = entry.isPinned as CKRecordValue
+        record["isRemoved"] = entry.isRemoved as CKRecordValue
+        record["isDrafted"] = entry.isDrafted as CKRecordValue
+        record["shouldSyncWithCloudKit"] = entry.shouldSyncWithCloudKit as CKRecordValue
+        record["stampIndex"] = entry.stampIndex as CKRecordValue
+        record["pageNum_pdf"] = entry.pageNum_pdf as CKRecordValue
+        
+        return record
+    }
+    
+
     // MARK: - Fetch Documents from CloudKit
     func fetchDocuments(completion: @escaping (Error?) -> Void) {
         let query = CKQuery(recordType: "Document", predicate: NSPredicate(value: true))
@@ -105,19 +150,24 @@ class CloudKitManager {
         for entry in entries where entry.shouldSyncWithCloudKit {
             let record = entryToRecord(entry: entry)
             privateDatabase.save(record) { (savedRecord, error) in
-                // Handle save result
+                DispatchQueue.main.async {
+                    if let error = error {
+                        print("Failed to save entry to CloudKit: \(error)")
+                    } else if let savedRecord = savedRecord {
+                        CoreDataManager.shared.updateEntry(entry: entry, with: savedRecord)
+                    }
+                }
             }
         }
     }
+
     
     // MARK: - Sync All Data
     func syncAllData(entries: [Entry], documentsDirectoryURL: URL) {
-        // Sync Entries
         syncSpecificEntries(entries: entries)
-        
-        // Sync Documents Directory
         syncDocumentsDirectory(documentsDirectoryURL: documentsDirectoryURL)
     }
+
 
     // MARK: - Sync Documents Directory
     func syncDocumentsDirectory(documentsDirectoryURL: URL) {
@@ -146,12 +196,6 @@ class CloudKitManager {
             print("Error syncing documents directory: \(error)")
         }
     }
-
     
-    // Helper to convert an Entry to a CloudKit record
-    private func entryToRecord(entry: Entry) -> CKRecord {
-        let record = CKRecord(recordType: "Entry")
-        // Set record fields based on entry properties
-        return record
-    }
+
 }

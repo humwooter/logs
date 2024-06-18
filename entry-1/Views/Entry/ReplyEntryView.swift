@@ -686,6 +686,13 @@ struct ReplyEntryView: View {
 
     }
     
+    func getIdealTextColor() -> Color {
+        var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
+        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+    }
+    
     @ViewBuilder
     func repliedEntryView() -> some View {
         if !replyEntryId.isEmpty {
@@ -699,6 +706,10 @@ struct ReplyEntryView: View {
                             .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
                             .cornerRadius(15.0)
                             .frame(maxWidth: .infinity)
+                            .overlay(
+                                  RoundedRectangle(cornerRadius: 15)
+                                      .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
+                            )
                         
           
                     

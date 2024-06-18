@@ -76,7 +76,7 @@ struct NotEditingView: View {
             }
         
         }
-        .blur(radius: showEntry ? 0 : 7)
+//        .blur(radius: showEntry ? 0 : 7)
     }
     
     @ViewBuilder
@@ -340,12 +340,29 @@ struct NotEditingView: View {
                     
                 }
             } label: {
-                Image(systemName: "ellipsis").padding(.vertical, 3).padding(.leading, 5)
-                    .font(.system(size: UIFont.systemFontSize+5)).fontWeight(.bold)
-                    .onTapGesture {
-                        vibration_medium.prepare()
-                        vibration_medium.impactOccurred()
-                    }
+                HStack {
+//                    if let entryName = entry.name, !entryName.isEmpty {
+//                        
+//                        Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+//                        if let timeLastUpdated = entry.lastUpdated {
+//                            if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+//                                HStack {
+//                                    Image(systemName: "arrow.right")
+//                                    Text(formattedTime_long(date: timeLastUpdated))
+//                                }
+//                            }
+//                            
+//                        }
+//                    }
+
+                    Spacer()
+                    Image(systemName: "ellipsis").padding(.vertical, 3).padding(.leading, 5)
+                        .font(.system(size: UIFont.systemFontSize+5)).fontWeight(.bold)
+                        .onTapGesture {
+                            vibration_medium.prepare()
+                            vibration_medium.impactOccurred()
+                        }
+                }
                 
             }
             .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)).opacity(0.3))

@@ -25,6 +25,7 @@ extension Entry {
     @NSManaged public var relationship: Log
     @NSManaged public var id: UUID
     @NSManaged public var color: UIColor
+    @NSManaged public var name: String?
     @NSManaged public var stampIcon: String
     @NSManaged public var stampName: String?
     @NSManaged public var reminderId: String?

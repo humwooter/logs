@@ -820,7 +820,7 @@ struct NewEntryView: View {
         newEntry.isPinned = false
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
-        
+        newEntry.name = "" //change later
     
         
         if let data = selectedData {
@@ -834,6 +834,8 @@ struct NewEntryView: View {
         
         if let reminderId {
             newEntry.reminderId = reminderId
+        } else {
+            newEntry.reminderId = ""
         }
         
 

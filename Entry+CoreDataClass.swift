@@ -36,7 +36,7 @@ public class Entry: NSManagedObject, Codable {
         }
 
         stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon)!
-        entryReplyId = try values.decodeIfPresent(String.self, forKey: .entryReplyId)!
+        entryReplyId = try values.decodeIfPresent(String.self, forKey: .entryReplyId) ?? ""
         stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex)!
         mediaFilename = try values.decodeIfPresent(String.self, forKey: .mediaFilename) ?? ""
         isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!

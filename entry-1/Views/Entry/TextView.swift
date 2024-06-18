@@ -76,6 +76,7 @@ struct TextView : View {
             Section {
                 if (entry.isShown) {
                     NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
+                        .blur(radius: !entry.isHidden ? 0 : 7)
                         .contextMenu {
                             entryContextMenuButtons()
                         }

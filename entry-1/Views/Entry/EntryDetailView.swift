@@ -28,7 +28,7 @@ struct EntryDetailView: View { //used in LogDetailView
 @State var isPinned = false
     
     var body: some View {
-        finalView().padding(.vertical, 5)
+        finalView().padding(.vertical)
             .onAppear {
                 showEntry = !entry.isHidden
                 isPinned = entry.isPinned
@@ -62,7 +62,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 }
             
             }
-            .blur(radius: showEntry ? 0 : 7)
+            .blur(radius: !entry.isHidden ? 0 : 7)
         
         
     }
@@ -107,7 +107,7 @@ struct EntryDetailView: View { //used in LogDetailView
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
                         }
-                        .foregroundStyle(getIdealTextColor().opacity(0.5))
+                        .foregroundStyle(getIdealTextColor().opacity(0.35))
                     }
 
                 }

@@ -1,5 +1,5 @@
 import CoreData
-
+import CloudKit
 
 
 final class CoreDataManager: ObservableObject {
@@ -41,7 +41,30 @@ final class CoreDataManager: ObservableObject {
   }()
     
 
+    func saveFetchedEntries(_ entries: [Entry]) {
+         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+         let context = viewContext
 
+         for entry in entries {
+             fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
+
+             do {
+                 let existingEntries = try context.fetch(fetchRequest)
+                 if existingEntries.isEmpty {
+                     context.insert(entry)
+                 } else {
+                     if let existingEntry = existingEntries.first {
+                         updateEntry(existingEntry, with: entry)
+                     }
+                 }
+             } catch {
+                 print("Failed to fetch entry: \(error)")
+             }
+         }
+         save(context: context)
+     }
+
+    
     func save(context: NSManagedObjectContext) {
       print("Saving context: \(context)")
       context.performAndWait {
@@ -110,6 +133,28 @@ func mergeChanges(from context: NSManagedObjectContext) {
     }
 }
     
+    func updateEntry(entry: Entry, with record: CKRecord) {
+        entry.content = record["content"] as? String ?? ""
+        entry.time = record["time"] as? Date ?? Date()
+        entry.lastUpdated = record["lastUpdated"] as? Date
+        entry.stampIcon = record["stampIcon"] as? String ?? ""
+        entry.name = record["name"] as? String
+        entry.reminderId = record["reminderId"] as? String
+        entry.mediaFilename = record["mediaFilename"] as? String
+        entry.mediaFilenames = record["mediaFilenames"] as? [String]
+        entry.entryReplyId = record["entryReplyId"] as? String
+        entry.isHidden = record["isHidden"] as? Bool ?? false
+        entry.isShown = record["isShown"] as? Bool ?? true
+        entry.isPinned = record["isPinned"] as? Bool ?? false
+        entry.isRemoved = record["isRemoved"] as? Bool ?? false
+        entry.isDrafted = record["isDrafted"] as? Bool ?? false
+        entry.shouldSyncWithCloudKit = record["shouldSyncWithCloudKit"] as? Bool ?? true
+        entry.stampIndex = record["stampIndex"] as? Int16 ?? 0
+        entry.pageNum_pdf = record["pageNum_pdf"] as? Int16 ?? 0
+
+        save(context: viewContext)
+    }
+    
     func fetchEntriesByLog() -> [Log: [Entry]] {
         let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
         do {
@@ -132,6 +177,45 @@ func mergeChanges(from context: NSManagedObjectContext) {
             return [:]
         }
     }
+    
+    
+    func updateEntry(_ existingEntry: Entry, with newEntry: Entry) {
+           existingEntry.content = newEntry.content
+           existingEntry.time = newEntry.time
+           existingEntry.lastUpdated = newEntry.lastUpdated
+           existingEntry.stampIcon = newEntry.stampIcon
+           existingEntry.name = newEntry.name
+           existingEntry.reminderId = newEntry.reminderId
+           existingEntry.mediaFilename = newEntry.mediaFilename
+           existingEntry.mediaFilenames = newEntry.mediaFilenames
+           existingEntry.entryReplyId = newEntry.entryReplyId
+           existingEntry.isHidden = newEntry.isHidden
+           existingEntry.isShown = newEntry.isShown
+           existingEntry.isPinned = newEntry.isPinned
+           existingEntry.isRemoved = newEntry.isRemoved
+           existingEntry.isDrafted = newEntry.isDrafted
+           existingEntry.shouldSyncWithCloudKit = newEntry.shouldSyncWithCloudKit
+           existingEntry.stampIndex = newEntry.stampIndex
+           existingEntry.pageNum_pdf = newEntry.pageNum_pdf
 
-  
+           save(context: viewContext)
+       }
+    
+    private func setupObservers() {
+           NotificationCenter.default.addObserver(self, selector: #selector(entryDidChange(notification:)), name: .NSManagedObjectContextObjectsDidChange, object: viewContext)
+       }
+
+    @objc private func entryDidChange(notification: Notification) {
+        guard let userInfo = notification.userInfo else { return }
+
+        if let updatedObjects = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
+            for object in updatedObjects {
+                if let entry = object as? Entry {
+                    if let shouldSync = entry.changedValues()["shouldSyncWithCloudKit"] as? Bool, shouldSync {
+                        CloudKitManager.shared.syncSpecificEntries(entries: [entry])
+                    }
+                }
+            }
+        }
+    }
 }
