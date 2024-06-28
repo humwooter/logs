@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1500"
+   LastUpgradeVersion = "1600"
    wasCreatedForAppExtension = "YES"
    version = "2.0">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES">
+      buildImplicitDependencies = "YES"
+      buildArchitectures = "Automatic">
       <BuildActionEntries>
          <BuildActionEntry
             buildForTesting = "YES"
@@ -15,9 +16,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A8CBA812B32D84F0094E133"
-               BuildableName = "DailyEntriesWidgetExtension.appex"
-               BlueprintName = "DailyEntriesWidgetExtension"
+               BlueprintIdentifier = "4AC1F9DB2C2B6830008C1255"
+               BuildableName = "StampWidgetExtension.appex"
+               BlueprintName = "StampWidgetExtension"
                ReferencedContainer = "container:entry-1.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -43,30 +44,6 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "34A808442A8A167800B9BB5C"
-               BuildableName = "entry-1UITests.xctest"
-               BlueprintName = "entry-1UITests"
-               ReferencedContainer = "container:entry-1.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "34A8083A2A8A167800B9BB5C"
-               BuildableName = "entry-1Tests.xctest"
-               BlueprintName = "entry-1Tests"
-               ReferencedContainer = "container:entry-1.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -80,8 +57,18 @@
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <RemoteRunnable
+         runnableDebuggingMode = "2"
+         BundleIdentifier = "com.apple.springboard">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4AC1F9DB2C2B6830008C1255"
+            BuildableName = "StampWidgetExtension.appex"
+            BlueprintName = "StampWidgetExtension"
+            ReferencedContainer = "container:entry-1.xcodeproj">
+         </BuildableReference>
+      </RemoteRunnable>
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "34A808242A8A167200B9BB5C"
@@ -89,7 +76,7 @@
             BlueprintName = "entry-1"
             ReferencedContainer = "container:entry-1.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "_XCWidgetKind"
@@ -104,6 +91,11 @@
          <EnvironmentVariable
             key = "_XCWidgetFamily"
             value = "systemMedium"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "_XCWidgetKind"
+            value = "StampWidget"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

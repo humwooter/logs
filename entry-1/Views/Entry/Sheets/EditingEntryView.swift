@@ -311,28 +311,27 @@ struct EditingEntryView: View {
     @ViewBuilder
     func buttonBars() -> some View {
         VStack {
-//            HStack {
-//                Button(action: {
-//                    withAnimation(.easeOut(duration: 0.5)) {
-//                        isTextButtonBarVisible.toggle()
-//                    }
-//                }) {
-//                    HStack {
-//                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-//                            .font(.system(size: 20))
-//                            .foregroundColor(userPreferences.accentColor)
-//                            .padding()
-//                    }
-//                }
-//                
-//                if isTextButtonBarVisible {
-//                    textFormattingButtonBar()
-//                }
-//                Spacer()
-//            }
+            HStack {
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        isTextButtonBarVisible.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+                            .font(.system(size: 20))
+                            .foregroundColor(userPreferences.accentColor)
+                            .padding()
+                    }
+                }
+                
+                if isTextButtonBarVisible {
+                    textFormattingButtonBar()
+                }
+                Spacer()
+            }
             buttonBar()
         }
-        .padding(.bottom)
     }
     
     @ViewBuilder
@@ -628,227 +627,112 @@ struct EditingEntryView: View {
     }
     
     
-    @ViewBuilder
-    func buttonBar() -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 35) {
-                Button(action: {
-                    withAnimation() {
-                        isTextButtonBarVisible.toggle()
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-                            .font(.system(size: 20))
-                            .foregroundColor(userPreferences.accentColor)
-                    }
-                }
-                
-                if isTextButtonBarVisible {
-                    textFormattingButtonBar()
-                        .padding(.trailing)
-
-                }
-                Spacer()
-            
-                Button {
-                    vibration_heavy.impactOccurred()
-                    entry.isHidden.toggle()
-                } label: {
-                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
-                        .font(.system(size: UIFont.buttonFontSize))
-                        .foregroundColor(userPreferences.accentColor)
-                        .opacity(entry.isHidden ? 1 : 0.1)
-                }
-                
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    Image(systemName: "photo.fill")
-                        .font(.system(size: UIFont.buttonFontSize))
-                }
-                .onChange(of: selectedItem) { _ in
-                    selectedData = nil
-                    Task {
-                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-                            selectedData = data
-                            deletePrevMedia = true
-                            imageHeight = UIScreen.main.bounds.height / 7
-                        }
-                    }
-                }
-
-                Image(systemName: "camera.fill")
-                    .font(.system(size: UIFont.buttonFontSize))
-                    .onChange(of: selectedImage) { _ in
-                        selectedData = nil
-                        Task {
-                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-                                selectedData = data
-                                deletePrevMedia = true
-                                imageHeight = UIScreen.main.bounds.height / 7
-                            }
-                        }
-                    }
-                    .onTapGesture {
-                        vibration_heavy.impactOccurred()
-                        showCamera = true
-                    }
-                
-                Button {
-                    selectedData = nil
-                    vibration_heavy.impactOccurred()
-                    isDocumentPickerPresented = true
-                } label: {
-                    Image(systemName: "link")
-                        .font(.system(size: UIFont.buttonFontSize))
-                }
-                .fileImporter(
-                    isPresented: $isDocumentPickerPresented,
-                    allowedContentTypes: [UTType.image, UTType.pdf],
-                    allowsMultipleSelection: false
-                ) { result in
-                    switch result {
-                    case .success(let urls):
-                        let url = urls[0]
-                        do {
-                            if url.startAccessingSecurityScopedResource() {
-                                let fileData = try Data(contentsOf: url)
-                                selectedData = fileData
-                                
-                                if isPDF(data: fileData) {
-                                    selectedPDFLink = url
-                                }
-                                
-                                deletePrevMedia = true
-                                url.stopAccessingSecurityScopedResource()
-                            } else {
-                                print("Error accessing file")
-                            }
-                        } catch {
-                            print("Error reading file: \(error)")
-                        }
-                    case .failure(let error):
-                        print("Error selecting file: \(error)")
-                    }
-                }
-            }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 20)
-        }
-        .background {
-            ZStack {
-                Color.clear
-                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
-            }
-            .ignoresSafeArea()
-        }
-        .foregroundColor(userPreferences.accentColor)
-    }
-
-
 //    @ViewBuilder
 //    func buttonBar() -> some View {
-//        HStack(spacing: 35) {
-//
-//
-//            Button(action: startOrStopRecognition) {
-//                Image(systemName: "mic.fill")
-//                    .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
-//                    .font(.system(size: 20))
-//            }
-//            Spacer()
-//        
-//            Button {
-//                vibration_heavy.impactOccurred()
-//                entry.isHidden.toggle()
-//            } label: {
-//                Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
-//            }
-//            
-//            
-//            PhotosPicker(selection:$selectedItem, matching: .images) {
-//                Image(systemName: "photo.fill")
-//                    .font(.system(size: 20))
-//                
-//            }
-//            .onChange(of: selectedItem) { _ in
-//                selectedData = nil
-//                Task {
-//                    if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-//                        selectedData = data
-//                        deletePrevMedia = true
-//                        imageHeight = UIScreen.main.bounds.height/7
+//        ScrollView(.horizontal, showsIndicators: false) {
+//            HStack(spacing: 35) {
+//                Button(action: {
+//                    withAnimation() {
+//                        isTextButtonBarVisible.toggle()
+//                    }
+//                }) {
+//                    HStack {
+//                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+//                            .font(.system(size: 20))
+//                            .foregroundColor(userPreferences.accentColor)
 //                    }
 //                }
-//            }
+//                
+//                if isTextButtonBarVisible {
+//                    textFormattingButtonBar()
+//                        .padding(.trailing)
 //
+//                }
+//                Spacer()
 //            
-//            Image(systemName: "camera.fill")
-//                .font(.system(size: 20))
-//                .onChange(of: selectedImage) { _ in
+//                Button {
+//                    vibration_heavy.impactOccurred()
+//                    entry.isHidden.toggle()
+//                } label: {
+//                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                        .foregroundColor(userPreferences.accentColor)
+//                        .opacity(entry.isHidden ? 1 : 0.1)
+//                }
+//                
+//                PhotosPicker(selection: $selectedItem, matching: .images) {
+//                    Image(systemName: "photo.fill")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                }
+//                .onChange(of: selectedItem) { _ in
 //                    selectedData = nil
 //                    Task {
-//                        if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+//                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
 //                            selectedData = data
 //                            deletePrevMedia = true
-//                            imageHeight = UIScreen.main.bounds.height/7
+//                            imageHeight = UIScreen.main.bounds.height / 7
 //                        }
 //                    }
 //                }
-//                .onTapGesture {
-//                    vibration_heavy.impactOccurred()
-//                    showCamera = true
-//                }
-//            
-//            Button {
-//                selectedData = nil
-//                vibration_heavy.impactOccurred()
-//                isDocumentPickerPresented = true
-//            } label: {
-//                Image(systemName: "link")
-//                    .font(.system(size: 20))
-//            }
-//            .fileImporter(
-//                isPresented: $isDocumentPickerPresented,
-//                allowedContentTypes: [UTType.image, UTType.pdf],
-//                allowsMultipleSelection: false
-//            ) { result in
-//                switch result {
-//                case .success(let urls):
-//                    let url = urls[0]
-//                    do {
-//                        // Attempt to start accessing the security-scoped resource
-//                        if url.startAccessingSecurityScopedResource() {
-//                            // Here, instead of creating a bookmark, we read the file data directly
-//                            let fileData = try Data(contentsOf: url)
-//                            selectedData = fileData // Assuming selectedData is of type Data
-//                            
-//                            if isPDF(data: fileData) {
-//                                selectedPDFLink = url
+//
+//                Image(systemName: "camera.fill")
+//                    .font(.system(size: UIFont.buttonFontSize))
+//                    .onChange(of: selectedImage) { _ in
+//                        selectedData = nil
+//                        Task {
+//                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+//                                selectedData = data
+//                                deletePrevMedia = true
+//                                imageHeight = UIScreen.main.bounds.height / 7
 //                            }
-//                            
-//                            deletePrevMedia = true
-//                            
-//                            // Remember to stop accessing the security-scoped resource when you’re done
-//                            url.stopAccessingSecurityScopedResource()
-//                        } else {
-//                            // Handle failure to access the file
-//                            print("Error accessing file")
 //                        }
-//                    } catch {
-//                        // Handle errors such as file not found, insufficient permissions, etc.
-//                        print("Error reading file: \(error)")
 //                    }
-//                case .failure(let error):
-//                    // Handle the case where the document picker failed to return a file
-//                    print("Error selecting file: \(error)")
+//                    .onTapGesture {
+//                        vibration_heavy.impactOccurred()
+//                        showCamera = true
+//                    }
+//                
+//                Button {
+//                    selectedData = nil
+//                    vibration_heavy.impactOccurred()
+//                    isDocumentPickerPresented = true
+//                } label: {
+//                    Image(systemName: "link")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                }
+//                .fileImporter(
+//                    isPresented: $isDocumentPickerPresented,
+//                    allowedContentTypes: [UTType.image, UTType.pdf],
+//                    allowsMultipleSelection: false
+//                ) { result in
+//                    switch result {
+//                    case .success(let urls):
+//                        let url = urls[0]
+//                        do {
+//                            if url.startAccessingSecurityScopedResource() {
+//                                let fileData = try Data(contentsOf: url)
+//                                selectedData = fileData
+//                                
+//                                if isPDF(data: fileData) {
+//                                    selectedPDFLink = url
+//                                }
+//                                
+//                                deletePrevMedia = true
+//                                url.stopAccessingSecurityScopedResource()
+//                            } else {
+//                                print("Error accessing file")
+//                            }
+//                        } catch {
+//                            print("Error reading file: \(error)")
+//                        }
+//                    case .failure(let error):
+//                        print("Error selecting file: \(error)")
+//                    }
 //                }
 //            }
-//            
-//            
-//            
+//            .padding(.vertical, 10)
+//            .padding(.horizontal, 20)
 //        }
-//        .padding(.vertical, 10)
-//        .padding(.horizontal, 20)
 //        .background {
 //            ZStack {
 //                Color.clear
@@ -858,6 +742,121 @@ struct EditingEntryView: View {
 //        }
 //        .foregroundColor(userPreferences.accentColor)
 //    }
+
+
+    @ViewBuilder
+    func buttonBar() -> some View {
+        HStack(spacing: 35) {
+
+
+            Button(action: startOrStopRecognition) {
+                Image(systemName: "mic.fill")
+                    .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
+                    .font(.system(size: 20))
+            }
+            Spacer()
+        
+            Button {
+                vibration_heavy.impactOccurred()
+                entry.isHidden.toggle()
+            } label: {
+                Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+            }
+            
+            
+            PhotosPicker(selection:$selectedItem, matching: .images) {
+                Image(systemName: "photo.fill")
+                    .font(.system(size: 20))
+                
+            }
+            .onChange(of: selectedItem) { _ in
+                selectedData = nil
+                Task {
+                    if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+                        selectedData = data
+                        deletePrevMedia = true
+                        imageHeight = UIScreen.main.bounds.height/7
+                    }
+                }
+            }
+
+            
+            Image(systemName: "camera.fill")
+                .font(.system(size: 20))
+                .onChange(of: selectedImage) { _ in
+                    selectedData = nil
+                    Task {
+                        if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+                            selectedData = data
+                            deletePrevMedia = true
+                            imageHeight = UIScreen.main.bounds.height/7
+                        }
+                    }
+                }
+                .onTapGesture {
+                    vibration_heavy.impactOccurred()
+                    showCamera = true
+                }
+            
+            Button {
+                selectedData = nil
+                vibration_heavy.impactOccurred()
+                isDocumentPickerPresented = true
+            } label: {
+                Image(systemName: "link")
+                    .font(.system(size: 20))
+            }
+            .fileImporter(
+                isPresented: $isDocumentPickerPresented,
+                allowedContentTypes: [UTType.image, UTType.pdf],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    let url = urls[0]
+                    do {
+                        // Attempt to start accessing the security-scoped resource
+                        if url.startAccessingSecurityScopedResource() {
+                            // Here, instead of creating a bookmark, we read the file data directly
+                            let fileData = try Data(contentsOf: url)
+                            selectedData = fileData // Assuming selectedData is of type Data
+                            
+                            if isPDF(data: fileData) {
+                                selectedPDFLink = url
+                            }
+                            
+                            deletePrevMedia = true
+                            
+                            // Remember to stop accessing the security-scoped resource when you’re done
+                            url.stopAccessingSecurityScopedResource()
+                        } else {
+                            // Handle failure to access the file
+                            print("Error accessing file")
+                        }
+                    } catch {
+                        // Handle errors such as file not found, insufficient permissions, etc.
+                        print("Error reading file: \(error)")
+                    }
+                case .failure(let error):
+                    // Handle the case where the document picker failed to return a file
+                    print("Error selecting file: \(error)")
+                }
+            }
+            
+            
+            
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background {
+            ZStack {
+                Color.clear
+                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .foregroundColor(userPreferences.accentColor)
+    }
     
     
     

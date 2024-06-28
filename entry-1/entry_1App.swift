@@ -19,21 +19,29 @@ import TipKit
 
 @main
 struct entry_1App: App {
-    // let persistenceController = PersistenceController.shared
     let persistenceController = CoreDataManager.shared
-//    @ObservedObject  var tabSelectionInfo = TabSelectionInfo()
-    
+    @ObservedObject var userPreferences = UserPreferences()
+
     init() {
+        // Any additional initialization if needed
     }
-    
+
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(\.managedObjectContext, persistenceController.viewContext)
-//                .environmentObject(tabSelectionInfo)
+            ContentView()
+                .environment(\.managedObjectContext, persistenceController.viewContext)
+                .environmentObject(userPreferences)
+                .onOpenURL { url in
+                    handleURL(url)
+                }
+        }
+    }
 
-            // ContentView().environment(\.managedObjectContext, CoreDataManager.shared.persistentContainer.viewContext)
-//            ContentView()
-//                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+    private func handleURL(_ url: URL) {
+        if url.scheme == "myapp" && url.host == "createEntryWithStamp" {
+            if let stampIdString = url.queryParameters?["stampId"], let stampId = UUID(uuidString: stampIdString) {
+                NotificationCenter.default.post(name: NSNotification.Name("CreateEntryWithStamp"), object: stampId)
+            }
         }
     }
 }

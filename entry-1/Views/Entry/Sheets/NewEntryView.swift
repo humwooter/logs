@@ -28,8 +28,6 @@ struct NewEntryView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
 
     
-    
-    
     @State private var speechRecognizer = SFSpeechRecognizer()
     @State private var recognitionTask: SFSpeechRecognitionTask?
     @State private var audioEngine = AVAudioEngine()
@@ -80,10 +78,17 @@ struct NewEntryView: View {
     @State private var hasReminderAccess = false
     
     @State private var showDeleteReminderAlert = false
-    // Define your recurrence options
+    // Define recurrence options
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
+    
+    @State private var selectedStamp: Stamp?
+    
+    @State private var showingEntryTitle = false
+    @State private var entryTitle: String = ""
+    @State private var tempEntryTitle: String = ""
+
     
     var body: some View {
         NavigationStack {
@@ -100,39 +105,26 @@ struct NewEntryView: View {
                             }
                         }
                         
-        
+                        VStack {
+                         entryTitleView()
+
                             textFieldView()
+                        }
                     }
                     .onTapGesture {
                         focusField = true
                     }
 
-                VStack {
-                    HStack {
-                        Button(action: {
-                            withAnimation(.easeOut(duration: 0.5)) {
-                                isTextButtonBarVisible.toggle()
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(userPreferences.accentColor)
-                                    .padding()
-                            }
-                        }
-                        
-                        if isTextButtonBarVisible {
-                            textFormattingButtonBar()
-                        }
-                        Spacer()
-                    }
-                    buttonBar()
-
-//                    entryMediaView()
-                }
+   buttonBars()
            
             }
+            .onAppear {
+                    NotificationCenter.default.addObserver(forName: NSNotification.Name("CreateEntryWithStamp"), object: nil, queue: .main) { notification in
+                        if let stampId = notification.object as? UUID {
+                            self.selectedStamp = userPreferences.fetchStamp(by: stampId)
+                        }
+                    }
+                }
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -145,13 +137,21 @@ struct NewEntryView: View {
             }
             
 
-            .navigationBarTitle("New Entry")
+            .navigationBarTitle(entryTitle.isEmpty ? "New Entry" : entryTitle)
 
 
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
                         Menu("", systemImage: "ellipsis.circle") {
+                            
+                            Button {
+                                showingEntryTitle = true
+                            } label: {
+//                                Text("Add Name")
+                                Label("Add Name", systemImage: "pencil")
+                            }
+                            
                             Button {
                                 showingDatePicker.toggle()
 
@@ -165,6 +165,9 @@ struct NewEntryView: View {
                             } label: {
                                 Label("Set Reminder", systemImage: "bell.fill")
                             }
+                            
+                        
+
                         }
 
                         .sheet(isPresented: $showingDatePicker) {
@@ -430,10 +433,108 @@ struct NewEntryView: View {
     
     
     @ViewBuilder
+    func entryTitleView() -> some View {
+        if showingEntryTitle {
+            
+            var fontColor = Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))))
+            HStack {
+                ZStack {
+                    if tempEntryTitle.isEmpty {
+                        HStack {
+                            Text("Enter title")
+                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            Spacer()
+                        }.padding(.horizontal, 20)
+                    }
+                    GrowingTextField(text: $tempEntryTitle, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), isScrollEnabled: false, hasInset: false, cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                        .frame(maxHeight: 30)
+                }
+                Spacer()
+                Button {
+                    entryTitle = tempEntryTitle
+                    showingEntryTitle = false
+                } label: {
+                    Image(systemName: "checkmark").foregroundStyle(.green)
+                }
+                
+            }.onAppear {
+                tempEntryTitle = entryTitle
+            }
+            .padding(.horizontal)
+            
+            .onTapGesture {
+                focusField = true
+            }
+//            .padding()
+//            .padding(.horizontal)
+            
+            .cornerRadius(15)
+        } else {
+//            if !entryTitle.isEmpty {
+//                HStack {
+//                    Text(entryTitle)
+//                        .font(.custom(userPreferences.fontName, size: 1.3*userPreferences.fontSize))
+//                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+//
+//                        .bold()
+//                    Spacer()
+//                }
+//                .padding(.horizontal)
+//
+//            }
+        }
+//            .padding(.horizontal)
+    }
+    
+    @ViewBuilder
+    func buttonBars() -> some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.5)) {
+                        isTextButtonBarVisible.toggle()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+                            .font(.system(size: 20))
+                            .foregroundColor(userPreferences.accentColor)
+                            .padding()
+                    }
+                }
+                
+                if isTextButtonBarVisible {
+                    textFormattingButtonBar()
+                }
+                Spacer()
+            }
+            buttonBar()
+        }
+    }
+    
+    
+    @ViewBuilder
     func textFieldView() -> some View {
-        
-        VStack (alignment: .leading) {
-
+        VStack(alignment: .leading) {
+            ZStack {
+//                if entryTitle.isEmpty {
+//                    VStack {
+//                        HStack {
+//                            Text("Title...")
+//                                .foregroundColor(.gray)
+//                                .padding(.leading, 20)
+//                            Spacer()
+//                        }
+//                        Spacer()
+//                    }
+//                }
+//                TextField("Title", text: $entryTitle)
+//                    .padding()
+//                    .background(Color(UIColor.systemGroupedBackground))
+//                    .cornerRadius(8)
+            }
+            
             ZStack {
                 if entryContent.isEmpty {
                     VStack {
@@ -460,18 +561,63 @@ struct NewEntryView: View {
                         Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
                     }
                 }
-     
             }
-        }.background {
+        }
+        .background {
             ZStack {
                 Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
             }.ignoresSafeArea(.all)
-        }.cornerRadius(15)
+        }
+        .cornerRadius(15)
         .padding()
         .onSubmit {
             finalizeCreation()
         }
     }
+
+//    @ViewBuilder
+//    func textFieldView() -> some View {
+//        
+//        VStack (alignment: .leading) {
+//
+//            ZStack {
+//                if entryContent.isEmpty {
+//                    VStack {
+//                        HStack {
+//                            Text("Start typing here...")
+//                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+//                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                            Spacer()
+//                        }.padding(20)
+//                        Spacer()
+//                    }
+//                }
+//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+//            }
+//            
+//            ZStack(alignment: .topTrailing) {
+//                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+//                if selectedData != nil {
+//                    Button(role: .destructive, action: {
+//                        vibration_light.impactOccurred()
+//                        selectedData = nil
+//                        imageHeight = 0
+//                    }) {
+//                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+//                    }
+//                }
+//     
+//            }
+//        }.background {
+//            ZStack {
+//                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
+//            }.ignoresSafeArea(.all)
+//        }.cornerRadius(15)
+//        .padding()
+//        .onSubmit {
+//            finalizeCreation()
+//        }
+//    }
     
     @ViewBuilder
     func dateEditSheet() -> some View {
@@ -509,7 +655,7 @@ struct NewEntryView: View {
                             .background(Color.clear) // Set the background to clear
                                .textFieldStyle(PlainTextFieldStyle()) // Use
                             .frame(maxWidth: .infinity)
-                            .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+//                            .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
 
                     }
                     Section {
@@ -517,7 +663,7 @@ struct NewEntryView: View {
                         DatePicker("Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
 
                     }
-                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+//                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                     .accentColor(userPreferences.accentColor)
 
                     NavigationLink {
@@ -537,7 +683,7 @@ struct NewEntryView: View {
                     }
       
                     .font(.system(size: 15))
-                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
+//                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                     .accentColor(userPreferences.accentColor)
                     
                     Section {
@@ -821,6 +967,15 @@ struct NewEntryView: View {
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
         newEntry.name = "" //change later
+        if !entryTitle.isEmpty {
+            newEntry.title = entryTitle
+        }
+        
+        if let stamp = selectedStamp {
+            newEntry.stampIndex = Int16(stamp.index)
+            newEntry.color = UIColor(stamp.color)
+            newEntry.stampIcon = stamp.imageName
+        }
     
         
         if let data = selectedData {

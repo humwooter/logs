@@ -341,20 +341,6 @@ struct NotEditingView: View {
                 }
             } label: {
                 HStack {
-//                    if let entryName = entry.name, !entryName.isEmpty {
-//                        
-//                        Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-//                        if let timeLastUpdated = entry.lastUpdated {
-//                            if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
-//                                HStack {
-//                                    Image(systemName: "arrow.right")
-//                                    Text(formattedTime_long(date: timeLastUpdated))
-//                                }
-//                            }
-//                            
-//                        }
-//                    }
-
                     Spacer()
                     Image(systemName: "ellipsis").padding(.vertical, 3).padding(.leading, 5)
                         .font(.system(size: UIFont.systemFontSize+5)).fontWeight(.bold)
@@ -365,25 +351,25 @@ struct NotEditingView: View {
                 }
                 
             }
-            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)).opacity(0.3))
-//            .foregroundStyle(Color(getTextColor()).opacity(0.3))
+            .foregroundStyle(getTextColor().opacity(0.3))
         }
         .padding(.top, 5)
     }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-
-        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
-        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        
-        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
-
-        
-        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
-        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
-        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
-        return fontColor
+//this works as of jun 27
+    func getTextColor() -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
+            var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+            var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+            return Color(UIColor.fontColor(forBackgroundColor: blendedColor))
+        } else {
+            var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+            var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+            var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+            
+            
+            return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+        }
     }
 
     @ViewBuilder
@@ -401,6 +387,15 @@ struct NotEditingView: View {
     @ViewBuilder
     func entryTextView() -> some View {
         VStack {
+            if let entryName = entry.title, !entryName.isEmpty {
+                Text(entryName)
+                    .foregroundStyle(getTextColor())
+                    .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                    .padding(.vertical, 2)
+
+
+            }
             if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
                 var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
                 var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))

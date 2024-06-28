@@ -56,7 +56,14 @@ func zip5<A, B, C, D, E>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: 
 }
 
 
-
+func zip6<A, B, C, D, E, F>(_ array1: [A], _ array2: [B], _ array3: [C], _ array4: [D], _ array5: [E], _ array6: [F]) -> [(A, B, C, D, E, F)] {
+    var result: [(A, B, C, D, E, F)] = []
+    let count = min(array1.count, array2.count, array3.count, array4.count, array5.count, array6.count)
+    for i in 0..<count {
+        result.append((array1[i], array2[i], array3[i], array4[i], array5[i], array6[i]))
+    }
+    return result
+}
 
 
 class UserPreferences: ObservableObject, Codable {
@@ -95,6 +102,9 @@ class UserPreferences: ObservableObject, Codable {
         try container.encode(colorData, forKey: key)
     }
     
+    func fetchStamp(by id: UUID) -> Stamp? {
+            return stamps.first { $0.id == id }
+        }
     
     func update(from preferences: UserPreferences) {
            DispatchQueue.main.async {
@@ -306,13 +316,13 @@ class UserPreferences: ObservableObject, Codable {
 
         
         let initialStamps = [
-            Stamp(id: UUID(), name: "", color: Color.yellow, imageName: "star.fill", isActive: true),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
-            Stamp(id: UUID(), name: "",color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
+            Stamp(id: UUID(), name: "", index: 0, color: Color.yellow, imageName: "star.fill", isActive: true),
+            Stamp(id: UUID(), name: "", index: 1,color: Color(hex: "#33FF57"), imageName: "heart.fill", isActive: false),
+            Stamp(id: UUID(), name: "", index: 2,color: Color(hex: "#3357FF"), imageName: "bookmark.fill", isActive: false),
+            Stamp(id: UUID(), name: "", index: 3,color: Color(hex: "#AC33FF"), imageName: "lightbulb.fill", isActive: false),
+            Stamp(id: UUID(), name: "", index: 4,color: Color(hex: "#FF33AC"), imageName: "pencil", isActive: false),
+            Stamp(id: UUID(), name: "", index: 5,color: Color(hex: "#FFD133"), imageName: "flag.fill", isActive: false),
+            Stamp(id: UUID(), name: "", index: 6,color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
         ]
         
         
@@ -321,7 +331,7 @@ class UserPreferences: ObservableObject, Codable {
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []
         
         
-        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", color: Color.blue, imageName: "pencil", isActive: false), count: 14)
+        let additionalStamps = Array(repeating: Stamp(id: UUID(), name: "", index: -1, color: Color.blue, imageName: "pencil", isActive: false), count: 14)
         self.stamps = UserDefaults.standard.loadStamps(forKey: "stamps") ?? (initialStamps + additionalStamps)
         
         
@@ -415,19 +425,20 @@ extension UserDefaults {
     
     
     func loadStamps(forKey key: String) -> [Stamp]? {
-        guard let savedArray = array(forKey: key), savedArray.count == 5 else { return nil }
-        guard let idStrings = savedArray[0] as? [String],
-              let names = savedArray[1] as? [String],
-              let colorData = savedArray[2] as? [Data],
-              let imageNames = savedArray[3] as? [String],
-              let isActive = savedArray[4] as? [Bool] else { return nil }
-        
-        let ids = idStrings.compactMap { UUID(uuidString: $0) }
-        let uiColors = colorData.compactMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: $0) }
-        let colors = uiColors.map { Color($0) }
-        
-        return zip5(ids, names, colors, imageNames, isActive).map { Stamp(id: $0, name: $1, color: $2, imageName: $3, isActive: $4) }
-    }
+           guard let savedArray = array(forKey: key), savedArray.count == 6 else { return nil }
+           guard let idStrings = savedArray[0] as? [String],
+                 let names = savedArray[1] as? [String],
+                 let indices = savedArray[2] as? [Int],
+                 let colorData = savedArray[3] as? [Data],
+                 let imageNames = savedArray[4] as? [String],
+                 let isActive = savedArray[5] as? [Bool] else { return nil }
+           
+           let ids = idStrings.compactMap { UUID(uuidString: $0) }
+           let uiColors = colorData.compactMap { try? NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: $0) }
+           let colors = uiColors.map { Color($0) }
+           
+           return zip6(ids, names, indices, colors, imageNames, isActive).map { Stamp(id: $0, name: $1, index: $2, color: $3, imageName: $4, isActive: $5) }
+       }
     
     
 }

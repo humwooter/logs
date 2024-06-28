@@ -102,32 +102,7 @@ struct ThemePicker: View {
         .sheet(isPresented: $showingEditSheet, onDismiss: saveChanges) {
 //                   if let index = selectedThemeIndex {
                        ThemeEditView(theme: $newThemePresets[selectedThemeIndex]) // Pass binding to the element
-//                   }
                }
-        
-//        ScrollView {
-//            LazyVGrid(columns: columns, spacing: 20) {
-//                ForEach(newThemePresets, id: \.self) { theme in
-//                    VStack {
-//                        Text(theme.name)
-//                            .font(theme.font) // Assuming each theme has a 'font' property for customization
-//                            .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-//                            .padding(.bottom, 5)
-//                        combinedBlock(topColor: theme.topColor, bottomColor: theme.bottomColor, entryColor: theme.entryBackgroundColor, accentColor: theme.accentColor, pinColor: theme.pinColor, reminderColor: theme.reminderColor)
-//
-//                    }
-//
-////                    .contextMenu(ContextMenu(menuItems: {
-////                        NavigationLink(destination: ThemeEditView(theme: $newThemePresets[0])) {
-////                            Text("Edit")
-////                        }
-////                    }))
-//                    .padding(10)
-//
-//                }
-//            }
-//            .padding()
-//        }
     }
     
     private func saveChanges() {
@@ -183,72 +158,10 @@ struct ThemePicker: View {
                                 .padding(.bottom)
                             
                         }
-                        .frame(maxHeight: .infinity) // Ensures VStack takes up maximum available height
-
-//                        VStack {
-//
-//                            HStack {
-//                                // Pin icon on the left/top
-//                                Image(systemName: "pin.fill").imageScale(.large)
-//                                    .foregroundColor(pinColor)
-//            //                        .scaleEffect(0.5) // Adjust based on your design needs
-//
-//                                Spacer()
-//
-//                                // Bell icon on the right/top
-//                                Image(systemName: "bell.fill").imageScale(.large)
-//                                    .foregroundColor(reminderColor)
-//            //                        .scaleEffect(0.5) // Adjust based on your design needs
-//                            }
-//                            .padding(.horizontal) // Add some padding to push icons to the edges
-//                            .padding(.top, 20)
-//
-//
-//                            entryBackgroundBlock(color: entryColor)
-//                                .scaleEffect(0.6) // Adjust this value to control the size relative to the background block
-//
-//                        }
-//                        .padding(.top, 10) // This pushes the icons slightly down from the top edge
+                        .frame(maxHeight: .infinity) // Ensures VStack takes
                     }
                 )
-            
-//            VStack {
-//                Spacer()
-//                Spacer()
-//                Spacer()
-//                HStack {
-//                    // Pin icon on the left/top
-//                    Image(systemName: "pin.fill").imageScale(.large)
-//                        .foregroundColor(pinColor)
-////                        .scaleEffect(0.5) // Adjust based on your design needs
-//
-//                    Spacer()
-//
-//                    // Bell icon on the right/top
-//                    Image(systemName: "bell.fill").imageScale(.large)
-//                        .foregroundColor(reminderColor)
-////                        .scaleEffect(0.5) // Adjust based on your design needs
-//                }
-//                .padding(.horizontal) // Add some padding to push icons to the edges
-//
-//                Spacer()
-//                Spacer()
-//                Spacer()
-//                entryBackgroundBlock(color: entryColor)
-//                    .scaleEffect(0.4) // Adjust this value to control the size relative to the background block
-//                    .padding(10) // Adjust padding to control the position
-//            }
-//            .padding(.top, 10) // This pushes the icons slightly down from the top edge
-            
-//            // Entry background block in the center
-//            VStack {
-//                Spacer()
-//                entryBackgroundBlock(color: entryColor)
-//                    .scaleEffect(0.4) // Adjust this value to control the size relative to the background block
-//                    .padding(10) // Adjust padding to control the position
-//            }
         }
-//        .clipShape(RoundedRectangle(cornerRadius: 15)) // Ensure the outer shape also has rounded corners
     }
 
 
@@ -428,6 +341,8 @@ struct ButtonDashboard: View {
                 }
             }
  
+        }.onAppear {
+            userPreferences.stamps[index].index = index
         }
     }
 }

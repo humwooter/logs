@@ -17,6 +17,8 @@ struct GrowingTextField: UIViewRepresentable {
     let cursorColor: UIColor
     var backgroundColor: UIColor?
     var initialText: String?
+    var isScrollEnabled: Bool = true
+    var hasInset: Bool = true
     
     @Binding var cursorPosition: NSRange?
     @ObservedObject var viewModel: TextEditorViewModel
@@ -32,23 +34,13 @@ struct GrowingTextField: UIViewRepresentable {
 
         }
         textView.tintColor = cursorColor
-        
-//        for familyName in UIFont.familyNames {
-//            print("\n-- \(familyName) --")
-//            for fontName in UIFont.fontNames(forFamilyName: familyName) {
-//                print(fontName)
-//            }
-//        }
-//
-//        print("FONT NAME: \(fontName)")
-//        print("FONT SIZE: \(fontSize)")
 
         textView.font = UIFont(name: fontName, size: fontSize)  // Set custom font
         textView.textColor = fontColor  // Set font color
-        textView.isScrollEnabled = true
+        textView.isScrollEnabled = isScrollEnabled
         textView.showsVerticalScrollIndicator = false
         textView.delegate = context.coordinator
-        textView.textContainerInset = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+            textView.textContainerInset = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
         
         print("makeUIView called for GrowingTextField")
         
@@ -154,55 +146,6 @@ struct GrowingTextField: UIViewRepresentable {
                 self.parent.text = textView.text
             }
         }
-
-        
-//        private func insertTextAtCursor(text: String) {
-//            print("entered insertTextAtCursor from inside the Coordinator class with text: \(text)")
-//            guard let textView = self.textView else { return }
-//            
-//            let currentText = textView.text as NSString
-//            var range = textView.selectedRange
-//            
-//            print("RANGE LENGTH: \(range.length)")
-//            print("RANGE UPPER BOUND: \(range.upperBound)")
-//            print("RANGE LOWER BOUND: \(range.lowerBound)")
-//
-//            
-//            if text == "\t" { // Handle tab for indentation
-//                let selectedText = currentText.substring(with: range)
-//                let lines = selectedText.components(separatedBy: .newlines)
-//                let indentedLines = lines.map { "\t\($0)" }
-//                let updatedText = indentedLines.joined(separator: "\n")
-//                textView.text = currentText.replacingCharacters(in: range, with: updatedText)
-//                range.length = updatedText.utf16.count
-//            } else if text == "\t• " { // Handle bullet point followed by a tab
-//                if range.length == 0 { // No text is selected, apply bullet point to the current line
-//                    let lineStart = currentText.lineRange(for: NSRange(location: range.location, length: 0)).location
-//                    let updatedText = currentText.replacingCharacters(in: NSRange(location: lineStart, length: 0), with: "\t• ")
-//                    textView.text = updatedText as String
-//                    range.location += 3 // Move cursor after the bullet point and tab
-//                } else { // Text is selected, apply bullet point to the first line and indent the rest
-//                    let selectedText = currentText.substring(with: range)
-//                    var lines = selectedText.components(separatedBy: .newlines)
-//                    lines[0] = "\t• " + lines[0] // Add bullet point and tab to the first line
-//                    for i in 1..<lines.count {
-//                        lines[i] = "\t" + lines[i] // Indent remaining lines
-//                    }
-//                    let updatedText = lines.joined(separator: "\n")
-//                    textView.text = currentText.replacingCharacters(in: range, with: updatedText)
-//                    range.length = updatedText.utf16.count
-//                }
-//            } else {
-//                // For non-special text, insert it as before
-//                let updatedText = currentText.replacingCharacters(in: range, with: text)
-//                textView.text = updatedText as String
-//                range.location += text.utf16.count
-//                range.length = 0
-//            }
-//            
-//            textView.selectedRange = range
-//            self.parent.text = textView.text
-//        }
     }
 }
 

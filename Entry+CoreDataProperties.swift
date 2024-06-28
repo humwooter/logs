@@ -19,6 +19,7 @@ extension Entry {
     
     
     @NSManaged public var content: String
+    @NSManaged public var title: String?
     @NSManaged public var previousContent: String?
     @NSManaged public var time: Date
     @NSManaged public var lastUpdated: Date?

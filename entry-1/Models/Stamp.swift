@@ -24,18 +24,20 @@ extension Color {
 
 struct Stamp: Codable {
     var id: UUID
+    var index: Int
     var name: String
     var color: Color // SwiftUI's Color
     var imageName: String
     var isActive: Bool
     
     enum CodingKeys: CodingKey {
-        case id, name, color, imageName, isActive
+        case id, name, index, color, imageName, isActive
     }
     
-    init(id: UUID, name: String, color: Color, imageName: String, isActive: Bool) {
+    init(id: UUID, name: String, index: Int, color: Color, imageName: String, isActive: Bool) {
            self.id = id
            self.name = name
+            self.index = index
            self.color = color
            self.imageName = imageName
            self.isActive = isActive
@@ -45,6 +47,7 @@ struct Stamp: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decode(UUID.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
+        index = try container.decode(Int.self, forKey: .index)
         imageName = try container.decode(String.self, forKey: .imageName)
         
         // Decode color as Data and then convert to UIColor, and finally to Color
@@ -62,6 +65,7 @@ struct Stamp: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
+        try container.encode(index, forKey: .index)
         try container.encode(imageName, forKey: .imageName)
         
         // Convert Color to UIColor, then to Data, and encode
