@@ -23,7 +23,9 @@ struct EditingEntryView: View {
     @EnvironmentObject var userPreferences: UserPreferences
 
     @ObservedObject var entry: Entry
-    @Binding var editingContent: String
+//    @Binding var editingContent: String
+    @Binding var editingContent: NSAttributedString
+
     @Binding var isEditing: Bool
     @State private var engine: CHHapticEngine?
     @FocusState private var focusField: Bool
@@ -109,8 +111,8 @@ struct EditingEntryView: View {
                     previousMediaData = getMediaData(fromFilename: filename)
                     selectedData = previousMediaData
                 }
-                if editingContent.isEmpty {
-                    editingContent = entry.content
+                if editingContent.string.isEmpty {
+                    editingContent = entry.attributedContent ?? NSAttributedString(string: "")
                 }
             }
             .fullScreenCover(isPresented: $showCamera) {
@@ -361,7 +363,7 @@ struct EditingEntryView: View {
     func textFieldView() -> some View {
         VStack (alignment: .leading) {
             ZStack {
-                if editingContent.isEmpty {
+                if editingContent.string.isEmpty {
                     VStack {
                         HStack {
                             Text("Start typing here...")
@@ -372,7 +374,7 @@ struct EditingEntryView: View {
                         Spacer()
                     }
                 }
-                GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
+                GrowingTextField(attributedText: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
                                  cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
                     .frame(minHeight: 50)
 
@@ -610,139 +612,40 @@ struct EditingEntryView: View {
         .cornerRadius(15)
     }
 
+//    func insertText(_ textToInsert: String) {
+//        // Check if the editingContent already contains the marker to avoid duplication
+//        if editingContent.contains(cursorPositionMarker) {
+//            // If the marker is already present, replace it with the new text directly
+//            editingContent = editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+//        } else {
+//            // If the marker is not present, insert the marker at the end of the text
+//            // This is a simplistic approach; you might have a more sophisticated method to determine the insertion point
+//            editingContent += cursorPositionMarker
+//            // Then replace the marker with the actual text to insert
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+//                self.editingContent = self.editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+//            }
+//        }
+//    }
+    
     func insertText(_ textToInsert: String) {
-        // Check if the editingContent already contains the marker to avoid duplication
-        if editingContent.contains(cursorPositionMarker) {
-            // If the marker is already present, replace it with the new text directly
-            editingContent = editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
+        let fullRange = NSRange(location: 0, length: mutableAttributedString.length)
+        let markerRange = mutableAttributedString.mutableString.range(of: cursorPositionMarker)
+        
+        if markerRange.location != NSNotFound {
+            // If the marker is already present, replace it with the new text
+            mutableAttributedString.replaceCharacters(in: markerRange, with: textToInsert)
         } else {
-            // If the marker is not present, insert the marker at the end of the text
-            // This is a simplistic approach; you might have a more sophisticated method to determine the insertion point
-            editingContent += cursorPositionMarker
-            // Then replace the marker with the actual text to insert
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.editingContent = self.editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
-            }
+            // If the marker is not present, insert the text at the end
+            let attributes = mutableAttributedString.attributes(at: max(0, mutableAttributedString.length - 1), effectiveRange: nil)
+            let attributedTextToInsert = NSAttributedString(string: textToInsert, attributes: attributes)
+            mutableAttributedString.append(attributedTextToInsert)
         }
+        
+        editingContent = mutableAttributedString
     }
     
-    
-//    @ViewBuilder
-//    func buttonBar() -> some View {
-//        ScrollView(.horizontal, showsIndicators: false) {
-//            HStack(spacing: 35) {
-//                Button(action: {
-//                    withAnimation() {
-//                        isTextButtonBarVisible.toggle()
-//                    }
-//                }) {
-//                    HStack {
-//                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-//                            .font(.system(size: 20))
-//                            .foregroundColor(userPreferences.accentColor)
-//                    }
-//                }
-//                
-//                if isTextButtonBarVisible {
-//                    textFormattingButtonBar()
-//                        .padding(.trailing)
-//
-//                }
-//                Spacer()
-//            
-//                Button {
-//                    vibration_heavy.impactOccurred()
-//                    entry.isHidden.toggle()
-//                } label: {
-//                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                        .foregroundColor(userPreferences.accentColor)
-//                        .opacity(entry.isHidden ? 1 : 0.1)
-//                }
-//                
-//                PhotosPicker(selection: $selectedItem, matching: .images) {
-//                    Image(systemName: "photo.fill")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                }
-//                .onChange(of: selectedItem) { _ in
-//                    selectedData = nil
-//                    Task {
-//                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-//                            selectedData = data
-//                            deletePrevMedia = true
-//                            imageHeight = UIScreen.main.bounds.height / 7
-//                        }
-//                    }
-//                }
-//
-//                Image(systemName: "camera.fill")
-//                    .font(.system(size: UIFont.buttonFontSize))
-//                    .onChange(of: selectedImage) { _ in
-//                        selectedData = nil
-//                        Task {
-//                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-//                                selectedData = data
-//                                deletePrevMedia = true
-//                                imageHeight = UIScreen.main.bounds.height / 7
-//                            }
-//                        }
-//                    }
-//                    .onTapGesture {
-//                        vibration_heavy.impactOccurred()
-//                        showCamera = true
-//                    }
-//                
-//                Button {
-//                    selectedData = nil
-//                    vibration_heavy.impactOccurred()
-//                    isDocumentPickerPresented = true
-//                } label: {
-//                    Image(systemName: "link")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                }
-//                .fileImporter(
-//                    isPresented: $isDocumentPickerPresented,
-//                    allowedContentTypes: [UTType.image, UTType.pdf],
-//                    allowsMultipleSelection: false
-//                ) { result in
-//                    switch result {
-//                    case .success(let urls):
-//                        let url = urls[0]
-//                        do {
-//                            if url.startAccessingSecurityScopedResource() {
-//                                let fileData = try Data(contentsOf: url)
-//                                selectedData = fileData
-//                                
-//                                if isPDF(data: fileData) {
-//                                    selectedPDFLink = url
-//                                }
-//                                
-//                                deletePrevMedia = true
-//                                url.stopAccessingSecurityScopedResource()
-//                            } else {
-//                                print("Error accessing file")
-//                            }
-//                        } catch {
-//                            print("Error reading file: \(error)")
-//                        }
-//                    case .failure(let error):
-//                        print("Error selecting file: \(error)")
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 10)
-//            .padding(.horizontal, 20)
-//        }
-//        .background {
-//            ZStack {
-//                Color.clear
-//                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
-//            }
-//            .ignoresSafeArea()
-//        }
-//        .foregroundColor(userPreferences.accentColor)
-//    }
-
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -864,7 +767,19 @@ struct EditingEntryView: View {
           // Code to finalize the edit
         let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
-              entry.content = editingContent
+              
+              entry.content = editingContent.string
+              entry.attributedContent = editingContent
+
+                  // Convert NSAttributedString to Data and save formatted text
+                  do {
+                      let data = try editingContent.data(from: NSRange(location: 0, length: editingContent.length),
+                                                       documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+                      entry.formattedContent = data
+                  } catch {
+                      print("Error converting attributed string to data: \(error)")
+                  }
+//              entry.content = editingContent
               
               if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
                   let previousLog = entry.relationship
@@ -938,7 +853,8 @@ struct EditingEntryView: View {
     }
     
     func cancelEdit() {
-        editingContent = entry.previousContent ?? entry.content // Reset to the original content
+        editingContent = buildAttributedString(content: entry.content, formattingData: entry.formattedContent, fontSize: userPreferences.fontSize, fontName: userPreferences.fontName)
+//        editingContent = entry.previousContent ?? entry.content // Reset to the original content
         if !previousMediaFilename.isEmpty, let data = previousMediaData { //restore previous media
             entry.saveImage(data: data, coreDataManager: coreDataManager)
         }

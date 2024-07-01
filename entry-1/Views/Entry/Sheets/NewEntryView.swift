@@ -51,7 +51,10 @@ struct NewEntryView: View {
     
     
     
-    @State private var entryContent = ""
+//    @State private var entryContent = ""
+    @State private var entryContent = NSAttributedString(string: "")
+
+
     @State private var dynamicHeight: CGFloat = 100
     @State private var imageHeight: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
@@ -447,7 +450,26 @@ struct NewEntryView: View {
                             Spacer()
                         }.padding(.horizontal, 20)
                     }
-                    GrowingTextField(text: $tempEntryTitle, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), isScrollEnabled: false, hasInset: false, cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                    GrowingTextField(
+                        attributedText: $tempEntryTitle.asAttributedString(
+                            fontName: userPreferences.fontName,
+                            fontSize: userPreferences.fontSize,
+                            fontColor: UIColor(
+                                UIColor.foregroundColor(
+                                    background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+                                )
+                            )
+                        ),
+                        fontName: userPreferences.fontName,
+                        fontSize: userPreferences.fontSize,
+                        fontColor: UIColor.black,
+                        cursorColor: UIColor(userPreferences.accentColor),
+                        backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
+                        cursorPosition: $cursorPosition,
+                        viewModel: textEditorViewModel
+                    )
+
+                    .cornerRadius(15)
                         .frame(maxHeight: 30)
                 }
                 Spacer()
@@ -471,20 +493,8 @@ struct NewEntryView: View {
             
             .cornerRadius(15)
         } else {
-//            if !entryTitle.isEmpty {
-//                HStack {
-//                    Text(entryTitle)
-//                        .font(.custom(userPreferences.fontName, size: 1.3*userPreferences.fontSize))
-//                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
-//
-//                        .bold()
-//                    Spacer()
-//                }
-//                .padding(.horizontal)
-//
-//            }
+
         }
-//            .padding(.horizontal)
     }
     
     @ViewBuilder
@@ -518,25 +528,11 @@ struct NewEntryView: View {
     func textFieldView() -> some View {
         VStack(alignment: .leading) {
             ZStack {
-//                if entryTitle.isEmpty {
-//                    VStack {
-//                        HStack {
-//                            Text("Title...")
-//                                .foregroundColor(.gray)
-//                                .padding(.leading, 20)
-//                            Spacer()
-//                        }
-//                        Spacer()
-//                    }
-//                }
-//                TextField("Title", text: $entryTitle)
-//                    .padding()
-//                    .background(Color(UIColor.systemGroupedBackground))
-//                    .cornerRadius(8)
+
             }
             
             ZStack {
-                if entryContent.isEmpty {
+                if entryContent.string.isEmpty {
                     VStack {
                         HStack {
                             Text("Start typing here...")
@@ -547,7 +543,19 @@ struct NewEntryView: View {
                         Spacer()
                     }
                 }
-                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                
+                GrowingTextField(
+                    attributedText: $entryContent,
+                    fontName: userPreferences.fontName,
+                    fontSize: userPreferences.fontSize,
+                    fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))),
+                    cursorColor: UIColor(userPreferences.accentColor),
+                    backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
+                    cursorPosition: $cursorPosition,
+                    viewModel: textEditorViewModel
+                )
+                .cornerRadius(15)
+//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
             }
             
             ZStack(alignment: .topTrailing) {
@@ -575,50 +583,6 @@ struct NewEntryView: View {
         }
     }
 
-//    @ViewBuilder
-//    func textFieldView() -> some View {
-//        
-//        VStack (alignment: .leading) {
-//
-//            ZStack {
-//                if entryContent.isEmpty {
-//                    VStack {
-//                        HStack {
-//                            Text("Start typing here...")
-//                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
-//                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                            Spacer()
-//                        }.padding(20)
-//                        Spacer()
-//                    }
-//                }
-//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
-//            }
-//            
-//            ZStack(alignment: .topTrailing) {
-//                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
-//                if selectedData != nil {
-//                    Button(role: .destructive, action: {
-//                        vibration_light.impactOccurred()
-//                        selectedData = nil
-//                        imageHeight = 0
-//                    }) {
-//                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-//                    }
-//                }
-//     
-//            }
-//        }.background {
-//            ZStack {
-//                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
-//            }.ignoresSafeArea(.all)
-//        }.cornerRadius(15)
-//        .padding()
-//        .onSubmit {
-//            finalizeCreation()
-//        }
-//    }
-    
     @ViewBuilder
     func dateEditSheet() -> some View {
         VStack {
@@ -952,7 +916,17 @@ struct NewEntryView: View {
     func finalizeCreation() {
         let newEntry = Entry(context: viewContext)
         newEntry.id = UUID()
-        newEntry.content = entryContent
+        newEntry.attributedContent = entryContent
+        newEntry.content = entryContent.string
+
+            // Convert NSAttributedString to Data and save formatted text
+            do {
+                let data = try entryContent.data(from: NSRange(location: 0, length: entryContent.length),
+                                                 documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+                newEntry.formattedContent = data
+            } catch {
+                print("Error converting attributed string to data: \(error)")
+            }
         newEntry.time = selectedDate
         newEntry.lastUpdated = nil
         print("entry time has been set")
@@ -1035,10 +1009,15 @@ struct NewEntryView: View {
         inputNode.removeTap(onBus: 0)
         
         recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, _ in
-            if let result = result {
-                entryContent = result.bestTranscription.formattedString
-            }
-        }
+             if let result = result {
+                 let plainText = result.bestTranscription.formattedString
+                 let attributes: [NSAttributedString.Key: Any] = [
+                     .font: UIFont(name: self.userPreferences.fontName, size: self.userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize),
+                     .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(self.userPreferences.backgroundColors.first ?? Color.clear)))
+                 ]
+                 self.entryContent = NSAttributedString(string: plainText, attributes: attributes)
+             }
+         }
         
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputNode.outputFormat(forBus: 0)) { (buffer: AVAudioPCMBuffer, _) in
             recognitionRequest.append(buffer)

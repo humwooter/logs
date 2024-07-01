@@ -160,7 +160,15 @@ struct PDFReader: View {
                     }
 
                     if showTextField_PDF{
-                        GrowingTextField(text: $entryContent,
+                        GrowingTextField(attributedText: $entryContent.asAttributedString(
+                            fontName: userPreferences.fontName,
+                            fontSize: userPreferences.fontSize,
+                            fontColor: UIColor(
+                                UIColor.foregroundColor(
+                                    background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+                                )
+                            )
+                        ),
                             fontName: userPreferences.fontName,
                             fontSize: userPreferences.fontSize,
                             fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))),

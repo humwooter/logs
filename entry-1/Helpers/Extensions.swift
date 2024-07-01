@@ -9,6 +9,29 @@ import Foundation
 import SwiftUI
 
 
+
+func buildAttributedString(content: String, formattingData: Data?, fontSize: CGFloat, fontName: String) -> NSAttributedString {
+    // If we have formatting data, try to create an attributed string from it
+    if let formattingData = formattingData,
+       let attributedString = try? NSAttributedString(data: formattingData,
+                                                      options: [.documentType: NSAttributedString.DocumentType.rtf],
+                                                      documentAttributes: nil) {
+        // If the content of the attributed string matches our content, return it
+        if attributedString.string == content {
+            return attributedString
+        }
+    }
+    
+    // If we couldn't create an attributed string from the formatting data,
+    // or if the content doesn't match, create a new attributed string with the provided font settings
+    let attributes: [NSAttributedString.Key: Any] = [
+        .font: UIFont(name: fontName, size: fontSize) ?? UIFont.systemFont(ofSize: fontSize),
+        .foregroundColor: UIColor.label // Using default label color, adjust if needed
+    ]
+    
+    return NSAttributedString(string: content, attributes: attributes)
+}
+
 extension URL {
     var queryParameters: [String: String]? {
         guard let components = URLComponents(url: self, resolvingAgainstBaseURL: true),

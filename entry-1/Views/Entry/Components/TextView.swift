@@ -43,7 +43,8 @@ struct TextView : View {
     @EnvironmentObject var userPreferences: UserPreferences
     @ObservedObject var entry : Entry
     
-    @State private var editingContent : String = ""
+    @State private var editingContent : NSAttributedString = NSAttributedString(string: "")
+    
     @State private var isEditing : Bool = false
     
     @State private var engine: CHHapticEngine?
@@ -104,9 +105,21 @@ struct TextView : View {
                         }
                         .onChange(of: isEditing) { newValue in
                             if newValue {
-                                editingContent = entry.content
+                                editingContent = entry.attributedContent ?? buildAttributedString(
+                                    content: entry.content,
+                                    formattingData: entry.formattedContent,
+                                    fontSize: userPreferences.fontSize,
+                                    fontName: userPreferences.fontName
+                                )
                             }
                         }
+                        .onChange(of: userPreferences.fontName) { _ in
+                            updateAttributedStringFont()
+                        }
+                        .onChange(of: userPreferences.fontSize) { _ in
+                            updateAttributedStringFont()
+                        }
+
                   
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
@@ -146,6 +159,18 @@ struct TextView : View {
         }
          
         
+    }
+    
+    private func updateAttributedStringFont() {
+        let newFont = UIFont(name: userPreferences.fontName, size: userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+        let newAttributes: [NSAttributedString.Key: Any] = [
+            .font: newFont,
+            .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+        ]
+        
+        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
+        mutableAttributedString.addAttributes(newAttributes, range: NSRange(location: 0, length: mutableAttributedString.length))
+        editingContent = mutableAttributedString
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
@@ -343,24 +368,6 @@ struct TextView : View {
         }
         entry.isHidden.toggle()
     }
-    
-    func finalizeEdit() {
-        // Code to finalize the edit
-        let mainContext = coreDataManager.viewContext
-        mainContext.performAndWait {
-            entry.content = editingContent
-            
-            // Save the context
-            coreDataManager.save(context: mainContext)
-        }
-        isEditing = false
-    }
-    
-    
-    func cancelEdit() {
-        editingContent = entry.content // Reset to the original content
-        isEditing = false // Exit the editing mode
-    }
-    
+
     
 }

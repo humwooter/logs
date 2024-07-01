@@ -474,8 +474,25 @@ struct ReplyEntryView: View {
                         Spacer()
                     }
                 }
-                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
-                    .frame(minHeight: 50)
+                GrowingTextField(
+                    attributedText: $entryContent.asAttributedString(
+                        fontName: userPreferences.fontName,
+                        fontSize: userPreferences.fontSize,
+                        fontColor: UIColor(
+                            UIColor.foregroundColor(
+                                background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+                            )
+                        )
+                    ),
+                    fontName: userPreferences.fontName,
+                    fontSize: userPreferences.fontSize,
+                    fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))),
+                    cursorColor: UIColor(userPreferences.accentColor),
+                    backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
+                    cursorPosition: $cursorPosition,
+                    viewModel: textEditorViewModel
+                )
+                .cornerRadius(15)
       
        
                      
