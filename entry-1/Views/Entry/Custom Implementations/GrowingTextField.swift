@@ -92,7 +92,6 @@ struct GrowingTextField: UIViewRepresentable {
                 let cursorPosition = textView.offset(from: textView.beginningOfDocument, to: selectedTextRange.start)
                 parent.cursorPosition = NSRange(location: cursorPosition, length: textView.selectedRange.length)
             } else {
-                print("CURSOR POSITION: \(parent.cursorPosition)")
                 parent.cursorPosition = NSRange(location: textView.text.count, length: 0)
             }
             parent.attributedText = textView.attributedText
@@ -160,8 +159,14 @@ struct GrowingTextField: UIViewRepresentable {
             
             textView.attributedText = mutableAttributedString
             textView.selectedRange = range
-            parent.cursorPosition = range//the line that fixed it
+            parent.cursorPosition = range // Ensure cursor position is updated correctly
             parent.attributedText = mutableAttributedString
+            
+            // Force the UITextView to update its selection
+            DispatchQueue.main.async {
+                textView.becomeFirstResponder()
+                textView.selectedRange = range
+            }
         }
         
         /// Updates the height of the `UITextView` based on its content.

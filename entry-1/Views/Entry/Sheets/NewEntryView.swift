@@ -26,6 +26,7 @@ struct NewEntryView: View {
     @EnvironmentObject var datesModel: DatesModel
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var coreDataManager: CoreDataManager
+    @StateObject private var reminderManager = ReminderManager()
 
     
     @State private var speechRecognizer = SFSpeechRecognizer()
@@ -50,7 +51,6 @@ struct NewEntryView: View {
     @State private var isDocumentPickerPresented = false
     
     
-    
 //    @State private var entryContent = ""
     @State private var entryContent = NSAttributedString(string: "")
 
@@ -65,8 +65,6 @@ struct NewEntryView: View {
     @State private var selectedDate : Date = Date()
     @State private var selectedTime = Date()
 
-    @State private var selectedReminderDate : Date = Date()
-    @State private var selectedReminderTime : Date = Date()
 
 
     @State private var showingDatePicker = false // To control the visibility of the date picker
@@ -74,15 +72,8 @@ struct NewEntryView: View {
     
     
     @State private var showingReminderSheet = false
-    @State private var selectedRecurrence = "None"
-    @State private var reminderTitle: String = ""
-    @State private var reminderId: String?
-//    @State var replyEntryId: String? //the id of the entry that is being replied to with this current new one
-    @State private var hasReminderAccess = false
-    
     @State private var showDeleteReminderAlert = false
     // Define recurrence options
-    let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
     
@@ -101,7 +92,7 @@ struct NewEntryView: View {
                         
                         HStack() {
                             Spacer()
-                            if let reminderId = self.reminderId, !reminderId.isEmpty {
+                            if let reminderId = reminderManager.reminderId, !reminderId.isEmpty {
                                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
                                     .font(.system(size: 15))
                                     .padding(.horizontal)
@@ -179,15 +170,17 @@ struct NewEntryView: View {
                         .sheet(isPresented: $showingReminderSheet) {
                             reminderSheet()
                             .onAppear {
-                                if let reminderId = reminderId {
-                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
+                                if let reminderId = reminderManager.reminderId {
+                                    reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId) {
+                                        print("success")
+                                    }
                                 }
-                                requestReminderAccess { granted in
+                                reminderManager.requestReminderAccess { granted in
                                     if granted {
-                                        hasReminderAccess = true
+                                        reminderManager.hasReminderAccess = true
                                         print("Access to reminders granted.")
                                     } else {
-                                        hasReminderAccess = false
+                                        reminderManager.hasReminderAccess = false
                                         print("Access to reminders denied or failed.")
                                     }
                                 }
@@ -230,131 +223,6 @@ struct NewEntryView: View {
        
     }
     
-    
-    func createOrUpdateReminder() {
-        let eventStore = EKEventStore()
-        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedReminderDate) ?? Date()
-
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            guard granted, error == nil else {
-                print("Access to reminders denied or failed.")
-                showingReminderSheet = false
-                return
-            }
-
-            if let reminderId = self.reminderId, reminderExists(with: reminderId, in: eventStore) {
-                // Existing reminder found, update it
-                editAndSaveReminder(reminderId: reminderId, title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, updatedReminderId in
-                    if success, let updatedReminderId = updatedReminderId {
-                        self.reminderId = updatedReminderId
-                        print("Reminder updated with identifier: \(updatedReminderId)")
-                    } else {
-                        print("Failed to update the reminder")
-                    }
-                    showingReminderSheet = false
-                }
-            } else {
-                // No existing reminder, create a new one
-                createAndSaveReminder(title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, newReminderId in
-                    if success, let newReminderId = newReminderId {
-                        self.reminderId = newReminderId
-                        print("New reminder created with identifier: \(newReminderId)")
-                    } else {
-                        print("Failed to create a new reminder")
-                    }
-                    showingReminderSheet = false
-                }
-            }
-        }
-    }
-    func reminderExists(with identifier: String, in eventStore: EKEventStore) -> Bool {
-        if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
-            return true
-        } else {
-            return false
-        }
-    }
-
-
-    
-    func requestReminderAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
-
-    func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
-        let eventStore = EKEventStore()
-
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            guard granted, error == nil else {
-                DispatchQueue.main.async {
-                    completion(false, nil)
-                }
-                return
-            }
-
-            var reminder: EKReminder
-            if let reminderId = reminderId, let existingReminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
-                reminder = existingReminder
-            } else {
-                reminder = EKReminder(eventStore: eventStore)
-                reminder.calendar = eventStore.defaultCalendarForNewReminders()
-            }
-
-            reminder.title = title
-            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-            if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
-                reminder.recurrenceRules = [recurrenceRule] // Replace existing rules with the new one
-            }
-
-            do {
-                try eventStore.save(reminder, commit: true)
-                DispatchQueue.main.async {
-                    completion(true, reminder.calendarItemIdentifier)
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    completion(false, nil)
-                }
-            }
-        }
-    }
-
-    
-    func createAndSaveReminder(title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
-        // Initialize the store.
-        let eventStore = EKEventStore()
-
-        // Request access to reminders.
-        requestReminderAccess { granted in
-            if granted {
-                let reminder = EKReminder(eventStore: eventStore)
-                reminder.calendar = eventStore.defaultCalendarForNewReminders()
-                reminder.title = title
-                reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-                
-                // Set recurrence rule if applicable
-                if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
-                    reminder.addRecurrenceRule(recurrenceRule)
-                }
-
-                // Try to save the reminder
-                do {
-                    try eventStore.save(reminder, commit: true)
-                    completion(true, reminder.calendarItemIdentifier) // Return success and the reminder identifier
-                } catch {
-                    completion(false, nil) // Return failure
-                }
-            } else {
-                // Handle the case where permission is not granted
-                completion(false, nil)
-            }
-        }
-    }
 
 
     
@@ -367,55 +235,8 @@ struct NewEntryView: View {
         }
     }
 
-    func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
-        switch option {
-        case "Daily":
-            return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
-        case "Weekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        case "Weekends":
-            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
-            return rule
-        case "Biweekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
-        case "Monthly":
-            return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
-        default:
-            return nil
-        }
-    }
-    
-    func fetchAndInitializeReminderDetails(reminderId: String?) {
-        guard let reminderId = reminderId, !reminderId.isEmpty else { return }
 
-        let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            guard granted, error == nil else {
-                print("Access to reminders denied or failed.")
-                return
-            }
-            
-            DispatchQueue.main.async {
-                if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
-                    // Update title
-                    reminderTitle = reminder.title ?? ""
-                    
-                    // Update date and time if dueDateComponents is available
-                    if let dueDateComponents = reminder.dueDateComponents,
-                       let dueDate = Calendar.current.date(from: dueDateComponents) {
-                        selectedReminderDate = dueDate
-                        selectedReminderTime = dueDate
-                    }
-                    
-                    // Update recurrence option if a recurrence rule is available
-                    if let recurrenceRule = reminder.recurrenceRules?.first,
-                       let recurrenceOption = mapRecurrenceRuleToOption(recurrenceRule) {
-                        selectedRecurrence = recurrenceOption
-                    }
-                }
-            }
-        }
-    }
+
     func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule) -> String? {
         switch rule.frequency {
         case .daily:
@@ -612,10 +433,10 @@ struct NewEntryView: View {
     @ViewBuilder
     func reminderSheet() -> some View {
         NavigationStack {
-            if hasReminderAccess {
+            if reminderManager.hasReminderAccess {
                 List {
                     Section {
-                        TextField("Title", text: $reminderTitle)
+                        TextField("Title", text: $reminderManager.reminderTitle)
                             .background(Color.clear) // Set the background to clear
                                .textFieldStyle(PlainTextFieldStyle()) // Use
                             .frame(maxWidth: .infinity)
@@ -623,8 +444,8 @@ struct NewEntryView: View {
 
                     }
                     Section {
-                        DatePicker("Date", selection: $selectedReminderDate, displayedComponents: .date)
-                        DatePicker("Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
+                        DatePicker("Date", selection: $reminderManager.selectedDate, displayedComponents: .date)
+                        DatePicker("Time", selection: $reminderManager.selectedTime, displayedComponents: .hourAndMinute)
 
                     }
 //                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
@@ -632,8 +453,8 @@ struct NewEntryView: View {
 
                     NavigationLink {
                         List {
-                            Picker("Recurrence", selection: $selectedRecurrence) {
-                                ForEach(recurrenceOptions, id: \.self) { option in
+                            Picker("Recurrence", selection: $reminderManager.selectedRecurrence) {
+                                ForEach(reminderManager.recurrenceOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
                             }
@@ -654,11 +475,11 @@ struct NewEntryView: View {
               
                         
                         Button {
-                            if let reminderId = self.reminderId, !reminderId.isEmpty {
+                            if let reminderId = reminderManager.reminderId, !reminderId.isEmpty {
                                 completeReminder(reminderId: reminderId) { success, error in
                                     if success {
                                         print("Reminder completed successfully.")
-                                        self.reminderId = ""
+                                        reminderManager.reminderId = ""
                                     } else {
                                         print("Failed to complete the reminder: \(String(describing: error))")
                                     }
@@ -684,7 +505,7 @@ struct NewEntryView: View {
                 .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
                           Button("Delete", role: .destructive) {
                               // Call your delete reminder function here
-                              deleteReminder(reminderId: reminderId)
+                              deleteReminder(reminderId: reminderManager.reminderId)
                               showingReminderSheet = false
                           }
                           Button("Cancel", role: .cancel) {}
@@ -709,7 +530,9 @@ struct NewEntryView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
-                            createOrUpdateReminder()
+                            reminderManager.createOrUpdateReminder { success in
+                                                           showingReminderSheet = false
+                                                       }
                         }
 
                     }
@@ -961,7 +784,7 @@ struct NewEntryView: View {
             }
         }
         
-        if let reminderId {
+        if let reminderId = reminderManager.reminderId {
             newEntry.reminderId = reminderId
         } else {
             newEntry.reminderId = ""
