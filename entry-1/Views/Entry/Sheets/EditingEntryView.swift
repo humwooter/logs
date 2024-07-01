@@ -14,7 +14,6 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-import EventKit
 
 struct EditingEntryView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -865,16 +864,5 @@ struct EditingEntryView: View {
             stopRecognition()
         }
     }
-
-    
-    func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-        eventStore.requestFullAccessToEvents { granted, error in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
-
 
 }

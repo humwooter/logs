@@ -16,8 +16,6 @@ import PhotosUI
 import FLAnimatedImage
 import UniformTypeIdentifiers
 import PDFKit
-import EventKit
-
 
 struct NewEntryView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -224,37 +222,6 @@ struct NewEntryView: View {
     }
     
 
-
-    
-    func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .event) { (granted, error) in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
-
-
-
-    func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule) -> String? {
-        switch rule.frequency {
-        case .daily:
-            return "Daily"
-        case .weekly:
-            if rule.daysOfTheWeek?.count == 2,
-               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.saturday)) == true,
-               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.sunday)) == true {
-                return "Weekends"
-            }
-            return "Weekly"
-        case .monthly:
-            return "Monthly"
-        default:
-            return nil
-        }
-    }
-    
     
     @ViewBuilder
     func entryTitleView() -> some View {
