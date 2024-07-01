@@ -611,40 +611,6 @@ struct EditingEntryView: View {
 //        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
     }
-
-//    func insertText(_ textToInsert: String) {
-//        // Check if the editingContent already contains the marker to avoid duplication
-//        if editingContent.contains(cursorPositionMarker) {
-//            // If the marker is already present, replace it with the new text directly
-//            editingContent = editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
-//        } else {
-//            // If the marker is not present, insert the marker at the end of the text
-//            // This is a simplistic approach; you might have a more sophisticated method to determine the insertion point
-//            editingContent += cursorPositionMarker
-//            // Then replace the marker with the actual text to insert
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                self.editingContent = self.editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
-//            }
-//        }
-//    }
-    
-    func insertText(_ textToInsert: String) {
-        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
-        let fullRange = NSRange(location: 0, length: mutableAttributedString.length)
-        let markerRange = mutableAttributedString.mutableString.range(of: cursorPositionMarker)
-        
-        if markerRange.location != NSNotFound {
-            // If the marker is already present, replace it with the new text
-            mutableAttributedString.replaceCharacters(in: markerRange, with: textToInsert)
-        } else {
-            // If the marker is not present, insert the text at the end
-            let attributes = mutableAttributedString.attributes(at: max(0, mutableAttributedString.length - 1), effectiveRange: nil)
-            let attributedTextToInsert = NSAttributedString(string: textToInsert, attributes: attributes)
-            mutableAttributedString.append(attributedTextToInsert)
-        }
-        
-        editingContent = mutableAttributedString
-    }
     
 
     @ViewBuilder
