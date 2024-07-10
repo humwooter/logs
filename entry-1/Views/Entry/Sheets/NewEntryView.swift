@@ -760,7 +760,7 @@ struct NewEntryView: View {
 
         // Fetch the log with the appropriate day
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time))
+        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time ?? Date()))
         
         do {
             let logs = try viewContext.fetch(fetchRequest)
@@ -772,7 +772,7 @@ struct NewEntryView: View {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
                 let newLog = Log(context: viewContext)
-                newLog.day = formattedDate(newEntry.time)
+                newLog.day = formattedDate(newEntry.time ?? Date())
                 dateStringManager.addDate(newLog.day)
                 newLog.addToRelationship(newEntry)
                 newLog.id = UUID()

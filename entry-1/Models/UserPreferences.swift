@@ -68,8 +68,15 @@ func zip6<A, B, C, D, E, F>(_ array1: [A], _ array2: [B], _ array3: [C], _ array
 
 class UserPreferences: ObservableObject, Codable {
     
+    enum SyncPreference: String, Codable {
+         case none
+         case documents
+         case allEntries
+         case specificEntries
+     }
+    
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon, syncPreference
     }
     
     
@@ -156,6 +163,8 @@ class UserPreferences: ObservableObject, Codable {
         self.activeAppIcon = try container.decode(String.self, forKey: .activeAppIcon)
 
         self.showMostRecentEntryTime = try container.decode(Bool.self, forKey: .showMostRecentEntryTime)
+        self.syncPreference = try container.decode(SyncPreference.self, forKey: .syncPreference)
+
     }
 
 
@@ -181,7 +190,8 @@ class UserPreferences: ObservableObject, Codable {
 
         try encodeColors(container: &container, colors: backgroundColors, key: .backgroundColors)
         try encodeColors(container: &container, colors: selectedColors, key: .selectedColors)
-        
+        try container.encode(syncPreference, forKey: .syncPreference)
+
         // Encode other properties
         try container.encode(showMostRecentEntryTime, forKey: .showMostRecentEntryTime)
         try container.encode(showLockScreen, forKey: .showLockScreen)
@@ -192,6 +202,13 @@ class UserPreferences: ObservableObject, Codable {
         try container.encode(fontName, forKey: .fontName)
         try container.encode(activeAppIcon, forKey: .activeAppIcon)
     }
+    
+    @Published var syncPreference: SyncPreference {
+        didSet {
+            UserDefaults.standard.set(syncPreference.rawValue, forKey: "syncPreference")
+        }
+    }
+    
     
     
     
@@ -325,7 +342,8 @@ class UserPreferences: ObservableObject, Codable {
             Stamp(id: UUID(), name: "", index: 6,color: Color(hex: "#33FFF3"), imageName: "bell.fill", isActive: false)
         ]
         
-        
+        self.syncPreference = SyncPreference(rawValue: UserDefaults.standard.string(forKey: "syncPreference") ?? "") ?? .none
+
         self.showLinks = UserDefaults.standard.bool(forKey: "showLinks") ?? false
         
         self.stampStorage = UserDefaults.standard.loadStamps(forKey: "stampStorage") ?? []

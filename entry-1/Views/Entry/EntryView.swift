@@ -29,11 +29,21 @@ struct EntryView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
         predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
     ) var logs: FetchedResults<Log>
+//    @FetchRequest(
+//        entity: Entry.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
+//        predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
+//    ) var entries: FetchedResults<Entry>
+    
     @FetchRequest(
         entity: Entry.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
-        predicate: NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate)
+        predicate: NSCompoundPredicate(andPredicateWithSubpredicates: [
+            NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate),
+//            NSPredicate(format: "shouldSyncWithCloudKit != true")
+        ])
     ) var entries: FetchedResults<Entry>
+
     
     // User Preferences and UI Settings
     @EnvironmentObject var userPreferences: UserPreferences
@@ -51,7 +61,8 @@ struct EntryView: View {
     @State private var toBeDeleted: IndexSet?
     @State private var showingDeleteAlert = false
     @State private var refreshToggle = false
-    
+    @State private var syncedEntries: [Entry] = []
+
     // Date and Time
     @State private var currentDay: Date = Date()
     @State private var currentTime: Date = Date()
@@ -63,6 +74,11 @@ struct EntryView: View {
     private var shouldShowReplySheet: Bool {
          isShowingReplyCreationView && repliedEntryId != nil
      }
+    
+    private func fetchSyncedEntries() {
+          syncedEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true)
+      }
+
     
     var body : some View {
         NavigationStack {
@@ -275,11 +291,17 @@ struct EntryView: View {
         }
         .ignoresSafeArea(.all)
     }
+
+
+
+    
     @ViewBuilder
     func sortedEntriesView() -> some View {
         switch selectedSortOption {
         case .timeAscending:
-            let sortedEntries = entries.sorted { $0.time > $1.time }
+//            let sortedEntries =  coreDataManager.fetchEntries(shouldSyncWithCloudKit: false).sorted { $0.time > $1.time }
+
+            let sortedEntries = (entries).sorted { $0.time > $1.time }
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
@@ -294,7 +316,7 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
         case .timeDescending:
-            let sortedEntries = entries.sorted { $0.time < $1.time }
+            let sortedEntries = syncedEntries + entries.sorted { $0.time < $1.time }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
                     EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
@@ -309,7 +331,7 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
         case .image:
-            let sortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
+            let sortedEntries = syncedEntries + entries.sorted { $0.stampIcon > $1.stampIcon }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
                     EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
@@ -324,7 +346,7 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
         case .wordCount:
-            let sortedEntries = entries.sorted { $0.content.count > $1.content.count }
+            let sortedEntries = syncedEntries + entries.sorted { $0.content.count > $1.content.count }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
                     EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
@@ -340,7 +362,7 @@ struct EntryView: View {
             }
             
         case .hasPin:
-            let sortedEntries = entries.sorted {
+            let sortedEntries = syncedEntries + entries.sorted {
                       if $0.isPinned != $1.isPinned {
                           return $0.isPinned && !$1.isPinned
                       } else {
@@ -360,7 +382,7 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
         case .isShown:
-            let sortedEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
+            let sortedEntries = syncedEntries + entries.filter { $0.isShown }.sorted { $0.time > $1.time }
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
@@ -375,7 +397,7 @@ struct EntryView: View {
                 deleteEntries(from: indexSet, entries: sortedEntries)
             }
         case .isHidden:
-            let sortedEntries = entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
+            let sortedEntries = syncedEntries + entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
@@ -391,5 +413,5 @@ struct EntryView: View {
             }
         }
     }
-    
+//    
 }

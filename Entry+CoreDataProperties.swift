@@ -11,6 +11,7 @@ import CoreData
 import SwiftUI
 
 
+
 extension Entry {
     
     @nonobjc public class func fetchRequest() -> NSFetchRequest<Entry> {
@@ -123,7 +124,7 @@ extension Entry {
     func unRemove(coreDataManager: CoreDataManager) {
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
         
-        let formattedDay = formattedDate(self.time)
+        let formattedDay = formattedDate(self.time ?? Date())
         fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDay)
         
         do {

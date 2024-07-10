@@ -128,7 +128,7 @@ struct RecentlyDeletedView: View {
 //    }
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
-            Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            Text("\(formattedDateFull(entry.time ?? Date()))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
             Spacer()
             if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)

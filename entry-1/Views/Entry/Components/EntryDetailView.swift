@@ -115,6 +115,10 @@ struct EntryDetailView: View { //used in LogDetailView
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
+            if entry.shouldSyncWithCloudKit {
+                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
+            }
+            
             if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)

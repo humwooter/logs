@@ -153,6 +153,9 @@ struct TextView : View {
         header: {
                 entrySectionHeader()
             }
+            footer: {
+                entrySectionFooter()
+            }
             .onAppear {
                 showEntry = !entry.isHidden
             }
@@ -217,6 +220,16 @@ struct TextView : View {
         }
     }
     
+    @ViewBuilder
+    func entrySectionFooter() -> some View {
+        HStack {
+            Spacer()
+            if entry.shouldSyncWithCloudKit {
+                Label("", systemImage: "cloud")
+                    .foregroundStyle(.white.opacity(0.1))
+            }
+        }
+    }
     
     @ViewBuilder
     func entryContextMenuButtons() -> some View {
@@ -339,6 +352,10 @@ struct TextView : View {
 
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
+            
+            if entry.shouldSyncWithCloudKit {
+                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
+            }
             
             if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 

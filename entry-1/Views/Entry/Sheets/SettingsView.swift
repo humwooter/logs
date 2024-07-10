@@ -73,23 +73,6 @@ struct SettingsView: View {
                 }
                 
             }
-//            .onChange(of: userPreferences.accentColor, { oldValue, newValue in
-//                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-//                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue))
-//                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(newValue)
-//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))], for: .selected)
-//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
-//                UISegmentedControl.appearance().backgroundColor = UIColor.clear
-//            })
-//            .onChange(of: userPreferences.backgroundColors.first, { oldValue, newValue in
-//                var backgroundFontColor = UIColor.fontColor(forBackgroundColor: UIColor(newValue ?? Color.clear))
-//                var accentFontColor = UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor))
-//                UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(userPreferences.accentColor)
-//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor:  UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor ?? Color.clear))], for: .selected)
-//                UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.fontColor(forBackgroundColor: getBackgroundColor())], for: .normal)
-//                UISegmentedControl.appearance().backgroundColor = UIColor.clear
-//            })
-          
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -110,31 +93,76 @@ struct SettingsView: View {
         
     }
     
+    @ViewBuilder
+    func cloudSyncView() -> some View {
+        Picker("Sync Preference", selection: $userPreferences.syncPreference) {
+                    Text("None").tag(UserPreferences.SyncPreference.none)
+                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
+                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
+                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
+                }
+        
+        if userPreferences.syncPreference == .specificEntries {
+               Section(header: Text("Manage Synced Entries")) {
+                   NavigationLink("Select Entries to Sync") {
+                       EntriesSyncSelectionView()
+                   }
+               }
+           }
+    }
+    
+    
+    
     
     @ViewBuilder
     func alternateSettingsView() -> some View {
-                NavigationLink {
-                    NavigationStack {
-                        List {
-                            generalTabView()
-//                                    .dismissOnTabTap()
-                        }.navigationTitle("General")
+        Section {
+            NavigationLink {
+                NavigationStack {
+                    List {
+                        generalTabView()
+                        //                                    .dismissOnTabTap()
+                    }.navigationTitle("General")
                         .background {
-                                ZStack {
-                                    Color(UIColor.systemGroupedBackground)
-                                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                                }
-                                .ignoresSafeArea()
+                            ZStack {
+                                Color(UIColor.systemGroupedBackground)
+                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                            }
+                            .ignoresSafeArea()
                         }
                         .scrollContentBackground(.hidden)
-                    }
-                } label: {
-                    Label(
-                        title: { Text("General")
-                        },
-                        icon: { settingsIconView(systemImage: "gearshape.fill")}
-                    )
                 }
+            } label: {
+                Label(
+                    title: { Text("General")
+                    },
+                    icon: { settingsIconView(systemImage: "gearshape.fill")}
+                )
+            }
+            
+            NavigationLink {
+                NavigationStack {
+                    List {
+                        cloudSyncView()
+                        //                                    .dismissOnTabTap()
+                    }.navigationTitle("Cloud Sync")
+                        .background {
+                            ZStack {
+                                Color(UIColor.systemGroupedBackground)
+                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                            }
+                            .ignoresSafeArea()
+                        }
+                        .scrollContentBackground(.hidden)
+                }
+            } label: {
+                Label(
+                    title: { Text("Sync")
+                    },
+                    icon: { settingsIconView(systemImage: "cloud.fill")}
+                )
+            }
+        }
                 
         Section {
             
@@ -614,4 +642,58 @@ struct SettingsView: View {
         }
     }
     
+}
+
+struct EntriesSyncSelectionView: View {
+    @FetchRequest(
+        entity: Entry.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: false)]
+    ) var entries: FetchedResults<Entry>
+    
+    @StateObject private var syncManager = SyncManager.shared
+
+    var body: some View {
+        List {
+            Section {
+                Picker("Sync Preference", selection: $syncManager.userPreferences.syncPreference) {
+                    Text("None").tag(UserPreferences.SyncPreference.none)
+                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
+                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
+                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .onChange(of: syncManager.userPreferences.syncPreference) { newValue in
+                    if newValue != .none {
+                        syncManager.performSync()
+                    }
+                }
+            }
+            
+            if syncManager.userPreferences.syncPreference == .specificEntries {
+                ForEach(entries) { entry in
+                    CloudSyncEntryRowView(entry: entry)
+                }
+            }
+        }
+    }
+}
+
+struct CloudSyncEntryRowView: View {
+    @ObservedObject var entry: Entry
+    @ObservedObject var syncManager = SyncManager.shared
+    
+    var body: some View {
+        Toggle(isOn: Binding(
+            get: { entry.shouldSyncWithCloudKit },
+            set: { newValue in
+                entry.shouldSyncWithCloudKit = newValue
+                CoreDataManager.shared.save(context: entry.managedObjectContext ?? CoreDataManager.shared.viewContext) //save the flag change in local storage first
+                
+                CoreDataManager.shared.saveEntry(entry)
+                syncManager.updateSyncStatus(for: entry, shouldSync: newValue)
+            }
+        )) {
+            Text(entry.content.prefix(50) ?? "No content")
+        }
+    }
 }

@@ -162,6 +162,10 @@ struct NotEditingView: View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
+            if entry.shouldSyncWithCloudKit {
+                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.5))
+            }
+            
             if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
@@ -405,19 +409,6 @@ struct NotEditingView: View {
                     Text(makeAttributedString(from: entry.content))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                         .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-                        .onTapGesture {
-                            print()
-                            print("ENTERED THIS AND FOREGROUND COLOR IS: ")
-                            printColorComponents(color: foregroundColor)
-                            print("ENTERED THIS AND BACKGROUND COLOR IS: ")
-                            printColorComponents(color: UIColor(backgroundColor))
-                            print("ENTERED THIS AND BLENDED COLOR IS: ")
-                            printColorComponents(color: blendedColor)
-                            print("FONT COLOR IS")
-                            printColorComponents(color: UIColor.fontColor(forBackgroundColor: blendedColor))
-                            print("ENTRY COLOR")
-                            printColorComponents(color: entry.color)
-                        }
             
 
                 } else {

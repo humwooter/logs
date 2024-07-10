@@ -109,7 +109,7 @@ struct LogStatsView: View {
         }
 
         for entry in entries {
-            let stampData = StampData(color: entry.color, label: entry.stampIcon, date: entry.time)
+            let stampData = StampData(color: entry.color, label: entry.stampIcon, date: entry.time ?? Date())
             stampsData[stampData, default: 0] += 1
         }
 

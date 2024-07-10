@@ -241,7 +241,7 @@ struct LogsView: View {
     
     func correctEntryLogRelationships() {
         for entry in allEntries {
-            let entryDate = formattedDate(entry.time)
+            let entryDate = formattedDate(entry.time ?? Date())
             if entry.relationship.day != entryDate {
                 // Fetch or create Log for the correct date
                 let oldLog = entry.relationship
@@ -250,7 +250,7 @@ struct LogsView: View {
                 if let correctLog = fetchLogByDate(date: entryDate, coreDataManager: coreDataManager) {
                     entry.relationship = correctLog
                 } else {
-                    let newLog = createLog(date: entry.time, coreDataManager: coreDataManager)
+                    let newLog = createLog(date: entry.time ?? Date(), coreDataManager: coreDataManager)
                     entry.relationship = newLog
                 }
                 do {
@@ -285,7 +285,7 @@ struct LogsView: View {
     @ViewBuilder
     func filteredEntriesListView() -> some View {
         let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
-                       .sorted { $0.time > $1.time }
+            .sorted { $0.time ?? Date() > $1.time ?? Date() }
 
         
         ForEach(entries, id: \.self) { entry in
