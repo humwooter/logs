@@ -474,6 +474,7 @@ struct ReplyEntryView: View {
                         Spacer()
                     }
                 }
+                
                 GrowingTextField(
                     attributedText: $entryContent.asAttributedString(
                         fontName: userPreferences.fontName,
@@ -484,14 +485,35 @@ struct ReplyEntryView: View {
                             )
                         )
                     ),
-                    fontName: userPreferences.fontName,
-                    fontSize: userPreferences.fontSize,
-                    fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))),
-                    cursorColor: UIColor(userPreferences.accentColor),
-                    backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
-                    cursorPosition: $cursorPosition,
-                    viewModel: textEditorViewModel
-                )
+                    fontName: Binding(
+                             get: { userPreferences.fontName },
+                             set: { userPreferences.fontName = $0 }
+                         ),
+                         fontSize: Binding(
+                             get: { CGFloat(userPreferences.fontSize) },
+                             set: { userPreferences.fontSize = Double($0) }
+                         ),
+                         fontColor: Binding(
+                             get: {
+                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+                             },
+                             set: { _ in }
+                         ),
+                         cursorColor: Binding(
+                             get: { UIColor(userPreferences.accentColor) },
+                             set: { _ in }
+                         ),
+                         backgroundColor: Binding(
+                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+                             set: { _ in }
+                         ),
+                         enableLinkDetection: Binding(
+                             get: { userPreferences.showLinks },
+                             set: { userPreferences.showLinks = $0 }
+                         ),
+                         cursorPosition: $cursorPosition,
+                         viewModel: textEditorViewModel
+                     )
                 .cornerRadius(15)
       
        
@@ -792,6 +814,8 @@ struct ReplyEntryView: View {
             
         }
     }
+    
+    
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
         HStack(spacing: 35) {
@@ -814,22 +838,32 @@ struct ReplyEntryView: View {
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            // New Line Button
-            Button(action: {
-                // Signal to insert a new line.
-                self.textEditorViewModel.textToInsert = "\n"
-            }) {
-                Image(systemName: "return")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
+      
 
+            // New styling buttons
+            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
+                    Image(systemName: "bold")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
+                    Image(systemName: "italic")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
+                    Image(systemName: "underline")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            
             Spacer()
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-  
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05)).ignoresSafeArea(.all)
         .cornerRadius(15)
     }
 

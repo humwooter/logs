@@ -373,8 +373,38 @@ struct EditingEntryView: View {
                         Spacer()
                     }
                 }
-                GrowingTextField(attributedText: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
-                                 cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                GrowingTextField(
+                    attributedText: $editingContent,
+                         fontName: Binding(
+                             get: { userPreferences.fontName },
+                             set: { userPreferences.fontName = $0 }
+                         ),
+                         fontSize: Binding(
+                             get: { CGFloat(userPreferences.fontSize) },
+                             set: { userPreferences.fontSize = Double($0) }
+                         ),
+                         fontColor: Binding(
+                             get: {
+                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+                             },
+                             set: { _ in }
+                         ),
+                         cursorColor: Binding(
+                             get: { UIColor(userPreferences.accentColor) },
+                             set: { _ in }
+                         ),
+                         backgroundColor: Binding(
+                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+                             set: { _ in }
+                         ),
+                         enableLinkDetection: Binding(
+                             get: { userPreferences.showLinks },
+                             set: { userPreferences.showLinks = $0 }
+                         ),
+                         cursorPosition: $cursorPosition,
+                         viewModel: textEditorViewModel
+                     )
+                .cornerRadius(15)
                     .frame(minHeight: 50)
 
             }
@@ -576,12 +606,10 @@ struct EditingEntryView: View {
         HStack(spacing: 35) {
             // Bullet Point Button
             Button(action: {
-                // Signal to insert a bullet point at the current cursor position.
-                // Update the viewModel's textToInsert property, which triggers the insertion.
                 self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
-                    .font(.system(size: UIFont.buttonFontSize))
+                    .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -591,28 +619,38 @@ struct EditingEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: UIFont.buttonFontSize))
+                    .font(.system(size: 20))
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            // New Line Button
-            Button(action: {
-                // Signal to insert a new line.
-                self.textEditorViewModel.textToInsert = "\n"
-            }) {
-                Image(systemName: "return")
-                    .font(.system(size: UIFont.buttonFontSize))
-                    .foregroundColor(userPreferences.accentColor)
-            }
+      
 
+            // New styling buttons
+            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
+                    Image(systemName: "bold")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
+                    Image(systemName: "italic")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
+                    Image(systemName: "underline")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            
             Spacer()
         }
-//        .padding(.vertical, 10)
+        .padding(.vertical, 10)
         .padding(.horizontal, 20)
-//        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
     }
-    
 
     @ViewBuilder
     func buttonBar() -> some View {

@@ -223,11 +223,11 @@ struct TextView : View {
     @ViewBuilder
     func entrySectionFooter() -> some View {
         HStack {
-            Spacer()
-            if entry.shouldSyncWithCloudKit {
-                Label("", systemImage: "cloud")
-                    .foregroundStyle(.white.opacity(0.1))
-            }
+//            Spacer()
+//            if entry.shouldSyncWithCloudKit {
+//                Label("", systemImage: "cloud")
+//                    .foregroundStyle(.white.opacity(0.1))
+//            }
         }
     }
     
@@ -353,7 +353,7 @@ struct TextView : View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
-            if entry.shouldSyncWithCloudKit {
+            if coreDataManager.isEntryInCloudStorage(entry) {
                 Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
             }
             

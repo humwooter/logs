@@ -81,6 +81,8 @@ struct NewEntryView: View {
     @State private var entryTitle: String = ""
     @State private var tempEntryTitle: String = ""
 
+
+
     
     var body: some View {
         NavigationStack {
@@ -110,7 +112,10 @@ struct NewEntryView: View {
    buttonBars()
            
             }
+            
             .onAppear {
+                applyAttributesToEntryContent()
+
                     NotificationCenter.default.addObserver(forName: NSNotification.Name("CreateEntryWithStamp"), object: nil, queue: .main) { notification in
                         if let stampId = notification.object as? UUID {
                             self.selectedStamp = userPreferences.fetchStamp(by: stampId)
@@ -221,7 +226,13 @@ struct NewEntryView: View {
        
     }
     
-
+    private func applyAttributesToEntryContent() {
+           let attributes: [NSAttributedString.Key: Any] = [
+               .font: UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize)),
+               .foregroundColor: UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+           ]
+           entryContent = NSAttributedString(string: entryContent.string, attributes: attributes)
+       }
     
     @ViewBuilder
     func entryTitleView() -> some View {
@@ -238,6 +249,7 @@ struct NewEntryView: View {
                             Spacer()
                         }.padding(.horizontal, 20)
                     }
+                    
                     GrowingTextField(
                         attributedText: $tempEntryTitle.asAttributedString(
                             fontName: userPreferences.fontName,
@@ -248,15 +260,35 @@ struct NewEntryView: View {
                                 )
                             )
                         ),
-                        fontName: userPreferences.fontName,
-                        fontSize: userPreferences.fontSize,
-                        fontColor: UIColor.black,
-                        cursorColor: UIColor(userPreferences.accentColor),
-                        backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
-                        cursorPosition: $cursorPosition,
-                        viewModel: textEditorViewModel
-                    )
-
+                        fontName: Binding(
+                              get: { userPreferences.fontName },
+                              set: { userPreferences.fontName = $0 }
+                          ),
+                          fontSize: Binding(
+                              get: { CGFloat(userPreferences.fontSize) },
+                              set: { userPreferences.fontSize = Double($0) }
+                          ),
+                          fontColor: Binding(
+                              get: {
+                                  UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+                              },
+                              set: { _ in }
+                          ),
+                          cursorColor: Binding(
+                              get: { UIColor(userPreferences.accentColor) },
+                              set: { _ in }
+                          ),
+                          backgroundColor: Binding(
+                              get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+                              set: { _ in }
+                          ),
+                          enableLinkDetection: Binding(
+                              get: { userPreferences.showLinks },
+                              set: { userPreferences.showLinks = $0 }
+                          ),
+                          cursorPosition: $cursorPosition,
+                          viewModel: textEditorViewModel
+                      )
                     .cornerRadius(15)
                         .frame(maxHeight: 30)
                 }
@@ -333,15 +365,37 @@ struct NewEntryView: View {
                 }
                 
                 GrowingTextField(
-                    attributedText: $entryContent,
-                    fontName: userPreferences.fontName,
-                    fontSize: userPreferences.fontSize,
-                    fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))),
-                    cursorColor: UIColor(userPreferences.accentColor),
-                    backgroundColor: UIColor(userPreferences.backgroundColors.first ?? .black),
-                    cursorPosition: $cursorPosition,
-                    viewModel: textEditorViewModel
-                )
+                         attributedText: $entryContent,
+                         fontName: Binding(
+                             get: { userPreferences.fontName },
+                             set: { userPreferences.fontName = $0 }
+                         ),
+                         fontSize: Binding(
+                             get: { CGFloat(userPreferences.fontSize) },
+                             set: { userPreferences.fontSize = Double($0) }
+                         ),
+                         fontColor: Binding(
+                             get: {
+                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+                             },
+                             set: { _ in }
+                         ),
+                         cursorColor: Binding(
+                             get: { UIColor(userPreferences.accentColor) },
+                             set: { _ in }
+                         ),
+                         backgroundColor: Binding(
+                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+                             set: { _ in }
+                         ),
+                         enableLinkDetection: Binding(
+                             get: { userPreferences.showLinks },
+                             set: { userPreferences.showLinks = $0 }
+                         ),
+                         cursorPosition: $cursorPosition,
+                         viewModel: textEditorViewModel
+                     )
+              
                 .cornerRadius(15)
 //                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
             }
@@ -557,6 +611,7 @@ struct NewEntryView: View {
             }
         }
     }
+    
     @ViewBuilder
     func textFormattingButtonBar() -> some View {
         HStack(spacing: 35) {
@@ -579,21 +634,32 @@ struct NewEntryView: View {
                     .foregroundColor(userPreferences.accentColor)
             }
 
-            // New Line Button
-            Button(action: {
-                // Signal to insert a new line.
-                self.textEditorViewModel.textToInsert = "\n"
-            }) {
-                Image(systemName: "return")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
+      
 
+            // New styling buttons
+            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
+                    Image(systemName: "bold")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
+                    Image(systemName: "italic")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
+                    Image(systemName: "underline")
+                        .font(.system(size: 20))
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                
+            
             Spacer()
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 20)
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
         .cornerRadius(15)
     }
 

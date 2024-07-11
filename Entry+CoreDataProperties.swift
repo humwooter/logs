@@ -46,7 +46,31 @@ extension Entry {
     @NSManaged public var pageNum_pdf: Int16
     
     
-
+    func updateAttributes(userPreferences: UserPreferences) {
+        let mutableAttributedString = NSMutableAttributedString(attributedString: self.attributedContent ?? NSAttributedString(string: self.content))
+            let fullRange = NSRange(location: 0, length: mutableAttributedString.length)
+            
+            // Apply font
+            let font = UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize))
+            mutableAttributedString.addAttribute(NSAttributedString.Key.font, value: font, range: fullRange)
+            
+            // Apply link attributes if showLinks is true
+            if userPreferences.showLinks {
+                mutableAttributedString.enumerateAttribute(NSAttributedString.Key.link, in: fullRange, options: []) { value, range, _ in
+                    if let url = value as? URL {
+                        mutableAttributedString.addAttribute(NSAttributedString.Key.foregroundColor, value: UIColor.blue, range: range)
+                        mutableAttributedString.addAttribute(NSAttributedString.Key.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
+                    }
+                }
+            } else {
+                // Remove link styling if showLinks is false
+                mutableAttributedString.removeAttribute(NSAttributedString.Key.link, range: fullRange)
+                mutableAttributedString.removeAttribute(NSAttributedString.Key.foregroundColor, range: fullRange)
+                mutableAttributedString.removeAttribute(NSAttributedString.Key.underlineStyle, range: fullRange)
+            }
+            
+            self.attributedContent = mutableAttributedString
+        }
     
     func deleteImage(coreDataManager: CoreDataManager) {
         print("in delete image")

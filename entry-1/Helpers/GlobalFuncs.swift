@@ -12,6 +12,12 @@ import EventKit
 import AVKit
 
 
+// Helper function to safely apply attributes to a mutable attributed string
+func safelyApplyAttributes(to mutableAttributedString: NSMutableAttributedString, attributes: [NSAttributedString.Key: Any], range: NSRange) {
+    let safeRange = NSRange(location: min(range.location, mutableAttributedString.length), length: min(range.length, mutableAttributedString.length - range.location))
+    mutableAttributedString.addAttributes(attributes, range: safeRange)
+}
+
 
 func createThumbnailOfVideoFromRemoteUrl(url: URL) -> UIImage? {
     let asset = AVAsset(url: url)

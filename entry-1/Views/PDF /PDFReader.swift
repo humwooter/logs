@@ -160,22 +160,46 @@ struct PDFReader: View {
                     }
 
                     if showTextField_PDF{
-                        GrowingTextField(attributedText: $entryContent.asAttributedString(
-                            fontName: userPreferences.fontName,
-                            fontSize: userPreferences.fontSize,
-                            fontColor: UIColor(
-                                UIColor.foregroundColor(
-                                    background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+                        GrowingTextField(
+                            attributedText: $entryContent.asAttributedString(
+                                fontName: userPreferences.fontName,
+                                fontSize: userPreferences.fontSize,
+                                fontColor: UIColor(
+                                    UIColor.foregroundColor(
+                                        background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+                                    )
                                 )
-                            )
-                        ),
-                            fontName: userPreferences.fontName,
-                            fontSize: userPreferences.fontSize,
-                            fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))),
-                            cursorColor: UIColor(userPreferences.accentColor),
-                            cursorPosition: $cursorPosition,
-                            viewModel: textEditorViewModel
-                        ).frame(maxWidth: .infinity)
+                            ),
+                            fontName: Binding(
+                                     get: { userPreferences.fontName },
+                                     set: { userPreferences.fontName = $0 }
+                                 ),
+                                 fontSize: Binding(
+                                     get: { CGFloat(userPreferences.fontSize) },
+                                     set: { userPreferences.fontSize = Double($0) }
+                                 ),
+                                 fontColor: Binding(
+                                     get: {
+                                         UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+                                     },
+                                     set: { _ in }
+                                 ),
+                                 cursorColor: Binding(
+                                     get: { UIColor(userPreferences.accentColor) },
+                                     set: { _ in }
+                                 ),
+                                 backgroundColor: Binding(
+                                     get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+                                     set: { _ in }
+                                 ),
+                                 enableLinkDetection: Binding(
+                                     get: { userPreferences.showLinks },
+                                     set: { userPreferences.showLinks = $0 }
+                                 ),
+                                 cursorPosition: $cursorPosition,
+                                 viewModel: textEditorViewModel
+                             )
+                        .frame(maxWidth: .infinity)
                             .cornerRadius(15)
                             .padding()
                         

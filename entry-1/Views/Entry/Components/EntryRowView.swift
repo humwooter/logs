@@ -101,6 +101,7 @@ struct EntryRowView: View {
 
             do {
                 try mainContext.save()
+//                coreDataManager.saveEntry(entry)
             } catch {
                 print("Failed to save mainContext: \(error)")
             }
