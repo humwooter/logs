@@ -394,9 +394,7 @@ struct LogsView: View {
                                                           }
                                                   }
                                                   .padding(.horizontal, 5)
-                                                  .onAppear {
-                                                      currentLoadedCount = min(initialLoadCount, entries.count)
-                                                  }
+                    
 //                          Section(header: entryHeaderView(entry: entry)) {
 //                              EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
 //                                  .environmentObject(userPreferences)
@@ -411,6 +409,10 @@ struct LogsView: View {
 //                          .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
                       }
                   }
+                  .onAppear {
+                      currentLoadedCount = min(initialLoadCount, entries.count)
+                  }
+                  
                   
                   if currentLoadedCount < entries.count {
                       ProgressView()

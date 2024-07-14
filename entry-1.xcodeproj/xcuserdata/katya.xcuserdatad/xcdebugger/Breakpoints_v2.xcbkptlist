@@ -30,8 +30,8 @@
             filePath = "entry-1/Views/Log/LogViews.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "944"
-            endingLineNumber = "944"
+            startingLineNumber = "946"
+            endingLineNumber = "946"
             landmarkName = "createPDFData_log(log:)"
             landmarkType = "7">
          </BreakpointContent>
