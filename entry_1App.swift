@@ -33,6 +33,9 @@ struct entry_1App: App {
                 .onOpenURL { url in
                     handleURL(url)
                 }
+                .onAppear {
+                    print("HTML path: \(Bundle.main.path(forResource: "RichTextEditor", ofType: "html") ?? "Not found")")
+                }
         }
     }
 

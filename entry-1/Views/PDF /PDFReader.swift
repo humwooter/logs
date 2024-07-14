@@ -160,48 +160,48 @@ struct PDFReader: View {
                     }
 
                     if showTextField_PDF{
-                        GrowingTextField(
-                            attributedText: $entryContent.asAttributedString(
-                                fontName: userPreferences.fontName,
-                                fontSize: userPreferences.fontSize,
-                                fontColor: UIColor(
-                                    UIColor.foregroundColor(
-                                        background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
-                                    )
-                                )
-                            ),
-                            fontName: Binding(
-                                     get: { userPreferences.fontName },
-                                     set: { userPreferences.fontName = $0 }
-                                 ),
-                                 fontSize: Binding(
-                                     get: { CGFloat(userPreferences.fontSize) },
-                                     set: { userPreferences.fontSize = Double($0) }
-                                 ),
-                                 fontColor: Binding(
-                                     get: {
-                                         UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-                                     },
-                                     set: { _ in }
-                                 ),
-                                 cursorColor: Binding(
-                                     get: { UIColor(userPreferences.accentColor) },
-                                     set: { _ in }
-                                 ),
-                                 backgroundColor: Binding(
-                                     get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
-                                     set: { _ in }
-                                 ),
-                                 enableLinkDetection: Binding(
-                                     get: { userPreferences.showLinks },
-                                     set: { userPreferences.showLinks = $0 }
-                                 ),
-                                 cursorPosition: $cursorPosition,
-                                 viewModel: textEditorViewModel
-                             )
-                        .frame(maxWidth: .infinity)
-                            .cornerRadius(15)
-                            .padding()
+//                        GrowingTextField(
+//                            attributedText: $entryContent.asAttributedString(
+//                                fontName: userPreferences.fontName,
+//                                fontSize: userPreferences.fontSize,
+//                                fontColor: UIColor(
+//                                    UIColor.foregroundColor(
+//                                        background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
+//                                    )
+//                                )
+//                            ),
+//                            fontName: Binding(
+//                                     get: { userPreferences.fontName },
+//                                     set: { userPreferences.fontName = $0 }
+//                                 ),
+//                                 fontSize: Binding(
+//                                     get: { CGFloat(userPreferences.fontSize) },
+//                                     set: { userPreferences.fontSize = Double($0) }
+//                                 ),
+//                                 fontColor: Binding(
+//                                     get: {
+//                                         UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+//                                     },
+//                                     set: { _ in }
+//                                 ),
+//                                 cursorColor: Binding(
+//                                     get: { UIColor(userPreferences.accentColor) },
+//                                     set: { _ in }
+//                                 ),
+//                                 backgroundColor: Binding(
+//                                     get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
+//                                     set: { _ in }
+//                                 ),
+//                                 enableLinkDetection: Binding(
+//                                     get: { userPreferences.showLinks },
+//                                     set: { userPreferences.showLinks = $0 }
+//                                 ),
+//                                 cursorPosition: $cursorPosition,
+//                                 viewModel: textEditorViewModel
+//                             )
+//                        .frame(maxWidth: .infinity)
+//                            .cornerRadius(15)
+//                            .padding()
                         
                     }
                     
@@ -218,8 +218,8 @@ struct PDFReader: View {
                         }
                         
                         if (showTextField_PDF) {
-                            textFormattingButtonBar()
-                                .padding(.horizontal)
+//                            textFormattingButtonBar()
+//                                .padding(.horizontal)
                         }
 //                        buttonBar(data: data)
                         
@@ -326,45 +326,45 @@ struct PDFReader: View {
         .foregroundColor(userPreferences.accentColor)
     }
     
-    @ViewBuilder
-    func textFormattingButtonBar() -> some View {
-        HStack(spacing: 35) {
-            // Bullet Point Button
-            Button(action: {
-                // Signal to insert a bullet point at the current cursor position.
-                // Update the viewModel's textToInsert property, which triggers the insertion.
-                self.textEditorViewModel.textToInsert = "\t• "
-            }) {
-                Image(systemName: "list.bullet")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
-
-            // Tab Button
-            Button(action: {
-                // Signal to insert a tab character.
-                self.textEditorViewModel.textToInsert = "\t"
-            }) {
-                Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
-
-            // New Line Button
-            Button(action: {
-                // Signal to insert a new line.
-                self.textEditorViewModel.textToInsert = "\n"
-            }) {
-                Image(systemName: "return")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
-
-            Spacer()
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal)
-        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
-        .cornerRadius(15)
-    }
+//    @ViewBuilder
+//    func textFormattingButtonBar() -> some View {
+//        HStack(spacing: 35) {
+//            // Bullet Point Button
+//            Button(action: {
+//                // Signal to insert a bullet point at the current cursor position.
+//                // Update the viewModel's textToInsert property, which triggers the insertion.
+//                self.textEditorViewModel.textToInsert = "\t• "
+//            }) {
+//                Image(systemName: "list.bullet")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            // Tab Button
+//            Button(action: {
+//                // Signal to insert a tab character.
+//                self.textEditorViewModel.textToInsert = "\t"
+//            }) {
+//                Image(systemName: "arrow.forward.to.line")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            // New Line Button
+//            Button(action: {
+//                // Signal to insert a new line.
+//                self.textEditorViewModel.textToInsert = "\n"
+//            }) {
+//                Image(systemName: "return")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            Spacer()
+//        }
+//        .padding(.vertical, 10)
+//        .padding(.horizontal)
+//        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+//        .cornerRadius(15)
+//    }
 }

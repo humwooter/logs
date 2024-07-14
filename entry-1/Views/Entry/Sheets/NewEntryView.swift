@@ -49,8 +49,8 @@ struct NewEntryView: View {
     @State private var isDocumentPickerPresented = false
     
     
-//    @State private var entryContent = ""
-    @State private var entryContent = NSAttributedString(string: "")
+    @State private var entryContent = ""
+//    @State private var entryContent = NSAttributedString(string: "")
 
 
     @State private var dynamicHeight: CGFloat = 100
@@ -66,7 +66,7 @@ struct NewEntryView: View {
 
 
     @State private var showingDatePicker = false // To control the visibility of the date picker
-    @ObservedObject var textEditorViewModel = TextEditorViewModel()
+//    @ObservedObject var textEditorViewModel = TextEditorViewModel()
     
     
     @State private var showingReminderSheet = false
@@ -114,7 +114,7 @@ struct NewEntryView: View {
             }
             
             .onAppear {
-                applyAttributesToEntryContent()
+//                applyAttributesToEntryContent()
 
                     NotificationCenter.default.addObserver(forName: NSNotification.Name("CreateEntryWithStamp"), object: nil, queue: .main) { notification in
                         if let stampId = notification.object as? UUID {
@@ -226,14 +226,14 @@ struct NewEntryView: View {
        
     }
     
-    private func applyAttributesToEntryContent() {
-           let attributes: [NSAttributedString.Key: Any] = [
-               .font: UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize)),
-               .foregroundColor: UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-           ]
-           entryContent = NSAttributedString(string: entryContent.string, attributes: attributes)
-       }
-    
+//    private func applyAttributesToEntryContent() {
+//           let attributes: [NSAttributedString.Key: Any] = [
+//               .font: UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize)),
+//               .foregroundColor: UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+//           ]
+//           entryContent = NSAttributedString(string: entryContent.string, attributes: attributes)
+//       }
+//    
     @ViewBuilder
     func entryTitleView() -> some View {
         if showingEntryTitle {
@@ -250,45 +250,8 @@ struct NewEntryView: View {
                         }.padding(.horizontal, 20)
                     }
                     
-                    GrowingTextField(
-                        attributedText: $tempEntryTitle.asAttributedString(
-                            fontName: userPreferences.fontName,
-                            fontSize: userPreferences.fontSize,
-                            fontColor: UIColor(
-                                UIColor.foregroundColor(
-                                    background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
-                                )
-                            )
-                        ),
-                        fontName: Binding(
-                              get: { userPreferences.fontName },
-                              set: { userPreferences.fontName = $0 }
-                          ),
-                          fontSize: Binding(
-                              get: { CGFloat(userPreferences.fontSize) },
-                              set: { userPreferences.fontSize = Double($0) }
-                          ),
-                          fontColor: Binding(
-                              get: {
-                                  UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-                              },
-                              set: { _ in }
-                          ),
-                          cursorColor: Binding(
-                              get: { UIColor(userPreferences.accentColor) },
-                              set: { _ in }
-                          ),
-                          backgroundColor: Binding(
-                              get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
-                              set: { _ in }
-                          ),
-                          enableLinkDetection: Binding(
-                              get: { userPreferences.showLinks },
-                              set: { userPreferences.showLinks = $0 }
-                          ),
-                          cursorPosition: $cursorPosition,
-                          viewModel: textEditorViewModel
-                      )
+                    RichTextEditorView(htmlText: $entryTitle, dynamicHeight: $dynamicHeight)
+                                   .frame(height: dynamicHeight)
                     .cornerRadius(15)
                         .frame(maxHeight: 30)
                 }
@@ -333,10 +296,10 @@ struct NewEntryView: View {
                             .padding()
                     }
                 }
-                
-                if isTextButtonBarVisible {
-                    textFormattingButtonBar()
-                }
+//                
+//                if isTextButtonBarVisible {
+//                    textFormattingButtonBar()
+//                }
                 Spacer()
             }
             buttonBar()
@@ -352,7 +315,7 @@ struct NewEntryView: View {
             }
             
             ZStack {
-                if entryContent.string.isEmpty {
+                if entryContent.isEmpty {
                     VStack {
                         HStack {
                             Text("Start typing here...")
@@ -364,39 +327,9 @@ struct NewEntryView: View {
                     }
                 }
                 
-                GrowingTextField(
-                         attributedText: $entryContent,
-                         fontName: Binding(
-                             get: { userPreferences.fontName },
-                             set: { userPreferences.fontName = $0 }
-                         ),
-                         fontSize: Binding(
-                             get: { CGFloat(userPreferences.fontSize) },
-                             set: { userPreferences.fontSize = Double($0) }
-                         ),
-                         fontColor: Binding(
-                             get: {
-                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-                             },
-                             set: { _ in }
-                         ),
-                         cursorColor: Binding(
-                             get: { UIColor(userPreferences.accentColor) },
-                             set: { _ in }
-                         ),
-                         backgroundColor: Binding(
-                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
-                             set: { _ in }
-                         ),
-                         enableLinkDetection: Binding(
-                             get: { userPreferences.showLinks },
-                             set: { userPreferences.showLinks = $0 }
-                         ),
-                         cursorPosition: $cursorPosition,
-                         viewModel: textEditorViewModel
-                     )
-              
-                .cornerRadius(15)
+                RichTextEditorView(htmlText: $entryContent, dynamicHeight: $dynamicHeight)
+                               .frame(height: dynamicHeight)
+                              .cornerRadius(15)
 //                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
             }
             
@@ -612,56 +545,56 @@ struct NewEntryView: View {
         }
     }
     
-    @ViewBuilder
-    func textFormattingButtonBar() -> some View {
-        HStack(spacing: 35) {
-            // Bullet Point Button
-            Button(action: {
-                self.textEditorViewModel.textToInsert = "\t• "
-            }) {
-                Image(systemName: "list.bullet")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
-
-            // Tab Button
-            Button(action: {
-                // Signal to insert a tab character.
-                self.textEditorViewModel.textToInsert = "\t"
-            }) {
-                Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: 20))
-                    .foregroundColor(userPreferences.accentColor)
-            }
-
-      
-
-            // New styling buttons
-            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
-                    Image(systemName: "bold")
-                        .font(.system(size: 20))
-                        .foregroundColor(userPreferences.accentColor)
-                }
-                
-            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
-                    Image(systemName: "italic")
-                        .font(.system(size: 20))
-                        .foregroundColor(userPreferences.accentColor)
-                }
-                
-            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
-                    Image(systemName: "underline")
-                        .font(.system(size: 20))
-                        .foregroundColor(userPreferences.accentColor)
-                }
-                
-            
-            Spacer()
-        }
-        .padding(.vertical, 10)
-        .padding(.horizontal, 20)
-        .cornerRadius(15)
-    }
+//    @ViewBuilder
+//    func textFormattingButtonBar() -> some View {
+//        HStack(spacing: 35) {
+//            // Bullet Point Button
+//            Button(action: {
+//                self.textEditorViewModel.textToInsert = "\t• "
+//            }) {
+//                Image(systemName: "list.bullet")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//            // Tab Button
+//            Button(action: {
+//                // Signal to insert a tab character.
+//                self.textEditorViewModel.textToInsert = "\t"
+//            }) {
+//                Image(systemName: "arrow.forward.to.line")
+//                    .font(.system(size: 20))
+//                    .foregroundColor(userPreferences.accentColor)
+//            }
+//
+//      
+//
+//            // New styling buttons
+//            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
+//                    Image(systemName: "bold")
+//                        .font(.system(size: 20))
+//                        .foregroundColor(userPreferences.accentColor)
+//                }
+//                
+//            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
+//                    Image(systemName: "italic")
+//                        .font(.system(size: 20))
+//                        .foregroundColor(userPreferences.accentColor)
+//                }
+//                
+//            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
+//                    Image(systemName: "underline")
+//                        .font(.system(size: 20))
+//                        .foregroundColor(userPreferences.accentColor)
+//                }
+//                
+//            
+//            Spacer()
+//        }
+//        .padding(.vertical, 10)
+//        .padding(.horizontal, 20)
+//        .cornerRadius(15)
+//    }
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -772,17 +705,17 @@ struct NewEntryView: View {
     func finalizeCreation() {
         let newEntry = Entry(context: viewContext)
         newEntry.id = UUID()
-        newEntry.attributedContent = entryContent
-        newEntry.content = entryContent.string
+//        newEntry.attributedContent = entryContent
+        newEntry.content = entryContent
 
             // Convert NSAttributedString to Data and save formatted text
-            do {
-                let data = try entryContent.data(from: NSRange(location: 0, length: entryContent.length),
-                                                 documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
-                newEntry.formattedContent = data
-            } catch {
-                print("Error converting attributed string to data: \(error)")
-            }
+//            do {
+//                let data = try entryContent.data(from: NSRange(location: 0, length: entryContent.length),
+//                                                 documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
+//                newEntry.formattedContent = data
+//            } catch {
+//                print("Error converting attributed string to data: \(error)")
+//            }
         newEntry.time = selectedDate
         newEntry.lastUpdated = nil
         print("entry time has been set")
@@ -871,7 +804,7 @@ struct NewEntryView: View {
                      .font: UIFont(name: self.userPreferences.fontName, size: self.userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize),
                      .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(self.userPreferences.backgroundColors.first ?? Color.clear)))
                  ]
-                 self.entryContent = NSAttributedString(string: plainText, attributes: attributes)
+//                 self.entryContent = NSAttributedString(string: plainText, attributes: attributes)
              }
          }
         

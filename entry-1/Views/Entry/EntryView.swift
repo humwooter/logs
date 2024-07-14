@@ -118,7 +118,6 @@ struct EntryView: View {
             })
             .sheet(isPresented: $isShowingEntryCreationView) {
                 NewEntryView()
-                
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .foregroundColor(userPreferences.accentColor)

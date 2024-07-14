@@ -8,6 +8,9 @@
 import Foundation
 import SwiftUI
 import CoreHaptics
+import UIKit
+
+public typealias FontRepresentable = UIFont
 
 let cursorPositionMarker = "<#Cursor#>"
 let vibration_heavy = UIImpactFeedbackGenerator(style: .heavy)
