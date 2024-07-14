@@ -39,37 +39,36 @@ class Refresh: ObservableObject {
 
 struct TextView : View {
     @EnvironmentObject var coreDataManager: CoreDataManager
-    
-    @EnvironmentObject var userPreferences: UserPreferences
-    @ObservedObject var entry : Entry
-    
-    @State private var editingContent : NSAttributedString = NSAttributedString(string: "")
-    
-    @State private var isEditing : Bool = false
-    
-    @State private var engine: CHHapticEngine?
-    @FocusState private var focusField: Bool
-    @Environment(\.colorScheme) var colorScheme
-    @State private var selectedItem : PhotosPickerItem?
-    @State private var showingDeleteConfirmation = false
-    
-    @State private var selectedImage : UIImage?
-    
-    @State private var showPhotos = false
-    @State private var selectedData: Data?
-    @State private var showCamera = false
-    @State private var shareImage: UIImage? = nil
-    
-    @State private var showEntry = true
-    
-    @State private var showDocumentPicker = false
-      @State private var pdfFileURL: URL?
-    @State private var pdfData: Data?
-    @State private var isExporting = false
-    
-    @Binding var repliedEntryId: String? //should store the id of the current entry
-    @Binding var isShowingEntryCreationView: Bool
-    @Binding var isShowingReplyCreationView: Bool
+     
+     @EnvironmentObject var userPreferences: UserPreferences
+     @ObservedObject var entry : Entry
+     
+     @State private var editingContent : String = ""
+     @State private var isEditing : Bool = false
+     
+     @State private var engine: CHHapticEngine?
+     @FocusState private var focusField: Bool
+     @Environment(\.colorScheme) var colorScheme
+     @State private var selectedItem : PhotosPickerItem?
+     @State private var showingDeleteConfirmation = false
+     
+     @State private var selectedImage : UIImage?
+     
+     @State private var showPhotos = false
+     @State private var selectedData: Data?
+     @State private var showCamera = false
+     @State private var shareImage: UIImage? = nil
+     
+     @State private var showEntry = true
+     
+     @State private var showDocumentPicker = false
+       @State private var pdfFileURL: URL?
+     @State private var pdfData: Data?
+     @State private var isExporting = false
+     
+     @Binding var repliedEntryId: String? //should store the id of the current entry
+     @Binding var isShowingEntryCreationView: Bool
+     @Binding var isShowingReplyCreationView: Bool
     
     var body : some View {
         
@@ -104,23 +103,21 @@ struct TextView : View {
                             }
                         }
                         .onChange(of: isEditing) { newValue in
-                            if newValue {
-                                editingContent = entry.attributedContent ?? buildAttributedString(
-                                    content: entry.content,
-                                    formattingData: entry.formattedContent,
-                                    fontSize: userPreferences.fontSize,
-                                    fontName: userPreferences.fontName
-                                )
-                            }
-                        }
-                        .onChange(of: userPreferences.fontName) { _ in
-                            updateAttributedStringFont()
-                        }
-                        .onChange(of: userPreferences.fontSize) { _ in
-                            updateAttributedStringFont()
-                        }
-
-                  
+                                              if newValue {
+                                                  editingContent = entry.content
+                                              }
+                                          }
+//                        .onChange(of: isEditing) { newValue in
+//                            if newValue {
+//                                editingContent = entry.attributedContent ?? buildAttributedString(
+//                                    content: entry.content,
+//                                    formattingData: entry.formattedContent,
+//                                    fontSize: userPreferences.fontSize,
+//                                    fontName: userPreferences.fontName
+//                                )
+//                            }
+//                        }
+        
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
                                 .foregroundColor(userPreferences.accentColor)
@@ -164,17 +161,17 @@ struct TextView : View {
         
     }
     
-    private func updateAttributedStringFont() {
-        let newFont = UIFont(name: userPreferences.fontName, size: userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-        let newAttributes: [NSAttributedString.Key: Any] = [
-            .font: newFont,
-            .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-        ]
-        
-        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
-        mutableAttributedString.addAttributes(newAttributes, range: NSRange(location: 0, length: mutableAttributedString.length))
-        editingContent = mutableAttributedString
-    }
+//    private func updateAttributedStringFont() {
+//        let newFont = UIFont(name: userPreferences.fontName, size: userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
+//        let newAttributes: [NSAttributedString.Key: Any] = [
+//            .font: newFont,
+//            .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+//        ]
+//        
+//        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
+//        mutableAttributedString.addAttributes(newAttributes, range: NSRange(location: 0, length: mutableAttributedString.length))
+//        editingContent = mutableAttributedString
+//    }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
         let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)

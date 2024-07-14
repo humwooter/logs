@@ -14,19 +14,16 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
+import EventKit
 
 struct EditingEntryView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
-    @StateObject private var reminderManager = ReminderManager()
-
 //    @Environment(\.managedObjectContext) private var viewContext
 
     @EnvironmentObject var userPreferences: UserPreferences
 
     @ObservedObject var entry: Entry
-//    @Binding var editingContent: String
-    @Binding var editingContent: NSAttributedString
-
+    @Binding var editingContent: String
     @Binding var isEditing: Bool
     @State private var engine: CHHapticEngine?
     @FocusState private var focusField: Bool
@@ -65,10 +62,14 @@ struct EditingEntryView: View {
     @State private var showDeleteReminderAlert = false
 
     @State private var selectedTime = Date()
-  
+    @State private var selectedRecurrence = "None"
+    @State private var reminderTitle: String = ""
+    @State private var reminderId: String?
+    @State private var hasReminderAccess = false
     @State private var dateUpdated = false
 
     // Define your recurrence options
+    let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
     
     var body : some View {
@@ -82,9 +83,7 @@ struct EditingEntryView: View {
             }
             .onAppear {
                 if let reminderId = entry.reminderId {
-                    reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId) {
-                        print("reminders initialized")
-                    }
+                    fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
                 
                 if entry.relationship == nil {
@@ -110,8 +109,8 @@ struct EditingEntryView: View {
                     previousMediaData = getMediaData(fromFilename: filename)
                     selectedData = previousMediaData
                 }
-                if editingContent.string.isEmpty {
-                    editingContent = entry.attributedContent ?? NSAttributedString(string: "")
+                if editingContent.isEmpty {
+                    editingContent = entry.content
                 }
             }
             .fullScreenCover(isPresented: $showCamera) {
@@ -148,19 +147,19 @@ struct EditingEntryView: View {
                 }.navigationTitle("Select Custom Date")
             }
             .sheet(isPresented: $showingReminderSheet) {
-                reminderSheet()
+   reminderSheet()
+
+                
                 .onAppear {
-                    if let reminderId = reminderManager.reminderId {
-                        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId) {
-                            print("success")
-                        }
+                    if let reminderId = entry.reminderId {
+                        fetchAndInitializeReminderDetails(reminderId: reminderId)
                     }
-                    reminderManager.requestReminderAccess { granted in
+                    requestReminderAccess { granted in
                         if granted {
-                            reminderManager.hasReminderAccess = true
+                            hasReminderAccess = true
                             print("Access to reminders granted.")
                         } else {
-                            reminderManager.hasReminderAccess = false
+                            hasReminderAccess = false
                             print("Access to reminders denied or failed.")
                         }
                     }
@@ -326,9 +325,9 @@ struct EditingEntryView: View {
                     }
                 }
                 
-//                if isTextButtonBarVisible {
-//                    textFormattingButtonBar()
-//                }
+                if isTextButtonBarVisible {
+                    textFormattingButtonBar()
+                }
                 Spacer()
             }
             buttonBar()
@@ -362,7 +361,7 @@ struct EditingEntryView: View {
     func textFieldView() -> some View {
         VStack (alignment: .leading) {
             ZStack {
-                if editingContent.string.isEmpty {
+                if editingContent.isEmpty {
                     VStack {
                         HStack {
                             Text("Start typing here...")
@@ -373,39 +372,9 @@ struct EditingEntryView: View {
                         Spacer()
                     }
                 }
-//                GrowingTextField(
-//                    attributedText: $editingContent,
-//                         fontName: Binding(
-//                             get: { userPreferences.fontName },
-//                             set: { userPreferences.fontName = $0 }
-//                         ),
-//                         fontSize: Binding(
-//                             get: { CGFloat(userPreferences.fontSize) },
-//                             set: { userPreferences.fontSize = Double($0) }
-//                         ),
-//                         fontColor: Binding(
-//                             get: {
-//                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-//                             },
-//                             set: { _ in }
-//                         ),
-//                         cursorColor: Binding(
-//                             get: { UIColor(userPreferences.accentColor) },
-//                             set: { _ in }
-//                         ),
-//                         backgroundColor: Binding(
-//                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
-//                             set: { _ in }
-//                         ),
-//                         enableLinkDetection: Binding(
-//                             get: { userPreferences.showLinks },
-//                             set: { userPreferences.showLinks = $0 }
-//                         ),
-//                         cursorPosition: $cursorPosition,
-//                         viewModel: textEditorViewModel
-//                     )
-//                .cornerRadius(15)
-//                    .frame(minHeight: 50)
+                GrowingTextField(text: $editingContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor),
+                                 cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                    .frame(minHeight: 50)
 
             }
             ZStack(alignment: .topTrailing) {
@@ -438,10 +407,10 @@ struct EditingEntryView: View {
     @ViewBuilder
     func reminderSheet() -> some View {
         NavigationStack {
-            if reminderManager.hasReminderAccess {
+            if hasReminderAccess {
                 List {
                     Section {
-                        TextField("Title", text: $reminderManager.reminderTitle)
+                        TextField("Title", text: $reminderTitle)
                             .background(Color.clear) // Set the background to clear
                                .textFieldStyle(PlainTextFieldStyle()) // Use
                             .frame(maxWidth: .infinity)
@@ -458,8 +427,8 @@ struct EditingEntryView: View {
 
                     NavigationLink {
                         List {
-                            Picker("Recurrence", selection: $reminderManager.selectedRecurrence) {
-                                ForEach(reminderManager.recurrenceOptions, id: \.self) { option in
+                            Picker("Recurrence", selection: $selectedRecurrence) {
+                                ForEach(recurrenceOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
                             }
@@ -535,9 +504,7 @@ struct EditingEntryView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
-                            reminderManager.createOrUpdateReminder { success in
-                                                           showingReminderSheet = false
-                                                       }
+                            createOrUpdateReminder()
                         }
 
                     }
@@ -600,57 +567,182 @@ struct EditingEntryView: View {
             }
         }
     }
-//    
-//    @ViewBuilder
-//    func textFormattingButtonBar() -> some View {
-//        HStack(spacing: 35) {
-//            // Bullet Point Button
-//            Button(action: {
-//                self.textEditorViewModel.textToInsert = "\t• "
-//            }) {
-//                Image(systemName: "list.bullet")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            // Tab Button
-//            Button(action: {
-//                // Signal to insert a tab character.
-//                self.textEditorViewModel.textToInsert = "\t"
-//            }) {
-//                Image(systemName: "arrow.forward.to.line")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//      
-//
-//            // New styling buttons
-//            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
-//                    Image(systemName: "bold")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
-//                    Image(systemName: "italic")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
-//                    Image(systemName: "underline")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            
-//            Spacer()
-//        }
+    
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            // Bullet Point Button
+            Button(action: {
+                // Signal to insert a bullet point at the current cursor position.
+                // Update the viewModel's textToInsert property, which triggers the insertion.
+                self.textEditorViewModel.textToInsert = "\t• "
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: UIFont.buttonFontSize))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Tab Button
+            Button(action: {
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: UIFont.buttonFontSize))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // New Line Button
+            Button(action: {
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: UIFont.buttonFontSize))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
 //        .padding(.vertical, 10)
-//        .padding(.horizontal, 20)
-//        .cornerRadius(15)
+        .padding(.horizontal, 20)
+//        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .cornerRadius(15)
+    }
+
+    func insertText(_ textToInsert: String) {
+        // Check if the editingContent already contains the marker to avoid duplication
+        if editingContent.contains(cursorPositionMarker) {
+            // If the marker is already present, replace it with the new text directly
+            editingContent = editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+        } else {
+            // If the marker is not present, insert the marker at the end of the text
+            // This is a simplistic approach; you might have a more sophisticated method to determine the insertion point
+            editingContent += cursorPositionMarker
+            // Then replace the marker with the actual text to insert
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.editingContent = self.editingContent.replacingOccurrences(of: cursorPositionMarker, with: textToInsert)
+            }
+        }
+    }
+    
+    
+//    @ViewBuilder
+//    func buttonBar() -> some View {
+//        ScrollView(.horizontal, showsIndicators: false) {
+//            HStack(spacing: 35) {
+//                Button(action: {
+//                    withAnimation() {
+//                        isTextButtonBarVisible.toggle()
+//                    }
+//                }) {
+//                    HStack {
+//                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
+//                            .font(.system(size: 20))
+//                            .foregroundColor(userPreferences.accentColor)
+//                    }
+//                }
+//
+//                if isTextButtonBarVisible {
+//                    textFormattingButtonBar()
+//                        .padding(.trailing)
+//
+//                }
+//                Spacer()
+//
+//                Button {
+//                    vibration_heavy.impactOccurred()
+//                    entry.isHidden.toggle()
+//                } label: {
+//                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                        .foregroundColor(userPreferences.accentColor)
+//                        .opacity(entry.isHidden ? 1 : 0.1)
+//                }
+//
+//                PhotosPicker(selection: $selectedItem, matching: .images) {
+//                    Image(systemName: "photo.fill")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                }
+//                .onChange(of: selectedItem) { _ in
+//                    selectedData = nil
+//                    Task {
+//                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
+//                            selectedData = data
+//                            deletePrevMedia = true
+//                            imageHeight = UIScreen.main.bounds.height / 7
+//                        }
+//                    }
+//                }
+//
+//                Image(systemName: "camera.fill")
+//                    .font(.system(size: UIFont.buttonFontSize))
+//                    .onChange(of: selectedImage) { _ in
+//                        selectedData = nil
+//                        Task {
+//                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
+//                                selectedData = data
+//                                deletePrevMedia = true
+//                                imageHeight = UIScreen.main.bounds.height / 7
+//                            }
+//                        }
+//                    }
+//                    .onTapGesture {
+//                        vibration_heavy.impactOccurred()
+//                        showCamera = true
+//                    }
+//
+//                Button {
+//                    selectedData = nil
+//                    vibration_heavy.impactOccurred()
+//                    isDocumentPickerPresented = true
+//                } label: {
+//                    Image(systemName: "link")
+//                        .font(.system(size: UIFont.buttonFontSize))
+//                }
+//                .fileImporter(
+//                    isPresented: $isDocumentPickerPresented,
+//                    allowedContentTypes: [UTType.image, UTType.pdf],
+//                    allowsMultipleSelection: false
+//                ) { result in
+//                    switch result {
+//                    case .success(let urls):
+//                        let url = urls[0]
+//                        do {
+//                            if url.startAccessingSecurityScopedResource() {
+//                                let fileData = try Data(contentsOf: url)
+//                                selectedData = fileData
+//
+//                                if isPDF(data: fileData) {
+//                                    selectedPDFLink = url
+//                                }
+//
+//                                deletePrevMedia = true
+//                                url.stopAccessingSecurityScopedResource()
+//                            } else {
+//                                print("Error accessing file")
+//                            }
+//                        } catch {
+//                            print("Error reading file: \(error)")
+//                        }
+//                    case .failure(let error):
+//                        print("Error selecting file: \(error)")
+//                    }
+//                }
+//            }
+//            .padding(.vertical, 10)
+//            .padding(.horizontal, 20)
+//        }
+//        .background {
+//            ZStack {
+//                Color.clear
+//                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
+//            }
+//            .ignoresSafeArea()
+//        }
+//        .foregroundColor(userPreferences.accentColor)
 //    }
+
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -772,19 +864,7 @@ struct EditingEntryView: View {
           // Code to finalize the edit
         let mainContext = coreDataManager.viewContext
           mainContext.performAndWait {
-              
-              entry.content = editingContent.string
-              entry.attributedContent = editingContent
-
-                  // Convert NSAttributedString to Data and save formatted text
-                  do {
-                      let data = try editingContent.data(from: NSRange(location: 0, length: editingContent.length),
-                                                       documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
-                      entry.formattedContent = data
-                  } catch {
-                      print("Error converting attributed string to data: \(error)")
-                  }
-//              entry.content = editingContent
+              entry.content = editingContent
               
               if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
                   let previousLog = entry.relationship
@@ -858,8 +938,7 @@ struct EditingEntryView: View {
     }
     
     func cancelEdit() {
-        editingContent = buildAttributedString(content: entry.content, formattingData: entry.formattedContent, fontSize: userPreferences.fontSize, fontName: userPreferences.fontName)
-//        editingContent = entry.previousContent ?? entry.content // Reset to the original content
+        editingContent = entry.previousContent ?? entry.content // Reset to the original content
         if !previousMediaFilename.isEmpty, let data = previousMediaData { //restore previous media
             entry.saveImage(data: data, coreDataManager: coreDataManager)
         }
@@ -892,7 +971,6 @@ struct EditingEntryView: View {
         audioEngine.stop()
         recognitionTask?.cancel()
     }
-    
     func startOrStopRecognition() {
         isListening.toggle()
         if isListening {
@@ -902,5 +980,215 @@ struct EditingEntryView: View {
             stopRecognition()
         }
     }
+    func createOrUpdateReminder() {
+        let eventStore = EKEventStore()
+        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedDate) ?? Date()
+
+        eventStore.requestAccess(to: .reminder) { granted, error in
+            guard granted, error == nil else {
+                print("Access to reminders denied or failed.")
+                showingReminderSheet = false
+                return
+            }
+
+            if let reminderId = entry.reminderId, reminderExists(with: reminderId, in: eventStore) {
+                // Existing reminder found, update it
+                editAndSaveReminder(reminderId: reminderId, title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, updatedReminderId in
+                    if success, let updatedReminderId = updatedReminderId {
+                        entry.reminderId = updatedReminderId
+                        print("Reminder updated with identifier: \(updatedReminderId)")
+                    } else {
+                        print("Failed to update the reminder")
+                    }
+                    showingReminderSheet = false
+                }
+            } else {
+                // No existing reminder, create a new one
+                createAndSaveReminder(title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, newReminderId in
+                    if success, let newReminderId = newReminderId {
+                        entry.reminderId = newReminderId
+                        print("New reminder created with identifier: \(newReminderId)")
+                    } else {
+                        print("Failed to create a new reminder")
+                    }
+                    showingReminderSheet = false
+                }
+            }
+        }
+    }
+    func reminderExists(with identifier: String, in eventStore: EKEventStore) -> Bool {
+        if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+            return true
+        } else {
+            return false
+        }
+    }
+
+
+    
+    func requestReminderAccess(completion: @escaping (Bool) -> Void) {
+        let eventStore = EKEventStore()
+//        eventStore.requestAccess(to: .reminder) { granted, error in
+//            DispatchQueue.main.async {
+//                completion(granted)
+//            }
+//        }
+        
+        eventStore.requestFullAccessToReminders { granted, error in
+            DispatchQueue.main.async {
+                completion(granted)
+            }
+        }
+
+    }
+
+    func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
+        let eventStore = EKEventStore()
+
+        eventStore.requestFullAccessToReminders { granted, error in
+            guard granted, error == nil else {
+                DispatchQueue.main.async {
+                    completion(false, nil)
+                }
+                return
+            }
+
+            var reminder: EKReminder
+            if let reminderId = reminderId, let existingReminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                reminder = existingReminder
+            } else {
+                reminder = EKReminder(eventStore: eventStore)
+                reminder.calendar = eventStore.defaultCalendarForNewReminders()
+            }
+
+            reminder.title = title
+            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+            if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
+                reminder.recurrenceRules = [recurrenceRule] // Replace existing rules with the new one
+            }
+
+            do {
+                try eventStore.save(reminder, commit: true)
+                DispatchQueue.main.async {
+                    completion(true, reminder.calendarItemIdentifier)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(false, nil)
+                }
+            }
+        }
+    }
+
+    
+    func createAndSaveReminder(title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
+        // Initialize the store.
+        let eventStore = EKEventStore()
+
+        // Request access to reminders.
+        requestReminderAccess { granted in
+            if granted {
+                let reminder = EKReminder(eventStore: eventStore)
+                reminder.calendar = eventStore.defaultCalendarForNewReminders()
+                reminder.title = title
+                reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+                
+                // Set recurrence rule if applicable
+                if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
+                    reminder.addRecurrenceRule(recurrenceRule)
+                }
+
+                // Try to save the reminder
+                do {
+                    try eventStore.save(reminder, commit: true)
+                    completion(true, reminder.calendarItemIdentifier) // Return success and the reminder identifier
+                } catch {
+                    completion(false, nil) // Return failure
+                }
+            } else {
+                // Handle the case where permission is not granted
+                completion(false, nil)
+            }
+        }
+    }
+
+
+    
+    func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
+        let eventStore = EKEventStore()
+        eventStore.requestFullAccessToEvents { granted, error in
+            DispatchQueue.main.async {
+                completion(granted)
+            }
+        }
+    }
+
+    func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
+        switch option {
+        case "Daily":
+            return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
+        case "Weekly":
+            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+        case "Weekends":
+            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
+            return rule
+        case "Biweekly":
+            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
+        case "Monthly":
+            return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
+        default:
+            return nil
+        }
+    }
+
+    func fetchAndInitializeReminderDetails(reminderId: String?) {
+        guard let reminderId = reminderId, !reminderId.isEmpty else { return }
+
+        let eventStore = EKEventStore()
+        eventStore.requestFullAccessToReminders { granted, error in
+            guard granted, error == nil else {
+                print("Access to reminders denied or failed.")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                    // Update title
+                    reminderTitle = reminder.title ?? ""
+                    
+                    // Update date and time if dueDateComponents is available
+                    if let dueDateComponents = reminder.dueDateComponents,
+                       let dueDate = Calendar.current.date(from: dueDateComponents) {
+                        selectedDate = dueDate
+                        selectedTime = dueDate
+                    }
+                    
+                    // Update recurrence option if a recurrence rule is available
+                    if let recurrenceRule = reminder.recurrenceRules?.first,
+                       let recurrenceOption = mapRecurrenceRuleToOption(recurrenceRule) {
+                        selectedRecurrence = recurrenceOption
+                    }
+                }
+            }
+        }
+    }
+    func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule) -> String? {
+        switch rule.frequency {
+        case .daily:
+            return "Daily"
+        case .weekly:
+            if rule.daysOfTheWeek?.count == 2,
+               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.saturday)) == true,
+               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.sunday)) == true {
+                return "Weekends"
+            }
+            return "Weekly"
+        case .monthly:
+            return "Monthly"
+        default:
+            return nil
+        }
+    }
+
 
 }

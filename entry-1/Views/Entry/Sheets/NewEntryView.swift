@@ -16,6 +16,8 @@ import PhotosUI
 import FLAnimatedImage
 import UniformTypeIdentifiers
 import PDFKit
+import EventKit
+
 
 struct NewEntryView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -24,7 +26,6 @@ struct NewEntryView: View {
     @EnvironmentObject var datesModel: DatesModel
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var coreDataManager: CoreDataManager
-    @StateObject private var reminderManager = ReminderManager()
 
     
     @State private var speechRecognizer = SFSpeechRecognizer()
@@ -49,10 +50,8 @@ struct NewEntryView: View {
     @State private var isDocumentPickerPresented = false
     
     
+    
     @State private var entryContent = ""
-//    @State private var entryContent = NSAttributedString(string: "")
-
-
     @State private var dynamicHeight: CGFloat = 100
     @State private var imageHeight: CGFloat = 0
     @State private var keyboardHeight: CGFloat = 0
@@ -63,15 +62,24 @@ struct NewEntryView: View {
     @State private var selectedDate : Date = Date()
     @State private var selectedTime = Date()
 
+    @State private var selectedReminderDate : Date = Date()
+    @State private var selectedReminderTime : Date = Date()
 
 
     @State private var showingDatePicker = false // To control the visibility of the date picker
-//    @ObservedObject var textEditorViewModel = TextEditorViewModel()
+    @ObservedObject var textEditorViewModel = TextEditorViewModel()
     
     
     @State private var showingReminderSheet = false
+    @State private var selectedRecurrence = "None"
+    @State private var reminderTitle: String = ""
+    @State private var reminderId: String?
+//    @State var replyEntryId: String? //the id of the entry that is being replied to with this current new one
+    @State private var hasReminderAccess = false
+    
     @State private var showDeleteReminderAlert = false
     // Define recurrence options
+    let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
     
@@ -80,8 +88,6 @@ struct NewEntryView: View {
     @State private var showingEntryTitle = false
     @State private var entryTitle: String = ""
     @State private var tempEntryTitle: String = ""
-
-
 
     
     var body: some View {
@@ -92,7 +98,7 @@ struct NewEntryView: View {
                         
                         HStack() {
                             Spacer()
-                            if let reminderId = reminderManager.reminderId, !reminderId.isEmpty {
+                            if let reminderId = self.reminderId, !reminderId.isEmpty {
                                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
                                     .font(.system(size: 15))
                                     .padding(.horizontal)
@@ -112,10 +118,7 @@ struct NewEntryView: View {
    buttonBars()
            
             }
-            
             .onAppear {
-//                applyAttributesToEntryContent()
-
                     NotificationCenter.default.addObserver(forName: NSNotification.Name("CreateEntryWithStamp"), object: nil, queue: .main) { notification in
                         if let stampId = notification.object as? UUID {
                             self.selectedStamp = userPreferences.fetchStamp(by: stampId)
@@ -173,17 +176,15 @@ struct NewEntryView: View {
                         .sheet(isPresented: $showingReminderSheet) {
                             reminderSheet()
                             .onAppear {
-                                if let reminderId = reminderManager.reminderId {
-                                    reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId) {
-                                        print("success")
-                                    }
+                                if let reminderId = reminderId {
+                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
                                 }
-                                reminderManager.requestReminderAccess { granted in
+                                requestReminderAccess { granted in
                                     if granted {
-                                        reminderManager.hasReminderAccess = true
+                                        hasReminderAccess = true
                                         print("Access to reminders granted.")
                                     } else {
-                                        reminderManager.hasReminderAccess = false
+                                        hasReminderAccess = false
                                         print("Access to reminders denied or failed.")
                                     }
                                 }
@@ -226,14 +227,211 @@ struct NewEntryView: View {
        
     }
     
-//    private func applyAttributesToEntryContent() {
-//           let attributes: [NSAttributedString.Key: Any] = [
-//               .font: UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize)),
-//               .foregroundColor: UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-//           ]
-//           entryContent = NSAttributedString(string: entryContent.string, attributes: attributes)
-//       }
-//    
+    
+    func createOrUpdateReminder() {
+        let eventStore = EKEventStore()
+        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedReminderDate) ?? Date()
+
+        eventStore.requestAccess(to: .reminder) { granted, error in
+            guard granted, error == nil else {
+                print("Access to reminders denied or failed.")
+                showingReminderSheet = false
+                return
+            }
+
+            if let reminderId = self.reminderId, reminderExists(with: reminderId, in: eventStore) {
+                // Existing reminder found, update it
+                editAndSaveReminder(reminderId: reminderId, title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, updatedReminderId in
+                    if success, let updatedReminderId = updatedReminderId {
+                        self.reminderId = updatedReminderId
+                        print("Reminder updated with identifier: \(updatedReminderId)")
+                    } else {
+                        print("Failed to update the reminder")
+                    }
+                    showingReminderSheet = false
+                }
+            } else {
+                // No existing reminder, create a new one
+                createAndSaveReminder(title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, newReminderId in
+                    if success, let newReminderId = newReminderId {
+                        self.reminderId = newReminderId
+                        print("New reminder created with identifier: \(newReminderId)")
+                    } else {
+                        print("Failed to create a new reminder")
+                    }
+                    showingReminderSheet = false
+                }
+            }
+        }
+    }
+    func reminderExists(with identifier: String, in eventStore: EKEventStore) -> Bool {
+        if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+            return true
+        } else {
+            return false
+        }
+    }
+
+
+    
+    func requestReminderAccess(completion: @escaping (Bool) -> Void) {
+        let eventStore = EKEventStore()
+        eventStore.requestAccess(to: .reminder) { granted, error in
+            DispatchQueue.main.async {
+                completion(granted)
+            }
+        }
+    }
+
+    func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
+        let eventStore = EKEventStore()
+
+        eventStore.requestAccess(to: .reminder) { granted, error in
+            guard granted, error == nil else {
+                DispatchQueue.main.async {
+                    completion(false, nil)
+                }
+                return
+            }
+
+            var reminder: EKReminder
+            if let reminderId = reminderId, let existingReminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                reminder = existingReminder
+            } else {
+                reminder = EKReminder(eventStore: eventStore)
+                reminder.calendar = eventStore.defaultCalendarForNewReminders()
+            }
+
+            reminder.title = title
+            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+            if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
+                reminder.recurrenceRules = [recurrenceRule] // Replace existing rules with the new one
+            }
+
+            do {
+                try eventStore.save(reminder, commit: true)
+                DispatchQueue.main.async {
+                    completion(true, reminder.calendarItemIdentifier)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(false, nil)
+                }
+            }
+        }
+    }
+
+    
+    func createAndSaveReminder(title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
+        // Initialize the store.
+        let eventStore = EKEventStore()
+
+        // Request access to reminders.
+        requestReminderAccess { granted in
+            if granted {
+                let reminder = EKReminder(eventStore: eventStore)
+                reminder.calendar = eventStore.defaultCalendarForNewReminders()
+                reminder.title = title
+                reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
+                
+                // Set recurrence rule if applicable
+                if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
+                    reminder.addRecurrenceRule(recurrenceRule)
+                }
+
+                // Try to save the reminder
+                do {
+                    try eventStore.save(reminder, commit: true)
+                    completion(true, reminder.calendarItemIdentifier) // Return success and the reminder identifier
+                } catch {
+                    completion(false, nil) // Return failure
+                }
+            } else {
+                // Handle the case where permission is not granted
+                completion(false, nil)
+            }
+        }
+    }
+
+
+    
+    func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
+        let eventStore = EKEventStore()
+        eventStore.requestAccess(to: .event) { (granted, error) in
+            DispatchQueue.main.async {
+                completion(granted)
+            }
+        }
+    }
+
+    func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
+        switch option {
+        case "Daily":
+            return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
+        case "Weekly":
+            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+        case "Weekends":
+            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
+            return rule
+        case "Biweekly":
+            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
+        case "Monthly":
+            return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
+        default:
+            return nil
+        }
+    }
+    
+    func fetchAndInitializeReminderDetails(reminderId: String?) {
+        guard let reminderId = reminderId, !reminderId.isEmpty else { return }
+
+        let eventStore = EKEventStore()
+        eventStore.requestAccess(to: .reminder) { granted, error in
+            guard granted, error == nil else {
+                print("Access to reminders denied or failed.")
+                return
+            }
+            
+            DispatchQueue.main.async {
+                if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                    // Update title
+                    reminderTitle = reminder.title ?? ""
+                    
+                    // Update date and time if dueDateComponents is available
+                    if let dueDateComponents = reminder.dueDateComponents,
+                       let dueDate = Calendar.current.date(from: dueDateComponents) {
+                        selectedReminderDate = dueDate
+                        selectedReminderTime = dueDate
+                    }
+                    
+                    // Update recurrence option if a recurrence rule is available
+                    if let recurrenceRule = reminder.recurrenceRules?.first,
+                       let recurrenceOption = mapRecurrenceRuleToOption(recurrenceRule) {
+                        selectedRecurrence = recurrenceOption
+                    }
+                }
+            }
+        }
+    }
+    func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule) -> String? {
+        switch rule.frequency {
+        case .daily:
+            return "Daily"
+        case .weekly:
+            if rule.daysOfTheWeek?.count == 2,
+               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.saturday)) == true,
+               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.sunday)) == true {
+                return "Weekends"
+            }
+            return "Weekly"
+        case .monthly:
+            return "Monthly"
+        default:
+            return nil
+        }
+    }
+    
+    
     @ViewBuilder
     func entryTitleView() -> some View {
         if showingEntryTitle {
@@ -249,10 +447,7 @@ struct NewEntryView: View {
                             Spacer()
                         }.padding(.horizontal, 20)
                     }
-                    
-                    RichTextEditorView(htmlText: $entryTitle, dynamicHeight: $dynamicHeight)
-                                   .frame(height: dynamicHeight)
-                    .cornerRadius(15)
+                    GrowingTextField(text: $tempEntryTitle, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), isScrollEnabled: false, hasInset: false, cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
                         .frame(maxHeight: 30)
                 }
                 Spacer()
@@ -276,8 +471,20 @@ struct NewEntryView: View {
             
             .cornerRadius(15)
         } else {
-
+//            if !entryTitle.isEmpty {
+//                HStack {
+//                    Text(entryTitle)
+//                        .font(.custom(userPreferences.fontName, size: 1.3*userPreferences.fontSize))
+//                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+//
+//                        .bold()
+//                    Spacer()
+//                }
+//                .padding(.horizontal)
+//
+//            }
         }
+//            .padding(.horizontal)
     }
     
     @ViewBuilder
@@ -296,10 +503,10 @@ struct NewEntryView: View {
                             .padding()
                     }
                 }
-//                
-//                if isTextButtonBarVisible {
-//                    textFormattingButtonBar()
-//                }
+                
+                if isTextButtonBarVisible {
+                    textFormattingButtonBar()
+                }
                 Spacer()
             }
             buttonBar()
@@ -311,7 +518,21 @@ struct NewEntryView: View {
     func textFieldView() -> some View {
         VStack(alignment: .leading) {
             ZStack {
-
+//                if entryTitle.isEmpty {
+//                    VStack {
+//                        HStack {
+//                            Text("Title...")
+//                                .foregroundColor(.gray)
+//                                .padding(.leading, 20)
+//                            Spacer()
+//                        }
+//                        Spacer()
+//                    }
+//                }
+//                TextField("Title", text: $entryTitle)
+//                    .padding()
+//                    .background(Color(UIColor.systemGroupedBackground))
+//                    .cornerRadius(8)
             }
             
             ZStack {
@@ -326,11 +547,7 @@ struct NewEntryView: View {
                         Spacer()
                     }
                 }
-                
-                RichTextEditorView(htmlText: $entryContent, dynamicHeight: $dynamicHeight)
-                               .frame(height: dynamicHeight)
-                              .cornerRadius(15)
-//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
             }
             
             ZStack(alignment: .topTrailing) {
@@ -358,6 +575,50 @@ struct NewEntryView: View {
         }
     }
 
+//    @ViewBuilder
+//    func textFieldView() -> some View {
+//
+//        VStack (alignment: .leading) {
+//
+//            ZStack {
+//                if entryContent.isEmpty {
+//                    VStack {
+//                        HStack {
+//                            Text("Start typing here...")
+//                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
+//                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                            Spacer()
+//                        }.padding(20)
+//                        Spacer()
+//                    }
+//                }
+//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+//            }
+//
+//            ZStack(alignment: .topTrailing) {
+//                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
+//                if selectedData != nil {
+//                    Button(role: .destructive, action: {
+//                        vibration_light.impactOccurred()
+//                        selectedData = nil
+//                        imageHeight = 0
+//                    }) {
+//                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
+//                    }
+//                }
+//
+//            }
+//        }.background {
+//            ZStack {
+//                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
+//            }.ignoresSafeArea(.all)
+//        }.cornerRadius(15)
+//        .padding()
+//        .onSubmit {
+//            finalizeCreation()
+//        }
+//    }
+    
     @ViewBuilder
     func dateEditSheet() -> some View {
         VStack {
@@ -387,10 +648,10 @@ struct NewEntryView: View {
     @ViewBuilder
     func reminderSheet() -> some View {
         NavigationStack {
-            if reminderManager.hasReminderAccess {
+            if hasReminderAccess {
                 List {
                     Section {
-                        TextField("Title", text: $reminderManager.reminderTitle)
+                        TextField("Title", text: $reminderTitle)
                             .background(Color.clear) // Set the background to clear
                                .textFieldStyle(PlainTextFieldStyle()) // Use
                             .frame(maxWidth: .infinity)
@@ -398,8 +659,8 @@ struct NewEntryView: View {
 
                     }
                     Section {
-                        DatePicker("Date", selection: $reminderManager.selectedDate, displayedComponents: .date)
-                        DatePicker("Time", selection: $reminderManager.selectedTime, displayedComponents: .hourAndMinute)
+                        DatePicker("Date", selection: $selectedReminderDate, displayedComponents: .date)
+                        DatePicker("Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
 
                     }
 //                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
@@ -407,8 +668,8 @@ struct NewEntryView: View {
 
                     NavigationLink {
                         List {
-                            Picker("Recurrence", selection: $reminderManager.selectedRecurrence) {
-                                ForEach(reminderManager.recurrenceOptions, id: \.self) { option in
+                            Picker("Recurrence", selection: $selectedRecurrence) {
+                                ForEach(recurrenceOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
                             }
@@ -429,11 +690,11 @@ struct NewEntryView: View {
               
                         
                         Button {
-                            if let reminderId = reminderManager.reminderId, !reminderId.isEmpty {
+                            if let reminderId = self.reminderId, !reminderId.isEmpty {
                                 completeReminder(reminderId: reminderId) { success, error in
                                     if success {
                                         print("Reminder completed successfully.")
-                                        reminderManager.reminderId = ""
+                                        self.reminderId = ""
                                     } else {
                                         print("Failed to complete the reminder: \(String(describing: error))")
                                     }
@@ -459,7 +720,7 @@ struct NewEntryView: View {
                 .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
                           Button("Delete", role: .destructive) {
                               // Call your delete reminder function here
-                              deleteReminder(reminderId: reminderManager.reminderId)
+                              deleteReminder(reminderId: reminderId)
                               showingReminderSheet = false
                           }
                           Button("Cancel", role: .cancel) {}
@@ -484,9 +745,7 @@ struct NewEntryView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
-                            reminderManager.createOrUpdateReminder { success in
-                                                           showingReminderSheet = false
-                                                       }
+                            createOrUpdateReminder()
                         }
 
                     }
@@ -544,57 +803,45 @@ struct NewEntryView: View {
             }
         }
     }
-    
-//    @ViewBuilder
-//    func textFormattingButtonBar() -> some View {
-//        HStack(spacing: 35) {
-//            // Bullet Point Button
-//            Button(action: {
-//                self.textEditorViewModel.textToInsert = "\t• "
-//            }) {
-//                Image(systemName: "list.bullet")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            // Tab Button
-//            Button(action: {
-//                // Signal to insert a tab character.
-//                self.textEditorViewModel.textToInsert = "\t"
-//            }) {
-//                Image(systemName: "arrow.forward.to.line")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//      
-//
-//            // New styling buttons
-//            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
-//                    Image(systemName: "bold")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
-//                    Image(systemName: "italic")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
-//                    Image(systemName: "underline")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            
-//            Spacer()
-//        }
-//        .padding(.vertical, 10)
-//        .padding(.horizontal, 20)
-//        .cornerRadius(15)
-//    }
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            // Bullet Point Button
+            Button(action: {
+                self.textEditorViewModel.textToInsert = "\t• "
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Tab Button
+            Button(action: {
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // New Line Button
+            Button(action: {
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05))
+        .cornerRadius(15)
+    }
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -705,17 +952,7 @@ struct NewEntryView: View {
     func finalizeCreation() {
         let newEntry = Entry(context: viewContext)
         newEntry.id = UUID()
-//        newEntry.attributedContent = entryContent
         newEntry.content = entryContent
-
-            // Convert NSAttributedString to Data and save formatted text
-//            do {
-//                let data = try entryContent.data(from: NSRange(location: 0, length: entryContent.length),
-//                                                 documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf])
-//                newEntry.formattedContent = data
-//            } catch {
-//                print("Error converting attributed string to data: \(error)")
-//            }
         newEntry.time = selectedDate
         newEntry.lastUpdated = nil
         print("entry time has been set")
@@ -750,7 +987,7 @@ struct NewEntryView: View {
             }
         }
         
-        if let reminderId = reminderManager.reminderId {
+        if let reminderId {
             newEntry.reminderId = reminderId
         } else {
             newEntry.reminderId = ""
@@ -759,7 +996,7 @@ struct NewEntryView: View {
 
         // Fetch the log with the appropriate day
         let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time ?? Date()))
+        fetchRequest.predicate = NSPredicate(format: "day == %@", formattedDate(newEntry.time))
         
         do {
             let logs = try viewContext.fetch(fetchRequest)
@@ -771,7 +1008,7 @@ struct NewEntryView: View {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
                 let newLog = Log(context: viewContext)
-                newLog.day = formattedDate(newEntry.time ?? Date())
+                newLog.day = formattedDate(newEntry.time)
                 dateStringManager.addDate(newLog.day)
                 newLog.addToRelationship(newEntry)
                 newLog.id = UUID()
@@ -798,15 +1035,10 @@ struct NewEntryView: View {
         inputNode.removeTap(onBus: 0)
         
         recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, _ in
-             if let result = result {
-                 let plainText = result.bestTranscription.formattedString
-                 let attributes: [NSAttributedString.Key: Any] = [
-                     .font: UIFont(name: self.userPreferences.fontName, size: self.userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize),
-                     .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(self.userPreferences.backgroundColors.first ?? Color.clear)))
-                 ]
-//                 self.entryContent = NSAttributedString(string: plainText, attributes: attributes)
-             }
-         }
+            if let result = result {
+                entryContent = result.bestTranscription.formattedString
+            }
+        }
         
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputNode.outputFormat(forBus: 0)) { (buffer: AVAudioPCMBuffer, _) in
             recognitionRequest.append(buffer)

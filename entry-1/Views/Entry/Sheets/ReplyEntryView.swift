@@ -124,9 +124,9 @@ struct ReplyEntryView: View {
                             }
                         }
                         
-//                        if isTextButtonBarVisible {
-//                            textFormattingButtonBar()
-//                        }
+                        if isTextButtonBarVisible {
+                            textFormattingButtonBar()
+                        }
                         Spacer()
                     }
                     buttonBar()
@@ -474,47 +474,8 @@ struct ReplyEntryView: View {
                         Spacer()
                     }
                 }
-                
-//                GrowingTextField(
-//                    attributedText: $entryContent.asAttributedString(
-//                        fontName: userPreferences.fontName,
-//                        fontSize: userPreferences.fontSize,
-//                        fontColor: UIColor(
-//                            UIColor.foregroundColor(
-//                                background: UIColor(userPreferences.backgroundColors.first ?? Color.clear)
-//                            )
-//                        )
-//                    ),
-//                    fontName: Binding(
-//                             get: { userPreferences.fontName },
-//                             set: { userPreferences.fontName = $0 }
-//                         ),
-//                         fontSize: Binding(
-//                             get: { CGFloat(userPreferences.fontSize) },
-//                             set: { userPreferences.fontSize = Double($0) }
-//                         ),
-//                         fontColor: Binding(
-//                             get: {
-//                                 UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-//                             },
-//                             set: { _ in }
-//                         ),
-//                         cursorColor: Binding(
-//                             get: { UIColor(userPreferences.accentColor) },
-//                             set: { _ in }
-//                         ),
-//                         backgroundColor: Binding(
-//                             get: { UIColor(userPreferences.backgroundColors.first ?? .clear) },
-//                             set: { _ in }
-//                         ),
-//                         enableLinkDetection: Binding(
-//                             get: { userPreferences.showLinks },
-//                             set: { userPreferences.showLinks = $0 }
-//                         ),
-//                         cursorPosition: $cursorPosition,
-//                         viewModel: textEditorViewModel
-//                     )
-//                .cornerRadius(15)
+                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
+                    .frame(minHeight: 50)
       
        
                      
@@ -526,7 +487,7 @@ struct ReplyEntryView: View {
 //                        .onAppear {
 //                            print("REPLY ID: \(replyEntryId)")
 //                        }
-//                    
+//
 ////                    if !replyEntryId.isEmpty {
 ////                        Button(role: .destructive, action: {
 //////                            vibration_light.impactOccurred()
@@ -814,58 +775,46 @@ struct ReplyEntryView: View {
             
         }
     }
-//    
-//    
-//    @ViewBuilder
-//    func textFormattingButtonBar() -> some View {
-//        HStack(spacing: 35) {
-//            // Bullet Point Button
-//            Button(action: {
-//                self.textEditorViewModel.textToInsert = "\t• "
-//            }) {
-//                Image(systemName: "list.bullet")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//            // Tab Button
-//            Button(action: {
-//                // Signal to insert a tab character.
-//                self.textEditorViewModel.textToInsert = "\t"
-//            }) {
-//                Image(systemName: "arrow.forward.to.line")
-//                    .font(.system(size: 20))
-//                    .foregroundColor(userPreferences.accentColor)
-//            }
-//
-//      
-//
-//            // New styling buttons
-//            Button(action: { self.textEditorViewModel.applyStyle(.bold) }) {
-//                    Image(systemName: "bold")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.italic) }) {
-//                    Image(systemName: "italic")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            Button(action: { self.textEditorViewModel.applyStyle(.underline) }) {
-//                    Image(systemName: "underline")
-//                        .font(.system(size: 20))
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                
-//            
-//            Spacer()
-//        }
-//        .padding(.vertical, 10)
-//        .padding(.horizontal, 20)
-//        .cornerRadius(15)
-//    }
+    @ViewBuilder
+    func textFormattingButtonBar() -> some View {
+        HStack(spacing: 35) {
+            // Bullet Point Button
+            Button(action: {
+                self.textEditorViewModel.textToInsert = "\t• "
+            }) {
+                Image(systemName: "list.bullet")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // Tab Button
+            Button(action: {
+                // Signal to insert a tab character.
+                self.textEditorViewModel.textToInsert = "\t"
+            }) {
+                Image(systemName: "arrow.forward.to.line")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            // New Line Button
+            Button(action: {
+                // Signal to insert a new line.
+                self.textEditorViewModel.textToInsert = "\n"
+            }) {
+                Image(systemName: "return")
+                    .font(.system(size: 20))
+                    .foregroundColor(userPreferences.accentColor)
+            }
+
+            Spacer()
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 20)
+  
+        .background(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05)).ignoresSafeArea(.all)
+        .cornerRadius(15)
+    }
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -1107,4 +1056,3 @@ struct ReplyEntryView: View {
     }
     
 }
-

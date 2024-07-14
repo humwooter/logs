@@ -437,68 +437,6 @@ struct NotEditingView: View {
     }
     
     
-    @ViewBuilder
-    func entryTextView() -> some View {
-        VStack {
-            if let entryName = entry.title, !entryName.isEmpty {
-                Text(entryName)
-                    .foregroundStyle(getTextColor())
-                    .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    .padding(.vertical, 2)
-            }
-            
-            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
-                let backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-                let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-                
-                if userPreferences.showLinks && foregroundColor != UIColor.clear {
-                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-                } else {
-                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-                }
-            } else {
-                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-                let backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
-                ? getDefaultBackgroundColor(colorScheme: colorScheme)
-                : userPreferences.backgroundColors.first ?? Color.clear
-                let blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-                
-                if userPreferences.showLinks {
-                    VStack {
-                        Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
-                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                            .onAppear {
-                                // This onAppear is kept as it was in the original code
-                                // Note: This assignment doesn't affect the view as it's local to this closure
-                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-                                updateEntryAttributes()
-                            }
-                    }
-                } else {
-                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-                }
-            }
-        }
-        .onChange(of: entry.stampIndex, { oldValue, newValue in
-            updateEntryAttributes()
-        })
-        .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(2)
-        .padding(.vertical, 5)
-        .lineSpacing(userPreferences.lineSpacing)
-        .blur(radius: entry.isHidden ? 7 : 0)
-        .shadow(radius: 0)
-    }
-    
 //    @ViewBuilder
 //    func entryTextView() -> some View {
 //        VStack {
@@ -506,57 +444,119 @@ struct NotEditingView: View {
 //                Text(entryName)
 //                    .foregroundStyle(getTextColor())
 //                    .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-//                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+//                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 //                    .padding(.vertical, 2)
-//
-//
 //            }
+//            
 //            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
-//                var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-//                var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-//                if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
-//                    
-//            
-//                    Text(makeAttributedString(from: entry.content))
-//                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-//            
-//
+//                let backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+//                let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+//                
+//                if userPreferences.showLinks && foregroundColor != UIColor.clear {
+//                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+//                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
 //                } else {
-//                    Text(entry.content)
-//                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+//                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
+//                        .frame(maxWidth: .infinity, alignment: .leading)
+//                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
 //                }
 //            } else {
 //                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-//                var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-//                var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-//                if (userPreferences.showLinks) {
-//                    
+//                let backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear))
+//                ? getDefaultBackgroundColor(colorScheme: colorScheme)
+//                : userPreferences.backgroundColors.first ?? Color.clear
+//                let blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+//                
+//                if userPreferences.showLinks {
 //                    VStack {
-//                        Text(makeAttributedString(from: entry.content))
+//                        Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
 //                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
 //                            .onAppear {
+//                                // This onAppear is kept as it was in the original code
+//                                // Note: This assignment doesn't affect the view as it's local to this closure
 //                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+//                                updateEntryAttributes()
 //                            }
 //                    }
 //                } else {
-//                    Text(entry.content)
-//                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+//                    Text(AttributedString(entry.attributedContent ?? NSAttributedString(string: entry.content)))
+//                        .frame(maxWidth: .infinity, alignment: .leading)
 //                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
 //                }
 //            }
-//            
 //        }
+//        .onChange(of: entry.stampIndex, { oldValue, newValue in
+//            updateEntryAttributes()
+//        })
 //        .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-//            .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-//            .padding(2)
-//            .padding(.vertical, 5)
-//            .lineSpacing(userPreferences.lineSpacing)
-//            .blur(radius: entry.isHidden ? 7 : 0)
-//            .shadow(radius: 0)
+//        .fixedSize(horizontal: false, vertical: true)
+//        .padding(2)
+//        .padding(.vertical, 5)
+//        .lineSpacing(userPreferences.lineSpacing)
+//        .blur(radius: entry.isHidden ? 7 : 0)
+//        .shadow(radius: 0)
 //    }
+//    
+    @ViewBuilder
+    func entryTextView() -> some View {
+        VStack {
+            if let entryName = entry.title, !entryName.isEmpty {
+                Text(entryName)
+                    .foregroundStyle(getTextColor())
+                    .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                    .padding(.vertical, 2)
+
+
+            }
+            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
+                var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+                var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+                if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
+                    
+            
+                    Text(makeAttributedString(from: entry.content))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+            
+
+                } else {
+                    Text(entry.content)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                }
+            } else {
+                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+                var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+                if (userPreferences.showLinks) {
+                    
+                    VStack {
+                        Text(makeAttributedString(from: entry.content))
+                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
+                            .onAppear {
+                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+                            }
+                    }
+                } else {
+                    Text(entry.content)
+                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
+                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                }
+            }
+            
+        }
+        .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
+            .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
+            .padding(2)
+            .padding(.vertical, 5)
+            .lineSpacing(userPreferences.lineSpacing)
+            .blur(radius: entry.isHidden ? 7 : 0)
+            .shadow(radius: 0)
+    }
 }
 
 
