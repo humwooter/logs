@@ -40,7 +40,6 @@
     <configuration name="Cloud" usedWithCloudKit="YES">
         <memberEntity name="Entry"/>
         <memberEntity name="Log"/>
-        <memberEntity name="UserPreferences"/>
     </configuration>
     <configuration name="Documents" usedWithCloudKit="YES"/>
 </model>

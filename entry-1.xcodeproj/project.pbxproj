@@ -128,6 +128,7 @@
 		4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */; };
 		4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0ABA12BB1663200EF3548 /* CoreDataFuncs.swift */; };
 		4ABB76BF2C40CE3E002782EF /* OldGrowingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76BE2C40CE36002782EF /* OldGrowingTextField.swift */; };
+		4ABB76CC2C438F3E002782EF /* GlobalEntryViewbuilders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */; };
 		4ABBEF872AE7BF71005BD78A /* PickerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABBEF862AE7BF71005BD78A /* PickerViews.swift */; };
 		4ABBEF892AE8EB03005BD78A /* GlobalVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABBEF882AE8EB03005BD78A /* GlobalVars.swift */; };
 		4AC1F9D72C2B67A1008C1255 /* StampWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC1F9D62C2B679E008C1255 /* StampWidget.swift */; };
@@ -361,6 +362,7 @@
 		4ABB76BE2C40CE36002782EF /* OldGrowingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldGrowingTextField.swift; sourceTree = "<group>"; };
 		4ABB76C82C425494002782EF /* RIchTextEditor.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = RIchTextEditor.js; path = "entry-1/Views/Entry/Custom Implementations/RIchTextEditor.js"; sourceTree = "<group>"; };
 		4ABB76C92C4254AE002782EF /* RichTextEditor.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = RichTextEditor.html; path = "entry-1/Views/Entry/Custom Implementations/RichTextEditor.html"; sourceTree = "<group>"; };
+		4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalEntryViewbuilders.swift; sourceTree = "<group>"; };
 		4ABBEF862AE7BF71005BD78A /* PickerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerViews.swift; sourceTree = "<group>"; };
 		4ABBEF882AE8EB03005BD78A /* GlobalVars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVars.swift; sourceTree = "<group>"; };
 		4AC1F9D62C2B679E008C1255 /* StampWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StampWidget.swift; sourceTree = "<group>"; };
@@ -608,6 +610,7 @@
 		4A7264322AEBAF610099EA84 /* Entry */ = {
 			isa = PBXGroup;
 			children = (
+				4ABB76CA2C438F21002782EF /* Global */,
 				4A81FD452C329EA4004EC3D2 /* Protocols */,
 				4A81FD422C323920004EC3D2 /* Custom Implementations */,
 				4A81FD3F2C2E2ABC004EC3D2 /* Components */,
@@ -743,6 +746,14 @@
 				4ACEB3D52B5F74C800B76634 /* IntroViews.swift */,
 			);
 			path = IntroScreens;
+			sourceTree = "<group>";
+		};
+		4ABB76CA2C438F21002782EF /* Global */ = {
+			isa = PBXGroup;
+			children = (
+				4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */,
+			);
+			path = Global;
 			sourceTree = "<group>";
 		};
 		4AC1F9D52C2B6796008C1255 /* Widgets */ = {
@@ -1110,6 +1121,7 @@
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
 				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
 				4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */,
+				4ABB76CC2C438F3E002782EF /* GlobalEntryViewbuilders.swift in Sources */,
 				4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */,
 				4A81FD492C32A157004EC3D2 /* ReminderManager.swift in Sources */,
 				4A7264382AEBAFFC0099EA84 /* PDF.swift in Sources */,

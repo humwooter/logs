@@ -210,9 +210,7 @@ struct EntryDetailView: View { //used in LogDetailView
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                     .padding(2)
                     .foregroundStyle(Color(getTextColor()))
-                        .contextMenu {
-                            entryContextMenuButtons()
-                        }
+                  
                 }
                 Spacer() // Push the image to the right
             }
@@ -220,6 +218,9 @@ struct EntryDetailView: View { //used in LogDetailView
             entryMediaView()
 
         }
+//        .contextMenu {
+//            entryContextMenuButtons()
+//        }
  
     }
     
@@ -332,6 +333,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 .foregroundColor(.red)
         }
     }
+    
     @ViewBuilder
     func entryMediaView() -> some View {
         if entry.mediaFilename != "" {

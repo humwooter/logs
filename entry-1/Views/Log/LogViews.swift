@@ -156,72 +156,21 @@ struct LogsView: View {
     var body: some View {
 
         NavigationStack {
+            VStack {
             VStack(spacing: 0) {
-                    List {
-                            if !isSearching {
-                                calendarView()
-                                logsListView()
-                                    .onTapGesture {
-                                        print("DATES: \(datesModel.dates)")
-                                    }
-                                .alert(isPresented: $showingDeleteConfirmation) {
-                                    Alert(title: Text("Delete log"),
-                                          message: Text("Are you sure you want to delete this log? This action cannot be undone."),
-                                          primaryButton: .destructive(Text("Delete")) {
-                                        deleteLog(log: logToDelete)
-                                    },
-                                          secondaryButton: .cancel())
-                                }
-                                
-                                NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
-                                    Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
-                                }
-                        }
-                        else { //if the user is actively searching
-                            if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
-                                suggestedSearchView()
-                            }
-                            else {
-                                filteredEntriesListView()
-                            }
-                        }
+                if !isSearching {
+        
+                    mainLogsCalendarView()
+                }
+                else { //if the user is actively searching
+                    if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
+                        suggestedSearchView()
                     }
-
-                
-                    .background {
-                            ZStack {
-                                Color(UIColor.systemGroupedBackground)
-                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                            }
-                            .ignoresSafeArea()
+                    else {
+                        filteredEntriesListView()
                     }
-                    .scrollContentBackground(.hidden)
-                    .refreshable {
-                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        // Check if today's date already exists in the dates array
-                        if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
-                            // If it exists, you can decide to update its isSelected property or leave it as is
-                            // For example, you could toggle the selection:
-                            datesModel.dates[index].isSelected.toggle()
-                        } else {
-                            // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
-                            datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
-                        }
-                        
-                        updateFetchRequests()
-                        updateDateRange()
-                    }
-                    .sheet(isPresented: $shareSheetShown) {
-                        if let log_uiimage = image {
-                            let logImage = Image(
-                                uiImage: log_uiimage)
-                            ShareLink(item: logImage, preview: SharePreview("", image: logImage))
-                        }
-                    }
-                    .listStyle(.insetGrouped)
-                
-                    .navigationTitle("Logs")
-                    .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+                }
+            }
                     .onAppear {
                                     correctEntryLogRelationships()
                                 }
@@ -283,28 +232,217 @@ struct LogsView: View {
     }
     
     @ViewBuilder
-    func filteredEntriesListView() -> some View {
-        let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
-            .sorted { $0.time ?? Date() > $1.time ?? Date() }
-
-        
-        ForEach(entries, id: \.self) { entry in
+    func mainLogsCalendarView() -> some View {
+        List {
+            calendarView()
+            logsListView()
+                .onTapGesture {
+                    print("DATES: \(datesModel.dates)")
+                }
+                .alert(isPresented: $showingDeleteConfirmation) {
+                    Alert(title: Text("Delete log"),
+                          message: Text("Are you sure you want to delete this log? This action cannot be undone."),
+                          primaryButton: .destructive(Text("Delete")) {
+                        deleteLog(log: logToDelete)
+                    },
+                          secondaryButton: .cancel())
+                }
             
-            Section(header:
-                        entryHeaderView(entry: entry)
-            ) {
-                EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
-                    .environmentObject(userPreferences)
-                    .environmentObject(coreDataManager)
-                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                    .lineSpacing(userPreferences.lineSpacing)
-               
+            NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
             }
-            .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
+        }
+        .background {
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+            // Check if today's date already exists in the dates array
+            if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
+                // If it exists, you can decide to update its isSelected property or leave it as is
+                // For example, you could toggle the selection:
+                datesModel.dates[index].isSelected.toggle()
+            } else {
+                // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
+                datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
+            }
+            
+            updateFetchRequests()
+            updateDateRange()
+        }
+        .sheet(isPresented: $shareSheetShown) {
+            if let log_uiimage = image {
+                let logImage = Image(
+                    uiImage: log_uiimage)
+                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
+            }
+        }
+        .listStyle(.insetGrouped)
+        
+        .navigationTitle("Logs")
+        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+    }
+    
+    @ViewBuilder
+    func entryContextMenuButtons(entry: Entry) -> some View {
+        
+        Button(action: {
+            withAnimation {
+                isShowingReplyCreationView = true
+                replyEntryId = entry.id.uuidString
+            }
+        }) {
+            Text("Reply")
+            Image(systemName: "arrow.uturn.left")
+                .foregroundColor(userPreferences.accentColor)
+        }
+        
+        Button(action: {
+            UIPasteboard.general.string = entry.content
+            print("entry color : \(entry.color)")
+        }) {
+            Text("Copy Message")
+            Image(systemName: "doc.on.doc")
+        }
+        
+//        Button(action: {
+//            let pdfData = createPDFData_entry(entry: entry)
+//            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
+//            try? pdfData.write(to: tmpURL)
+//            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
+//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+//                let window = windowScene.windows.first
+//                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
+//            }
+//        }, label: {
+//            Label("Share Entry", systemImage: "square.and.arrow.up")
+//        })
+        
+        Button(action: {
+            withAnimation(.easeOut) {
+                entry.isHidden.toggle()
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
 
+        }, label: {
+            Label(entry.isHidden ? "Hide Entry" : "Unhide Entry", systemImage: entry.isHidden ? "eye.slash.fill" : "eye.fill")
+        })
+        
+        if let filename = entry.mediaFilename {
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let fileURL = documentsDirectory.appendingPathComponent(filename)
+            if mediaExists(at: fileURL) {
+                if let data =  getMediaData(fromFilename: filename) {
+                    if isPDF(data: data) {
+                    } else {
+                        let image = UIImage(data: data)!
+                        Button(action: {
+                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+                            
+                        }, label: {
+                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
+                        })
+                    }
+                }
+            }
+        }
+        
+        Button(action: {
+            withAnimation {
+                entry.isPinned.toggle()
+                coreDataManager.save(context: coreDataManager.viewContext)
+            }
+        }) {
+            Text(entry.isPinned ? "Unpin" : "Pin")
+            Image(systemName: "pin.fill")
+                .foregroundColor(.red)
         }
     }
     
+    
+    @ViewBuilder
+      func filteredEntriesListView() -> some View {
+          let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
+              .sorted { $0.time ?? Date() > $1.time ?? Date() }
+          
+          
+          ScrollView {
+              LazyVStack(spacing: 10) {
+                  ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
+                      if index < currentLoadedCount {
+                          VStack(spacing: 5) {
+                                                      entryHeaderView(entry: entry)
+                                                          .padding(.horizontal)
+                                                          .padding(.top, 10)
+                                                      
+                                                      EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
+                                                          .environmentObject(userPreferences)
+                                                          .environmentObject(coreDataManager)
+                                                          .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                                                          .lineSpacing(userPreferences.lineSpacing)
+                                                          .padding(.horizontal)
+                                                          .padding(.vertical, 10)
+                                                          .background(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
+                                                          .cornerRadius(10)
+                                                          .contextMenu {
+                                                              entryContextMenuButtons(entry: entry)
+                                                          }
+                                                  }
+                                                  .padding(.horizontal, 5)
+                                                  .onAppear {
+                                                      currentLoadedCount = min(initialLoadCount, entries.count)
+                                                  }
+//                          Section(header: entryHeaderView(entry: entry)) {
+//                              EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
+//                                  .environmentObject(userPreferences)
+//                                  .environmentObject(coreDataManager)
+//                                  .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                                  .lineSpacing(userPreferences.lineSpacing)
+//                                  .background(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
+//                                  .cornerRadius(10)
+//                                  .padding(5)
+//                          }
+//                          .padding(5)
+//                          .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
+                      }
+                  }
+                  
+                  if currentLoadedCount < entries.count {
+                      ProgressView()
+                          .onAppear {
+                              loadMoreContent(totalCount: entries.count)
+                          }
+                  }
+              }
+              .padding(.horizontal)
+     
+          }
+          .background {
+              ZStack {
+                  Color(UIColor.systemGroupedBackground)
+                  LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+              }
+              .ignoresSafeArea()
+          }
+          .scrollContentBackground(.hidden)
+      }
+      
+      @State private var currentLoadedCount = 0
+      private let initialLoadCount = 5
+      private let additionalLoadCount = 5
+      
+      private func loadMoreContent(totalCount: Int) {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+              currentLoadedCount = min(currentLoadedCount + additionalLoadCount, totalCount)
+          }
+      }
+    
+
     func getIdealTextColor() -> Color {
         var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
         var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
@@ -331,86 +469,124 @@ struct LogsView: View {
     
     @ViewBuilder
     func suggestedSearchView() -> some View {
-        Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)) {
-            Button {
-                searchModel.tokens.append(.hiddenEntries)
-            } label: {
-                HStack {
-                    Image(systemName: "eye.fill")
-                        .foregroundStyle(userPreferences.accentColor)
-                        .padding(.horizontal, 5)
-                    Text("Hidden Entries")
-                        .foregroundStyle(Color(UIColor.label))
+        List {
+            Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)) {
+                Button {
+                    searchModel.tokens.append(.hiddenEntries)
+                } label: {
+                    HStack {
+                        Image(systemName: "eye.fill")
+                            .foregroundStyle(userPreferences.accentColor)
+                            .padding(.horizontal, 5)
+                        Text("Hidden Entries")
+                            .foregroundStyle(Color(UIColor.label))
+                    }
                 }
-            }
-
-            Button {
-                searchModel.tokens.append(.mediaEntries)
-            } label: {
-                HStack {
-                    Image(systemName: "paperclip")
-                        .foregroundStyle(userPreferences.accentColor)
-                        .padding(.horizontal, 5)
-
-                    Text("Entries with Media")
-                        .foregroundStyle(Color(UIColor.label))
+                
+                Button {
+                    searchModel.tokens.append(.mediaEntries)
+                } label: {
+                    HStack {
+                        Image(systemName: "paperclip")
+                            .foregroundStyle(userPreferences.accentColor)
+                            .padding(.horizontal, 5)
+                        
+                        Text("Entries with Media")
+                            .foregroundStyle(Color(UIColor.label))
+                    }
                 }
-            }
-            
-            Button {
-                searchModel.tokens.append(.reminderEntries)
-            } label: {
-                HStack {
-                    Image(systemName: "bell.fill")
-                        .foregroundStyle(userPreferences.accentColor)
-                        .padding(.horizontal, 5)
-
-                    Text("Entries with Reminder")
-                        .foregroundStyle(Color(UIColor.label))
+                
+                Button {
+                    searchModel.tokens.append(.reminderEntries)
+                } label: {
+                    HStack {
+                        Image(systemName: "bell.fill")
+                            .foregroundStyle(userPreferences.accentColor)
+                            .padding(.horizontal, 5)
+                        
+                        Text("Entries with Reminder")
+                            .foregroundStyle(Color(UIColor.label))
+                    }
                 }
-            }
-            
-            Button {
-                searchModel.tokens.append(.pinnedEntries)
-            } label: {
-                HStack {
-                    Image(systemName: "pin.fill")
-                        .foregroundStyle(userPreferences.accentColor)
-                        .padding(.horizontal, 5)
-
-                    Text("Pinned Entries")
-                        .foregroundStyle(Color(UIColor.label))
+                
+                Button {
+                    searchModel.tokens.append(.pinnedEntries)
+                } label: {
+                    HStack {
+                        Image(systemName: "pin.fill")
+                            .foregroundStyle(userPreferences.accentColor)
+                            .padding(.horizontal, 5)
+                        
+                        Text("Pinned Entries")
+                            .foregroundStyle(Color(UIColor.label))
+                    }
                 }
-            }
-            
-//            Button {
-//                searchModel.tokens.append(.stampIndexEntries)
-//            } label: {
-//                HStack {
-//                    Image(systemName: "number.circle.fill")
-//                        .foregroundStyle(userPreferences.accentColor)
-//                        .padding(.horizontal, 5)
-//
-//                    Text("Stamp Number")
-//                        .foregroundStyle(Color(UIColor.label))
-//                }
-//            }
-//
-    
-            Button {
-                searchModel.tokens.append(.stampNameEntries)
-            } label: {
-                HStack {
-                    Image(systemName: "star.circle.fill")
-                        .foregroundStyle(userPreferences.accentColor)
-                        .padding(.horizontal, 5)
-
-                    Text("Stamp Icon Label")
-                        .foregroundStyle(Color(UIColor.label))
+                
+                //            Button {
+                //                searchModel.tokens.append(.stampIndexEntries)
+                //            } label: {
+                //                HStack {
+                //                    Image(systemName: "number.circle.fill")
+                //                        .foregroundStyle(userPreferences.accentColor)
+                //                        .padding(.horizontal, 5)
+                //
+                //                    Text("Stamp Number")
+                //                        .foregroundStyle(Color(UIColor.label))
+                //                }
+                //            }
+                //
+                
+                Button {
+                    searchModel.tokens.append(.stampNameEntries)
+                } label: {
+                    HStack {
+                        Image(systemName: "star.circle.fill")
+                            .foregroundStyle(userPreferences.accentColor)
+                            .padding(.horizontal, 5)
+                        
+                        Text("Stamp Icon Label")
+                            .foregroundStyle(Color(UIColor.label))
+                    }
                 }
             }
         }
+        .background {
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+            // Check if today's date already exists in the dates array
+            if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
+                // If it exists, you can decide to update its isSelected property or leave it as is
+                // For example, you could toggle the selection:
+                datesModel.dates[index].isSelected.toggle()
+            } else {
+                // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
+                datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
+            }
+            
+            updateFetchRequests()
+            updateDateRange()
+        }
+        .sheet(isPresented: $shareSheetShown) {
+            if let log_uiimage = image {
+                let logImage = Image(
+                    uiImage: log_uiimage)
+                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
+            }
+        }
+        .listStyle(.insetGrouped)
+        
+        .navigationTitle("Logs")
+        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
     }
+    
+    
     @ViewBuilder
     func calendarView() -> some View {
         Section {
