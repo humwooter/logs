@@ -27,6 +27,7 @@
         <attribute name="stampIcon" optional="YES" attributeType="String"/>
         <attribute name="stampIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="stampName" optional="YES" attributeType="String"/>
+        <attribute name="tags" optional="YES" attributeType="Transformable"/>
         <attribute name="time" attributeType="Date" defaultDateTimeInterval="741576360" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
@@ -48,6 +49,19 @@
         <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="UserTheme" representedClassName="UserTheme" syncable="YES">
+        <attribute name="accentColor" optional="YES" attributeType="Transformable"/>
+        <attribute name="bottomColor" optional="YES" attributeType="Transformable"/>
+        <attribute name="entryBackgroundColor" optional="YES" attributeType="Transformable"/>
+        <attribute name="fontName" optional="YES" attributeType="String"/>
+        <attribute name="fontSize" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="lineSpacing" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="pinColor" optional="YES" attributeType="Transformable"/>
+        <attribute name="reminderColor" optional="YES" attributeType="Transformable"/>
+        <attribute name="topColor" optional="YES" attributeType="Transformable"/>
     </entity>
     <configuration name="Cloud" usedWithCloudKit="YES">
         <memberEntity name="Entry"/>

@@ -67,6 +67,7 @@ struct EditingEntryView: View {
     @State private var reminderId: String?
     @State private var hasReminderAccess = false
     @State private var dateUpdated = false
+    @State var repliedEntryBackgroundColor: Color = Color.clear
 
     // Define your recurrence options
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
@@ -85,6 +86,7 @@ struct EditingEntryView: View {
                 if let reminderId = entry.reminderId {
                     fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
+                
                 
 //                if entry.relationship == nil {
 //                    let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
@@ -285,20 +287,24 @@ struct EditingEntryView: View {
                 
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
-                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
                         .overlay(
                               RoundedRectangle(cornerRadius: 15)
                                   .stroke(getIdealTextColor().opacity(0.05), lineWidth: 1)
                         )
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
-                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .background(repliedEntryBackgroundColor)
                             .cornerRadius(15.0)
                             .frame(maxWidth: .infinity)
                         
           
                     
                 }.scaledToFit()
+                    .onAppear {
+                        repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences))
+
+                    }
             }
         }
     }

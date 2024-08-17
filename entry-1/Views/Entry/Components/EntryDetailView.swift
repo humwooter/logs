@@ -27,6 +27,7 @@ struct EntryDetailView: View { //used in LogDetailView
 
 @State var showEntry = true
 @State var isPinned = false
+    @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
 
     var body: some View {
         finalView().padding(.vertical)
@@ -142,7 +143,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
                     //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .overlay(
@@ -150,8 +151,12 @@ struct EntryDetailView: View { //used in LogDetailView
                                       .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
                             )
 
-                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .background(repliedEntryBackgroundColor)
                             .cornerRadius(15.0)
+                }
+                .onAppear {
+                    repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences))
+
                 }
                 .frame(maxWidth: UIScreen.main.bounds.width * 0.6)
                 .scaledToFill()

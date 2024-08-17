@@ -82,12 +82,6 @@ struct LogsView: View {
     @Binding var selectedOption: PickerOptions
     @Namespace private var animation //what does this do
 
-    
-  
-    
-//    @State private var startDate: Date = .distantPast
-//
-//    @State private var endDate: Date = Date() // Current day
     var calendar = Calendar.current
     var timeZone = TimeZone.current
 
@@ -174,9 +168,9 @@ struct LogsView: View {
     @ViewBuilder
     func mainView() -> some View {
         VStack(spacing: 0) {
+            horizontalPickerView()
 
             if !isSearching {
-                horizontalPickerView()
 
                 mainLogsCalendarView()
             }

@@ -22,112 +22,37 @@ struct Theme: Identifiable {
     var lineSpacing: CGFloat
 }
 
-let themes: [Theme] = [
-    Theme(name: "Meadow",
-          accentColor: Color(hex: "#FF6B6B"),
-          topColor: Color(hex: "#4ECDC4"),
-          bottomColor: Color(hex: "#45B7A0"),
-          entryBackgroundColor: Color.white.opacity(0.7),
-          pinColor: Color(hex: "#FFD93D"),
-          reminderColor: Color(hex: "#FF8C42"),
-          fontName: "AvenirNext-Regular",
-          fontSize: 16,
-          lineSpacing: 1.2),
-
-    Theme(name: "Midnight",
-          accentColor: Color(hex: "#FF61D2"),
-          topColor: Color(hex: "#200F21"),
-          bottomColor: Color(hex: "#382039"),
-          entryBackgroundColor: Color(hex: "#553555").opacity(0.4),
-          pinColor: Color(hex: "#FF9DE2"),
-          reminderColor: Color(hex: "#A16AE8"),
-          fontName: "Futura",
-          fontSize: 17,
-          lineSpacing: 1.4),
-
-    Theme(name: "Autumn",
-          accentColor: Color(hex: "#D96941"),
-          topColor: Color(hex: "#F2E8CF"),
-          bottomColor: Color(hex: "#F4A261"),
-          entryBackgroundColor: Color(hex: "#E9C46A").opacity(0.2),
-          pinColor: Color(hex: "#E76F51"),
-          reminderColor: Color(hex: "#2A9D8F"),
-          fontName: "Catbrother",
-          fontSize: 18,
-          lineSpacing: 1.5),
-
-    Theme(name: "Arctic",
-          accentColor: Color(hex: "#48CAE4"),
-          topColor: Color(hex: "#CAF0F8"),
-          bottomColor: Color(hex: "#90E0EF"),
-          entryBackgroundColor: Color.white.opacity(0.5),
-          pinColor: Color(hex: "#023E8A"),
-          reminderColor: Color(hex: "#0077B6"),
-          fontName: "Gill Sans",
-          fontSize: 16,
-          lineSpacing: 1.3),
-
-    Theme(name: "Forest",
-          accentColor: Color(hex: "#FF9F1C"),
-          topColor: Color(hex: "#2B9348"),
-          bottomColor: Color(hex: "#007F5F"),
-          entryBackgroundColor: Color(hex: "#55A630").opacity(0.15),
-          pinColor: Color(hex: "#FFBF69"),
-          reminderColor: Color(hex: "#CBF3F0"),
-          fontName: "Noteworthy Light",
-          fontSize: 17,
-          lineSpacing: 1.4),
-
-    Theme(name: "Neon",
-          accentColor: Color(hex: "#FF00F5"),
-          topColor: Color(hex: "#0C0032"),
-          bottomColor: Color(hex: "#190061"),
-          entryBackgroundColor: Color(hex: "#3500D3").opacity(0.3),
-          pinColor: Color(hex: "#00FF41"),
-          reminderColor: Color(hex: "#FDF200"),
-          fontName: "Impact",
-          fontSize: 16,
-          lineSpacing: 1.2),
-
-    Theme(name: "Vintage",
-          accentColor: Color(hex: "#6D4C41"),
-          topColor: Color(hex: "#EFEBE9"),
-          bottomColor: Color(hex: "#D7CCC8"),
-          entryBackgroundColor: Color(hex: "#BCAAA4").opacity(0.2),
-          pinColor: Color(hex: "#795548"),
-          reminderColor: Color(hex: "#8D6E63"),
-          fontName: "American Typewriter",
-          fontSize: 15,
-          lineSpacing: 1.6),
-
-    Theme(name: "Pastel",
-          accentColor: Color(hex: "#FFD1DC"), // Light pink
-          topColor: Color(hex: "#E6E6FA"),    // Lavender
-          bottomColor: Color(hex: "#B0E0E6"), // Powder blue
-          entryBackgroundColor: Color.white.opacity(0.6),
-          pinColor: Color(hex: "#FFD700"),    // Gold
-          reminderColor: Color(hex: "#98FB98"),// Pale green
-          fontName: "Bradley Hand",
-          fontSize: 17,
-          lineSpacing: 1.4)
-]
-
 struct ThemeSheet: View {
     @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var coreDataManager: CoreDataManager
+
     @Environment(\.colorScheme) var colorScheme
+    @FetchRequest(
+          entity: UserTheme.entity(),
+          sortDescriptors: []
+      ) var savedThemes: FetchedResults<UserTheme>
+    
+    @State var selectedTheme: UserTheme?
+    @State private var editTheme = false
+    private var isEditThemeActive: Binding<Bool> {
+           Binding<Bool>(
+               get: {
+                   selectedTheme != nil && editTheme
+               },
+               set: { newValue in
+                   // This setter can be used to control editTheme and selectedTheme state
+                   if !newValue {
+                       editTheme = false
+                       selectedTheme = nil
+                   }
+               }
+           )
+       }
     
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                ForEach(themes) { theme in
-                    themeView(theme: theme).contextMenu {
-                        Button("Apply") {
-                            userPreferences.applyTheme(theme)
-                        }
-                    }
-                }
-            }
-            .padding()
+            customThemesView()
+            defaultThemesView()
         }
         .background {
             ZStack {
@@ -140,6 +65,83 @@ struct ThemeSheet: View {
         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
         .accentColor(userPreferences.accentColor)
+        .sheet(isPresented: isEditThemeActive) {
+            EditUserThemeView(userTheme: $selectedTheme)
+                .environmentObject(coreDataManager)
+                .environmentObject(userPreferences)
+        }
+    }
+    @ViewBuilder
+    func currentThemeView() -> some View {
+        let currentTheme = Theme(
+            name: "Current Theme",
+            accentColor: userPreferences.accentColor,
+            topColor: userPreferences.backgroundColors.first ?? .clear,
+            bottomColor: userPreferences.backgroundColors.last ?? .clear,
+            entryBackgroundColor: userPreferences.entryBackgroundColor,
+            pinColor: userPreferences.pinColor,
+            reminderColor: userPreferences.reminderColor,
+            fontName: userPreferences.fontName,
+            fontSize: userPreferences.fontSize,
+            lineSpacing: userPreferences.lineSpacing
+        )
+        themeView(theme: currentTheme)
+        .contextMenu {
+            Button("Save") {
+                let userTheme = UserTheme(context: coreDataManager.viewContext)
+                userTheme.fromTheme(currentTheme)
+                do {
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    print("Failed to save theme: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func customThemesView() -> some View {
+        Text("Custom Themes").font(.headline)
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+            currentThemeView()
+            ForEach(savedThemes, id: \.id) { userTheme in
+                let theme = userTheme.toTheme()
+                themeView(theme: theme).contextMenu {
+                    Button("Apply") {
+                        userPreferences.applyTheme(theme)
+                    }
+                    Button("Edit") {
+                        selectedTheme = userTheme
+                        editTheme = true
+                    }
+                    
+                    Button("Delete") {
+                        do {
+                            try coreDataManager.viewContext.delete(userTheme)
+                            try coreDataManager.viewContext.save()
+                        } catch {
+                            print("Failed to save theme: \(error.localizedDescription)")
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    func defaultThemesView() -> some View {
+        Text("Default Themes").font(.headline)
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+            ForEach(refinedThemes) { theme in
+                themeView(theme: theme).contextMenu {
+                    Button("Apply") {
+                        userPreferences.applyTheme(theme)
+                    }
+                }
+            }
+        }
+        .padding()
     }
     
     @ViewBuilder
@@ -193,7 +195,8 @@ struct ThemeSheet: View {
             }
         }
         .cornerRadius(20)  // Rounded corners for the entire block
-        .shadow(radius: 5)
+        .shadow(color: Color(UIColor.fontColor(forBackgroundColor: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first ?? Color.clear), with: UIColor(userPreferences.backgroundColors[1])))).opacity(0.2), radius: 5)
+        
     }
 }
 

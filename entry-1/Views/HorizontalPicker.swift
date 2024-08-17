@@ -16,8 +16,6 @@ enum PickerOptions: String, CaseIterable {
     case reminders = "Reminders"
     case search = "Search"
 }
-
-
 struct HorizontalPicker: View {
     @Binding var selectedOption: PickerOptions
     var animation: Namespace.ID
@@ -28,38 +26,33 @@ struct HorizontalPicker: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        var unselectedColor: Color {
-            return Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme))
-        }
+        let unselectedColor = Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme))
         let options = PickerOptions.allCases
 
-        
-        VStack {
-            HStack(alignment: .center) {
-                ForEach(options, id: \.self) { option in
-                    GeometryReader { geo in
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    ForEach(options, id: \.self) { option in
                         Button(action: {
                             withAnimation(.interpolatingSpring(stiffness: 200, damping: 20)) {
                                 selectedOption = option
-                                underlineWidth = geo.size.width
-                                underlineX = geo.frame(in: .global).minX - (UIScreen.main.bounds.width / 2) + (underlineWidth / 2)
                             }
                         }) {
                             VStack {
-                               if option.rawValue == "Calendar" {
-                                    Image(systemName: "calendar.day.timeline.leading")
-                                        .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
-                                } else if option.rawValue == "Folders" {
-                                    Image(systemName: "folder.fill")
-                                        .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
-                                } else if option.rawValue == "Reminders" {
-                                    Image(systemName: "bell")
-                                        .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
+                                Group {
+                                    switch option.rawValue {
+                                    case "Calendar":
+                                        Image(systemName: "calendar")
+                                    case "Folders":
+                                        Image(systemName: "folder.fill")
+                                    case "Reminders":
+                                        Image(systemName: "bell.fill")
+                                    default:
+                                        Image(systemName: "magnifyingglass")
+                                    }
                                 }
-                                else {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
-                                }
+                                .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
+                                
                                 if selectedOption == option {
                                     Circle()
                                         .fill(userPreferences.accentColor)
@@ -68,28 +61,14 @@ struct HorizontalPicker: View {
                                         .matchedGeometryEffect(id: "underline", in: animation)
                                 }
                             }
-                            .padding(.horizontal)
-                            .background(
-                                Group {
-                                    if selectedOption == option {
-                                        Color.clear // This is needed for matchedGeometryEffect
-                                    }
-                                }
-                            )
-                        }
-                        .onAppear {
-                            if selectedOption == option {
-                                underlineWidth = geo.size.width
-                                underlineX = geo.frame(in: .global).minX - (UIScreen.main.bounds.width / 2) + (underlineWidth / 2)
-                            }
+                            .frame(width: geometry.size.width / CGFloat(options.count))
                         }
                     }
-                    .frame(maxWidth: 65, minHeight: 40)
                 }
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity)
         }
-        .animation(.interpolatingSpring(stiffness: 200, damping: 20), value: options)
-
+        .frame(height: 40)
+        .animation(.interpolatingSpring(stiffness: 200, damping: 20), value: selectedOption)
     }
 }

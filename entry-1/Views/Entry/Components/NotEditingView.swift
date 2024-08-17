@@ -37,6 +37,7 @@ struct NotEditingView: View {
     @State private var selectedURL: URL? = nil
     @State private var textColor: Color = Color.clear
     @State  var foregroundColor: UIColor
+    @State var repliedEntryBackgroundColor: Color = Color.clear
     
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
      @State private var isVideoPlayerPresented = false
@@ -189,7 +190,7 @@ struct NotEditingView: View {
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
                     //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .overlay(
@@ -197,7 +198,7 @@ struct NotEditingView: View {
                                       .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
                             )
 
-                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .background(repliedEntryBackgroundColor)
                             .cornerRadius(15.0)
                           
                             .frame(maxWidth: .infinity)
@@ -205,6 +206,10 @@ struct NotEditingView: View {
                         
           
                     
+                }
+                .onAppear {
+                    repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences))
+
                 }
                 .frame(maxWidth: UIScreen.main.bounds.width * 0.5)
                 .scaledToFill()
@@ -387,96 +392,7 @@ struct NotEditingView: View {
             }
         }
     }
-    
-//    
-//    @ViewBuilder
-//    func entryTextView() -> some View {
-//        VStack {
-//            if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
-//                var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-//                var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-//                if (userPreferences.showLinks && foregroundColor != UIColor.clear) {
-//                    if let entryName = entry.title, !entryName.isEmpty {
-//                        Text(entryName)
-//                            .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                            .padding(.vertical, 2)
-//                            .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-//
-//
-//
-//                    }
-//            
-//                    Text(makeAttributedString(from: entry.content))
-//                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-//            
-//
-//                } else {
-//                    if let entryName = entry.title, !entryName.isEmpty {
-//                        Text(entryName)
-//                            .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                            .padding(.vertical, 2)
-//                            .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-//
-//
-//
-//                    }
-//                    Text(entry.content)
-//                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
-//                }
-//            } else {
-//                var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-//                var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-//                var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-//                if let entryName = entry.title, !entryName.isEmpty {
-//                    Text(entryName)
-//                        .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-//                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                        .padding(.vertical, 2)
-//                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//
-//
-//
-//                }
-//                if (userPreferences.showLinks) {
-//                    
-//                    VStack {
-//                        Text(makeAttributedString(from: entry.content))
-//                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                            .onAppear {
-//                                entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-//                            }
-//                    }
-//                } else {
-//                    if let entryName = entry.title, !entryName.isEmpty {
-//                        Text(entryName)
-//                            .font(.custom(userPreferences.fontName, size: 1.35*CGFloat(userPreferences.fontSize)))
-//                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-//                            .padding(.vertical, 2)
-//                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//
-//
-//
-//                    }
-//                    Text(entry.content)
-//                        .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-//                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
-//                }
-//            }
-//            
-//        }
-//        .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
-//            .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
-//            .padding(2)
-//            .padding(.vertical, 5)
-//            .lineSpacing(userPreferences.lineSpacing)
-//            .blur(radius: entry.isHidden ? 7 : 0)
-//            .shadow(radius: 0)
-//    }
+
     @ViewBuilder
        func entryTextView() -> some View {
            VStack {
@@ -557,6 +473,7 @@ struct NotEditingView_thumbnail: View {
     @State private var selectedURL: URL? = nil
     @State private var textColor: Color = Color.clear
     @State  var foregroundColor: UIColor
+    @Binding var repliedEntryBackgroundColor: Color
     
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
     @State private var isVideoPlayerPresented = false
@@ -573,7 +490,9 @@ struct NotEditingView_thumbnail: View {
                     }
                 }
         }
-      
+        .onChange(of: entry.stampIndex, { oldValue, newValue in
+            repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+        })
         .padding()
         .blur(radius: showEntry ? 0 : 7)
     }

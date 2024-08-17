@@ -966,6 +966,7 @@ struct NewEntryView: View {
         newEntry.isPinned = false
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
+        newEntry.tags = []
         
         newEntry.name = "" //change later
         if !entryTitle.isEmpty {

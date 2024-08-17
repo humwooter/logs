@@ -530,6 +530,7 @@ struct SettingsView: View {
 
         NavigationLink("Themes") {
             ThemeSheet()
+                .environmentObject(coreDataManager)
                 .environmentObject(userPreferences)
         }
         

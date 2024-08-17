@@ -85,7 +85,7 @@ struct ReplyEntryView: View {
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
-    
+    @State var entryBackgroundColor: Color = Color.clear
     var body: some View {
         NavigationStack {
             VStack {
@@ -134,7 +134,7 @@ struct ReplyEntryView: View {
               
            
             }
-
+     
             .background {
                     ZStack {
                         Color(UIColor.systemGroupedBackground)
@@ -482,22 +482,7 @@ struct ReplyEntryView: View {
             }
             
             HStack {
-//                ZStack(alignment: .topTrailing) {
-//                    repliedEntryView().padding(10).scaledToFit()
-//                        .onAppear {
-//                            print("REPLY ID: \(replyEntryId)")
-//                        }
-//
-////                    if !replyEntryId.isEmpty {
-////                        Button(role: .destructive, action: {
-//////                            vibration_light.impactOccurred()
-//////                            replyEntryId = ""
-////                        }) {
-//////                            Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-////                            Spacer().padding(15)
-////                        }
-////                    }
-//                }
+
                 entryMediaView().cornerRadius(15.0).padding(10).scaledToFit().frame(minHeight: 0)
              
       
@@ -697,13 +682,16 @@ struct ReplyEntryView: View {
     func repliedEntryView() -> some View {
         if !replyEntryId.isEmpty {
             if let repliedEntry = fetchEntryById(id: replyEntryId, coreDataManager: coreDataManager) {
+           
+
                 
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
-                        NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $entryBackgroundColor)
+                    
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
-                            .background(Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences)))
+                            .background(entryBackgroundColor)
                             .cornerRadius(15.0)
                             .frame(maxWidth: .infinity)
                             .overlay(
@@ -713,7 +701,12 @@ struct ReplyEntryView: View {
                         
           
                     
+                }
+                .onAppear {
+                    entryBackgroundColor = Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences))
                 }.scaledToFit()
+                 
+            
             }
         }
     }
