@@ -69,7 +69,7 @@ struct TextView : View {
      @Binding var repliedEntryId: String? //should store the id of the current entry
      @Binding var isShowingEntryCreationView: Bool
      @Binding var isShowingReplyCreationView: Bool
-    
+
     var body : some View {
         
         if (!entry.isFault) {
@@ -207,7 +207,7 @@ struct TextView : View {
                 
                 print("Entry being deleted: \(entryToDeleteInContext)")
   
-                parentLog.removeFromRelationship(entry)
+                parentLog?.removeFromRelationship(entry)
                 entryToDeleteInContext.isRemoved = true
                 try mainContext.save()
                 
@@ -305,6 +305,21 @@ struct TextView : View {
                 .foregroundColor(.red)
           
         }
+        
+        Button(action: {
+            entry.shouldSyncWithCloudKit.toggle()
+            
+            // Save the flag change in local storage first
+            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
+
+            // Save the entry in the appropriate store
+            CoreDataManager.shared.saveEntry(entry)
+        }) {
+            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
+            Image(systemName: "cloud.fill")
+        }
+
+        
     }
     
 
@@ -331,18 +346,20 @@ struct TextView : View {
         }
     }
     
+    
     @ViewBuilder
     func entrySectionHeader() -> some View {
         HStack {
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
                         }
-                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+                        .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
                     }
 
                 }

@@ -52,21 +52,22 @@ public class Entry: NSManagedObject, Codable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
         id = try values.decodeIfPresent(UUID.self, forKey: .id)!
-        content = try values.decodeIfPresent(String.self, forKey: .content)!
-        let attributedContentWrapper = try values.decodeIfPresent(AttributedStringCodableWrapper.self, forKey: .attributedContent)
-        attributedContent = attributedContentWrapper?.attributedString
-        time = try values.decodeIfPresent(Date.self, forKey: .time)!
+        content = try values.decodeIfPresent(String.self, forKey: .content) ?? "could not retrieve content"
+//        let attributedContentWrapper = try values.decodeIfPresent(AttributedStringCodableWrapper.self, forKey: .attributedContent)
+        time = try values.decodeIfPresent(Date.self, forKey: .time) ?? Date()
         
         if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
             color = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear
         }
         
-        stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon)!
+        stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon) ?? ""
         entryReplyId = try values.decodeIfPresent(String.self, forKey: .entryReplyId) ?? ""
-        stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex)!
+        logId = try values.decodeIfPresent(UUID.self, forKey: .logId)
+
+        stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex) ?? -1
         mediaFilename = try values.decodeIfPresent(String.self, forKey: .mediaFilename) ?? ""
-        isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden)!
-        isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned)!
+        isHidden = try values.decodeIfPresent(Bool.self, forKey: .isHidden) ?? false
+        isPinned = try values.decodeIfPresent(Bool.self, forKey: .isPinned) ?? false
         
         isShown = try values.decode(Bool.self, forKey: .isShown)
         isRemoved = try values.decode(Bool.self, forKey: .isRemoved)
@@ -81,7 +82,7 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(reminderId, forKey: .reminderId)
         try container.encodeIfPresent(content, forKey: .content)
         try container.encodeIfPresent(time, forKey: .time)
-        try container.encode(stampIndex, forKey: .stampIndex)
+        try container.encodeIfPresent(stampIndex, forKey: .stampIndex)
         
         try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: color, requiringSecureCoding: true), forKey: .color)
         
@@ -94,17 +95,19 @@ public class Entry: NSManagedObject, Codable {
         
         try container.encode(isShown, forKey: .isShown)
         try container.encode(isRemoved, forKey: .isRemoved)
-        try container.encode(isDrafted, forKey: .isDrafted)
-        try container.encode(pageNum_pdf, forKey: .pageNum_pdf)
+        try container.encodeIfPresent(isDrafted, forKey: .isDrafted)
+        try container.encodeIfPresent(pageNum_pdf, forKey: .pageNum_pdf)
+        try container.encodeIfPresent(logId, forKey: .logId)
+
         
-        if let attributedContent = self.attributedContent {
-            let attributedContentWrapper = AttributedStringCodableWrapper(attributedString: attributedContent)
-            try container.encode(attributedContentWrapper, forKey: .attributedContent)
-        }
+//        if let attributedContent = self.attributedContent {
+//            let attributedContentWrapper = AttributedStringCodableWrapper(attributedString: attributedContent as! NSAttributedString)
+//            try container.encode(attributedContentWrapper, forKey: .attributedContent)
+//        }
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, attributedContent
+        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, logId
     }
 }
 

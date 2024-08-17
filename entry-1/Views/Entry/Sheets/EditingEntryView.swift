@@ -86,11 +86,11 @@ struct EditingEntryView: View {
                     fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
                 
-                if entry.relationship == nil {
-                    let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
-                    entry.relationship = log
-                    log.addToRelationship(entry)
-                }
+//                if entry.relationship == nil {
+//                    let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
+//                    entry.relationship = log
+////                    log.addToRelationship(entry)
+//                }
                 print("ENTRY: \(entry)")
                 if let lastUpdated = entry.lastUpdated {
                     print("\(formattedTime_long(date: lastUpdated))")
@@ -868,10 +868,11 @@ struct EditingEntryView: View {
               
               if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
                   let previousLog = entry.relationship
-                  previousLog.removeFromRelationship(entry)
+                  previousLog?.removeFromRelationship(entry)
                   if let log = fetchLogByDate(date: formattedDate(selectedDate), coreDataManager: coreDataManager) {
-                      entry.relationship = log
-                      log.addToRelationship(entry)
+//                      entry.relationship = log
+                      entry.logId = log.id
+//                      log.addToRelationship(entry)
                   } else {
                       createLog(date: selectedDate, coreDataManager: coreDataManager)
                   }

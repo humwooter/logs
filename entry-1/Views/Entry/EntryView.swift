@@ -40,7 +40,7 @@ struct EntryView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
         predicate: NSCompoundPredicate(andPredicateWithSubpredicates: [
             NSPredicate(format: "time >= %@ OR isPinned == true", Calendar.current.startOfDay(for: Date()) as NSDate),
-//            NSPredicate(format: "shouldSyncWithCloudKit != true")
+            NSPredicate(format: "isRemoved != true")
         ])
     ) var entries: FetchedResults<Entry>
 
@@ -75,9 +75,9 @@ struct EntryView: View {
          isShowingReplyCreationView && repliedEntryId != nil
      }
     
-    private func fetchSyncedEntries() {
-          syncedEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true)
-      }
+//    private func fetchSyncedEntries() {
+//          syncedEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true)
+//      }
 
     
     var body : some View {
@@ -192,7 +192,7 @@ struct EntryView: View {
                         
                         // Mark the entry as removed and detach it from the parent log
                         entryToDeleteInContext.isRemoved = true
-                        parentLog.removeFromRelationship(entryToDeleteInContext)
+                        parentLog?.removeFromRelationship(entryToDeleteInContext)
                         
                         // Save changes
                         try mainContext.save()
@@ -296,12 +296,14 @@ struct EntryView: View {
     
     @ViewBuilder
     func sortedEntriesView() -> some View {
+//        let cloudEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true)
+//        let localEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: false)
         switch selectedSortOption {
         case .timeAscending:
-//            let sortedEntries =  coreDataManager.fetchEntries(shouldSyncWithCloudKit: false).sorted { $0.time > $1.time }
+            let sortedEntries = entries.sorted { $0.time > $1.time }
 
-            let sortedEntries = (entries).sorted { $0.time > $1.time }
-            
+//            let sortedEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true) + coreDataManager.fetchEntries(shouldSyncWithCloudKit: false)
+//            (entries).sorted { $0.time > $1.time } +
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
                     EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)

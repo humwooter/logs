@@ -95,20 +95,23 @@ struct SettingsView: View {
     
     @ViewBuilder
     func cloudSyncView() -> some View {
-        Picker("Sync Preference", selection: $userPreferences.syncPreference) {
-                    Text("None").tag(UserPreferences.SyncPreference.none)
-                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
-                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
-                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
-                }
-        
-        if userPreferences.syncPreference == .specificEntries {
-               Section(header: Text("Manage Synced Entries")) {
-                   NavigationLink("Select Entries to Sync") {
-                       EntriesSyncSelectionView()
-                   }
-               }
-           }
+        HStack {
+            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror)
+        }
+//        Picker("Sync Preference", selection: $userPreferences.syncPreference) {
+//                    Text("None").tag(UserPreferences.SyncPreference.none)
+//                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
+//                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
+//                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
+//                }
+//        
+//        if userPreferences.syncPreference == .specificEntries {
+//               Section(header: Text("Manage Synced Entries")) {
+//                   NavigationLink("Select Entries to Sync") {
+//                       EntriesSyncSelectionView()
+//                   }
+//               }
+//           }
     }
     
     
@@ -140,28 +143,28 @@ struct SettingsView: View {
                 )
             }
             
-            NavigationLink {
-                NavigationStack {
-                    List {
-                        cloudSyncView()
-                        //                                    .dismissOnTabTap()
-                    }.navigationTitle("Cloud Sync")
-                        .background {
-                            ZStack {
-                                Color(UIColor.systemGroupedBackground)
-                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                            }
-                            .ignoresSafeArea()
-                        }
-                        .scrollContentBackground(.hidden)
-                }
-            } label: {
-                Label(
-                    title: { Text("Sync")
-                    },
-                    icon: { settingsIconView(systemImage: "cloud.fill")}
-                )
-            }
+//            NavigationLink {
+//                NavigationStack {
+//                    List {
+//                        cloudSyncView()
+//                        //                                    .dismissOnTabTap()
+//                    }.navigationTitle("Cloud Sync")
+//                        .background {
+//                            ZStack {
+//                                Color(UIColor.systemGroupedBackground)
+//                                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+//                            }
+//                            .ignoresSafeArea()
+//                        }
+//                        .scrollContentBackground(.hidden)
+//                }
+//            } label: {
+//                Label(
+//                    title: { Text("Sync")
+//                    },
+//                    icon: { settingsIconView(systemImage: "cloud.fill")}
+//                )
+//            }
         }
                 
         Section {
@@ -347,7 +350,10 @@ struct SettingsView: View {
     
     @ViewBuilder
     func introScreenViews() -> some View {
-        Section(header: Text("About").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+        Section(header: Text("About")
+            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+//            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
 
         ) {
@@ -420,7 +426,9 @@ struct SettingsView: View {
     @ViewBuilder
     func stampsTabView() -> some View {
 //        let defaultTopColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-        Section(header: Text("Stamp Dashboard").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+        Section(header: Text("Stamp Dashboard")
+            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+//            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         ) {
             ButtonDashboard().environmentObject(userPreferences).scaledToFit()
@@ -439,7 +447,9 @@ struct SettingsView: View {
     @ViewBuilder
     func preferencesTabView() -> some View {
         
-        Section(header: Text("Preferences").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+        Section(header: Text("Preferences")
+            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+//            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         ) {
             ColorPicker("Accent Color", selection: $userPreferences.accentColor)
@@ -455,7 +465,10 @@ struct SettingsView: View {
         } header: {
             
             HStack {
-                Text("Background Colors").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Background Colors")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
                 Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
@@ -472,7 +485,10 @@ struct SettingsView: View {
       
         } header: {
             HStack {
-                Text("Entry Background").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Entry Background")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
                 Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
@@ -488,7 +504,10 @@ struct SettingsView: View {
             ColorPicker("Pin Color", selection: $userPreferences.pinColor)
         } header: {
             HStack {
-                Text("Pin Color").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Pin Color")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
                 Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
@@ -499,13 +518,20 @@ struct SettingsView: View {
             ColorPicker("Reminder Color", selection: $userPreferences.reminderColor)
         } header: {
             HStack {
-                Text("Alerts").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Alerts")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
             }.font(.system(size: UIFont.systemFontSize))
         }
 
+        NavigationLink("Themes") {
+            ThemeSheet()
+                .environmentObject(userPreferences)
+        }
         
 
     }
@@ -561,11 +587,32 @@ struct SettingsView: View {
         } header: {
             HStack {
                 Image(systemName: "lock.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                Text("Passcode").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Passcode")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
                 Spacer()
             }
             .font(.system(size: UIFont.systemFontSize))
         }
+        
+        Section {
+            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror) // Make sure to add this property to UserPreferences
+                .onChange(of: userPreferences.enableCloudMirror) { newValue in
+                    if newValue {
+                        userPreferences.enableCloudMirror = newValue
+                    }
+                }
+        } header: {
+            HStack {
+                Image(systemName: "cloud.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                Text("Sync")
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+
+                Spacer()
+            }
+            .font(.system(size: UIFont.systemFontSize))
+        }
+        
         
         Section {
             Toggle("Activate hyperlinks", isOn: $userPreferences.showLinks) // Make sure to add this property to UserPreferences
@@ -577,7 +624,9 @@ struct SettingsView: View {
         } header: {
             HStack {
                 Image(systemName: "link").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                Text("Link Detection").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Link Detection")
+//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
                 Spacer()
             }
             .font(.system(size: UIFont.systemFontSize))
@@ -643,57 +692,57 @@ struct SettingsView: View {
     }
     
 }
-
-struct EntriesSyncSelectionView: View {
-    @FetchRequest(
-        entity: Entry.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: false)]
-    ) var entries: FetchedResults<Entry>
-    
-    @StateObject private var syncManager = SyncManager.shared
-
-    var body: some View {
-        List {
-            Section {
-                Picker("Sync Preference", selection: $syncManager.userPreferences.syncPreference) {
-                    Text("None").tag(UserPreferences.SyncPreference.none)
-                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
-                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
-                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .onChange(of: syncManager.userPreferences.syncPreference) { newValue in
-                    if newValue != .none {
-                        syncManager.performSync()
-                    }
-                }
-            }
-            
-            if syncManager.userPreferences.syncPreference == .specificEntries {
-                ForEach(entries) { entry in
-                    CloudSyncEntryRowView(entry: entry)
-                }
-            }
-        }
-    }
-}
-
-struct CloudSyncEntryRowView: View {
-    @ObservedObject var entry: Entry
-    @ObservedObject var syncManager = SyncManager.shared
-    
-    var body: some View {
-        Toggle(isOn: Binding(
-            get: { entry.shouldSyncWithCloudKit },
-            set: { newValue in
-                entry.shouldSyncWithCloudKit = newValue
-                CoreDataManager.shared.save(context: entry.managedObjectContext ?? CoreDataManager.shared.viewContext) //save the flag change in local storage first
-                
-                CoreDataManager.shared.saveEntry(entry)
-                syncManager.updateSyncStatus(for: entry, shouldSync: newValue)
-            }
-        )) {
-            Text(entry.content.prefix(50) ?? "No content")
-        }
-    }
-}
+//
+//struct EntriesSyncSelectionView: View {
+//    @FetchRequest(
+//        entity: Entry.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: false)]
+//    ) var entries: FetchedResults<Entry>
+//    
+//    @StateObject private var syncManager = SyncManager.shared
+//
+//    var body: some View {
+//        List {
+//            Section {
+//                Picker("Sync Preference", selection: $syncManager.userPreferences.syncPreference) {
+//                    Text("None").tag(UserPreferences.SyncPreference.none)
+//                    Text("Documents").tag(UserPreferences.SyncPreference.documents)
+//                    Text("All Entries").tag(UserPreferences.SyncPreference.allEntries)
+//                    Text("Specific Entries").tag(UserPreferences.SyncPreference.specificEntries)
+//                }
+//                .pickerStyle(SegmentedPickerStyle())
+//                .onChange(of: syncManager.userPreferences.syncPreference) { newValue in
+//                    if newValue != .none {
+//                        syncManager.performSync()
+//                    }
+//                }
+//            }
+//            
+//            if syncManager.userPreferences.syncPreference == .specificEntries {
+//                ForEach(entries) { entry in
+//                    CloudSyncEntryRowView(entry: entry)
+//                }
+//            }
+//        }
+//    }
+//}
+//
+//struct CloudSyncEntryRowView: View {
+//    @ObservedObject var entry: Entry
+//    @ObservedObject var syncManager = SyncManager.shared
+//    
+//    var body: some View {
+//        Toggle(isOn: Binding(
+//            get: { entry.shouldSyncWithCloudKit },
+//            set: { newValue in
+//                entry.shouldSyncWithCloudKit = newValue
+//                CoreDataManager.shared.save(context: entry.managedObjectContext ?? CoreDataManager.shared.viewContext) //save the flag change in local storage first
+//                
+//                CoreDataManager.shared.saveEntry(entry)
+//                syncManager.updateSyncStatus(for: entry, shouldSync: newValue)
+//            }
+//        )) {
+//            Text(entry.content.prefix(50) ?? "No content")
+//        }
+//    }
+//}

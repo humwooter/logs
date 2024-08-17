@@ -76,7 +76,7 @@ class UserPreferences: ObservableObject, Codable {
      }
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon, syncPreference
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon, syncPreference, enableCloudMirror
     }
     
     
@@ -164,7 +164,7 @@ class UserPreferences: ObservableObject, Codable {
 
         self.showMostRecentEntryTime = try container.decode(Bool.self, forKey: .showMostRecentEntryTime)
         self.syncPreference = try container.decode(SyncPreference.self, forKey: .syncPreference)
-
+        self.enableCloudMirror = try container.decode(Bool.self, forKey: .enableCloudMirror)
     }
 
 
@@ -286,6 +286,14 @@ class UserPreferences: ObservableObject, Codable {
         }
     }
     
+    
+    
+    @Published var enableCloudMirror: Bool  {
+        didSet {
+            UserDefaults.standard.set(enableCloudMirror, forKey: "enableCloudMirror")
+        }
+    }
+    
     @Published var showMostRecentEntryTime: Bool  {
         didSet {
             UserDefaults.standard.set(showMostRecentEntryTime, forKey: "showMostRecentEntryTime")
@@ -378,6 +386,7 @@ class UserPreferences: ObservableObject, Codable {
         
         self.showMostRecentEntryTime = UserDefaults.standard.bool(forKey: "showMostRecentEntryTime")
         self.activeAppIcon = UserDefaults.standard.string(forKey: "activeAppIcon") ?? "AppIcon"
+        self.enableCloudMirror = UserDefaults.standard.bool(forKey: "enableCloudMirror")
     }
 }
 

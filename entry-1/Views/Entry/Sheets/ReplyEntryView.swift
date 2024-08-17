@@ -974,22 +974,22 @@ struct ReplyEntryView: View {
             let logs = try viewContext.fetch(fetchRequest)
             print("LOGS: ", logs)
             if let log = logs.first {
-                log.addToRelationship(newEntry)
-                newEntry.relationship = log
+//                log.addToRelationship(newEntry)
+//                newEntry.relationship = log
+                newEntry.logId = log.id
             } else {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
                 let newLog = Log(context: viewContext)
                 newLog.day = formattedDate(newEntry.time)
                 dateStringManager.addDate(newLog.day)
-                newLog.addToRelationship(newEntry)
+//                newLog.addToRelationship(newEntry)
                 newLog.id = UUID()
-                newEntry.relationship = newLog
+                newEntry.logId = newLog.id
+//                newEntry.relationship = newLog
                 
-                let todayDate = Date()
-                let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                let todayDateString = formattedDate(todayDate)  // Using formattedDate function
-                datesModel.dates.append(LogDate(date: todayComponents, isSelected: false, hasLog: true))  // Start with today not selected
+          // Using formattedDate function
+                datesModel.addTodayIfNotExists()
             }
             try viewContext.save()
         } catch {

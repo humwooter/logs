@@ -23,10 +23,11 @@ struct EntryDetailView: View { //used in LogDetailView
     
 
     @State private var mediaDim: CGFloat = 100
+     var showContextMenu: Bool = false
 
 @State var showEntry = true
 @State var isPinned = false
-    
+
     var body: some View {
         finalView().padding(.vertical)
             .onAppear {
@@ -112,10 +113,10 @@ struct EntryDetailView: View { //used in LogDetailView
 
                 }
 
-            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+            Image(systemName: entry.stampIcon ?? "").foregroundStyle(Color(entry.color))
             Spacer()
             
-            if entry.shouldSyncWithCloudKit {
+            if entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) {
                 Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
             }
             
@@ -200,7 +201,7 @@ struct EntryDetailView: View { //used in LogDetailView
                     VStack {
                         
                         if (userPreferences.showLinks) {
-                            Text(makeAttributedString(from: entry.content))
+                            Text(makeAttributedString(from: entry.content ?? ""))
 
                         } else {
                             Text(entry.content)
@@ -218,10 +219,9 @@ struct EntryDetailView: View { //used in LogDetailView
             entryMediaView()
 
         }
-//        .contextMenu {
-//            entryContextMenuButtons()
-//        }
- 
+        .contextMenu {
+                entryContextMenuButtons()
+        }
     }
     
     func getTextColor() -> UIColor { //different implementation since the background will always be default unless
@@ -332,6 +332,23 @@ struct EntryDetailView: View { //used in LogDetailView
             Image(systemName: "pin.fill")
                 .foregroundColor(.red)
         }
+        
+        
+        
+        Button(action: {
+            entry.shouldSyncWithCloudKit.toggle()
+            
+            // Save the flag change in local storage first
+            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
+
+            // Save the entry in the appropriate store
+            CoreDataManager.shared.saveEntry(entry)
+        }) {
+            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
+            Image(systemName: "cloud.fill")
+        }
+
+        
     }
     
     @ViewBuilder

@@ -101,6 +101,10 @@ struct EntryRowView: View {
 
             do {
                 try mainContext.save()
+                if entry.shouldSyncWithCloudKit {
+                    CoreDataManager.shared.saveEntry(entry)
+                }
+
 //                coreDataManager.saveEntry(entry)
             } catch {
                 print("Failed to save mainContext: \(error)")

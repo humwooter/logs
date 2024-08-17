@@ -966,6 +966,7 @@ struct NewEntryView: View {
         newEntry.isPinned = false
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
+        
         newEntry.name = "" //change later
         if !entryTitle.isEmpty {
             newEntry.title = entryTitle
@@ -1002,22 +1003,21 @@ struct NewEntryView: View {
             let logs = try viewContext.fetch(fetchRequest)
             print("LOGS: ", logs)
             if let log = logs.first {
-                log.addToRelationship(newEntry)
-                newEntry.relationship = log
+//                log.addToRelationship(newEntry)
+                newEntry.logId = log.id
+//                newEntry.relationship = log
             } else {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
                 let newLog = Log(context: viewContext)
                 newLog.day = formattedDate(newEntry.time)
                 dateStringManager.addDate(newLog.day)
-                newLog.addToRelationship(newEntry)
+//                newLog.addToRelationship(newEntry)
                 newLog.id = UUID()
+                newEntry.logId = newLog.id
                 newEntry.relationship = newLog
                 
-                let todayDate = Date()
-                let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                let todayDateString = formattedDate(todayDate)  // Using formattedDate function
-                datesModel.dates.append(LogDate(date: todayComponents, isSelected: false, hasLog: true))  // Start with today not selected
+                datesModel.addTodayIfNotExists()
             }
             try viewContext.save()
         } catch {

@@ -2,7 +2,7 @@
 //  Log+CoreDataProperties.swift
 //  entry-1
 //
-//  Created by Katyayani G. Raman on 7/14/24.
+//  Created by Katya Raman on 8/14/23.
 //
 //
 
@@ -16,13 +16,14 @@ extension Log {
         return NSFetchRequest<Log>(entityName: "Log")
     }
 
-    @NSManaged public var day: String?
-    @NSManaged public var id: UUID?
-    @NSManaged public var relationship: NSSet?
+    @NSManaged public var day: String
+    @NSManaged public var id: UUID
+    @NSManaged public var relationship: NSSet
+    @NSManaged public var entry_ids: [String]
+
 
 }
 
-// MARK: Generated accessors for relationship
 extension Log {
 
     @objc(addRelationshipObject:)
@@ -36,6 +37,20 @@ extension Log {
 
     @objc(removeRelationship:)
     @NSManaged public func removeFromRelationship(_ values: NSSet)
+    
+    @objc
+    static func dayDidChange() {
+        print("ENTERED DAY DID CHANEG")
+        // Here we can do our cleanup and refresh the fetch request
+        deleteOldEntries()
+        // FetchRequest will automatically reload since the underlying data changes
+    }
+    
+    public func addEntryId(_ entryId: String) {
+            if !entry_ids.contains(entryId) {
+                entry_ids.append(entryId)
+            }
+        }
 
 }
 

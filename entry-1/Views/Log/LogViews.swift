@@ -79,12 +79,11 @@ struct LogsView: View {
     @State private var isDatesUpdated = false
     @Binding var replyEntryId: String?
 
+    @Binding var selectedOption: PickerOptions
+    @Namespace private var animation //what does this do
+
     
-    
-    @FetchRequest(
-        entity: Log.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
-    ) var logs: FetchedResults<Log>
+  
     
 //    @State private var startDate: Date = .distantPast
 //
@@ -102,36 +101,6 @@ struct LogsView: View {
     @State var heights: [UUID: CGFloat] = [:]
     @Binding var isShowingReplyCreationView: Bool
 
-
-    
-    func updateDateRange() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-        
-        let dateLogs = logs.compactMap { dateFormatter.date(from: $0.day) }
-        
-        guard let earliestDate = dateLogs.min(), let latestDate = dateLogs.max() else {
-            return // Return early if there are no dates
-        }
-        
-        // Update the start date to the earliest date from the logs
-        datesModel.startDate = earliestDate
-        
-        // Check if the latest date from the logs is today or in the past
-        if Calendar.current.isDateInToday(latestDate) || latestDate < Date() {
-            // If so, set the end date to today
-            datesModel.endDate = Date()
-        } else {
-            // If the latest date is in the future, set the end date to the day after the latest date
-            if let dayAfterLatestDate = Calendar.current.date(byAdding: .day, value: 1, to: latestDate) {
-                datesModel.endDate = dayAfterLatestDate
-            } else {
-                // Fallback to the latest date if unable to calculate the next day (unlikely to fail)
-                datesModel.endDate = latestDate
-            }
-        }
-    }
-
     
     @State private var showCalendar = true
     
@@ -142,6 +111,12 @@ struct LogsView: View {
         animation: nil
     ) var currentLog: FetchedResults<Log>
 
+    @FetchRequest(
+        entity: Log.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)]
+    ) var logs: FetchedResults<Log>
+
+    
     
     // LogsView
     @FetchRequest(
@@ -153,28 +128,19 @@ struct LogsView: View {
     @ObservedObject var searchModel: SearchModel
     @Environment(\.colorScheme) var colorScheme
 
+    
+    @Binding var filteredLogs: [Log]
+
     var body: some View {
+        
+        
 
         NavigationStack {
             VStack {
-            VStack(spacing: 0) {
-                if !isSearching {
-        
-                    mainLogsCalendarView()
-                }
-                else { //if the user is actively searching
-                    if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
-                        suggestedSearchView()
-                    }
-                    else {
-                        filteredEntriesListView()
-                    }
-                }
+                mainView()
+
             }
-                    .onAppear {
-                                    correctEntryLogRelationships()
-                                }
-            }.font(.system(size: UIFont.systemFontSize))
+            .font(.system(size: UIFont.systemFontSize))
 
             
                 .fileExporter(isPresented: $isExporting, document: PDFDoc_url(pdfURL: pdfURL), contentType: .pdf) { result in
@@ -188,47 +154,75 @@ struct LogsView: View {
         }
     }
     
-    func correctEntryLogRelationships() {
-        for entry in allEntries {
-            let entryDate = formattedDate(entry.time ?? Date())
-            if entry.relationship.day != entryDate {
-                // Fetch or create Log for the correct date
-                let oldLog = entry.relationship
-                oldLog.removeFromRelationship(entry)
-                
-                if let correctLog = fetchLogByDate(date: entryDate, coreDataManager: coreDataManager) {
-                    entry.relationship = correctLog
-                } else {
-                    let newLog = createLog(date: entry.time ?? Date(), coreDataManager: coreDataManager)
-                    entry.relationship = newLog
-                }
-                do {
-                    try coreDataManager.viewContext.save()
-                } catch {
-                    print("Failed to update entry relationship: \(error.localizedDescription)")
-                }
+    
+    private func updateFilteredLogs() {
+        print("entered filtered logs")
+            filteredLogs = logs.filter { log in
+                datesModel.dates[log.day]?.isSelected == true
             }
-            
-            if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                if !reminderExists(with: reminderId) {
-                    entry.reminderId = ""
+        print("FILTERED LOGS: \(filteredLogs)")
+        }
+    
+    @ViewBuilder
+    func horizontalPickerView() -> some View {
+        HorizontalPicker(selectedOption: $selectedOption, animation: animation) .padding(.top).padding(.leading)
+            .environmentObject(userPreferences)
+            .frame(maxWidth: .infinity, maxHeight: 40)
+    }
+    
+ 
+    @ViewBuilder
+    func mainView() -> some View {
+        VStack(spacing: 0) {
+
+            if !isSearching {
+                horizontalPickerView()
+
+                mainLogsCalendarView()
+            }
+            else { //if the user is actively searching
+                if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
+                    suggestedSearchView()
                 }
-                reminderIsComplete(reminderId: reminderId) { isCompleted in
-                    DispatchQueue.main.async {
-                        if isCompleted {
-                            entry.reminderId = ""
-                        } else {
-                            print("The reminder is not completed or does not exist.")
-                        }
-                    }
-                }
-                do {
-                    try coreDataManager.viewContext.save()
-                } catch {
-                    print("Failed to save viewContext: \(error)")
+                else {
+                    filteredEntriesListView()
                 }
             }
         }
+        .background {
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            datesModel.addTodayIfNotExists()
+            
+            updateFetchRequests()
+//            updateDateRange()
+        }
+        .sheet(isPresented: $shareSheetShown) {
+            if let log_uiimage = image {
+                let logImage = Image(
+                    uiImage: log_uiimage)
+                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
+            }
+        }
+        .listStyle(.insetGrouped)
+        
+        .navigationTitle("Logs")
+        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+        .onReceive(datesModel.$dates) { _ in
+                   updateFilteredLogs()
+               }
+               .onReceive(logs.publisher) { _ in
+                   updateFilteredLogs()
+               }
+               .onChange(of: datesModel.dates) { oldValue, newValue in
+                   updateFilteredLogs()
+               }
     }
     
     @ViewBuilder
@@ -252,40 +246,7 @@ struct LogsView: View {
                 Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
             }
         }
-        .background {
-            ZStack {
-                Color(UIColor.systemGroupedBackground)
-                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-            }
-            .ignoresSafeArea()
-        }
-        .scrollContentBackground(.hidden)
-        .refreshable {
-            let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-            // Check if today's date already exists in the dates array
-            if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
-                // If it exists, you can decide to update its isSelected property or leave it as is
-                // For example, you could toggle the selection:
-                datesModel.dates[index].isSelected.toggle()
-            } else {
-                // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
-                datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
-            }
-            
-            updateFetchRequests()
-            updateDateRange()
-        }
-        .sheet(isPresented: $shareSheetShown) {
-            if let log_uiimage = image {
-                let logImage = Image(
-                    uiImage: log_uiimage)
-                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
-            }
-        }
-        .listStyle(.insetGrouped)
-        
-        .navigationTitle("Logs")
-        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+
     }
     
     @ViewBuilder
@@ -309,19 +270,7 @@ struct LogsView: View {
             Text("Copy Message")
             Image(systemName: "doc.on.doc")
         }
-        
-//        Button(action: {
-//            let pdfData = createPDFData_entry(entry: entry)
-//            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
-//            try? pdfData.write(to: tmpURL)
-//            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-//                let window = windowScene.windows.first
-//                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-//            }
-//        }, label: {
-//            Label("Share Entry", systemImage: "square.and.arrow.up")
-//        })
+    
         
         Button(action: {
             withAnimation(.easeOut) {
@@ -362,6 +311,24 @@ struct LogsView: View {
             Image(systemName: "pin.fill")
                 .foregroundColor(.red)
         }
+        
+        
+        
+        Button(action: {
+            entry.shouldSyncWithCloudKit.toggle()
+            
+            // Save the flag change in local storage first
+            coreDataManager.save(context: coreDataManager.viewContext)
+
+//            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
+
+            // Save the entry in the appropriate store
+            CoreDataManager.shared.saveEntry(entry)
+        }) {
+            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
+            Image(systemName: "cloud.fill")
+        }
+        
     }
     
     
@@ -380,7 +347,7 @@ struct LogsView: View {
                                                           .padding(.horizontal)
                                                           .padding(.top, 10)
                                                       
-                                                      EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
+                              EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry, showContextMenu: true)
                                                           .environmentObject(userPreferences)
                                                           .environmentObject(coreDataManager)
                                                           .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
@@ -395,18 +362,7 @@ struct LogsView: View {
                                                   }
                                                   .padding(.horizontal, 5)
                     
-//                          Section(header: entryHeaderView(entry: entry)) {
-//                              EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry)
-//                                  .environmentObject(userPreferences)
-//                                  .environmentObject(coreDataManager)
-//                                  .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                                  .lineSpacing(userPreferences.lineSpacing)
-//                                  .background(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
-//                                  .cornerRadius(10)
-//                                  .padding(5)
-//                          }
-//                          .padding(5)
-//                          .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
+//
                       }
                   }
                   .onAppear {
@@ -445,17 +401,12 @@ struct LogsView: View {
       }
     
 
-    func getIdealTextColor() -> Color {
-        var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
-    }
+
     
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
             Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
-                .foregroundStyle(getIdealTextColor().opacity(0.5))
+                .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
 //                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
             
             Spacer()
@@ -524,19 +475,6 @@ struct LogsView: View {
                     }
                 }
                 
-                //            Button {
-                //                searchModel.tokens.append(.stampIndexEntries)
-                //            } label: {
-                //                HStack {
-                //                    Image(systemName: "number.circle.fill")
-                //                        .foregroundStyle(userPreferences.accentColor)
-                //                        .padding(.horizontal, 5)
-                //
-                //                    Text("Stamp Number")
-                //                        .foregroundStyle(Color(UIColor.label))
-                //                }
-                //            }
-                //
                 
                 Button {
                     searchModel.tokens.append(.stampNameEntries)
@@ -561,19 +499,10 @@ struct LogsView: View {
         }
         .scrollContentBackground(.hidden)
         .refreshable {
-            let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-            // Check if today's date already exists in the dates array
-            if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
-                // If it exists, you can decide to update its isSelected property or leave it as is
-                // For example, you could toggle the selection:
-                datesModel.dates[index].isSelected.toggle()
-            } else {
-                // If it doesn't exist, add it as a new LogDate with isSelected initially set to true or false as per your requirement
-                datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
-            }
+            datesModel.addTodayIfNotExists()
             
             updateFetchRequests()
-            updateDateRange()
+//            updateDateRange()
         }
         .sheet(isPresented: $shareSheetShown) {
             if let log_uiimage = image {
@@ -599,16 +528,10 @@ struct LogsView: View {
 //                    .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
 //                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
 //                    .accentColor(userPreferences.accentColor)
-                    .onAppear {
-                        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-                        // Check if today's date already exists in the dates array
-                        if let index = datesModel.dates.firstIndex(where: { $0.date == todayComponents }) {
-                        } else {
-                            datesModel.dates.append(LogDate(date: todayComponents, isSelected: true))
-                        }
-                        
-                        updateFetchRequests()
-                    }
+                            .onAppear {
+                                datesModel.addTodayIfNotExists()
+//                                updateFetchRequests()
+                            }
                 
             }
             
@@ -628,7 +551,7 @@ struct LogsView: View {
     }
     @ViewBuilder
     func logsListView() -> some View {
-        ForEach(filteredLogs(), id: \.self) { log in
+        ForEach(filteredLogs, id: \.self) { log in
             
             ScrollView {
                 LazyVStack {
@@ -650,28 +573,15 @@ struct LogsView: View {
                                     .foregroundColor(.red)
                                 
                             }
-//                            Button(action: {
-//                                Task {
-//                                    DispatchQueue.main.async {
-//                                        let pdfData = createPDFData_log(log: log)
-//                                        let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("log.pdf")
-//                                        try? pdfData.write(to: tmpURL)
-//                                        let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-//                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-//                                            let window = windowScene.windows.first
-//                                            window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-//                                        }
-//                                    }
-//                                }
-//                                
-//                            }, label: {
-//                                Label("Share Log PDF", systemImage: "square.and.arrow.up")
-//                            })
                             
                         }
                 }
             }
+            .onAppear {
+                updateFilteredLogs()
+            }
         }
+        
     }
     
     func getDefaultEntryBackgroundColor() -> Color {
@@ -770,73 +680,75 @@ struct LogsView: View {
 //                    }
 //    }
     
-    func filteredLogs() -> [Log] {
-        print("Entered filteredLogs!")
-        print("dates have been updated once again")
-        
-        print("datesModel.startDate: \(datesModel.startDate)")
-        print("datesModel.endDate: \(datesModel.startDate)")
+//    func filteredLogs() -> [Log] {
+//        print("Entered filteredLogs!")
+//        print("dates have been updated once again")
+//        
+//        print("datesModel.startDate: \(datesModel.startDate)")
+//        print("datesModel.endDate: \(datesModel.endDate)")
+//
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "MM/dd/yyyy"
+//
+//        // Parse dates once and store them
+//        let parsedLogs = logs.compactMap { log -> (Log, Date)? in
+//            guard let logDate = dateFormatter.date(from: log.day) else {
+//                print("Failed to parse date from log.day: \(log.day)")
+//                return nil
+//            }
+//            return (log, logDate)
+//        }
+//        print("Parsed logs count: \(parsedLogs.count)")
+//
+//        // Group logs by year
+//        let groupedByYear = Dictionary(grouping: parsedLogs) { (_, date) -> Int in
+//            Calendar.current.component(.year, from: date)
+//        }
+//        print("Grouped by year count: \(groupedByYear.keys.count)")
+//
+//        // Sort groups by year and flatten
+//        let sortedAndFlattenedLogs = groupedByYear.sorted { $0.key > $1.key } // Previous year logs first
+//                                                .flatMap { $0.value.map { $0.0 } }
+//        print("Sorted and flattened logs count: \(sortedAndFlattenedLogs.count)")
+//
+//        switch selectedTimeframe {
+//        case "By Date":
+//            print("Filtering by Date...")
+//            let filteredLogs = sortedAndFlattenedLogs.filter { log in
+//                guard let logDate = dateFormatter.date(from: log.day) else {
+//                    print("Failed to parse date from log.day in filter: \(log.day)")
+//                    return false
+//                }
+//                let formattedLogDate = dateFormatter.string(from: logDate)
+//                let isContained = datesModel.dates.contains { (dateString, logDateEntry) in
+//                    guard let selectedDate = datesModel.dateFormatter.date(from: dateString) else {
+//                        print("Failed to create date from date string: \(dateString)")
+//                        return false
+//                    }
+//                    let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+//                    let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
+//                    let isWithinDay = logDate >= startOfDay && logDate <= endOfDay
+//                    let isSelected = logDateEntry.isSelected
+//                    
+//                    if isWithinDay && isSelected {
+//                        print("Log date \(logDate) is within selected day \(selectedDate)")
+//                    }
+//                    return isWithinDay && isSelected
+//                }
+//                if !isContained {
+//                    print("Log date \(logDate) is not within any selected day")
+//                }
+//                return isContained
+//            }
+//            print("Filtered logs by date count: \(filteredLogs.count)")
+//            return filteredLogs
+//
+//        default:
+//            print("Returning sorted and flattened logs without additional filtering.")
+//            return sortedAndFlattenedLogs
+//        }
+//    }
 
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd/yyyy"
-
-        // Parse dates once and store them
-        let parsedLogs = logs.compactMap { log -> (Log, Date)? in
-            guard let logDate = dateFormatter.date(from: log.day) else {
-                print("Failed to parse date from log.day: \(log.day)")
-                return nil
-            }
-            return (log, logDate)
-        }
-        print("Parsed logs count: \(parsedLogs.count)")
-
-        // Group logs by year
-        let groupedByYear = Dictionary(grouping: parsedLogs) { (_, date) -> Int in
-            Calendar.current.component(.year, from: date)
-        }
-        print("Grouped by year count: \(groupedByYear.keys.count)")
-
-        // Sort groups by year and flatten
-        let sortedAndFlattenedLogs = groupedByYear.sorted { $0.key > $1.key } // Previous year logs first
-                                                .flatMap { $0.value.map { $0.0 } }
-        print("Sorted and flattened logs count: \(sortedAndFlattenedLogs.count)")
-
-        switch selectedTimeframe {
-        case "By Date":
-            print("Filtering by Date...")
-            let filteredLogs = sortedAndFlattenedLogs.filter { log in
-                guard let logDate = dateFormatter.date(from: log.day) else {
-                    print("Failed to parse date from log.day in filter: \(log.day)")
-                    return false
-                }
-                let isContained = datesModel.dates.contains { logDateEntry in
-                    guard let selectedDate = calendar.date(from: logDateEntry.date) else {
-                        print("Failed to create date from dateComponent")
-                        return false
-                    }
-                    let startOfDay = Calendar.current.startOfDay(for: selectedDate)
-                    let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
-                    let isWithinDay = logDate >= startOfDay && logDate <= endOfDay
-                    let isSelected = logDateEntry.isSelected
-                    
-                    if isWithinDay && isSelected {
-                        print("Log date \(logDate) is within selected day \(selectedDate)")
-                    }
-                    return isWithinDay && isSelected
-                }
-                if !isContained {
-                    print("Log date \(logDate) is not within any selected day")
-                }
-                return isContained
-            }
-            print("Filtered logs by date count: \(filteredLogs.count)")
-            return filteredLogs
-
-        default:
-            print("Returning sorted and flattened logs without additional filtering.")
-            return sortedAndFlattenedLogs
-        }
-    }
 
 
     
@@ -1065,15 +977,34 @@ struct LogParentView : View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
+//    @FetchRequest(
+//        entity: Log.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: false)]
+//    ) var logs: FetchedResults<Log>
+    
+    @State private var filteredLogs: [Log] = []
 
+    @State private var selectedOption: PickerOptions = .calendar
+    var showSearch: Binding<Bool> {
+          Binding<Bool>(
+              get: { self.selectedOption == .search },
+              set: { newValue in
+                  if newValue {
+                      self.selectedOption = .search
+                  } else {
+                      self.selectedOption = .calendar
+                  }
+              }
+          )
+      }
 
     var body: some View {
         
-        LogsView(replyEntryId: $replyEntryId, isShowingReplyCreationView: $isShowingReplyCreationView, searchModel: searchModel)
+        LogsView(replyEntryId: $replyEntryId, selectedOption: $selectedOption, isShowingReplyCreationView: $isShowingReplyCreationView, searchModel: searchModel, filteredLogs: $filteredLogs)
             .environmentObject(datesModel)
             .environmentObject(userPreferences)
             .environmentObject(coreDataManager)
-            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens) { token in
+            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
                         switch token {
                         case .hiddenEntries:
                             Text("Hidden")
@@ -1090,6 +1021,7 @@ struct LogParentView : View {
                         case .pinnedEntries:
                             Text("Pinned")
                         }
+                  
                 
                 
             }
@@ -1097,4 +1029,67 @@ struct LogParentView : View {
             .font(.system(size: UIFont.systemFontSize))
             .focused($isSearchFieldFocused)
     }
+
+    
+//    func filteredLogs() -> [Log] {
+//        print("Entered filteredLogs!")
+//        print("dates have been updated once again")
+//        
+//        print("datesModel.startDate: \(datesModel.startDate)")
+//        print("datesModel.endDate: \(datesModel.endDate)")
+//
+//        let dateFormatter = DateFormatter()
+//        dateFormatter.dateFormat = "MM/dd/yyyy"
+//
+//        // Parse dates once and store them
+//        let parsedLogs = logs.compactMap { log -> (Log, Date)? in
+//            guard let logDate = dateFormatter.date(from: log.day) else {
+//                print("Failed to parse date from log.day: \(log.day)")
+//                return nil
+//            }
+//            return (log, logDate)
+//        }
+//        print("Parsed logs count: \(parsedLogs.count)")
+//
+//        // Group logs by year
+//        let groupedByYear = Dictionary(grouping: parsedLogs) { (_, date) -> Int in
+//            Calendar.current.component(.year, from: date)
+//        }
+//        print("Grouped by year count: \(groupedByYear.keys.count)")
+//
+//        // Sort groups by year and flatten
+//        let sortedAndFlattenedLogs = groupedByYear.sorted { $0.key > $1.key } // Previous year logs first
+//                                                .flatMap { $0.value.map { $0.0 } }
+//        print("Sorted and flattened logs count: \(sortedAndFlattenedLogs.count)")
+//
+//            print("Filtering by Date...")
+//            let filteredLogs = sortedAndFlattenedLogs.filter { log in
+//                guard let logDate = dateFormatter.date(from: log.day) else {
+//                    print("Failed to parse date from log.day in filter: \(log.day)")
+//                    return false
+//                }
+//                let formattedLogDate = dateFormatter.string(from: logDate)
+//                let isContained = datesModel.dates.contains { (dateString, logDateEntry) in
+//                    guard let selectedDate = datesModel.dateFormatter.date(from: dateString) else {
+//                        print("Failed to create date from date string: \(dateString)")
+//                        return false
+//                    }
+//                    let startOfDay = Calendar.current.startOfDay(for: selectedDate)
+//                    let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: selectedDate) ?? selectedDate
+//                    let isWithinDay = logDate >= startOfDay && logDate <= endOfDay
+//                    let isSelected = logDateEntry.isSelected
+//                    
+//                    if isWithinDay && isSelected {
+//                        print("Log date \(logDate) is within selected day \(selectedDate)")
+//                    }
+//                    return isWithinDay && isSelected
+//                }
+//                if !isContained {
+//                    print("Log date \(logDate) is not within any selected day")
+//                }
+//                return isContained
+//            }
+//            print("Filtered logs by date count: \(filteredLogs.count)")
+//            return filteredLogs
+//        }
 }

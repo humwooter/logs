@@ -45,10 +45,6 @@ struct NotEditingView: View {
     
     var body : some View {
      finalView()
-        .onChange(of: colorScheme, { oldValue, newValue in
-            foregroundColor = UIColor(getDefaultEntryBackgroundColor(colorScheme: newValue))
-            updateEntryAttributes()
-                    })
         .fullScreenCover(isPresented: $isFullScreen) {
             
             if let filename = entry.mediaFilename {
@@ -108,50 +104,6 @@ struct NotEditingView: View {
 //            .onAppear {
 //                     updateEntryAttributes()
 //                 }
-                 .onChange(of: userPreferences.showLinks) { _ in updateEntryAttributes() }
-                 .onChange(of: userPreferences.fontSize) { _ in updateEntryAttributes() }
-                 .onChange(of: userPreferences.fontName) { _ in updateEntryAttributes() }
-    }
-    
-    private func updateEntryAttributes() {
-        guard let attributedContent = entry.attributedContent else { return }
-
-        let mutableAttributedString = NSMutableAttributedString(attributedString: attributedContent)
-        let fullRange = NSRange(location: 0, length: mutableAttributedString.length)
-
-        // Apply font
-        let font = UIFont(name: userPreferences.fontName, size: CGFloat(userPreferences.fontSize)) ?? UIFont.systemFont(ofSize: CGFloat(userPreferences.fontSize))
-        mutableAttributedString.addAttribute(.font, value: font, range: fullRange)
-
-        // Apply ideal text color based on background color
-        let idealTextColor = getIdealTextColor()
-        mutableAttributedString.addAttribute(.foregroundColor, value: UIColor(idealTextColor), range: fullRange)
-
-        // Apply link attributes if showLinks is true
-        if userPreferences.showLinks {
-
-            // Detect and attribute links
-            let content = attributedContent.string
-                if let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) {
-                    let matches = detector.matches(in: attributedContent.string, options: [], range: fullRange)
-                    for match in matches {
-                        guard let range = Range(match.range, in: content) else { continue }
-                        let nsRange = NSRange(range, in: content)
-                        mutableAttributedString.addAttribute(.link, value: match.url!, range: nsRange)
-                    }
-                }
-        } else {
-            // Remove link styling if showLinks is false
-            mutableAttributedString.removeAttribute(.link, range: fullRange)
-        }
-
-        entry.attributedContent = mutableAttributedString
-
-        do {
-            try coreDataManager.viewContext.save()
-        } catch {
-            print("Failed to save updated entry attributes: \(error)")
-        }
     }
     
     

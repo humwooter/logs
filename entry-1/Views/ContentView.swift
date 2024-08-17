@@ -18,6 +18,7 @@ struct ContentView: View {
     @State private var isShowingReplyCreationView = false
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
+    
     @FetchRequest(
            entity: Entry.entity(),
            sortDescriptors: [], // No sorting applied
@@ -56,6 +57,7 @@ struct ContentView: View {
                     if userPreferences.showLockScreen {
                         authenticate()
                     }
+                    updateDates()
                     
                     for entry in allEntries {
                         if let mediaFilename = entry.mediaFilename {
@@ -71,6 +73,13 @@ struct ContentView: View {
                 })
             }
         }
+    }
+    
+    func updateDates() {
+        print("updating the date range")
+        datesModel.updateDateRange(with: Array(allEntries))
+//                        self.datesModel.updateDateRange(with: allEntries)
+      
     }
     
     func initializeDateStrings() {

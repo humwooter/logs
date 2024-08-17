@@ -46,7 +46,8 @@ class CloudKitManager {
         let entry = recordToEntry(record)
         let log = fetchOrCreateLog(for: entry.time, context: context)
         
-        log.addToRelationship(entry)
+//        log.addToRelationship(entry)
+        entry.logId = log.id
         
         do {
             try context.save()
