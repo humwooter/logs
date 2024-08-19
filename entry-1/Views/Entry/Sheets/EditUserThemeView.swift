@@ -151,11 +151,7 @@ struct EditUserThemeView: View {
                 }
 
             }
-//            .navigationBarItems(trailing: Button("Save") {
-//                saveTheme()
-//            })
            
-            .navigationTitle("Edit Theme")
         }
     }
     

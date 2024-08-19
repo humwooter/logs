@@ -23,7 +23,7 @@ public class Log: NSManagedObject, Codable {
         id = try values.decodeIfPresent(UUID.self, forKey: .id)!
         day = try values.decodeIfPresent(String.self, forKey: .day)!
         relationship = try (values.decode(Set<Entry>?.self, forKey: .relationship) as NSSet?)!
-        self.entry_ids = try values.decodeIfPresent([String].self, forKey: .entry_ids) ?? []
+//        self.entry_ids = try values.decodeIfPresent([String].self, forKey: .entry_ids) ?? []
 
     }
     
@@ -37,7 +37,6 @@ public class Log: NSManagedObject, Codable {
         if let relationshipSet = relationship as? Set<Entry> {
             try container.encode(relationshipSet, forKey: .relationship)
         }
-        try container.encodeIfPresent(entry_ids, forKey: .entry_ids)
     }
     
     private enum CodingKeys: String, CodingKey {

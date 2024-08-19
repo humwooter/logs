@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23173.10" systemVersion="24A5264n" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Entry" representedClassName="Entry" syncable="YES">
-        <attribute name="attributedContent" optional="YES" attributeType="Transformable"/>
         <attribute name="color" optional="YES" attributeType="Transformable"/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="entryReplyId" optional="YES" attributeType="String"/>
         <attribute name="folderId" optional="YES" attributeType="String"/>
-        <attribute name="formattedContent" optional="YES" attributeType="Binary"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDrafted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isHidden" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -30,7 +28,7 @@
         <attribute name="tags" optional="YES" attributeType="Transformable"/>
         <attribute name="time" attributeType="Date" defaultDateTimeInterval="741576360" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
+        <relationship name="relationship" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
     </entity>
     <entity name="Log" representedClassName="Log" syncable="YES">
         <attribute name="day" optional="YES" attributeType="String"/>

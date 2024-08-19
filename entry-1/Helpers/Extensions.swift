@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-
+import UniformTypeIdentifiers
 
 
 func buildAttributedString(content: String, formattingData: Data?, fontSize: CGFloat, fontName: String) -> NSAttributedString {
@@ -30,6 +30,13 @@ func buildAttributedString(content: String, formattingData: Data?, fontSize: CGF
     ]
     
     return NSAttributedString(string: content, attributes: attributes)
+}
+
+extension UTType {
+    static var themePackage: UTType {
+        UTType(exportedAs: "com.gnupes.dodum.logs.themePkg")
+    }
+
 }
 
 extension URL {

@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import ZIPFoundation
 import UniformTypeIdentifiers
+import QuickLookThumbnailing
 
 struct Theme: Identifiable {
     let id = UUID()
@@ -27,6 +28,7 @@ struct Theme: Identifiable {
 struct ThemeSheet: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
+    @Environment(\.displayScale) var displayScale
 
     @Environment(\.colorScheme) var colorScheme
     @FetchRequest(
@@ -75,6 +77,7 @@ struct ThemeSheet: View {
                 .environmentObject(userPreferences)
         }
         .fileImporter(
+            
             isPresented: $showDocumentPicker,
                     allowedContentTypes: [UTType(filenameExtension: "themePkg")!],
                     allowsMultipleSelection: false
@@ -117,34 +120,89 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func customThemesView() -> some View {
-        Text("Custom Themes").font(.headline)
+        HStack {
+            Text("Custom Themes").font(.headline)
+                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
+            Spacer()
+        }
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             currentThemeView()
             ForEach(savedThemes, id: \.id) { userTheme in
                 let theme = userTheme.toTheme()
-                themeView(theme: theme).contextMenu {
-                    Button("Apply") {
-                        userPreferences.applyTheme(theme)
+                themeView(theme: theme).overlay {
+                    ZStack(alignment: .bottomTrailing) {
+                        Menu {
+                            Button {
+                                userPreferences.applyTheme(theme)
+                            } label: {
+                                Label("Apply", systemImage: "checkmark.circle")
+                            }
+                            
+                            Button {
+                                selectedTheme = userTheme
+                                editTheme = true
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            
+                            Button {
+                                Task {
+                                    await shareTheme(userTheme)
+                                }
+                            } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            
+                            Button {
+                                do {
+                                    try coreDataManager.viewContext.delete(userTheme)
+                                    try coreDataManager.viewContext.save()
+                                } catch {
+                                    print("Failed to save theme: \(error.localizedDescription)")
+                                }
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
+                        } label: {
+                            Label("", systemImage: "ellipsis.circle").foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: userTheme.topColor ?? UIColor.clear)).opacity(0.3))
+                        }
+
                     }
-                    Button("Edit") {
-                        selectedTheme = userTheme
-                        editTheme = true
-                    }
-                    
-                    Button("Share") {
-                                        shareTheme(userTheme)
-                                    }
-                    
-                    Button("Delete") {
-                        do {
-                            try coreDataManager.viewContext.delete(userTheme)
-                            try coreDataManager.viewContext.save()
-                        } catch {
-                            print("Failed to save theme: \(error.localizedDescription)")
+                }
+                    .contextMenu {
+                        Button {
+                            userPreferences.applyTheme(theme)
+                        } label: {
+                            Label("Apply", systemImage: "checkmark.circle")
+                        }
+                        
+                        Button {
+                            selectedTheme = userTheme
+                            editTheme = true
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        
+                        Button {
+                            Task {
+                                await shareTheme(userTheme)
+                            }
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        
+                        Button {
+                            do {
+                                try coreDataManager.viewContext.delete(userTheme)
+                                try coreDataManager.viewContext.save()
+                            } catch {
+                                print("Failed to save theme: \(error.localizedDescription)")
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "trash")
                         }
                     }
-                    
-                }
+
             }.onAppear {
                 print("ALL SAVED THEMES")
                 print(savedThemes)
@@ -166,7 +224,11 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func defaultThemesView() -> some View {
+        HStack {
         Text("Default Themes").font(.headline)
+            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
+        Spacer()
+    }
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             ForEach(refinedThemes) { theme in
                 themeView(theme: theme).contextMenu {
@@ -188,6 +250,7 @@ struct ThemeSheet: View {
                 .frame(width: 150, height: 150)  // Entire square block
             
             VStack(alignment: .leading, spacing: 8) {
+                
                 // Small cube for entry background
                 RoundedRectangle(cornerRadius: 10)
                     .fill(theme.entryBackgroundColor)
@@ -252,14 +315,14 @@ extension UserPreferences {
 
 
 extension ThemeSheet {
-    private func createShareURL(for userTheme: UserTheme) -> URL? {
+    private func createShareURL(for userTheme: UserTheme) async -> URL? {
         guard let fileName = userTheme.name else { return nil }
-        return createThemePackage(userTheme: userTheme, fileName: fileName)
+        return await createThemePackage(userTheme: userTheme, fileName: fileName)
     }
 
     
-    func shareTheme(_ userTheme: UserTheme) {
-        guard let url = createShareURL(for: userTheme) else {
+    func shareTheme(_ userTheme: UserTheme) async {
+        guard let url = await createShareURL(for: userTheme) else {
             print("Failed to create share URL for theme")
             return
         }
@@ -286,18 +349,6 @@ extension ThemeSheet {
                   print("Imported theme: \(importedTheme)")
                   importedTheme.id = UUID()
                   coreDataManager.viewContext.insert(importedTheme)
-//                  let userTheme = UserTheme(context: coreDataManager.viewContext)
-//                  userTheme.id = importedTheme.id ?? UUID()
-//                  userTheme.name = importedTheme.name
-//                  userTheme.accentColor = importedTheme.accentColor
-//                  userTheme.topColor = importedTheme.topColor
-//                  userTheme.bottomColor = importedTheme.bottomColor
-//                  userTheme.entryBackgroundColor = importedTheme.entryBackgroundColor
-//                  userTheme.pinColor = importedTheme.pinColor
-//                  userTheme.reminderColor = importedTheme.reminderColor
-//                  userTheme.fontName = importedTheme.fontName
-//                  userTheme.fontSize = importedTheme.fontSize
-//                  userTheme.lineSpacing = importedTheme.lineSpacing
                   
                   do {
                       try coreDataManager.viewContext.save()
@@ -317,61 +368,62 @@ extension ThemeSheet {
     }
     
     
-    func createThumbnailImage(userTheme: UserTheme) -> UIImage? {
-        let size = CGSize(width: 100, height: 100)
-        let renderer = UIGraphicsImageRenderer(size: size)
-
-        let currentIcon = UIImage(named: userPreferences.activeAppIcon)
-        
-        return renderer.image { context in
-            // Draw a rounded rectangle as background
-            let roundedRect = CGRect(origin: .zero, size: size)
-            UIBezierPath(roundedRect: roundedRect, cornerRadius: 10).addClip()
-            
-            if let icon = currentIcon {
-                // Draw the app icon if it exists
-                icon.draw(in: roundedRect)
-            } else {
-                print("Failed to load app icon image, using fallback image")
-                
-                // Draw a fallback image (e.g., a plain color with text)
-                context.cgContext.setFillColor(UIColor.lightGray.cgColor)
-                context.fill(roundedRect)
-                
-                let fallbackText = "App Icon"
-                let attributes: [NSAttributedString.Key: Any] = [
-                    .font: UIFont.systemFont(ofSize: 16),
-                    .foregroundColor: UIColor.darkGray
-                ]
-                let textSize = fallbackText.size(withAttributes: attributes)
-                let textRect = CGRect(
-                    x: (size.width - textSize.width) / 2,
-                    y: (size.height - textSize.height) / 2,
-                    width: textSize.width,
-                    height: textSize.height
-                )
-                fallbackText.draw(in: textRect, withAttributes: attributes)
-            }
-            
-            // Optionally, you can add a color overlay to represent the theme
-            if let topColor = userTheme.topColor {
-                context.cgContext.setFillColor(topColor.withAlphaComponent(0.3).cgColor)
-                context.fill(roundedRect)
-            }
-        }
+    func createThumbnailImage(userTheme: UserTheme) async -> UIImage? {
+        return await renderThemeThumbnail(theme: userTheme.toTheme(), size: CGSize(width: 100, height: 100), scale: 2)
+//        let size = CGSize(width: 100, height: 100)
+//        let renderer = UIGraphicsImageRenderer(size: size)
+//
+//        let currentIcon = UIImage(named: userPreferences.activeAppIcon)
+//        
+//        return renderer.image { context in
+//            // Draw a rounded rectangle as background
+//            let roundedRect = CGRect(origin: .zero, size: size)
+//            UIBezierPath(roundedRect: roundedRect, cornerRadius: 10).addClip()
+//            
+//            if let icon = currentIcon {
+//                // Draw the app icon if it exists
+//                icon.draw(in: roundedRect)
+//            } else {
+//                print("Failed to load app icon image, using fallback image")
+//                
+//                // Draw a fallback image (e.g., a plain color with text)
+//                context.cgContext.setFillColor(UIColor.lightGray.cgColor)
+//                context.fill(roundedRect)
+//                
+//                let fallbackText = "App Icon"
+//                let attributes: [NSAttributedString.Key: Any] = [
+//                    .font: UIFont.systemFont(ofSize: 16),
+//                    .foregroundColor: UIColor.darkGray
+//                ]
+//                let textSize = fallbackText.size(withAttributes: attributes)
+//                let textRect = CGRect(
+//                    x: (size.width - textSize.width) / 2,
+//                    y: (size.height - textSize.height) / 2,
+//                    width: textSize.width,
+//                    height: textSize.height
+//                )
+//                fallbackText.draw(in: textRect, withAttributes: attributes)
+//            }
+//            
+//            // Optionally, you can add a color overlay to represent the theme
+//            if let topColor = userTheme.topColor {
+//                context.cgContext.setFillColor(topColor.withAlphaComponent(0.3).cgColor)
+//                context.fill(roundedRect)
+//            }
+//        }
     }
 
 
-    func createThemePackage(userTheme: UserTheme, fileName: String) -> URL? {
+    func createThemePackage(userTheme: UserTheme, fileName: String) async -> URL? {
         guard let themeData = saveThemeAsJSON(userTheme: userTheme),
-              let thumbnailImage = createThumbnailImage(userTheme: userTheme),
-              let thumbnailData = thumbnailImage.pngData() else {
-            return nil
-        }
-
+                let thumbnailImage = await createThumbnailImage(userTheme: userTheme),
+                let thumbnailData = thumbnailImage.pngData() else {
+              print("Failed to create theme data or thumbnail")
+              return nil
+          }
         let fileManager = FileManager.default
         let tempDirectory = fileManager.temporaryDirectory
-        let themeDirectory = tempDirectory.appendingPathComponent(UUID().uuidString)
+        let themeDirectory = tempDirectory.appendingPathComponent("\(userTheme.name) - \(formattedDate(Date()))")
 
         do {
             try fileManager.createDirectory(at: themeDirectory, withIntermediateDirectories: true, attributes: nil)
@@ -488,8 +540,4 @@ extension ThemeSheet {
 
 }
 
-extension UTType {
-    static var themePackage: UTType {
-        UTType(exportedAs: "com.yourapp.themePkg")
-    }
-}
+

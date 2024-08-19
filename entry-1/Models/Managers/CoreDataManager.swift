@@ -52,7 +52,7 @@ final class CoreDataManager: ObservableObject {
         let entry = Entry(context: context)
         if entry.relationship != nil {
             entry.logId = entry.relationship?.id
-            entry.relationship?.entry_ids.append(entry.id.uuidString)
+//            entry.relationship?.entry_ids.append(entry.id.uuidString)
             entry.relationship = nil //remove relationship before moving to cloud
             entry.relationship?.removeFromRelationship(entry)
             print("removed log from relationship")

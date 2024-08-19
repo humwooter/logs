@@ -125,7 +125,6 @@ class PersistenceController {
               var jsonObject: [String: Any] = [
                   "day": log.day ?? "",
                   "id": log.id.uuidString ?? "",
-                  "entry_ids": log.entry_ids ?? []
               ]
               
               // Fetch entries related to this log
@@ -172,134 +171,129 @@ class PersistenceController {
           }
           
           // Call importLogs with the JSON data
-          try importLogs(from: jsonArray)
+//          try importLogs(from: jsonArray)
       }
     
-    func importLogs(from jsonArray: [[String: Any]]) throws {
-        let context = container.viewContext
-        
-        context.performAndWait {
-            do {
-                for jsonObject in jsonArray {
-                    print("Processing log jsonObject: \(jsonObject)")
-                    
-                    guard let logDayString = jsonObject["day"] as? String,
-                          let logIdString = jsonObject["id"] as? String else {
-                        print("Missing required log fields, skipping: \(jsonObject)")
-                        continue
-                    }
-                    
-                    // Fetch or create the log
-                    let logFetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
-                    logFetchRequest.predicate = NSPredicate(format: "day == %@", logDayString)
-                    
-                    let existingLogs = try context.fetch(logFetchRequest)
-                    let log: Log
-                    let entryIds = jsonObject["entry_ids"] as? [String] ?? []
-
-                    if let existingLog = existingLogs.first {
-                        log = existingLog
-                        print("Found existing log: \(log)")
-                    } else {
-                        log = Log(context: context)
-                        log.day = logDayString
-                        log.id = UUID(uuidString: logIdString) ?? UUID()
-                        log.entry_ids = entryIds
-                        print("Created new log: \(log)")
-                    }
-                    
-                    // Updating dates
-                    let dateStringsManager = DateStrings()
-                    dateStringsManager.addDate(log.day ?? "")
-                    print("Updated dates for log: \(log.day ?? "")")
-
-                    // Fetch or create entries
-                    for entryIdString in log.entry_ids ?? [] {
-                        print("Processing entryIdString: \(entryIdString)")
-                        
-                        let entryFetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-                        entryFetchRequest.predicate = NSPredicate(format: "id == %@", entryIdString)
-                        
-                        let existingEntries = try context.fetch(entryFetchRequest)
-                        
-                        if existingEntries.isEmpty {
-                            // This is a new entry, add it
-                            if let entryData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) {
-                                let decoder = JSONDecoder()
-                                decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
-                                if let newEntry = try? decoder.decode(Entry.self, from: entryData) {
-                                    newEntry.logId = log.id
-                                    log.addEntryId(newEntry.id.uuidString ?? "")
-                                    context.insert(newEntry)
-                                    print("New entry created with ID: \(newEntry.id.uuidString ?? ""), assigned to log: \(log.id.uuidString ?? "")")
-                                }
-                            }
-                        } else {
-                            if let existingEntry = existingEntries.first {
-                                existingEntry.logId = log.id
-                                log.addEntryId(existingEntry.id.uuidString ?? "")
-                            }
-                            print("Entry with ID: \(entryIdString) already exists, skipping")
-                        }
-                    }
-                    
-                    if let newEntries = jsonObject["relationship"] as? [[String: Any]] {
-                        for newEntryData in newEntries {
-                            print("Processing newEntryData: \(newEntryData)")
-                            if let newEntryIdString = newEntryData["id"] as? String,
-                               let newEntryId = UUID(uuidString: newEntryIdString) {
-                                
-                                let entryFetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-                                entryFetchRequest.predicate = NSPredicate(format: "id == %@", newEntryId as CVarArg)
-                                
-                                do {
-                                    let existingEntries = try context.fetch(entryFetchRequest)
-                                    
-                                    if let existingEntry = existingEntries.first {
-                                        // Entry exists, update its logId
-                                        print("Updating existing entry")
-                                        existingEntry.logId = log.id
-                                    } else {
-                                        // This is a new entry, create and add it to the log
-                                        print("Creating new entry")
-                                        if let entryData = try? JSONSerialization.data(withJSONObject: newEntryData, options: []) {
-                                            let decoder = JSONDecoder()
-                                            decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
-                                            if let newEntry = try? decoder.decode(Entry.self, from: entryData) {
-                                                newEntry.logId = log.id
-                                                context.insert(newEntry)
-                                                print("New entry created and added to log")
-                                            }
-                                        }
-                                    }
-                                    
-                                    // Ensure the entry ID is in the log's entry_ids array
-                                    if !log.entry_ids.contains(newEntryIdString) {
-                                        log.entry_ids.append(newEntryIdString)
-                                    }
-                                    
-                                } catch {
-                                    print("Error processing entry: \(error)")
-                                }
-                            }
-                        }
-                        
-                        // Save changes
-                        do {
-                            try context.save()
-                            print("Changes saved successfully")
-                        } catch {
-                            print("Error saving changes: \(error)")
-                        }
-                    }
-                    
-                    context.insert(log)
-                }
-                try context.save()
-                print("Successfully saved logs and entries")
-            } catch {
-                print("Failed to import logs: \(error)")
-            }
-        }
-    }
+//    func importLogs(from jsonArray: [[String: Any]]) throws {
+//        let context = container.viewContext
+//        
+//        context.performAndWait {
+//            do {
+//                for jsonObject in jsonArray {
+//                    print("Processing log jsonObject: \(jsonObject)")
+//                    
+//                    guard let logDayString = jsonObject["day"] as? String,
+//                          let logIdString = jsonObject["id"] as? String else {
+//                        print("Missing required log fields, skipping: \(jsonObject)")
+//                        continue
+//                    }
+//                    
+//                    // Fetch or create the log
+//                    let logFetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
+//                    logFetchRequest.predicate = NSPredicate(format: "day == %@", logDayString)
+//                    
+//                    let existingLogs = try context.fetch(logFetchRequest)
+//                    let log: Log
+//                    let entryIds = jsonObject["entry_ids"] as? [String] ?? []
+//
+//                    if let existingLog = existingLogs.first {
+//                        log = existingLog
+//                        print("Found existing log: \(log)")
+//                    } else {
+//                        log = Log(context: context)
+//                        log.day = logDayString
+//                        log.id = UUID(uuidString: logIdString) ?? UUID()
+//                        print("Created new log: \(log)")
+//                    }
+//                    
+//                    // Updating dates
+//                    let dateStringsManager = DateStrings()
+//                    dateStringsManager.addDate(log.day ?? "")
+//                    print("Updated dates for log: \(log.day ?? "")")
+//
+////                    // Fetch or create entries
+////                    for entryIdString in log.entry_ids ?? [] {
+////                        print("Processing entryIdString: \(entryIdString)")
+////                        
+////                        let entryFetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+////                        entryFetchRequest.predicate = NSPredicate(format: "id == %@", entryIdString)
+////                        
+////                        let existingEntries = try context.fetch(entryFetchRequest)
+////                        
+////                        if existingEntries.isEmpty {
+////                            // This is a new entry, add it
+////                            if let entryData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) {
+////                                let decoder = JSONDecoder()
+////                                decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
+////                                if let newEntry = try? decoder.decode(Entry.self, from: entryData) {
+////                                    newEntry.logId = log.id
+////                                    log.addEntryId(newEntry.id.uuidString ?? "")
+////                                    context.insert(newEntry)
+////                                    print("New entry created with ID: \(newEntry.id.uuidString ?? ""), assigned to log: \(log.id.uuidString ?? "")")
+////                                }
+////                            }
+////                        } else {
+////                            if let existingEntry = existingEntries.first {
+////                                existingEntry.logId = log.id
+////                                log.addEntryId(existingEntry.id.uuidString ?? "")
+////                            }
+////                            print("Entry with ID: \(entryIdString) already exists, skipping")
+////                        }
+////                    }
+//                    
+//                    if let newEntries = jsonObject["relationship"] as? [[String: Any]] {
+//                        for newEntryData in newEntries {
+//                            print("Processing newEntryData: \(newEntryData)")
+//                            if let newEntryIdString = newEntryData["id"] as? String,
+//                               let newEntryId = UUID(uuidString: newEntryIdString) {
+//                                
+//                                let entryFetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+//                                entryFetchRequest.predicate = NSPredicate(format: "id == %@", newEntryId as CVarArg)
+//                                
+//                                do {
+//                                    let existingEntries = try context.fetch(entryFetchRequest)
+//                                    
+//                                    if let existingEntry = existingEntries.first {
+//                                        // Entry exists, update its logId
+//                                        print("Updating existing entry")
+//                                        existingEntry.logId = log.id
+//                                    } else {
+//                                        // This is a new entry, create and add it to the log
+//                                        print("Creating new entry")
+//                                        if let entryData = try? JSONSerialization.data(withJSONObject: newEntryData, options: []) {
+//                                            let decoder = JSONDecoder()
+//                                            decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
+//                                            if let newEntry = try? decoder.decode(Entry.self, from: entryData) {
+//                                                newEntry.logId = log.id
+//                                                context.insert(newEntry)
+//                                                print("New entry created and added to log")
+//                                            }
+//                                        }
+//                                    }
+//                      
+//                                    
+//                                } catch {
+//                                    print("Error processing entry: \(error)")
+//                                }
+//                            }
+//                        }
+//                        
+//                        // Save changes
+//                        do {
+//                            try context.save()
+//                            print("Changes saved successfully")
+//                        } catch {
+//                            print("Error saving changes: \(error)")
+//                        }
+//                    }
+//                    
+//                    context.insert(log)
+//                }
+//                try context.save()
+//                print("Successfully saved logs and entries")
+//            } catch {
+//                print("Failed to import logs: \(error)")
+//            }
+//        }
+//    }
 }

@@ -19,8 +19,6 @@ extension Log {
     @NSManaged public var day: String
     @NSManaged public var id: UUID
     @NSManaged public var relationship: NSSet
-    @NSManaged public var entry_ids: [String]
-
 
 }
 
@@ -46,12 +44,6 @@ extension Log {
         // FetchRequest will automatically reload since the underlying data changes
     }
     
-    public func addEntryId(_ entryId: String) {
-            if !entry_ids.contains(entryId) {
-                entry_ids.append(entryId)
-            }
-        }
-
 }
 
 extension Log : Identifiable {

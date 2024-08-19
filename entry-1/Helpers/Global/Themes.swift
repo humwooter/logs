@@ -5,6 +5,7 @@
 //  Created by Katyayani G. Raman on 8/17/24.
 //
 import SwiftUI
+import UIKit
 import Foundation
 
 let refinedThemes: [Theme] = [
@@ -432,3 +433,71 @@ let themes: [Theme] = [
           fontSize: 17,
           lineSpacing: 1.4)
 ]
+
+
+@MainActor
+func renderThemeThumbnail(theme: Theme, size: CGSize, scale: CGFloat) async -> UIImage? {
+    return await withCheckedContinuation { continuation in
+        DispatchQueue.main.async {
+            let themeView = ZStack {
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(LinearGradient(gradient: Gradient(colors: [theme.topColor, theme.bottomColor]), startPoint: .top, endPoint: .bottom))
+                    .frame(width: size.width, height: size.height)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(theme.entryBackgroundColor)
+                        .frame(width: size.width - 20, height: 30)
+                        .padding(.horizontal)
+                        .overlay(
+                            HStack(alignment: .center) {
+                                Text(theme.name)
+                                    .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor.blendedColor(from: UIColor(theme.topColor), with: UIColor(theme.entryBackgroundColor)), colorScheme: .light)))
+                                    .font(.custom(theme.fontName, size: theme.fontSize))
+                            }
+                        )
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(theme.accentColor)
+                                .frame(width: 10, height: 10)
+                            Text("accent")
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "pin.fill").resizable()
+                                .foregroundStyle(theme.pinColor)
+                                .frame(width: 10, height: 10)
+                            Text("pin")
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "bell.fill").resizable()
+                                .foregroundStyle(theme.reminderColor)
+                                .frame(width: 10, height: 10)
+                            Text("reminder")
+                        }
+                    }
+                    .font(.custom(theme.fontName, size: theme.fontSize))
+                    .padding(.horizontal)
+                }
+            }
+            .cornerRadius(20)
+            .shadow(color: Color(UIColor.black).opacity(0.08), radius: 3)
+            .frame(width: size.width, height: size.height)
+
+            let renderer = ImageRenderer(content: themeView)
+            renderer.scale = scale
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                if let uiImage = renderer.uiImage {
+                    continuation.resume(returning: uiImage)
+                } else {
+                    print("Failed to render theme thumbnail")
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
+    }
+}

@@ -75,6 +75,8 @@ struct LogsView: View {
     
     @State private var showingDeleteConfirmation = false
     @State private var logToDelete: Log?
+    @State private var logToDeleteDay: String?
+
     @State private var selectedDates: Set<DateComponents> = []
     @State private var isDatesUpdated = false
     @Binding var replyEntryId: String?
@@ -149,13 +151,13 @@ struct LogsView: View {
     }
     
     
-    private func updateFilteredLogs() {
-        print("entered filtered logs")
-            filteredLogs = logs.filter { log in
-                datesModel.dates[log.day]?.isSelected == true
-            }
-        print("FILTERED LOGS: \(filteredLogs)")
-        }
+//    private func updateFilteredLogs() {
+//        print("entered filtered logs")
+//            filteredLogs = logs.filter { log in
+//                datesModel.dates[log.day]?.isSelected == true
+//            }
+//        print("FILTERED LOGS: \(filteredLogs)")
+//        }
     
     @ViewBuilder
     func horizontalPickerView() -> some View {
@@ -208,15 +210,15 @@ struct LogsView: View {
         
         .navigationTitle("Logs")
         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
-        .onReceive(datesModel.$dates) { _ in
-                   updateFilteredLogs()
-               }
-               .onReceive(logs.publisher) { _ in
-                   updateFilteredLogs()
-               }
-               .onChange(of: datesModel.dates) { oldValue, newValue in
-                   updateFilteredLogs()
-               }
+//        .onReceive(datesModel.$dates) { _ in
+//                   updateFilteredLogs()
+//               }
+//               .onReceive(logs.publisher) { _ in
+//                   updateFilteredLogs()
+//               }
+//               .onChange(of: datesModel.dates) { oldValue, newValue in
+//                   updateFilteredLogs()
+//               }
     }
     
     @ViewBuilder
@@ -231,7 +233,7 @@ struct LogsView: View {
                     Alert(title: Text("Delete log"),
                           message: Text("Are you sure you want to delete this log? This action cannot be undone."),
                           primaryButton: .destructive(Text("Delete")) {
-                        deleteLog(log: logToDelete)
+                        deleteLog(logDay: logToDeleteDay)
                     },
                           secondaryButton: .cancel())
                 }
@@ -374,14 +376,14 @@ struct LogsView: View {
               .padding(.horizontal)
      
           }
-          .background {
-              ZStack {
-                  Color(UIColor.systemGroupedBackground)
-                  LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-              }
-              .ignoresSafeArea()
-          }
-          .scrollContentBackground(.hidden)
+//          .background {
+//              ZStack {
+//                  Color(UIColor.systemGroupedBackground)
+//                  LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+//              }
+//              .ignoresSafeArea()
+//          }
+//          .scrollContentBackground(.hidden)
       }
       
       @State private var currentLoadedCount = 0
@@ -484,14 +486,14 @@ struct LogsView: View {
                 }
             }
         }
-        .background {
-            ZStack {
-                Color(UIColor.systemGroupedBackground)
-                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-            }
-            .ignoresSafeArea()
-        }
-        .scrollContentBackground(.hidden)
+//        .background {
+//            ZStack {
+//                Color(UIColor.systemGroupedBackground)
+//                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+//            }
+//            .ignoresSafeArea()
+//        }
+//        .scrollContentBackground(.hidden)
         .refreshable {
             datesModel.addTodayIfNotExists()
             
@@ -543,40 +545,71 @@ struct LogsView: View {
 
         }
     }
+    
     @ViewBuilder
     func logsListView() -> some View {
-        ForEach(filteredLogs, id: \.self) { log in
-            
-            ScrollView {
-                LazyVStack {
-                    NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, log: log)
-                        .environmentObject(userPreferences)) {
-                            HStack {
-                                Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                                Text(log.day).foregroundStyle(Color(UIColor.label))
-
-                                Spacer()
+        ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted()), id: \.self) { dateString in
+            if let logDate = datesModel.dates[dateString], logDate.hasLog {
+                ScrollView {
+                    LazyVStack {
+                        NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, logDay: dateString)
+                            .environmentObject(userPreferences)) {
+                                HStack {
+                                    Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+                                    Text(dateString).foregroundStyle(Color(UIColor.label))
+                                    
+                                    Spacer()
+                                }
                             }
-                        }.padding(.top, 10)
-                        .contextMenu {
-                            Button(role: .destructive, action: {
-                                showingDeleteConfirmation = true
-                                logToDelete = log
-                            }) {
-                                Label("Delete", systemImage: "trash")
-                                    .foregroundColor(.red)
-                                
+                            .padding(.top, 10)
+                            .contextMenu {
+                                Button(role: .destructive, action: {
+                                    showingDeleteConfirmation = true
+                                    logToDeleteDay = dateString
+                                }) {
+                                    Label("Delete", systemImage: "trash")
+                                        .foregroundColor(.red)
+                                }
                             }
-                            
-                        }
+                    }
                 }
             }
-            .onAppear {
-                updateFilteredLogs()
-            }
         }
-        
     }
+
+    
+//    @ViewBuilder
+//    func logsListView() -> some View {
+//        ForEach(filteredLogs, id: \.self) { log in
+//            
+//            ScrollView {
+//                LazyVStack {
+//                    NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, log: log)
+//                        .environmentObject(userPreferences)) {
+//                            HStack {
+//                                Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+//                                Text(log.day).foregroundStyle(Color(UIColor.label))
+//
+//                                Spacer()
+//                            }
+//                        }.padding(.top, 10)
+//                        .contextMenu {
+//                            Button(role: .destructive, action: {
+//                                showingDeleteConfirmation = true
+//                                logToDelete = log
+//                            }) {
+//                                Label("Delete", systemImage: "trash")
+//                                    .foregroundColor(.red)
+//                                
+//                            }
+//                            
+//                        }
+//                }
+//            }
+//          
+//        }
+//        
+//    }
     
     func getDefaultEntryBackgroundColor() -> Color {
         let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
@@ -764,33 +797,77 @@ struct LogsView: View {
     }
     
     
-    
-    private func deleteLog(log: Log?) {
-        let dateStringsManager = DateStrings()
-        guard let log = log else { return }
-        dateStringsManager.removeDate(log.day)
-        if let entries = log.relationship as? Set<Entry> {
-            for entry in entries {
-                entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
-//                deleteEntry(entry: entry, coreDataManager: coreDataManager)
-                do {
-                    try coreDataManager.viewContext.save()
-                } catch {
-                    let nsError = error as NSError
-                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-                }
+    func fetchEntriesByDate(logDay: String) -> [Entry] {
+        let request: NSFetchRequest<Entry> = Entry.fetchRequest()
 
-            }
+        // Convert log.day into DateComponents
+        guard let logDate = dateFromString(logDay),
+              let logComponents = dateComponents(from: logDay) else {
+            print("Invalid log.day format")
+            return []
         }
-        coreDataManager.viewContext.delete(log)
+
+        // Create a predicate that compares the date components of entry.time with log.day
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: logDate)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
         
+        // Predicate to check if entry.time falls within the same day as log.day and isRemoved is false
+        request.predicate = NSPredicate(format: "isRemoved == NO AND time >= %@ AND time < %@", startOfDay as NSDate, endOfDay as NSDate)
+
+        // Sort entries by time in descending order
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Entry.time, ascending: false)]
+
         do {
-            try coreDataManager.viewContext.save()
+            return try coreDataManager.viewContext.fetch(request)
         } catch {
-            let nsError = error as NSError
-            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            print("Error fetching entries: \(error)")
+            return []
         }
     }
+
+    
+    private func deleteLog(logDay: String?) {
+        guard let logDay = logDay else { return }
+        
+        for entry in fetchEntriesByDate(logDay: logDay) {
+            entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
+//                deleteEntry(entry: entry, coreDataManager: coreDataManager)
+            do {
+                try coreDataManager.viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
+//
+//    private func deleteLog(log: Log?) {
+//        let dateStringsManager = DateStrings()
+//        guard let log = log else { return }
+//        dateStringsManager.removeDate(log.day)
+//        if let entries = log.relationship as? Set<Entry> {
+//            for entry in entries {
+//                entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
+////                deleteEntry(entry: entry, coreDataManager: coreDataManager)
+//                do {
+//                    try coreDataManager.viewContext.save()
+//                } catch {
+//                    let nsError = error as NSError
+//                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+//                }
+//
+//            }
+//        }
+//        coreDataManager.viewContext.delete(log)
+//        
+//        do {
+//            try coreDataManager.viewContext.save()
+//        } catch {
+//            let nsError = error as NSError
+//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+//        }
+//    }
     
     
 

@@ -99,8 +99,9 @@ struct LogDetailView: View {
     @Binding var totalHeight: CGFloat
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
+    let logDay: String
 
-    let log: Log
+//    let log: Log
     
     var body: some View {
         let entries = fetchEntries()
@@ -122,16 +123,16 @@ struct LogDetailView: View {
                     }
                 }
                 .scrollContentBackground(.hidden)
-                .onAppear(perform: {
-                    for entry in entries {
-                        print("ENTRYY: \(entry)")
-                    }
-                    print("LOG detailz: \(log)")
-                })
+//                .onAppear(perform: {
+//                    for entry in entries {
+//                        print("ENTRYY: \(entry)")
+//                    }
+//                    print("LOG detailz: \(log)")
+//                })
                 .listStyle(.automatic)
             }
             .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(convertDate(from: log.day))
+            .navigationTitle(convertDate(from: logDay))
         } else {
             Text("No entries available")
                 .foregroundColor(.gray)
@@ -142,8 +143,8 @@ struct LogDetailView: View {
         let request: NSFetchRequest<Entry> = Entry.fetchRequest()
 
         // Convert log.day into DateComponents
-        guard let logDate = dateFromString(log.day),
-              let logComponents = dateComponents(from: log.day) else {
+        guard let logDate = dateFromString(logDay),
+              let logComponents = dateComponents(from: logDay) else {
             print("Invalid log.day format")
             return []
         }
