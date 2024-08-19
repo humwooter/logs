@@ -548,7 +548,7 @@ struct LogsView: View {
     
     @ViewBuilder
     func logsListView() -> some View {
-        ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted()), id: \.self) { dateString in
+        ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted(by: >)), id: \.self) { dateString in
             if let logDate = datesModel.dates[dateString], logDate.hasLog {
                 ScrollView {
                     LazyVStack {

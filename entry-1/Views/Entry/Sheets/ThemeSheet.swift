@@ -121,16 +121,18 @@ struct ThemeSheet: View {
     @ViewBuilder
     func customThemesView() -> some View {
         HStack {
-            Text("Custom Themes").font(.headline)
+            Text("Custom Themes").font(.headline).padding()
                 .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
             Spacer()
         }
+        
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             currentThemeView()
             ForEach(savedThemes, id: \.id) { userTheme in
                 let theme = userTheme.toTheme()
-                themeView(theme: theme).overlay {
-                    ZStack(alignment: .bottomTrailing) {
+                VStack {
+                    HStack {
+                        Spacer()
                         Menu {
                             Button {
                                 userPreferences.applyTheme(theme)
@@ -165,9 +167,10 @@ struct ThemeSheet: View {
                             }
                         } label: {
                             Label("", systemImage: "ellipsis.circle").foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: userTheme.topColor ?? UIColor.clear)).opacity(0.3))
-                        }
-
+                                .frame(maxWidth: 10, maxHeight: 10)
+                        }.padding(2)
                     }
+                    themeView(theme: theme)
                 }
                     .contextMenu {
                         Button {
@@ -225,7 +228,7 @@ struct ThemeSheet: View {
     @ViewBuilder
     func defaultThemesView() -> some View {
         HStack {
-        Text("Default Themes").font(.headline)
+            Text("Default Themes").font(.headline).padding()
             .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
         Spacer()
     }

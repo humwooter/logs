@@ -75,6 +75,7 @@ struct MediaManagerView: View {
     }
     
     func findMediaFilesLargerThan5MB(at url: URL) -> [MediaFile] {
+        printDocumentsDirectoryContents()
         let fileManager = FileManager.default
         do {
             let files = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.fileSizeKey], options: [])
@@ -82,15 +83,18 @@ struct MediaManagerView: View {
                 do {
                     let resourceValues = try fileURL.resourceValues(forKeys: [.fileSizeKey])
                     if let fileSize = resourceValues.fileSize, Double(fileSize) / 1_000_000 > 5 {
-                        return MediaFile(name: fileURL.lastPathComponent, size: Double(fileSize) / 1_000_000, url: fileURL)
+                        let fileType = identifyFileType(url: fileURL)
+                        if [.gif, .pdf, .image].contains(fileType) {
+                            return MediaFile(name: fileURL.lastPathComponent, size: Double(fileSize) / 1_000_000, url: fileURL)
+                        }
                     }
                 } catch {
-                    print(error)
+                    print("Error getting file information: \(error)")
                 }
                 return nil
             }
         } catch {
-            print(error)
+            print("Error reading directory contents: \(error)")
             return []
         }
     }
@@ -153,22 +157,46 @@ struct AsyncMediaView: View {
     }
     
     func deleteMediaFile() {
-        DispatchQueue.global(qos: .background).async {
-            do {
-                try FileManager.default.removeItem(at: file.url)
-                DispatchQueue.main.async {
-                    // Handle any UI updates or state changes here
-                    print("File successfully deleted")
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    // Handle errors, e.g., show an error message
-                    print("Error deleting file: \(error)")
-                }
-            }
-        }
-    }
-
+        print("FILE BEING DELETED IS: \(file.url)")
+           DispatchQueue.global(qos: .background).async {
+               do {
+                   // Get the documents directory
+                   let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+                   
+                   // Ensure the file is within the documents directory
+                   guard file.url.absoluteString.hasPrefix(documentsUrl.absoluteString) else {
+                       throw NSError(domain: "FileError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Attempted to delete file outside of documents directory"])
+                   }
+                   
+                   // Check if the file exists before attempting to delete
+                   guard FileManager.default.fileExists(atPath: file.url.path) else {
+                       throw NSError(domain: "FileError", code: 2, userInfo: [NSLocalizedDescriptionKey: "File does not exist"])
+                   }
+                   
+                   // Use the expanded identifyFileType function to determine the file type
+                   let fileType = identifyFileType(url: file.url)
+                   
+                   // Check if the file type is allowed for deletion
+                   guard [.gif, .pdf, .image].contains(fileType) else {
+                       throw NSError(domain: "FileError", code: 3, userInfo: [NSLocalizedDescriptionKey: "File type not allowed for deletion"])
+                   }
+                   
+                   // Attempt to delete the file
+                   try FileManager.default.removeItem(at: file.url)
+                   
+                   DispatchQueue.main.async {
+                       print("File successfully deleted")
+                       // Handle any UI updates or state changes here
+                       // You might want to update your mediaFiles array or trigger a UI refresh
+                   }
+               } catch {
+                   DispatchQueue.main.async {
+                       print("Error deleting file: \(error.localizedDescription)")
+                       // Handle errors, e.g., show an error message to the user
+                   }
+               }
+           }
+       }
 
     @ViewBuilder
     private func mediaContent(for type: FileType) -> some View {
@@ -190,10 +218,6 @@ struct AsyncMediaView: View {
             }
         }
     }
-}
-
-enum FileType {
-    case gif, pdf, image, none
 }
 
 
@@ -245,15 +269,45 @@ func calculateStorageData(mediaFiles: [MediaFile]) -> StorageData {
     }
 }
 
+enum FileType {
+    case gif, pdf, image, sqlite, sqliteRelated, none
+}
+
 func identifyFileType(url: URL) -> FileType {
+    let fileExtension = url.pathExtension.lowercased()
+    
+    // Check for SQLite-related files first
+    if fileExtension == "sqlite" || url.lastPathComponent.hasSuffix("sqlite-shm") || url.lastPathComponent.hasSuffix("sqlite-wal") {
+        return .sqliteRelated
+    }
+    
     if let data = getMediaData(fromURL: url) {
         if isPDF(data: data) {
             return .pdf
         } else if isGIF(data: data) {
             return .gif
-        } else {
+        } else if isImage(data: data) {
             return .image
+        } else if isSQLite(data: data) {
+            return .sqlite
         }
     }
-    return .image
+    
+    return .none
+}
+
+func isSQLite(data: Data) -> Bool {
+    // SQLite files start with the string "SQLite format 3\0"
+    let sqliteHeader = "SQLite format 3\0"
+    return data.prefix(16) == Data(sqliteHeader.utf8)
+}
+
+func isImage(data: Data) -> Bool {
+    // Simple check for common image formats
+    let imageHeaders: [Data] = [
+        Data([0xFF, 0xD8, 0xFF]),          // JPEG
+        Data([0x89, 0x50, 0x4E, 0x47]),    // PNG
+        Data([0x47, 0x49, 0x46])           // GIF
+    ]
+    return imageHeaders.contains { data.prefix($0.count) == $0 }
 }

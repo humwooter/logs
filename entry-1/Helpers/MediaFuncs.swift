@@ -13,6 +13,43 @@ import AVFoundation
 import AVKit
 
 
+func printDocumentsDirectoryContents() {
+    let fileManager = FileManager.default
+    
+    guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+        print("Unable to access Documents directory")
+        return
+    }
+    
+    print("Contents of Documents directory:")
+    print("--------------------------------")
+    
+    do {
+        let contents = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+        
+        if contents.isEmpty {
+            print("The Documents directory is empty.")
+        } else {
+            for (index, itemURL) in contents.enumerated() {
+                let attributes = try fileManager.attributesOfItem(atPath: itemURL.path)
+                let fileSize = attributes[.size] as? Int64 ?? 0
+                let fileType = attributes[.type] as? String ?? "Unknown"
+                let fileName = itemURL.lastPathComponent
+                
+                print("\(index + 1). \(fileName)")
+                print("   Type: \(fileType)")
+                print("   Size: \(ByteCountFormatter.string(fromByteCount: fileSize, countStyle: .file))")
+                print("   URL: \(itemURL.path)")
+                print("") // Empty line for readability
+            }
+        }
+    } catch {
+        print("Error reading directory contents: \(error.localizedDescription)")
+    }
+    
+    print("--------------------------------")
+}
+
 func clearTempDirectory() {
     let fileManager = FileManager.default
     let tempDirectory = fileManager.temporaryDirectory

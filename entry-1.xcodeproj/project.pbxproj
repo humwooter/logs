@@ -675,6 +675,13 @@
 			path = ThemeThumbnailPreview;
 			sourceTree = "<group>";
 		};
+		4A1B567B2C7318B6000FECA7 /* Log Tabs */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Log Tabs";
+			sourceTree = "<group>";
+		};
 		4A45D8162B7C9C6D008739A6 /* UserPreferences */ = {
 			isa = PBXGroup;
 			children = (
@@ -734,6 +741,7 @@
 		4A7264332AEBAF7F0099EA84 /* Log */ = {
 			isa = PBXGroup;
 			children = (
+				4A1B567B2C7318B6000FECA7 /* Log Tabs */,
 				34A808622A8AFBC400B9BB5C /* LogViews.swift */,
 				4A7264392AEBB0570099EA84 /* LogDetailView.swift */,
 				4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */,
