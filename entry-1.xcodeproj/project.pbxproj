@@ -35,6 +35,7 @@
 		4A1B56362C70A151000FECA7 /* UserTheme+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B56352C70A148000FECA7 /* UserTheme+CoreDataClass.swift */; };
 		4A1B563A2C715994000FECA7 /* Themes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B56392C71598F000FECA7 /* Themes.swift */; };
 		4A1B563C2C715C9B000FECA7 /* EditUserThemeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B563B2C715C95000FECA7 /* EditUserThemeView.swift */; };
+		4A1B563F2C72AE86000FECA7 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 4A1B563E2C72AE86000FECA7 /* ZIPFoundation */; };
 		4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */; };
 		4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */; };
 		4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */; };
@@ -70,7 +71,6 @@
 		4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264462AEDD0E10099EA84 /* UserPreferences.swift */; };
 		4A81FD202C2BB42F004EC3D2 /* WidgetCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD1F2C2BB428004EC3D2 /* WidgetCoreDataManager.swift */; };
 		4A81FD412C3238F2004EC3D2 /* GrowingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD402C3238EB004EC3D2 /* GrowingTextField.swift */; };
-		4A81FD472C329EBD004EC3D2 /* EntryManagement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD462C329EBD004EC3D2 /* EntryManagement.swift */; };
 		4A81FD492C32A157004EC3D2 /* ReminderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD482C32A157004EC3D2 /* ReminderManager.swift */; };
 		4A81FD4B2C32BBA1004EC3D2 /* EventManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD4A2C32BBA1004EC3D2 /* EventManager.swift */; };
 		4A81FD512C337A42004EC3D2 /* NewPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD502C337A42004EC3D2 /* NewPersistence.swift */; };
@@ -131,7 +131,6 @@
 		4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0AB9F2BB13A6800EF3548 /* ReminderFuncs.swift */; };
 		4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AB0ABA12BB1663200EF3548 /* CoreDataFuncs.swift */; };
 		4ABB76BF2C40CE3E002782EF /* OldGrowingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76BE2C40CE36002782EF /* OldGrowingTextField.swift */; };
-		4ABB76CC2C438F3E002782EF /* GlobalEntryViewbuilders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */; };
 		4ABB76CE2C43CED7002782EF /* TextFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76CD2C43CED2002782EF /* TextFuncs.swift */; };
 		4ABB76E32C44C756002782EF /* UserStamp+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76E12C44C756002782EF /* UserStamp+CoreDataClass.swift */; };
 		4ABB76E42C44C756002782EF /* UserStamp+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABB76E22C44C756002782EF /* UserStamp+CoreDataProperties.swift */; };
@@ -335,7 +334,6 @@
 		4A7264462AEDD0E10099EA84 /* UserPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferences.swift; sourceTree = "<group>"; };
 		4A81FD1F2C2BB428004EC3D2 /* WidgetCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetCoreDataManager.swift; sourceTree = "<group>"; };
 		4A81FD402C3238EB004EC3D2 /* GrowingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowingTextField.swift; sourceTree = "<group>"; };
-		4A81FD462C329EBD004EC3D2 /* EntryManagement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryManagement.swift; sourceTree = "<group>"; };
 		4A81FD482C32A157004EC3D2 /* ReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderManager.swift; sourceTree = "<group>"; };
 		4A81FD4A2C32BBA1004EC3D2 /* EventManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventManager.swift; sourceTree = "<group>"; };
 		4A81FD502C337A42004EC3D2 /* NewPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPersistence.swift; sourceTree = "<group>"; };
@@ -374,7 +372,6 @@
 		4ABB76BE2C40CE36002782EF /* OldGrowingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldGrowingTextField.swift; sourceTree = "<group>"; };
 		4ABB76C82C425494002782EF /* RIchTextEditor.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = RIchTextEditor.js; path = "entry-1/Views/Entry/Custom Implementations/RIchTextEditor.js"; sourceTree = "<group>"; };
 		4ABB76C92C4254AE002782EF /* RichTextEditor.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = RichTextEditor.html; path = "entry-1/Views/Entry/Custom Implementations/RichTextEditor.html"; sourceTree = "<group>"; };
-		4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalEntryViewbuilders.swift; sourceTree = "<group>"; };
 		4ABB76CD2C43CED2002782EF /* TextFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFuncs.swift; sourceTree = "<group>"; };
 		4ABB76E12C44C756002782EF /* UserStamp+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStamp+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4ABB76E22C44C756002782EF /* UserStamp+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStamp+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -440,6 +437,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34C43AFC2A976A34005C1296 /* FLAnimatedImage in Frameworks */,
+				4A1B563F2C72AE86000FECA7 /* ZIPFoundation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -535,7 +533,6 @@
 				4A4AFF7E2B92C56D00632C4D /* Buttons */,
 				4A45D8162B7C9C6D008739A6 /* UserPreferences */,
 				4A9D31A52B54AA1F00E219CE /* IntroScreens */,
-				4A4647632B3EA357002B2164 /* SearchViews */,
 				4A72643D2AEC628C0099EA84 /* Experimental */,
 				4A7264362AEBAFEB0099EA84 /* PDF  */,
 				4A7264332AEBAF7F0099EA84 /* Log */,
@@ -609,13 +606,6 @@
 			path = Documents;
 			sourceTree = "<group>";
 		};
-		4A4647632B3EA357002B2164 /* SearchViews */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SearchViews;
-			sourceTree = "<group>";
-		};
 		4A4AFF7E2B92C56D00632C4D /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
@@ -647,7 +637,6 @@
 			isa = PBXGroup;
 			children = (
 				4ABB76CA2C438F21002782EF /* Global */,
-				4A81FD452C329EA4004EC3D2 /* Protocols */,
 				4A81FD422C323920004EC3D2 /* Custom Implementations */,
 				4A81FD3F2C2E2ABC004EC3D2 /* Components */,
 				4A81FD3E2C2E2A9B004EC3D2 /* Sheets */,
@@ -724,14 +713,6 @@
 			path = "Custom Implementations";
 			sourceTree = "<group>";
 		};
-		4A81FD452C329EA4004EC3D2 /* Protocols */ = {
-			isa = PBXGroup;
-			children = (
-				4A81FD462C329EBD004EC3D2 /* EntryManagement.swift */,
-			);
-			path = Protocols;
-			sourceTree = "<group>";
-		};
 		4A81FD4C2C32CAA2004EC3D2 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
@@ -793,7 +774,6 @@
 		4ABB76CA2C438F21002782EF /* Global */ = {
 			isa = PBXGroup;
 			children = (
-				4ABB76CB2C438F35002782EF /* GlobalEntryViewbuilders.swift */,
 			);
 			path = Global;
 			sourceTree = "<group>";
@@ -896,6 +876,7 @@
 			name = "entry-1";
 			packageProductDependencies = (
 				34C43AFB2A976A34005C1296 /* FLAnimatedImage */,
+				4A1B563E2C72AE86000FECA7 /* ZIPFoundation */,
 			);
 			productName = "entry-1";
 			productReference = 34A808252A8A167200B9BB5C /* entry-1.app */;
@@ -971,6 +952,7 @@
 			mainGroup = 34A8081C2A8A167200B9BB5C;
 			packageReferences = (
 				34C43AFA2A976A34005C1296 /* XCRemoteSwiftPackageReference "FLAnimatedImage" */,
+				4A1B563D2C72AE3B000FECA7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 			);
 			productRefGroup = 34A808262A8A167200B9BB5C /* Products */;
 			projectDirPath = "";
@@ -1175,7 +1157,6 @@
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
 				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
 				4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */,
-				4ABB76CC2C438F3E002782EF /* GlobalEntryViewbuilders.swift in Sources */,
 				4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */,
 				4A81FD492C32A157004EC3D2 /* ReminderManager.swift in Sources */,
 				4A7264382AEBAFFC0099EA84 /* PDF.swift in Sources */,
@@ -1203,7 +1184,6 @@
 				4ACEB3D62B5F74C800B76634 /* IntroViews.swift in Sources */,
 				4A81FD412C3238F2004EC3D2 /* GrowingTextField.swift in Sources */,
 				4A89FCFA2AC154FE0076EAAC /* CustomAsyncImageView.swift in Sources */,
-				4A81FD472C329EBD004EC3D2 /* EntryManagement.swift in Sources */,
 				4ABB76BF2C40CE3E002782EF /* OldGrowingTextField.swift in Sources */,
 				4AED6CD22C620FAD007F7298 /* OldPersistence.swift in Sources */,
 				4A72642D2AEBAC100099EA84 /* MediaFuncs.swift in Sources */,
@@ -1647,6 +1627,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		4A1B563D2C72AE3B000FECA7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.19;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1654,6 +1642,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34C43AFA2A976A34005C1296 /* XCRemoteSwiftPackageReference "FLAnimatedImage" */;
 			productName = FLAnimatedImage;
+		};
+		4A1B563E2C72AE86000FECA7 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4A1B563D2C72AE3B000FECA7 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
 		};
 /* End XCSwiftPackageProductDependency section */
 

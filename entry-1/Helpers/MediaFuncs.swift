@@ -12,6 +12,46 @@ import PDFKit
 import AVFoundation
 import AVKit
 
+
+func clearTempDirectory() {
+    let fileManager = FileManager.default
+    let tempDirectory = fileManager.temporaryDirectory
+
+    do {
+        let contents = try fileManager.contentsOfDirectory(atPath: tempDirectory.path)
+        for item in contents {
+            let itemPath = tempDirectory.appendingPathComponent(item)
+            try fileManager.removeItem(at: itemPath)
+            print("Deleted \(itemPath)")
+        }
+        print("Temporary directory cleared.")
+    } catch {
+        print("Failed to clear temporary directory: \(error.localizedDescription)")
+    }
+}
+
+func printContentsOfTmpDirectory() {
+    let fileManager = FileManager.default
+    let tempDirectory = fileManager.temporaryDirectory
+
+    do {
+        let contents = try fileManager.contentsOfDirectory(atPath: tempDirectory.path)
+        
+        if contents.isEmpty {
+            print("The tmp directory is empty.")
+        } else {
+            print("Contents of tmp directory:")
+            for item in contents {
+                let itemPath = tempDirectory.appendingPathComponent(item).path
+                print(itemPath)
+            }
+        }
+    } catch {
+        print("Failed to list contents of tmp directory: \(error.localizedDescription)")
+    }
+}
+
+
 func getUrl(for filename: String) -> URL? {
     let fileManager = FileManager.default
     guard let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else { return nil }

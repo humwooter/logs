@@ -4,10 +4,12 @@
 //
 //  Created by Katyayani G. Raman on 8/17/24.
 //
+
+
 import SwiftUI
 import CoreData
-import SwiftUI
-import CoreData
+
+
 struct EditUserThemeView: View {
     @Binding var userTheme: UserTheme?
     @Environment(\.colorScheme) var colorScheme
@@ -42,9 +44,20 @@ struct EditUserThemeView: View {
         NavigationStack {
             List {
                 Section(header: Text("Preferences")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
                     .font(.system(size: UIFont.systemFontSize))
                 ) {
+                    HStack {
+                        Text("Theme name: ")
+                        TextField("", text: $theme.name, prompt: Text("Enter theme name: "))
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+
+//                             .font(.system(size: UIFont.systemFontSize))
+                    
                     ColorPicker("Accent Color", selection: $theme.accentColor)
                     FontPicker(
                         selectedFont: $theme.fontName,
@@ -66,7 +79,8 @@ struct EditUserThemeView: View {
                 } header: {
                     HStack {
                         Text("Background Colors")
-                            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))                        .font(.system(size: UIFont.systemFontSize))
+                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                            .font(.system(size: UIFont.systemFontSize))
                         Spacer()
                         Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
                             .onTapGesture {
@@ -82,7 +96,8 @@ struct EditUserThemeView: View {
                 } header: {
                     HStack {
                         Text("Entry Background")
-                            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))                        .font(.system(size: UIFont.systemFontSize))
+                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                            .font(.system(size: UIFont.systemFontSize))
                         Spacer()
                         Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
                             .onTapGesture {
@@ -97,7 +112,8 @@ struct EditUserThemeView: View {
                 } header: {
                     HStack {
                         Text("Pin Color")
-                            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))                        .font(.system(size: UIFont.systemFontSize))
+                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                            .font(.system(size: UIFont.systemFontSize))
                         Spacer()
                         Image(systemName: "pin.fill").foregroundStyle(theme.pinColor)
                     }.font(.system(size: UIFont.systemFontSize))
@@ -108,7 +124,8 @@ struct EditUserThemeView: View {
                 } header: {
                     HStack {
                         Text("Alerts")
-                            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))                        .font(.system(size: UIFont.systemFontSize))
+                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                            .font(.system(size: UIFont.systemFontSize))
                         Spacer()
                         Image(systemName: "bell.fill").foregroundStyle(theme.reminderColor)
                     }.font(.system(size: UIFont.systemFontSize))
@@ -117,14 +134,14 @@ struct EditUserThemeView: View {
             .background {
                 ZStack {
                     Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
+                    LinearGradient(colors: [theme.topColor, theme.bottomColor], startPoint: .top, endPoint: .bottom)
                 }
                 .ignoresSafeArea()
             }
             .scrollContentBackground(.hidden)
             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
-            .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
-            .accentColor(userPreferences.accentColor)
+            .font(.custom(String(theme.fontName), size: CGFloat(Float(theme.fontSize))))
+            .accentColor(theme.accentColor)
             .toolbar {
                 Button {
                     saveTheme()
@@ -143,11 +160,16 @@ struct EditUserThemeView: View {
     }
     
     private func saveTheme() {
-        // Update the userTheme with the modified theme properties if it exists
-        if userTheme != nil {
-            userTheme?.fromTheme(theme)
+        print("ENTERED SAVE THEME")
+        print("theme: \(theme)")
+        if let existingUserTheme = userTheme {
+            // Update the existing userTheme with the modified properties
+            existingUserTheme.fromTheme(theme)
         } else {
-            // Handle the case where userTheme is nil if necessary
+            // If userTheme is nil, create a new UserTheme
+            let newUserTheme = UserTheme(context: coreDataManager.viewContext)
+            newUserTheme.fromTheme(theme)
+            userTheme = newUserTheme
         }
 
         // Save the context
@@ -159,4 +181,6 @@ struct EditUserThemeView: View {
             print("Failed to save user theme: \(error.localizedDescription)")
         }
     }
+
 }
+

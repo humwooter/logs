@@ -17,3 +17,8 @@ func getIdealTextColor(userPreferences: UserPreferences, colorScheme: ColorSchem
     var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
     return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
 }
+
+func getIdealTextColor(topColor: Color, bottomColor: Color, colorScheme: ColorScheme) -> Color {
+    var blendedBackground = UIColor.blendedColor(from: UIColor(topColor), with: UIColor(bottomColor))
+    return Color(UIColor.fontColor(forBackgroundColor: blendedBackground, colorScheme: colorScheme))
+}

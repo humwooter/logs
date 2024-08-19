@@ -14,29 +14,6 @@ enum DecoderConfigurationError: Error {
     case missingManagedObjectContext
 }
 
-struct AttributedStringCodableWrapper: Codable {
-    let attributedString: NSAttributedString
-    
-    init(attributedString: NSAttributedString) {
-        self.attributedString = attributedString
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let data = try container.decode(Data.self)
-        do {
-            self.attributedString = try NSAttributedString(data: data, options: [:], documentAttributes: nil)
-        } catch {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Failed to decode NSAttributedString: \(error)")
-        }
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        let data = try attributedString.data(from: NSRange(location: 0, length: attributedString.length), documentAttributes: [.documentType: NSAttributedString.DocumentType.rtfd])
-        try container.encode(data)
-    }
-}
 
 
 @objc(Entry)
@@ -53,7 +30,6 @@ public class Entry: NSManagedObject, Codable {
         
         id = try values.decodeIfPresent(UUID.self, forKey: .id)!
         content = try values.decodeIfPresent(String.self, forKey: .content) ?? "could not retrieve content"
-//        let attributedContentWrapper = try values.decodeIfPresent(AttributedStringCodableWrapper.self, forKey: .attributedContent)
         time = try values.decodeIfPresent(Date.self, forKey: .time) ?? Date()
         
         if let colorData = try values.decodeIfPresent(Data.self, forKey: .color) {
