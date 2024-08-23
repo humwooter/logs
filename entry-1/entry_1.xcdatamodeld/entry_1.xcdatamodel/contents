@@ -30,10 +30,22 @@
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
     </entity>
+    <entity name="Folder" representedClassName="Folder" syncable="YES">
+        <attribute name="entryCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="Log" representedClassName="Log" syncable="YES">
         <attribute name="day" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="relationship" optional="YES" toMany="YES" deletionRule="No Action" destinationEntity="Entry" inverseName="relationship" inverseEntity="Entry"/>
+    </entity>
+    <entity name="Tag" representedClassName="Tag" syncable="YES">
+        <attribute name="entryNames" optional="YES" attributeType="Transformable"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="numEntries" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES">
         <attribute name="color" optional="YES" attributeType="Transformable"/>

@@ -86,6 +86,7 @@ struct ReplyEntryView: View {
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
     @State var entryBackgroundColor: Color = Color.clear
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -687,7 +688,7 @@ struct ReplyEntryView: View {
                 
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
-                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $entryBackgroundColor)
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $entryBackgroundColor, repliedEntry: repliedEntry)
                     
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)

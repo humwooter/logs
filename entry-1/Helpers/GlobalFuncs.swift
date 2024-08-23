@@ -12,6 +12,33 @@ import EventKit
 import AVKit
 
 
+func requestReminderAccess(completion: @escaping (Bool) -> Void) {
+    let eventStore = EKEventStore()
+    eventStore.requestAccess(to: .reminder) { granted, error in
+        DispatchQueue.main.async {
+            completion(granted)
+        }
+    }
+}
+
+func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
+    switch option {
+    case "Daily":
+        return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
+    case "Weekly":
+        return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+    case "Weekends":
+        let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
+        return rule
+    case "Biweekly":
+        return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
+    case "Monthly":
+        return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
+    default:
+        return nil
+    }
+}
+
 // Helper function to safely apply attributes to a mutable attributed string
 func safelyApplyAttributes(to mutableAttributedString: NSMutableAttributedString, attributes: [NSAttributedString.Key: Any], range: NSRange) {
     let safeRange = NSRange(location: min(range.location, mutableAttributedString.length), length: min(range.length, mutableAttributedString.length - range.location))
@@ -56,6 +83,52 @@ func createThumbnailOfVideoFromRemoteUrl(url: URL) -> UIImage? {
 func getDocumentsDirectory() -> URL {
     let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
     return paths[0]
+}
+
+
+func isOpaque(color: UIColor) -> Bool {
+    var alpha: CGFloat = 0.0
+    color.getWhite(nil, alpha: &alpha) // This works for all UIColor spaces
+    
+    return alpha == 1.0
+}
+
+func calculateTextColor(
+    basedOn background1: Color,
+    background2: Color,
+    entryBackground: Color,
+    colorScheme: ColorScheme
+) -> Color {
+    // Convert Color to UIColor
+//    return .blue
+    var uiEntryBackground = UIColor(entryBackground)
+    if isClear(for: uiEntryBackground) {
+//        uiEntryBackground = UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))
+        return  colorScheme == .dark ? .white : .black
+//        return Color(UIColor.fontColor(forBackgroundColor: uiEntryBackground, colorScheme: colorScheme))
+    }
+    
+    if isOpaque(color: uiEntryBackground) {
+        return Color(UIColor.fontColor(forBackgroundColor: uiEntryBackground))
+    }
+    
+    var uiBackground1 = UIColor(background1)
+    if isClear(for: uiBackground1) {
+        uiBackground1 = UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))
+    }
+    var uiBackground2 = UIColor(background2)
+    if isClear(for: uiBackground2) {
+        uiBackground2 = UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme))
+    }
+
+    // Calculate the average color between the first two backgrounds
+    let blendedBackground_base = UIColor.averageColor(of: uiBackground1, and: uiBackground2)
+    
+    // Further blend this base with the entry background
+    let blendedBackground = UIColor.averageColor(of: blendedBackground_base, and: uiEntryBackground)
+    
+    // Determine the appropriate font color based on the blended background
+    return Color(UIColor.fontColor(forBackgroundColor: blendedBackground, colorScheme: colorScheme))
 }
 
 
@@ -348,10 +421,18 @@ func insertOrAppendText(_ text: String, into content: String, at cursorPosition:
 
 
 func getDefaultEntryBackgroundColor(colorScheme: ColorScheme) -> Color {
-    return colorScheme == .dark ? defaultEntryBackgroundColor_dark : .white
+    let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
+    return Color(color)
+//    return colorScheme == .dark ? .blue : .red
 }
 
 func getDefaultBackgroundColor(colorScheme: ColorScheme) -> Color {
     let uiColor = colorScheme == .dark ? UIColor.black : UIColor(defaultBackgroundColor)
     return Color(uiColor)
+}
+
+
+func provideHapticFeedback() {
+    let generator = UIImpactFeedbackGenerator(style: .light)
+    generator.impactOccurred()
 }

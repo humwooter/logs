@@ -25,6 +25,8 @@ struct Theme: Identifiable {
     var lineSpacing: CGFloat
 }
 
+
+
 struct ThemeSheet: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -38,6 +40,7 @@ struct ThemeSheet: View {
     
     @State var selectedTheme: UserTheme?
     @State private var editTheme = false
+    @State private var editCurrentTheme = false
     @State private var showDocumentPicker = false
 
     private var isEditThemeActive: Binding<Bool> {
@@ -54,6 +57,8 @@ struct ThemeSheet: View {
                }
            )
        }
+ 
+    
     
     var body: some View {
         ScrollView {
@@ -76,6 +81,10 @@ struct ThemeSheet: View {
                 .environmentObject(coreDataManager)
                 .environmentObject(userPreferences)
         }
+        .sheet(isPresented: $editCurrentTheme) {
+            CurrentThemeEditView()
+                .environmentObject(userPreferences)
+        }
         .fileImporter(
             
             isPresented: $showDocumentPicker,
@@ -90,10 +99,13 @@ struct ThemeSheet: View {
                     }
                 }
     }
+    
+ 
+    
     @ViewBuilder
     func currentThemeView() -> some View {
         let currentTheme = Theme(
-            name: "Current Theme",
+            name: userPreferences.themeName,
             accentColor: userPreferences.accentColor,
             topColor: userPreferences.backgroundColors.first ?? .clear,
             bottomColor: userPreferences.backgroundColors.last ?? .clear,
@@ -104,8 +116,14 @@ struct ThemeSheet: View {
             fontSize: userPreferences.fontSize,
             lineSpacing: userPreferences.lineSpacing
         )
-        themeView(theme: currentTheme)
+        themeView(theme: currentTheme, userTheme: nil, isCurrentTheme: true)
         .contextMenu {
+            Button {
+                editCurrentTheme = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            
             Button("Save") {
                 let userTheme = UserTheme(context: coreDataManager.viewContext)
                 userTheme.fromTheme(currentTheme)
@@ -120,91 +138,17 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func customThemesView() -> some View {
-        HStack {
-            Text("Custom Themes").font(.headline).padding()
-                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
-            Spacer()
-        }
+//        HStack {
+//            Text("Custom Themes").font(.headline).padding()
+//                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
+//            Spacer()
+//        }
         
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             currentThemeView()
             ForEach(savedThemes, id: \.id) { userTheme in
                 let theme = userTheme.toTheme()
-                VStack {
-                    HStack {
-                        Spacer()
-                        Menu {
-                            Button {
-                                userPreferences.applyTheme(theme)
-                            } label: {
-                                Label("Apply", systemImage: "checkmark.circle")
-                            }
-                            
-                            Button {
-                                selectedTheme = userTheme
-                                editTheme = true
-                            } label: {
-                                Label("Edit", systemImage: "pencil")
-                            }
-                            
-                            Button {
-                                Task {
-                                    await shareTheme(userTheme)
-                                }
-                            } label: {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            
-                            Button {
-                                do {
-                                    try coreDataManager.viewContext.delete(userTheme)
-                                    try coreDataManager.viewContext.save()
-                                } catch {
-                                    print("Failed to save theme: \(error.localizedDescription)")
-                                }
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                        } label: {
-                            Label("", systemImage: "ellipsis.circle").foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: userTheme.topColor ?? UIColor.clear)).opacity(0.3))
-                                .frame(maxWidth: 10, maxHeight: 10)
-                        }.padding(2)
-                    }
-                    themeView(theme: theme)
-                }
-                    .contextMenu {
-                        Button {
-                            userPreferences.applyTheme(theme)
-                        } label: {
-                            Label("Apply", systemImage: "checkmark.circle")
-                        }
-                        
-                        Button {
-                            selectedTheme = userTheme
-                            editTheme = true
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        
-                        Button {
-                            Task {
-                                await shareTheme(userTheme)
-                            }
-                        } label: {
-                            Label("Share", systemImage: "square.and.arrow.up")
-                        }
-                        
-                        Button {
-                            do {
-                                try coreDataManager.viewContext.delete(userTheme)
-                                try coreDataManager.viewContext.save()
-                            } catch {
-                                print("Failed to save theme: \(error.localizedDescription)")
-                            }
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
+                themeView(theme: theme, userTheme: userTheme, isCurrentTheme: false)
 
             }.onAppear {
                 print("ALL SAVED THEMES")
@@ -227,77 +171,177 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func defaultThemesView() -> some View {
-        HStack {
-            Text("Default Themes").font(.headline).padding()
-            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
-        Spacer()
-    }
+//        HStack {
+//            Text("Default Themes").font(.headline).padding()
+//            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
+//        Spacer()
+//    }
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-            ForEach(refinedThemes) { theme in
-                themeView(theme: theme).contextMenu {
-                    Button("Apply") {
-                        userPreferences.applyTheme(theme)
+            ForEach(additionalThemes) { theme in
+                themeView(theme: theme, userTheme: nil, isCurrentTheme: false)
+                        .contextMenu {
+                        Button("Apply") {
+                            userPreferences.applyTheme(theme)
+                        }
                     }
-                }
+         
+
+      
             }
         }
         .padding()
     }
     
-    @ViewBuilder
-    func themeView(theme: Theme) -> some View {
-        ZStack {
-            // Larger square
-            RoundedRectangle(cornerRadius: 15)
-                .fill(LinearGradient(gradient: Gradient(colors: [theme.topColor, theme.bottomColor]), startPoint: .top, endPoint: .bottom))
-                .frame(width: 150, height: 150)  // Entire square block
-            
-            VStack(alignment: .leading, spacing: 8) {
-                
-                // Small cube for entry background
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(theme.entryBackgroundColor)
-                    .frame(width: 130, height: 30)  // Adjusted to fit better within the square
-                    .padding(.horizontal)
-                    .overlay(
-                        HStack(alignment: .center) {
-                            Text(theme.name)
-                                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor.blendedColor(from: UIColor(theme.topColor), with: UIColor(theme.entryBackgroundColor)), colorScheme: colorScheme)))
-                                .font(.custom(theme.fontName, size: theme.fontSize))
-
-                        }
-                    )
-                
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(theme.accentColor)
-                            .frame(width: 10, height: 10)
-                        Text("accent")
-                    }
-                    
-                    HStack(spacing: 8) {
-                        Image(systemName: "pin.fill").resizable()
-                            .foregroundStyle(theme.pinColor)
-                            .frame(width: 10, height: 10)
-                        Text("pin")
-                    }
-                    
-                    HStack(spacing: 8) {
-                        Image(systemName: "bell.fill").resizable()
-                            .foregroundStyle(theme.reminderColor)
-                            .frame(width: 10, height: 10)
-                        Text("reminder")
-                    }
-                }
-                .font(.custom(theme.fontName, size: theme.fontSize))
-                .padding(.horizontal)
+    @ViewBuilder func menuButtons(theme: Theme, userTheme: UserTheme?, isCurrentTheme: Bool) -> some View {
+        if !isCurrentTheme {
+            Button {
+                userPreferences.applyTheme(theme)
+            } label: {
+                Label("Apply", systemImage: "checkmark.circle")
             }
         }
-        .cornerRadius(20)  // Rounded corners for the entire block
-        .shadow(color: Color(UIColor.fontColor(forBackgroundColor: UIColor.blendedColor(from: UIColor(userPreferences.backgroundColors.first ?? Color.clear), with: UIColor(userPreferences.backgroundColors[1])))).opacity(0.08), radius: 3)
         
+        if let userTheme = userTheme {
+            Button {
+                selectedTheme = userTheme
+                editTheme = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button {
+                Task {
+                    await shareTheme(userTheme)
+                }
+            } label: {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            
+            Button {
+                do {
+                    try coreDataManager.viewContext.delete(userTheme)
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    print("Failed to save theme: \(error.localizedDescription)")
+                }
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+
+        } else if isCurrentTheme {
+            Button {
+                editCurrentTheme = true
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            
+            Button("Save") {
+                let userTheme = UserTheme(context: coreDataManager.viewContext)
+                userTheme.fromTheme(theme)
+                do {
+                    try coreDataManager.viewContext.save()
+                } catch {
+                    print("Failed to save theme: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    @ViewBuilder
+    func themeView(theme: Theme, userTheme: UserTheme?, isCurrentTheme: Bool) -> some View {
+        VStack {
+            HStack {
+                Spacer()
+                Menu {
+                    menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
+                } label: {
+                    HStack {
+                        if isCurrentTheme {
+                            Text("current")
+                        } else if let userTheme = userTheme {
+                            Text("custom")
+                        } else {
+                            Text("default")
+                        }
+                        Spacer()
+                        Image(systemName: "ellipsis")
+                    }.font(.caption2)
+                }
+                .foregroundStyle(getIdealHeaderTextColor().opacity(0.3))
+
+
+            }
+            ZStack {
+                // Larger square
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(LinearGradient(gradient: Gradient(colors: getThemeBackground(topColor: theme.topColor, bottomColor: theme.bottomColor)), startPoint: .top, endPoint: .bottom))
+                    .strokeBorder(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme).opacity(0.2))
+                    .frame(width: 150, height: 150)  // Entire square block
+
+                
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                    // Small cube for entry background
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(getEntryBackground(entryBackgroundColor: theme.entryBackgroundColor))
+                        .frame(width: 130, height: 30)  // Adjusted to fit better within the square
+                        .padding(.horizontal)
+                        .overlay(
+                            HStack(alignment: .center) {
+                                Text(theme.name)
+                                    .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
+                                    .font(.custom(theme.fontName, size: theme.fontSize))
+                                
+                            }
+                        )
+                    
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(theme.accentColor)
+                                .frame(width: 10, height: 10)
+                            Text("accent")
+                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
+                            
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "pin.fill").resizable()
+                                .foregroundStyle(theme.pinColor)
+                                .frame(width: 10, height: 10)
+                            Text("pin")
+                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
+                            
+                        }
+                        
+                        HStack(spacing: 8) {
+                            Image(systemName: "bell.fill").resizable()
+                                .foregroundStyle(theme.reminderColor)
+                                .frame(width: 10, height: 10)
+                            Text("reminder")
+                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
+                            
+                        }
+                    }
+                    .font(.custom(theme.fontName, size: theme.fontSize))
+                    .padding(.horizontal)
+                }
+            }
+            .contextMenu {
+                menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
+            }
+        }
+        .frame(maxWidth: 150, maxHeight: 250)
+        
+    }
+    
+    func getThemeBackground(topColor: Color, bottomColor: Color) -> [Color] {
+        let blendedColor = UIColor.averageColor(of: UIColor(topColor), and: UIColor(bottomColor))
+        if isClear(for: blendedColor) {
+            return [getDefaultBackgroundColor(colorScheme: colorScheme)]
+        } else { return [topColor, bottomColor] }
+
     }
 }
 
@@ -540,7 +584,188 @@ extension ThemeSheet {
                return nil
            }
        }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
+    func getEntryBackground(entryBackgroundColor: Color) -> Color {
+        if isClear(for: UIColor(entryBackgroundColor)) {
+            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        } else {
+            return entryBackgroundColor
+        }
+    }
 
 }
 
 
+struct CurrentThemeEditView: View {
+    @EnvironmentObject var userPreferences: UserPreferences
+    @Environment(\.presentationMode) var presentationMode
+
+    @State private var accentColor: Color = Color.clear
+    @State private var name: String = ""
+    @State private var fontName: String = ""
+    @State private var fontSize: CGFloat = 0
+    @State private var lineSpacing: CGFloat = 0
+    @State private var backgroundColor_top: Color = Color.clear
+    @State private var backgroundColor_bottom: Color = Color.clear
+    @State private var entryBackgroundColor: Color = Color.clear
+    @State private var pinColor: Color = Color.clear
+    @State private var reminderColor: Color = Color.clear
+    @Environment(\.colorScheme) var colorScheme
+
+    var body : some View {
+       
+        NavigationStack {
+            mainThemeView()
+                .onAppear {
+                    initializeProperties()
+                }
+                .toolbar {
+                    Button {
+                        saveProperties()
+                    } label: {
+                        Label("Save", systemImage: "")
+                            .foregroundStyle(accentColor)                        .font(.system(size: UIFont.systemFontSize+5))
+                    }
+
+                }
+        }
+    }
+    
+    private func saveProperties() {
+        userPreferences.themeName = name
+        userPreferences.accentColor = accentColor
+        userPreferences.fontName = fontName
+        userPreferences.fontSize = fontSize
+        userPreferences.lineSpacing = lineSpacing
+        userPreferences.backgroundColors = [backgroundColor_top, backgroundColor_bottom]
+        userPreferences.entryBackgroundColor = entryBackgroundColor
+        userPreferences.pinColor = pinColor
+        userPreferences.reminderColor = reminderColor
+        presentationMode.wrappedValue.dismiss()
+
+    }
+
+    
+    private func initializeProperties() {
+        name = userPreferences.themeName
+        accentColor = userPreferences.accentColor
+        fontName = userPreferences.fontName
+        fontSize = userPreferences.fontSize
+        lineSpacing = userPreferences.lineSpacing
+        backgroundColor_top = userPreferences.backgroundColors.first ?? Color.clear
+        backgroundColor_bottom = userPreferences.backgroundColors[1]
+        entryBackgroundColor = userPreferences.entryBackgroundColor
+        pinColor = userPreferences.pinColor
+        reminderColor = userPreferences.reminderColor
+    }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(backgroundColor_top), and: UIColor(backgroundColor_bottom)), colorScheme: colorScheme))
+    }
+    
+    @ViewBuilder
+    func mainThemeView() -> some View {
+        List {
+            Section(header: Text("Preferences")
+                .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+                .font(.system(size: UIFont.systemFontSize))
+            ) {
+                
+                
+                HStack {
+                    Text("Theme name: ")
+                    TextField("", text: $name, prompt: Text("Enter theme name: "))
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .foregroundStyle(getIdealTextColor(topColor: backgroundColor_top, bottomColor: backgroundColor_bottom, colorScheme: colorScheme))
+                    Spacer()
+                }
+                
+                ColorPicker("Accent Color", selection: $accentColor)
+                FontPicker(selectedFont:  $fontName, selectedFontSize: $fontSize, accentColor: $accentColor, inputCategories: fontCategories, topColor_background: $backgroundColor_top, bottomColor_background: $backgroundColor_bottom, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
+                HStack {
+                    Text("Line Spacing")
+                    Slider(value: $lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+                }
+            }
+            
+            Section {
+                BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+            } header: {
+                
+                HStack {
+                    Text("Background Colors")
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+                    
+                        .font(.system(size: UIFont.systemFontSize))
+                    Spacer()
+                    Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
+                        .onTapGesture {
+                            vibration_light.impactOccurred()
+                            backgroundColor_top = .clear
+                            backgroundColor_bottom = .clear
+                        }
+                }
+            }
+            
+            Section {
+                ColorPicker("Default Entry Background Color:", selection: $entryBackgroundColor)
+                
+            } header: {
+                HStack {
+                    Text("Entry Background")
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+                    
+                        .font(.system(size: UIFont.systemFontSize))
+                    Spacer()
+                    Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
+                        .onTapGesture {
+                            vibration_light.impactOccurred()
+                            userPreferences.entryBackgroundColor = .clear
+                        }
+                }
+            }
+            
+            
+            Section {
+                ColorPicker("Pin Color", selection: $pinColor)
+            } header: {
+                HStack {
+                    Text("Pin Color")
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+                    
+                        .font(.system(size: UIFont.systemFontSize))
+                    Spacer()
+                    Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
+                }.font(.system(size: UIFont.systemFontSize))
+            }
+            
+            Section {
+                ColorPicker("Reminder Color", selection: $reminderColor)
+            } header: {
+                HStack {
+                    Text("Alerts")
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+                    
+                        .font(.system(size: UIFont.systemFontSize))
+                    Spacer()
+                    Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+                }.font(.system(size: UIFont.systemFontSize))
+            }
+        }
+        .background {
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                LinearGradient(colors: [backgroundColor_top, backgroundColor_bottom], startPoint: .top, endPoint: .bottom)
+            }
+            .ignoresSafeArea()
+        }
+        .scrollContentBackground(.hidden)
+        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor_top), colorScheme: colorScheme)))
+        .font(.custom(String(fontName), size: CGFloat(Float(fontSize))))
+        .accentColor(accentColor)
+    }
+}

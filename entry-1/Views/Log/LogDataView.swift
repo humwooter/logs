@@ -38,6 +38,11 @@ struct LogsDataView: View {
     @Binding  var isSuccess: Bool
     @Binding  var isFailure: Bool
     @State private var notificationMessage = ""
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
 
     var body: some View {
         Section {
@@ -48,7 +53,9 @@ struct LogsDataView: View {
             
             HStack {
                 Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                Text("Logs Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Logs Data")
+                    .foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
+
 
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)

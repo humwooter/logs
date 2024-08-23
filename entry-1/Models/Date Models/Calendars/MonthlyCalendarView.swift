@@ -23,9 +23,12 @@ struct CalendarView: View {
     @ObservedObject var datesModel: DatesModel
     let selectionColor: Color
     let backgroundColor: Color
+    let dateStringManager = DateStrings()
+    @State private var dragOffset: CGFloat = 0
 
     @State private var currentMonth: Date
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var userPreferences: UserPreferences
     @State private var offset = CGSize.zero
     @State private var showingDatePicker = false  // State to toggle DatePicker visibility
     @State var calendar_item_dimension = UIScreen.main.bounds.width / 10
@@ -71,7 +74,7 @@ struct CalendarView: View {
             Spacer()
             Text("\(currentMonth, formatter: dateFormatter)")
                 .font(.headline)
-                .foregroundColor(colorScheme == .dark ? .white : .black) // Adjusting color based on the theme
+                .foregroundStyle(getTextColor())
                 .onTapGesture {
                     withAnimation {
                         showingDatePicker.toggle()
@@ -94,7 +97,7 @@ struct CalendarView: View {
             ForEach(["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"], id: \.self) { day in
                 Text(day).fontWeight(.semibold)
                     .padding(.vertical, 5)
-                    .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.3))
+                    .foregroundStyle(getTextColor().opacity(0.3))
             }.scaledToFit()
         }
     }
@@ -121,50 +124,82 @@ struct CalendarView: View {
                 }
             }
         }
+        .offset(x: dragOffset)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    dragOffset = value.translation.width
+                }
+                .onEnded { value in
+                    let dayWidth = UIScreen.main.bounds.width / 7
+                    withAnimation(.interactiveSpring(response: 0.3, dampingFraction: 0.7, blendDuration: 0.3)) {
+                        if value.translation.width > dayWidth / 2 {
+                            shiftMonth(value: -1)
+                        } else if value.translation.width < -dayWidth / 2 {
+                            shiftMonth(value: 1)
+                        }
+                        dragOffset = 0
+                    }
+                    provideHapticFeedback()
+                }
+        )
     }
 
     @ViewBuilder
     func dayButton(_ day: DateComponents, isSelected: Bool, formattedDate: String?) -> some View {
         let calendarButton_dim: CGFloat = isIpad ? 55 : 35
-        let dateStringManager = DateStrings()
         
         if let formattedDate = formattedDate,
            let monthDates = dateStringManager.dates(forMonthYear: dateStringManager.monthYear(from: formattedDate)!) {
             let dayString = formattedDate
-            if monthDates.contains(dayString) && !isSelected { // hasLog
-                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
-                    .frame(width: calendarButton_dim, height: calendarButton_dim)
-                    .background(selectionColor.opacity(0.3))
-                    .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
-                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-                    .cornerRadius(100)
-                    .onTapGesture {
-                        if datesModel.doesDateExist(dayDate: day) {
-                            datesModel.toggleDateSelection(dayDate: day)
-                        } else {
-                            datesModel.addDate(dayDate: day, isSelected: true)
-                        }
+            let unselectedColor = (formattedDate != nil && monthDates.contains(formattedDate) == true && !isSelected) ? selectionColor.opacity(0.2) : Color.clear
+            Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+                .frame(width: calendarButton_dim, height: calendarButton_dim)
+                .background(isSelected ? selectionColor : unselectedColor)
+                .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) : getTextColor())
+
+                .cornerRadius(100)
+                .onTapGesture {
+                    if datesModel.doesDateExist(dayDate: day) {
+                        datesModel.toggleDateSelection(dayDate: day)
+                    } else {
+                        datesModel.addDate(dayDate: day, isSelected: true)
                     }
-            } else {
-                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
-                    .frame(width: calendarButton_dim, height: calendarButton_dim)
-                    .background(isSelected ? selectionColor : backgroundColor)
-                    .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
-                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
-                    .cornerRadius(100)
-                    .onTapGesture {
-                        if datesModel.doesDateExist(dayDate: day) {
-                            datesModel.toggleDateSelection(dayDate: day)
-                        } else {
-                            datesModel.addDate(dayDate: day, isSelected: true)
-                        }
-                    }
-            }
+                }
+//            if monthDates.contains(dayString) && !isSelected { // hasLog
+//                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+//                    .frame(width: calendarButton_dim, height: calendarButton_dim)
+//                    .background(selectionColor.opacity(0.3))
+//                    .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
+//                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+//                    .cornerRadius(100)
+//                    .onTapGesture {
+//                        if datesModel.doesDateExist(dayDate: day) {
+//                            datesModel.toggleDateSelection(dayDate: day)
+//                        } else {
+//                            datesModel.addDate(dayDate: day, isSelected: true)
+//                        }
+//                    }
+//            } else {
+//                Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2))
+//                    .frame(width: calendarButton_dim, height: calendarButton_dim)
+//                    .background(isSelected ? selectionColor : backgroundColor)
+//                    .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) :
+//                        Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+//                    .cornerRadius(100)
+//                    .onTapGesture {
+//                        if datesModel.doesDateExist(dayDate: day) {
+//                            datesModel.toggleDateSelection(dayDate: day)
+//                        } else {
+//                            datesModel.addDate(dayDate: day, isSelected: true)
+//                        }
+//                    }
+//            }
         } else {
             Text("\(day.day!)").font(.system(size: UIFont.systemFontSize + 2)).opacity(0.5)
                 .frame(width: calendarButton_dim, height: calendarButton_dim)
                 .background(backgroundColor)
-                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)))))
+                .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) : getTextColor())
                 .cornerRadius(100)
         }
     }
@@ -191,6 +226,19 @@ struct CalendarView: View {
         if let newMonth = Calendar.current.date(byAdding: .month, value: value, to: currentMonth) {
             currentMonth = newMonth
         }
+    }
+    
+    func getTextColor() -> Color {
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
+        
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
     }
 }
 
@@ -224,6 +272,7 @@ extension Calendar {
         let padding = (firstWeekDay - self.firstWeekday + 7) % 7 // Calculate padding based on the calendar's first weekday
         return padding
     }
+
 }
 
 // Extend DatesModel with new helper methods for toggling and adding dates

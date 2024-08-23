@@ -170,6 +170,7 @@ struct IconPicker: View {
     @Binding var accentColor: Color
     @State private var searchText = ""
     @FocusState private var focusField: Bool
+    @Environment(\.colorScheme) var colorScheme
 
 //    @State var backgroundColors: [Color]
     
@@ -218,9 +219,9 @@ struct IconPicker: View {
                         }
                 } else {
                     if buttonName.isEmpty {
-                        Text("Stamp \(buttonIndex + 1)")
+                        Text("Stamp \(buttonIndex + 1)").foregroundStyle(getIdealHeaderTextColor())
                     } else {
-                        Text(buttonName)
+                        Text(buttonName).foregroundStyle(getIdealHeaderTextColor())
                     }
                     Spacer()
 //                    Image(systemName: "pencil").foregroundStyle(accentColor)
@@ -232,6 +233,10 @@ struct IconPicker: View {
             .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         }
+    }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(topColor_background), and: UIColor(bottomColor_background)), colorScheme: colorScheme))
     }
     
     func imageListView() -> some View {

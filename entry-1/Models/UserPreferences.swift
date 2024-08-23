@@ -76,7 +76,7 @@ class UserPreferences: ObservableObject, Codable {
      }
     
     enum CodingKeys: CodingKey {
-        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon, syncPreference, enableCloudMirror
+        case activatedButtons, selectedImages, selectedColors, backgroundColors, entryBackgroundColor, accentColor, pinColor, reminderColor, showLockScreen, showLinks, fontSize, lineSpacing, fontName, stamps, stampStorage, showMostRecentEntryTime, isFirstLaunch, activeAppIcon, syncPreference, enableCloudMirror, calendarPreference, themeName
     }
     
     
@@ -165,6 +165,8 @@ class UserPreferences: ObservableObject, Codable {
         self.showMostRecentEntryTime = try container.decode(Bool.self, forKey: .showMostRecentEntryTime)
         self.syncPreference = try container.decode(SyncPreference.self, forKey: .syncPreference)
         self.enableCloudMirror = try container.decode(Bool.self, forKey: .enableCloudMirror)
+        self.calendarPreference = try container.decode(String.self, forKey: .calendarPreference)
+        self.themeName = try container.decode(String.self, forKey: .themeName)
     }
 
 
@@ -201,6 +203,7 @@ class UserPreferences: ObservableObject, Codable {
         try container.encode(lineSpacing, forKey: .lineSpacing)
         try container.encode(fontName, forKey: .fontName)
         try container.encode(activeAppIcon, forKey: .activeAppIcon)
+        try container.encode(themeName, forKey: .themeName)
     }
     
     @Published var syncPreference: SyncPreference {
@@ -309,6 +312,13 @@ class UserPreferences: ObservableObject, Codable {
     
     @Published var isUnlocked: Bool = false
     
+    @Published var calendarPreference: String  {
+        didSet {
+            UserDefaults.standard.set(calendarPreference, forKey: "calendarPreference")
+        }
+    }
+    
+    
     @Published var fontSize: CGFloat {
         didSet {
             UserDefaults.standard.set(fontSize, forKey: "fontSize")
@@ -324,6 +334,12 @@ class UserPreferences: ObservableObject, Codable {
     @Published var fontName: String {
         didSet {
             UserDefaults.standard.set(fontName, forKey: "fontName")
+        }
+    }
+    
+    @Published var themeName: String {
+        didSet {
+            UserDefaults.standard.set(themeName, forKey: "themeName")
         }
     }
     
@@ -371,6 +387,7 @@ class UserPreferences: ObservableObject, Codable {
         self.entryBackgroundColor =  UserDefaults.standard.color(forKey: "entryBackgroundColor") ?? Color.clear
         
         self.showLockScreen = UserDefaults.standard.bool(forKey: "showLockScreen")
+        self.calendarPreference =  UserDefaults.standard.string(forKey: "calendarPreference") ?? "Monthly"
 //        self.isUnlocked = UserDefaults.standard.bool(forKey: "isUnlocked")
 
 
@@ -387,6 +404,7 @@ class UserPreferences: ObservableObject, Codable {
         self.showMostRecentEntryTime = UserDefaults.standard.bool(forKey: "showMostRecentEntryTime")
         self.activeAppIcon = UserDefaults.standard.string(forKey: "activeAppIcon") ?? "AppIcon"
         self.enableCloudMirror = UserDefaults.standard.bool(forKey: "enableCloudMirror")
+        self.themeName = UserDefaults.standard.string(forKey: "themeName") ?? ""
     }
 }
 

@@ -39,69 +39,47 @@ class ReminderManager: ObservableObject {
                 return
             }
 
-            if let reminderId = self.reminderId, self.reminderExists(with: reminderId) {
-                self.editAndSaveReminder(reminderId: reminderId, title: self.reminderTitle.isEmpty ? "Reminder" : self.reminderTitle, dueDate: combinedDateTime, recurrenceOption: self.selectedRecurrence) { success in
-                    completion(success)
+            let reminder = self.fetchOrCreateReminder(with: self.reminderId)
+            reminder.title = self.reminderTitle.isEmpty ? "Reminder" : self.reminderTitle
+            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: combinedDateTime)
+            reminder.recurrenceRules = [self.createRecurrenceRule(fromOption: self.selectedRecurrence)].compactMap { $0 }
+
+            self.saveReminder(reminder) { success in
+                if success {
+                    self.reminderId = reminder.calendarItemIdentifier
                 }
-            } else {
-                self.createAndSaveReminder(title: self.reminderTitle.isEmpty ? "Reminder" : self.reminderTitle, dueDate: combinedDateTime, recurrenceOption: self.selectedRecurrence) { success in
-                    completion(success)
-                }
+                completion(success)
             }
         }
     }
 
-    private func reminderExists(with identifier: String) -> Bool {
-        return eventStore.calendarItem(withIdentifier: identifier) as? EKReminder != nil
-    }
-
-    private func editAndSaveReminder(reminderId: String, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool) -> Void) {
-        guard let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder else {
-            completion(false)
-            return
-        }
-
-        reminder.title = title
-        reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        reminder.recurrenceRules = [createRecurrenceRule(fromOption: recurrenceOption)].compactMap { $0 }
-
-        saveReminder(reminder, completion: completion)
-    }
-
-    private func createAndSaveReminder(title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool) -> Void) {
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.calendar = eventStore.defaultCalendarForNewReminders()
-        reminder.title = title
-        reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-        reminder.recurrenceRules = [createRecurrenceRule(fromOption: recurrenceOption)].compactMap { $0 }
-
-        saveReminder(reminder, completion: completion)
-    }
-
-    private func saveReminder(_ reminder: EKReminder, completion: @escaping (Bool) -> Void) {
-        do {
-            try eventStore.save(reminder, commit: true)
-            reminderId = reminder.calendarItemIdentifier
-            completion(true)
-        } catch {
-            completion(false)
+    private func fetchOrCreateReminder(with identifier: String?) -> EKReminder {
+        if let identifier = identifier, let existingReminder = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+            return existingReminder
+        } else {
+            let newReminder = EKReminder(eventStore: eventStore)
+            newReminder.calendar = eventStore.defaultCalendarForNewReminders()
+            return newReminder
         }
     }
 
     private func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
-        switch option {
-        case "Daily":
-            return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
-        case "Weekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        case "Weekends":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
-        case "Biweekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
-        case "Monthly":
-            return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
-        default:
-            return nil
+        let recurrenceRules: [String: EKRecurrenceRule] = [
+            "Daily": EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil),
+            "Weekly": EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil),
+            "Weekends": EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil),
+            "Biweekly": EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil),
+            "Monthly": EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
+        ]
+        return recurrenceRules[option]
+    }
+
+     func saveReminder(_ reminder: EKReminder, completion: @escaping (Bool) -> Void) {
+        do {
+            try eventStore.save(reminder, commit: true)
+            completion(true)
+        } catch {
+            completion(false)
         }
     }
 
@@ -111,9 +89,8 @@ class ReminderManager: ObservableObject {
             return
         }
 
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            guard granted, error == nil else {
-                print("Access to reminders denied or failed.")
+        requestReminderAccess { granted in
+            guard granted else {
                 completion()
                 return
             }
@@ -131,23 +108,20 @@ class ReminderManager: ObservableObject {
             }
         }
     }
-    
-    
 
     private func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule?) -> String {
         guard let rule = rule else { return "None" }
 
-        switch rule.frequency {
-        case .daily:
+        if rule.frequency == .daily {
             return "Daily"
-        case .weekly:
+        } else if rule.frequency == .weekly {
             if rule.daysOfTheWeek?.contains(where: { $0.dayOfTheWeek == .saturday || $0.dayOfTheWeek == .sunday }) == true {
                 return "Weekends"
             }
             return "Weekly"
-        case .monthly:
+        } else if rule.frequency == .monthly {
             return "Monthly"
-        default:
+        } else {
             return "None"
         }
     }

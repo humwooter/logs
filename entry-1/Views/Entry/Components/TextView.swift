@@ -173,20 +173,7 @@ struct TextView : View {
 //        editingContent = mutableAttributedString
 //    }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
-        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
-        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        
-        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
-
-        
-        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
-        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
-        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
-        return fontColor
-    }
     
     func deleteEntry(entry: Entry) {
         let mainContext = coreDataManager.viewContext
@@ -346,20 +333,23 @@ struct TextView : View {
         }
     }
     
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
     
     @ViewBuilder
     func entrySectionHeader() -> some View {
         HStack {
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
                         }
-                        .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
                     }
 
                 }

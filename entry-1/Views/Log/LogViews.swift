@@ -126,6 +126,7 @@ struct LogsView: View {
 
     
     @Binding var filteredLogs: [Log]
+    let dateStrings = DateStrings()
 
     var body: some View {
         
@@ -171,18 +172,23 @@ struct LogsView: View {
     func mainView() -> some View {
         VStack(spacing: 0) {
             horizontalPickerView()
-
-            if !isSearching {
-
-                mainLogsCalendarView()
-            }
-            else { //if the user is actively searching
-                if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
-                    suggestedSearchView()
+            if selectedOption != .reminders {
+                if !isSearching {
+                    
+                    mainLogsCalendarView()
                 }
-                else {
-                    filteredEntriesListView()
+                else { //if the user is actively searching
+                    if searchModel.tokens.isEmpty && searchModel.searchText.isEmpty { //present possible tokens
+                        suggestedSearchView()
+                    }
+                    else {
+                        filteredEntriesListView()
+                    }
                 }
+            } else if selectedOption == .reminders {
+                RemindersView()
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
             }
         }
         .background {
@@ -222,28 +228,35 @@ struct LogsView: View {
     }
     
     @ViewBuilder
-    func mainLogsCalendarView() -> some View {
-        List {
-            calendarView()
-            logsListView()
-                .onTapGesture {
-                    print("DATES: \(datesModel.dates)")
-                }
-                .alert(isPresented: $showingDeleteConfirmation) {
-                    Alert(title: Text("Delete log"),
-                          message: Text("Are you sure you want to delete this log? This action cannot be undone."),
-                          primaryButton: .destructive(Text("Delete")) {
-                        deleteLog(logDay: logToDeleteDay)
-                    },
-                          secondaryButton: .cancel())
-                }
-            
-            NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
-                Label("Recently Deleted", systemImage: "trash").foregroundStyle(.red)
-            }
-        }
+       func mainLogsCalendarView() -> some View {
+           List {
+               calendarView()
+               logsListView()
+                   .onTapGesture {
+                       print("DATES: \(datesModel.dates)")
+                   }
+                   .alert(isPresented: $showingDeleteConfirmation) {
+                       Alert(title: Text("Delete log"),
+                             message: Text("Are you sure you want to delete this log? This action cannot be undone."),
+                             primaryButton: .destructive(Text("Delete")) {
+                           deleteLog(logDay: logToDeleteDay)
+                       },
+                             secondaryButton: .cancel())
+                   }
+               
+               NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
+                   HStack {
+                       Text("Recently Deleted").foregroundStyle(getTextColor())
+                       Spacer()
+                       Image(systemName: "trash").foregroundStyle(.red)
+                   }
+               }
+               .scrollContentBackground(.hidden)
+               .listRowBackground(getSectionColor(colorScheme: colorScheme))
+           }
+           
 
-    }
+       }
     
     @ViewBuilder
     func entryContextMenuButtons(entry: Entry) -> some View {
@@ -339,7 +352,7 @@ struct LogsView: View {
                   ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
                       if index < currentLoadedCount {
                           VStack(spacing: 5) {
-                                                      entryHeaderView(entry: entry)
+                              entryHeaderView(entry: entry).foregroundStyle(getIdealHeaderTextColor())
                                                           .padding(.horizontal)
                                                           .padding(.top, 10)
                                                       
@@ -402,7 +415,7 @@ struct LogsView: View {
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
             Text("\(formattedDateFull(entry.time))").font(.system(size: UIFont.systemFontSize))
-                .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
 //                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
             
             Spacer()
@@ -428,7 +441,7 @@ struct LogsView: View {
                             .foregroundStyle(userPreferences.accentColor)
                             .padding(.horizontal, 5)
                         Text("Hidden Entries")
-                            .foregroundStyle(Color(UIColor.label))
+                            .foregroundStyle(getTextColor())
                     }
                 }
                 
@@ -441,7 +454,7 @@ struct LogsView: View {
                             .padding(.horizontal, 5)
                         
                         Text("Entries with Media")
-                            .foregroundStyle(Color(UIColor.label))
+                            .foregroundStyle(getTextColor())
                     }
                 }
                 
@@ -454,7 +467,7 @@ struct LogsView: View {
                             .padding(.horizontal, 5)
                         
                         Text("Entries with Reminder")
-                            .foregroundStyle(Color(UIColor.label))
+                            .foregroundStyle(getTextColor())
                     }
                 }
                 
@@ -467,7 +480,7 @@ struct LogsView: View {
                             .padding(.horizontal, 5)
                         
                         Text("Pinned Entries")
-                            .foregroundStyle(Color(UIColor.label))
+                            .foregroundStyle(getTextColor())
                     }
                 }
                 
@@ -481,10 +494,12 @@ struct LogsView: View {
                             .padding(.horizontal, 5)
                         
                         Text("Stamp Icon Label")
-                            .foregroundStyle(Color(UIColor.label))
+                            .foregroundStyle(getTextColor())
                     }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .listRowBackground(getSectionColor(colorScheme: colorScheme))
         }
 //        .background {
 //            ZStack {
@@ -518,22 +533,21 @@ struct LogsView: View {
     func calendarView() -> some View {
         Section {
             if showCalendar {
-                CalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))  // Use a specific color for selection
-                            .padding()
-//                MultiDatePicker("Dates Available", selection: $datesModel.dates, in: datesModel.bounds).datePickerStyle(.graphical)
-//                    .foregroundColor(Color.complementaryColor(of: userPreferences.accentColor))
-//                    .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                    .accentColor(userPreferences.accentColor)
-                            .onAppear {
-                                datesModel.addTodayIfNotExists()
-//                                updateFetchRequests()
-                            }
+                if userPreferences.calendarPreference == "Weekly" {
+                                    ScrollableWeeklyCalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))
+                        .environmentObject(userPreferences)
+                        .padding()
+                } else {
+                    CalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))
+                        .environmentObject(userPreferences)
+                        .padding()
+                }             
                 
             }
             
         } header: {
             HStack {
-                Text("Calendar").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Calendar").foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
                 
                 Spacer()
                 Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
@@ -544,39 +558,95 @@ struct LogsView: View {
             }
 
         }
+        .listRowBackground(getSectionColor(colorScheme: colorScheme))
+        .onAppear {
+                    datesModel.addTodayIfNotExists()
+                }
     }
     
-    @ViewBuilder
-    func logsListView() -> some View {
-        ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted(by: >)), id: \.self) { dateString in
-            if let logDate = datesModel.dates[dateString], logDate.hasLog {
-                ScrollView {
-                    LazyVStack {
-                        NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, logDay: dateString)
-                            .environmentObject(userPreferences)) {
-                                HStack {
-                                    Image(systemName: "book.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                                    Text(dateString).foregroundStyle(Color(UIColor.label))
-                                    
-                                    Spacer()
-                                }
-                            }
-                            .padding(.top, 10)
-                            .contextMenu {
-                                Button(role: .destructive, action: {
-                                    showingDeleteConfirmation = true
-                                    logToDeleteDay = dateString
-                                }) {
-                                    Label("Delete", systemImage: "trash")
-                                        .foregroundColor(.red)
-                                }
-                            }
-                    }
-                }
-            }
-        }
+    func getTextColor() -> Color {
+        // Retrieve the background colors from user preferences
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
+        
+        // Call the calculateTextColor function with these values
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
     }
 
+    
+    @ViewBuilder
+    func singleLogPreviewView(dateString: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "book.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(userPreferences.accentColor)
+//                .foregroundStyle(userPreferences.accentColor)
+            
+            Text(dateString)
+                .font(.subheadline)
+//                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(getSectionColor(colorScheme: colorScheme)))))
+                .foregroundStyle(getTextColor())
+            
+            Spacer()
+        }
+//        .padding(12)
+//        .background(
+//            RoundedRectangle(cornerRadius: 12)
+//                .fill(Color(UIColor.secondarySystemBackground))
+//                .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+//        )
+//        .padding(.horizontal)
+    }
+
+    
+    @ViewBuilder
+      func logsListView() -> some View {
+          ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted(by: >)), id: \.self) { dateString in
+              if let logDate = datesModel.dates[dateString] {
+                  ScrollView {
+                      LazyVStack {
+                          NavigationLink(destination: LogDetailView(totalHeight: $height, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, logDay: dateString)
+                              .environmentObject(userPreferences)) {
+                                  singleLogPreviewView(dateString: dateString)
+                              }
+                              .padding(.top, 10)
+                              .contextMenu {
+                                  Button(role: .destructive, action: {
+                                      showingDeleteConfirmation = true
+                                      logToDeleteDay = dateString
+                                  }) {
+                                      Label("Delete", systemImage: "trash")
+                                          .foregroundColor(.red)
+                                  }
+                              }
+                      }
+                  }
+              }
+          }
+          .scrollContentBackground(.hidden)
+          .listRowBackground(getSectionColor(colorScheme: colorScheme))
+      }
+
+    func getSectionColor(colorScheme: ColorScheme) -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        } else {
+            return userPreferences.entryBackgroundColor
+        }
+    }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
     
 //    @ViewBuilder
 //    func logsListView() -> some View {
@@ -611,11 +681,6 @@ struct LogsView: View {
 //        
 //    }
     
-    func getDefaultEntryBackgroundColor() -> Color {
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        
-        return Color(color)
-    }
 
     func DatePickerView(date: Binding<Date>, title: String) -> some View {
         List {
@@ -829,7 +894,8 @@ struct LogsView: View {
     
     private func deleteLog(logDay: String?) {
         guard let logDay = logDay else { return }
-        
+        dateStrings.removeDate(logDay)
+
         for entry in fetchEntriesByDate(logDay: logDay) {
             entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
 //                deleteEntry(entry: entry, coreDataManager: coreDataManager)
@@ -841,37 +907,7 @@ struct LogsView: View {
             }
         }
     }
-//
-//    private func deleteLog(log: Log?) {
-//        let dateStringsManager = DateStrings()
-//        guard let log = log else { return }
-//        dateStringsManager.removeDate(log.day)
-//        if let entries = log.relationship as? Set<Entry> {
-//            for entry in entries {
-//                entry.isRemoved = true //moving to recently deleted instead of permanently deleting all entries
-////                deleteEntry(entry: entry, coreDataManager: coreDataManager)
-//                do {
-//                    try coreDataManager.viewContext.save()
-//                } catch {
-//                    let nsError = error as NSError
-//                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//                }
-//
-//            }
-//        }
-//        coreDataManager.viewContext.delete(log)
-//        
-//        do {
-//            try coreDataManager.viewContext.save()
-//        } catch {
-//            let nsError = error as NSError
-//            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-//        }
-//    }
-    
-    
 
-    
     func createPDFData_log(log: Log) -> Data { //finally works
         let pdfMetaData = [
             kCGPDFContextCreator: "Your App",

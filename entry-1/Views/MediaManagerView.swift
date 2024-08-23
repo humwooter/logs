@@ -163,10 +163,10 @@ struct AsyncMediaView: View {
                    // Get the documents directory
                    let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                    
-                   // Ensure the file is within the documents directory
-                   guard file.url.absoluteString.hasPrefix(documentsUrl.absoluteString) else {
-                       throw NSError(domain: "FileError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Attempted to delete file outside of documents directory"])
-                   }
+//                   // Ensure the file is within the documents directory
+//                   guard file.url.absoluteString.hasPrefix(documentsUrl.absoluteString) else {
+//                       throw NSError(domain: "FileError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Attempted to delete file outside of documents directory"])
+//                   }
                    
                    // Check if the file exists before attempting to delete
                    guard FileManager.default.fileExists(atPath: file.url.path) else {

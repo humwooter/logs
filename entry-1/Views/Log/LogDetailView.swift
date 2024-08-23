@@ -113,7 +113,7 @@ struct LogDetailView: View {
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
                         .lineSpacing(userPreferences.lineSpacing)
-                        .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor() : userPreferences.entryBackgroundColor)
+                        .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? getDefaultEntryBackgroundColor(colorScheme: colorScheme) : userPreferences.entryBackgroundColor)
                 }
                 .background {
                     ZStack {
@@ -148,7 +148,8 @@ struct LogDetailView: View {
             print("Invalid log.day format")
             return []
         }
-
+        
+        print("LOG DATE: \(logDate)")
         // Create a predicate that compares the date components of entry.time with log.day
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: logDate)
@@ -161,7 +162,10 @@ struct LogDetailView: View {
         request.sortDescriptors = [NSSortDescriptor(keyPath: \Entry.time, ascending: false)]
 
         do {
-            return try coreDataManager.viewContext.fetch(request)
+            let entries = try coreDataManager.viewContext.fetch(request)
+            print("ENTRIES: \(entries)")
+
+            return entries
         } catch {
             print("Error fetching entries: \(error)")
             return []
@@ -183,8 +187,4 @@ struct LogDetailView: View {
         }
     }
     
-    func getDefaultEntryBackgroundColor() -> Color {
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        return Color(color)
-    }
 }

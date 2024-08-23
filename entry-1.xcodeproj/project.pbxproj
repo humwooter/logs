@@ -45,10 +45,12 @@
 		4A1B56702C73021A000FECA7 /* PreviewProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B566F2C73021A000FECA7 /* PreviewProvider.swift */; };
 		4A1B56732C73021A000FECA7 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 4A1B56722C73021A000FECA7 /* Base */; };
 		4A1B56772C73021A000FECA7 /* ThemeThumbnailPreview.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4A1B56692C73021A000FECA7 /* ThemeThumbnailPreview.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4A1B567D2C73555E000FECA7 /* CustomPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B567C2C735558000FECA7 /* CustomPopupView.swift */; };
+		4A1B56802C7359BF000FECA7 /* WeeklyCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A1B567F2C7359BB000FECA7 /* WeeklyCalendarView.swift */; };
 		4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */; };
 		4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */; };
 		4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */; };
-		4A28BCCF2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */; };
+		4A28BCCF2BCA78FE0026ACE9 /* MonthlyCalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCCE2BCA78FE0026ACE9 /* MonthlyCalendarView.swift */; };
 		4A28BCD12BCAB1E70026ACE9 /* MediaManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A28BCD02BCAB1E70026ACE9 /* MediaManagerView.swift */; };
 		4A45684E2BCFB2CE00C0C655 /* ChartsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45684D2BCFB2CE00C0C655 /* ChartsView.swift */; };
 		4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */; };
@@ -78,6 +80,14 @@
 		4A7264412AECEB400099EA84 /* CustomDataImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264402AECEB400099EA84 /* CustomDataImageView.swift */; };
 		4A7264432AECECB60099EA84 /* NewEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264422AECECB60099EA84 /* NewEntryView.swift */; };
 		4A7264472AEDD0E10099EA84 /* UserPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7264462AEDD0E10099EA84 /* UserPreferences.swift */; };
+		4A789B772C76FF640044AC11 /* Tag+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B762C76FF5F0044AC11 /* Tag+CoreDataClass.swift */; };
+		4A789B792C76FF7E0044AC11 /* Tag+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B782C76FF790044AC11 /* Tag+CoreDataProperties.swift */; };
+		4A789B7C2C7813470044AC11 /* RemindersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B7B2C7813420044AC11 /* RemindersView.swift */; };
+		4A789B7E2C783AC10044AC11 /* VIsualBlurEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B7D2C783ABE0044AC11 /* VIsualBlurEffect.swift */; };
+		4A789B802C784E8E0044AC11 /* FoldersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B7F2C784E8B0044AC11 /* FoldersView.swift */; };
+		4A789B822C784F420044AC11 /* Folder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B812C784F3E0044AC11 /* Folder+CoreDataProperties.swift */; };
+		4A789B842C784F6B0044AC11 /* Folder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B832C784F620044AC11 /* Folder+CoreDataClass.swift */; };
+		4A789B872C7853270044AC11 /* NewFolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A789B862C7853240044AC11 /* NewFolderView.swift */; };
 		4A81FD202C2BB42F004EC3D2 /* WidgetCoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD1F2C2BB428004EC3D2 /* WidgetCoreDataManager.swift */; };
 		4A81FD412C3238F2004EC3D2 /* GrowingTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD402C3238EB004EC3D2 /* GrowingTextField.swift */; };
 		4A81FD492C32A157004EC3D2 /* ReminderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A81FD482C32A157004EC3D2 /* ReminderManager.swift */; };
@@ -349,10 +359,12 @@
 		4A1B566F2C73021A000FECA7 /* PreviewProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewProvider.swift; sourceTree = "<group>"; };
 		4A1B56722C73021A000FECA7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
 		4A1B56742C73021A000FECA7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4A1B567C2C735558000FECA7 /* CustomPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomPopupView.swift; sourceTree = "<group>"; };
+		4A1B567F2C7359BB000FECA7 /* WeeklyCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyCalendarView.swift; sourceTree = "<group>"; };
 		4A28BCC62BC1255A0026ACE9 /* TabSelectionModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabSelectionModifiers.swift; sourceTree = "<group>"; };
 		4A28BCC82BC12D7C0026ACE9 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		4A28BCCA2BC1EE480026ACE9 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
-		4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomMultiDatePicker.swift; sourceTree = "<group>"; };
+		4A28BCCE2BCA78FE0026ACE9 /* MonthlyCalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonthlyCalendarView.swift; sourceTree = "<group>"; };
 		4A28BCD02BCAB1E70026ACE9 /* MediaManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManagerView.swift; sourceTree = "<group>"; };
 		4A45684D2BCFB2CE00C0C655 /* ChartsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartsView.swift; sourceTree = "<group>"; };
 		4A45D8142B7C98AF008739A6 /* UserPreferencesDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferencesDataView.swift; sourceTree = "<group>"; };
@@ -378,6 +390,14 @@
 		4A7264402AECEB400099EA84 /* CustomDataImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDataImageView.swift; sourceTree = "<group>"; };
 		4A7264422AECECB60099EA84 /* NewEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewEntryView.swift; sourceTree = "<group>"; };
 		4A7264462AEDD0E10099EA84 /* UserPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPreferences.swift; sourceTree = "<group>"; };
+		4A789B762C76FF5F0044AC11 /* Tag+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tag+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4A789B782C76FF790044AC11 /* Tag+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tag+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4A789B7B2C7813420044AC11 /* RemindersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemindersView.swift; sourceTree = "<group>"; };
+		4A789B7D2C783ABE0044AC11 /* VIsualBlurEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VIsualBlurEffect.swift; sourceTree = "<group>"; };
+		4A789B7F2C784E8B0044AC11 /* FoldersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldersView.swift; sourceTree = "<group>"; };
+		4A789B812C784F3E0044AC11 /* Folder+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		4A789B832C784F620044AC11 /* Folder+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Folder+CoreDataClass.swift"; sourceTree = "<group>"; };
+		4A789B862C7853240044AC11 /* NewFolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewFolderView.swift; sourceTree = "<group>"; };
 		4A81FD1F2C2BB428004EC3D2 /* WidgetCoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetCoreDataManager.swift; sourceTree = "<group>"; };
 		4A81FD402C3238EB004EC3D2 /* GrowingTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowingTextField.swift; sourceTree = "<group>"; };
 		4A81FD482C32A157004EC3D2 /* ReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderManager.swift; sourceTree = "<group>"; };
@@ -595,6 +615,7 @@
 		34C43B982A9C4106005C1296 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				4A789B7A2C78133E0044AC11 /* Tabs */,
 				4A8280CD2C707C20005AC7BD /* HorizontalPicker.swift */,
 				4A4AFF7E2B92C56D00632C4D /* Buttons */,
 				4A45D8162B7C9C6D008739A6 /* UserPreferences */,
@@ -635,6 +656,10 @@
 		4A1B56372C70A41E000FECA7 /* Core Data Models */ = {
 			isa = PBXGroup;
 			children = (
+				4A789B832C784F620044AC11 /* Folder+CoreDataClass.swift */,
+				4A789B812C784F3E0044AC11 /* Folder+CoreDataProperties.swift */,
+				4A789B782C76FF790044AC11 /* Tag+CoreDataProperties.swift */,
+				4A789B762C76FF5F0044AC11 /* Tag+CoreDataClass.swift */,
 				4A1B56352C70A148000FECA7 /* UserTheme+CoreDataClass.swift */,
 				4ABB76E12C44C756002782EF /* UserStamp+CoreDataClass.swift */,
 				4ABB76E22C44C756002782EF /* UserStamp+CoreDataProperties.swift */,
@@ -680,6 +705,15 @@
 			children = (
 			);
 			path = "Log Tabs";
+			sourceTree = "<group>";
+		};
+		4A1B567E2C735994000FECA7 /* Calendars */ = {
+			isa = PBXGroup;
+			children = (
+				4A1B567F2C7359BB000FECA7 /* WeeklyCalendarView.swift */,
+				4A28BCCE2BCA78FE0026ACE9 /* MonthlyCalendarView.swift */,
+			);
+			path = Calendars;
 			sourceTree = "<group>";
 		};
 		4A45D8162B7C9C6D008739A6 /* UserPreferences */ = {
@@ -770,6 +804,24 @@
 			path = Experimental;
 			sourceTree = "<group>";
 		};
+		4A789B7A2C78133E0044AC11 /* Tabs */ = {
+			isa = PBXGroup;
+			children = (
+				4A789B852C78531C0044AC11 /* Folders */,
+				4A789B7B2C7813420044AC11 /* RemindersView.swift */,
+			);
+			path = Tabs;
+			sourceTree = "<group>";
+		};
+		4A789B852C78531C0044AC11 /* Folders */ = {
+			isa = PBXGroup;
+			children = (
+				4A789B7F2C784E8B0044AC11 /* FoldersView.swift */,
+				4A789B862C7853240044AC11 /* NewFolderView.swift */,
+			);
+			path = Folders;
+			sourceTree = "<group>";
+		};
 		4A81FD3E2C2E2A9B004EC3D2 /* Sheets */ = {
 			isa = PBXGroup;
 			children = (
@@ -799,6 +851,8 @@
 		4A81FD422C323920004EC3D2 /* Custom Implementations */ = {
 			isa = PBXGroup;
 			children = (
+				4A789B7D2C783ABE0044AC11 /* VIsualBlurEffect.swift */,
+				4A1B567C2C735558000FECA7 /* CustomPopupView.swift */,
 				4ABB76BE2C40CE36002782EF /* OldGrowingTextField.swift */,
 				4A81FD402C3238EB004EC3D2 /* GrowingTextField.swift */,
 				4A197A6C2B46BEB600A4F14D /* CustomTextField.swift */,
@@ -877,9 +931,9 @@
 		4ABB76E92C4B404A002782EF /* Date Models */ = {
 			isa = PBXGroup;
 			children = (
+				4A1B567E2C735994000FECA7 /* Calendars */,
 				4A6235E92BCD0DE000AF8875 /* DateStrings.swift */,
 				4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */,
-				4A28BCCE2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift */,
 			);
 			path = "Date Models";
 			sourceTree = "<group>";
@@ -1293,10 +1347,12 @@
 				4A28BCC72BC1255A0026ACE9 /* TabSelectionModifiers.swift in Sources */,
 				4A5E53192B8DB14D00F4521D /* EntryRowView.swift in Sources */,
 				4A1B563A2C715994000FECA7 /* Themes.swift in Sources */,
+				4A789B802C784E8E0044AC11 /* FoldersView.swift in Sources */,
 				4A28BCD12BCAB1E70026ACE9 /* MediaManagerView.swift in Sources */,
 				4A5E53172B8DB12400F4521D /* NotEditingView.swift in Sources */,
+				4A789B7E2C783AC10044AC11 /* VIsualBlurEffect.swift in Sources */,
 				4AF545E42BDA1722007D8AFF /* NotificationView.swift in Sources */,
-				4A28BCCF2BCA78FE0026ACE9 /* CustomMultiDatePicker.swift in Sources */,
+				4A28BCCF2BCA78FE0026ACE9 /* MonthlyCalendarView.swift in Sources */,
 				4A6EC0E92B32EABC0031DDFA /* Tips.swift in Sources */,
 				4A511CF72BB907C100418554 /* ThumbnailView.swift in Sources */,
 				4AC1F9D72C2B67A1008C1255 /* StampWidget.swift in Sources */,
@@ -1311,12 +1367,15 @@
 				4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */,
 				34C43B9B2A9DA51F005C1296 /* CoreDataManager.swift in Sources */,
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
+				4A789B792C76FF7E0044AC11 /* Tag+CoreDataProperties.swift in Sources */,
 				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
 				4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */,
 				4A28BCCB2BC1EE480026ACE9 /* CloudKitManager.swift in Sources */,
 				4A81FD492C32A157004EC3D2 /* ReminderManager.swift in Sources */,
+				4A1B567D2C73555E000FECA7 /* CustomPopupView.swift in Sources */,
 				4A7264382AEBAFFC0099EA84 /* PDF.swift in Sources */,
 				4ABB76E32C44C756002782EF /* UserStamp+CoreDataClass.swift in Sources */,
+				4A789B822C784F420044AC11 /* Folder+CoreDataProperties.swift in Sources */,
 				4ABB76E42C44C756002782EF /* UserStamp+CoreDataProperties.swift in Sources */,
 				4A197A6D2B46BEB600A4F14D /* CustomTextField.swift in Sources */,
 				4A72643F2AEC62BC0099EA84 /* RainbowAnimatedView.swift in Sources */,
@@ -1347,6 +1406,7 @@
 				4AE3AF2D2B3B1757002CA8B1 /* DataFuncs.swift in Sources */,
 				4A7264352AEBAFAC0099EA84 /* EntryDetailView.swift in Sources */,
 				4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */,
+				4A789B7C2C7813470044AC11 /* RemindersView.swift in Sources */,
 				34A8085A2A8A182300B9BB5C /* Entry+CoreDataClass.swift in Sources */,
 				4A45D8152B7C98AF008739A6 /* UserPreferencesDataView.swift in Sources */,
 				4A6235EA2BCD0DE000AF8875 /* DateStrings.swift in Sources */,
@@ -1354,16 +1414,19 @@
 				34A8085E2A8A183700B9BB5C /* Log+CoreDataClass.swift in Sources */,
 				4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */,
 				4A8280CE2C707C25005AC7BD /* HorizontalPicker.swift in Sources */,
+				4A789B872C7853270044AC11 /* NewFolderView.swift in Sources */,
 				4A7264412AECEB400099EA84 /* CustomDataImageView.swift in Sources */,
 				4A5E53152B8D9ED400F4521D /* EntryView.swift in Sources */,
 				4A72642F2AEBAC920099EA84 /* TimeFuncs.swift in Sources */,
 				4A1B56362C70A151000FECA7 /* UserTheme+CoreDataClass.swift in Sources */,
 				34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */,
 				4A72643A2AEBB0570099EA84 /* LogDetailView.swift in Sources */,
+				4A789B772C76FF640044AC11 /* Tag+CoreDataClass.swift in Sources */,
 				345E99182A90DE35004A81E2 /* ImagePicker.swift in Sources */,
 				4A81FD5F2C3EA0EC004EC3D2 /* EntryManager.swift in Sources */,
 				4A81FD532C337B98004EC3D2 /* SyncManager.swift in Sources */,
 				4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */,
+				4A1B56802C7359BF000FECA7 /* WeeklyCalendarView.swift in Sources */,
 				34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */,
 				4AC45F582ADF71CD00246AEF /* Documents.swift in Sources */,
 				4A72643C2AEBB0AE0099EA84 /* RecentlyDeletedView.swift in Sources */,
@@ -1372,6 +1435,7 @@
 				4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */,
 				4ABBEF892AE8EB03005BD78A /* GlobalVars.swift in Sources */,
 				4A9FB8BB2BDDC2D500349AA9 /* LogStatsView.swift in Sources */,
+				4A789B842C784F6B0044AC11 /* Folder+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

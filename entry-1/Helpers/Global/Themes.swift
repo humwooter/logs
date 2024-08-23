@@ -232,23 +232,135 @@ let refinedThemes: [Theme] = [
 //          lineSpacing: 1.2)
 //]
 
+//let additionalThemes: [Theme] = [
+//    Theme(name: "Cyberpunk",
+//          accentColor: Color(hex: "#00FF41"),  // Neon Green
+//          topColor: Color(hex: "#1A1A2E"),     // Dark Blue
+//          bottomColor: Color(hex: "#16213E"),  // Navy Blue
+//          entryBackgroundColor: Color(hex: "#F0F0F0").opacity(0.1), // Almost transparent light gray
+//          pinColor: Color(hex: "#FF00FF"),     // Magenta
+//          reminderColor: Color(hex: "#00FFFF"),// Cyan
+//          fontName: "Menlo Regular",
+//          fontSize: 16,
+//          lineSpacing: 1.2),
+//
+//    Theme(name: "Ethereal",
+//          accentColor: Color(hex: "#FF85E7"),  // Pale Magenta
+//          topColor: Color(hex: "#7400B8"),     // Deep Purple
+//          bottomColor: Color(hex: "#5E60CE"),  // Slate Blue
+//          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.2), // Slightly transparent white
+//          pinColor: Color(hex: "#80FFDB"),     // Aquamarine
+//          reminderColor: Color(hex: "#64DFDF"),// Turquoise
+//          fontName: "Snell Roundhand",
+//          fontSize: 18,
+//          lineSpacing: 1.5),
+//
+//    Theme(name: "Desert Mirage",
+//          accentColor: Color(hex: "#FF6B35"),  // Orange Red
+//          topColor: Color(hex: "#F7B267"),     // Mellow Apricot
+//          bottomColor: Color(hex: "#FFA177"),  // Light Salmon
+//          entryBackgroundColor: Color(hex: "#FFFBF1").opacity(0.4), // Transparent Cosmic Latte
+//          pinColor: Color(hex: "#4ECDC4"),     // Medium Turquoise
+//          reminderColor: Color(hex: "#1A535C"),// Dark Cyan
+//          fontName: "Papyrus Condensed",
+//          fontSize: 17,
+//          lineSpacing: 1.3),
+//
+//    Theme(name: "Enchanted Forest",
+//          accentColor: Color(hex: "#FF85A1"),  // Light Coral
+//          topColor: Color(hex: "#004B23"),     // Dark Green
+//          bottomColor: Color(hex: "#006400"),  // Dark Forest Green
+//          entryBackgroundColor: Color(hex: "#E0F2E9").opacity(0.3), // Transparent Mint Cream
+//          pinColor: Color(hex: "#FFD700"),     // Gold
+//          reminderColor: Color(hex: "#8B4513"),// Saddle Brown
+//          fontName: "Boekopi",
+//          fontSize: 16,
+//          lineSpacing: 1.4),
+//
+//    Theme(name: "Retro Wave",
+//          accentColor: Color(hex: "#FF2A6D"),  // Red-Pink
+//          topColor: Color(hex: "#05D9E8"),     // Bright Cyan
+//          bottomColor: Color(hex: "#005678"),  // Strong Blue
+//          entryBackgroundColor: Color(hex: "#FDFFFC").opacity(0.15), // Almost transparent white
+//          pinColor: Color(hex: "#FF61EF"),     // Light Hot Pink
+//          reminderColor: Color(hex: "#00F9FF"),// Vivid Sky Blue
+//          fontName: "Copyduck",
+//          fontSize: 17,
+//          lineSpacing: 1.2),
+//
+//    Theme(name: "Zen Garden",
+//          accentColor: Color(hex: "#D4AF37"),  // Metallic Gold
+//          topColor: Color(hex: "#F0EAD6"),     // Eggshell
+//          bottomColor: Color(hex: "#DEB887"),  // Burlywood
+//          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.5), // Semi-transparent white
+//          pinColor: Color(hex: "#008080"),     // Teal
+//          reminderColor: Color(hex: "#696969"),// Dim Gray
+//          fontName: "Didot",
+//          fontSize: 15,
+//          lineSpacing: 1.6),
+//
+//    Theme(name: "Northern Lights",
+//          accentColor: Color(hex: "#CCFF00"),  // Electric Lime
+//          topColor: Color(hex: "#120052"),     // Navy Blue
+//          bottomColor: Color(hex: "#3500D3"),  // Ultramarine
+//          entryBackgroundColor: Color(hex: "#E6E6FA").opacity(0.2), // Transparent Lavender
+//          pinColor: Color(hex: "#00FFFF"),     // Cyan
+//          reminderColor: Color(hex: "#32CD32"),// Lime Green
+//          fontName: "AstroDotBasic",
+//          fontSize: 16,
+//          lineSpacing: 1.3),
+//
+//    Theme(name: "Steampunk",
+//          accentColor: Color(hex: "#B87333"),  // Copper
+//          topColor: Color(hex: "#4B3621"),     // Café Noir
+//          bottomColor: Color(hex: "#654321"),  // Dark Brown
+//          entryBackgroundColor: Color(hex: "#FDF5E6").opacity(0.3), // Transparent Old Lace
+//          pinColor: Color(hex: "#CFB53B"),     // Old Gold
+//          reminderColor: Color(hex: "#C0C0C0"),// Silver
+//          fontName: "Copperplate Light",
+//          fontSize: 17,
+//          lineSpacing: 1.4),
+//
+//    Theme(name: "Coral Reef",
+//          accentColor: Color(hex: "#FF4500"),  // Orange Red
+//          topColor: Color(hex: "#40E0D0"),     // Turquoise
+//          bottomColor: Color(hex: "#1E90FF"),  // Dodger Blue
+//          entryBackgroundColor: Color(hex: "#F0FFFF").opacity(0.4), // Transparent Azure
+//          pinColor: Color(hex: "#FFD700"),     // Gold
+//          reminderColor: Color(hex: "#FF69B4"),// Hot Pink
+//          fontName: "Cute_Aurora_demo",
+//          fontSize: 18,
+//          lineSpacing: 1.5),
+//
+//    Theme(name: "Galactic",
+//          accentColor: Color(hex: "#9B59B6"),  // Amethyst
+//          topColor: Color(hex: "#2C3E50"),     // Midnight Blue
+//          bottomColor: Color(hex: "#34495E"),  // Wet Asphalt
+//          entryBackgroundColor: Color(hex: "#E0FFFF").opacity(0.1), // Almost transparent Light Cyan
+//          pinColor: Color(hex: "#F1C40F"),     // Sunflower
+//          reminderColor: Color(hex: "#E74C3C"),// Alizarin
+//          fontName: "PixelDigivolve",
+//          fontSize: 16,
+//          lineSpacing: 1.2)
+//]
+
 let additionalThemes: [Theme] = [
-    Theme(name: "Cyberpunk",
+    Theme(name: "Cyberpunk Neon",
           accentColor: Color(hex: "#00FF41"),  // Neon Green
           topColor: Color(hex: "#1A1A2E"),     // Dark Blue
           bottomColor: Color(hex: "#16213E"),  // Navy Blue
-          entryBackgroundColor: Color(hex: "#F0F0F0").opacity(0.1), // Almost transparent light gray
+          entryBackgroundColor: Color(hex: "#F0F0F0").opacity(0.1),
           pinColor: Color(hex: "#FF00FF"),     // Magenta
           reminderColor: Color(hex: "#00FFFF"),// Cyan
           fontName: "Menlo Regular",
           fontSize: 16,
           lineSpacing: 1.2),
 
-    Theme(name: "Ethereal",
+    Theme(name: "Ethereal Dream",
           accentColor: Color(hex: "#FF85E7"),  // Pale Magenta
           topColor: Color(hex: "#7400B8"),     // Deep Purple
           bottomColor: Color(hex: "#5E60CE"),  // Slate Blue
-          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.2), // Slightly transparent white
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.2),
           pinColor: Color(hex: "#80FFDB"),     // Aquamarine
           reminderColor: Color(hex: "#64DFDF"),// Turquoise
           fontName: "Snell Roundhand",
@@ -259,7 +371,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#FF6B35"),  // Orange Red
           topColor: Color(hex: "#F7B267"),     // Mellow Apricot
           bottomColor: Color(hex: "#FFA177"),  // Light Salmon
-          entryBackgroundColor: Color(hex: "#FFFBF1").opacity(0.4), // Transparent Cosmic Latte
+          entryBackgroundColor: Color(hex: "#FFFBF1").opacity(0.4),
           pinColor: Color(hex: "#4ECDC4"),     // Medium Turquoise
           reminderColor: Color(hex: "#1A535C"),// Dark Cyan
           fontName: "Papyrus Condensed",
@@ -270,7 +382,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#FF85A1"),  // Light Coral
           topColor: Color(hex: "#004B23"),     // Dark Green
           bottomColor: Color(hex: "#006400"),  // Dark Forest Green
-          entryBackgroundColor: Color(hex: "#E0F2E9").opacity(0.3), // Transparent Mint Cream
+          entryBackgroundColor: Color(hex: "#E0F2E9").opacity(0.3),
           pinColor: Color(hex: "#FFD700"),     // Gold
           reminderColor: Color(hex: "#8B4513"),// Saddle Brown
           fontName: "Boekopi",
@@ -281,7 +393,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#FF2A6D"),  // Red-Pink
           topColor: Color(hex: "#05D9E8"),     // Bright Cyan
           bottomColor: Color(hex: "#005678"),  // Strong Blue
-          entryBackgroundColor: Color(hex: "#FDFFFC").opacity(0.15), // Almost transparent white
+          entryBackgroundColor: Color(hex: "#FDFFFC").opacity(0.15),
           pinColor: Color(hex: "#FF61EF"),     // Light Hot Pink
           reminderColor: Color(hex: "#00F9FF"),// Vivid Sky Blue
           fontName: "Copyduck",
@@ -292,7 +404,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#D4AF37"),  // Metallic Gold
           topColor: Color(hex: "#F0EAD6"),     // Eggshell
           bottomColor: Color(hex: "#DEB887"),  // Burlywood
-          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.5), // Semi-transparent white
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.5),
           pinColor: Color(hex: "#008080"),     // Teal
           reminderColor: Color(hex: "#696969"),// Dim Gray
           fontName: "Didot",
@@ -303,7 +415,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#CCFF00"),  // Electric Lime
           topColor: Color(hex: "#120052"),     // Navy Blue
           bottomColor: Color(hex: "#3500D3"),  // Ultramarine
-          entryBackgroundColor: Color(hex: "#E6E6FA").opacity(0.2), // Transparent Lavender
+          entryBackgroundColor: Color(hex: "#E6E6FA").opacity(0.2),
           pinColor: Color(hex: "#00FFFF"),     // Cyan
           reminderColor: Color(hex: "#32CD32"),// Lime Green
           fontName: "AstroDotBasic",
@@ -314,7 +426,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#B87333"),  // Copper
           topColor: Color(hex: "#4B3621"),     // Café Noir
           bottomColor: Color(hex: "#654321"),  // Dark Brown
-          entryBackgroundColor: Color(hex: "#FDF5E6").opacity(0.3), // Transparent Old Lace
+          entryBackgroundColor: Color(hex: "#FDF5E6").opacity(0.3),
           pinColor: Color(hex: "#CFB53B"),     // Old Gold
           reminderColor: Color(hex: "#C0C0C0"),// Silver
           fontName: "Copperplate Light",
@@ -325,7 +437,7 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#FF4500"),  // Orange Red
           topColor: Color(hex: "#40E0D0"),     // Turquoise
           bottomColor: Color(hex: "#1E90FF"),  // Dodger Blue
-          entryBackgroundColor: Color(hex: "#F0FFFF").opacity(0.4), // Transparent Azure
+          entryBackgroundColor: Color(hex: "#F0FFFF").opacity(0.4),
           pinColor: Color(hex: "#FFD700"),     // Gold
           reminderColor: Color(hex: "#FF69B4"),// Hot Pink
           fontName: "Cute_Aurora_demo",
@@ -336,10 +448,121 @@ let additionalThemes: [Theme] = [
           accentColor: Color(hex: "#9B59B6"),  // Amethyst
           topColor: Color(hex: "#2C3E50"),     // Midnight Blue
           bottomColor: Color(hex: "#34495E"),  // Wet Asphalt
-          entryBackgroundColor: Color(hex: "#E0FFFF").opacity(0.1), // Almost transparent Light Cyan
+          entryBackgroundColor: Color(hex: "#E0FFFF").opacity(0.1),
           pinColor: Color(hex: "#F1C40F"),     // Sunflower
           reminderColor: Color(hex: "#E74C3C"),// Alizarin
           fontName: "PixelDigivolve",
+          fontSize: 16,
+          lineSpacing: 1.2),
+
+    // New themes start here
+    Theme(name: "Sakura Blossom",
+          accentColor: Color(hex: "#FF9CB2"),  // Cherry Blossom Pink
+          topColor: Color(hex: "#FEF5F0"),     // Pale Peach
+          bottomColor: Color(hex: "#FFE4E1"),  // Misty Rose
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.3),
+          pinColor: Color(hex: "#E68FAC"),     // Rose Pink
+          reminderColor: Color(hex: "#8B4513"),// Saddle Brown (for branches)
+          fontName: "ClickerScript-Regular",
+          fontSize: 18,
+          lineSpacing: 1.4),
+
+    Theme(name: "Deep Ocean",
+          accentColor: Color(hex: "#00FFFF"),  // Cyan
+          topColor: Color(hex: "#000080"),     // Navy
+          bottomColor: Color(hex: "#191970"),  // Midnight Blue
+          entryBackgroundColor: Color(hex: "#E0FFFF").opacity(0.1),
+          pinColor: Color(hex: "#48D1CC"),     // Medium Turquoise
+          reminderColor: Color(hex: "#20B2AA"),// Light Sea Green
+          fontName: "STIX Two Math",
+          fontSize: 16,
+          lineSpacing: 1.3),
+
+    Theme(name: "Autumn Harvest",
+          accentColor: Color(hex: "#FF7F50"),  // Coral
+          topColor: Color(hex: "#8B4513"),     // Saddle Brown
+          bottomColor: Color(hex: "#D2691E"),  // Chocolate
+          entryBackgroundColor: Color(hex: "#FFFAF0").opacity(0.3),
+          pinColor: Color(hex: "#DAA520"),     // Goldenrod
+          reminderColor: Color(hex: "#800000"),// Maroon
+          fontName: "American Typewriter",
+          fontSize: 17,
+          lineSpacing: 1.5),
+
+    Theme(name: "Neon Cityscape",
+          accentColor: Color(hex: "#FF1493"),  // Deep Pink
+          topColor: Color(hex: "#000000"),     // Black
+          bottomColor: Color(hex: "#1A1A1A"),  // Very Dark Gray
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.05),
+          pinColor: Color(hex: "#00FF00"),     // Lime
+          reminderColor: Color(hex: "#FF4500"),// Orange Red
+          fontName: "Impact",
+          fontSize: 16,
+          lineSpacing: 1.2),
+
+    Theme(name: "Lavender Fields",
+          accentColor: Color(hex: "#9932CC"),  // Dark Orchid
+          topColor: Color(hex: "#E6E6FA"),     // Lavender
+          bottomColor: Color(hex: "#D8BFD8"),  // Thistle
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.4),
+          pinColor: Color(hex: "#DDA0DD"),     // Plum
+          reminderColor: Color(hex: "#4B0082"),// Indigo
+          fontName: "Savoye LET",
+          fontSize: 18,
+          lineSpacing: 1.6),
+
+    Theme(name: "Arctic Frost",
+          accentColor: Color(hex: "#4682B4"),  // Steel Blue
+          topColor: Color(hex: "#F0F8FF"),     // Alice Blue
+          bottomColor: Color(hex: "#E0FFFF"),  // Light Cyan
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.6),
+          pinColor: Color(hex: "#87CEEB"),     // Sky Blue
+          reminderColor: Color(hex: "#1E90FF"),// Dodger Blue
+          fontName: "Futura",
+          fontSize: 16,
+          lineSpacing: 1.3),
+
+    Theme(name: "Vintage Typewriter",
+          accentColor: Color(hex: "#8B4513"),  // Saddle Brown
+          topColor: Color(hex: "#F5F5DC"),     // Beige
+          bottomColor: Color(hex: "#FAEBD7"),  // Antique White
+          entryBackgroundColor: Color(hex: "#FFFFFF").opacity(0.2),
+          pinColor: Color(hex: "#A52A2A"),     // Brown
+          reminderColor: Color(hex: "#2F4F4F"),// Dark Slate Gray
+          fontName: "Courier New",
+          fontSize: 15,
+          lineSpacing: 1.5),
+
+    Theme(name: "Mystic Twilight",
+          accentColor: Color(hex: "#9370DB"),  // Medium Purple
+          topColor: Color(hex: "#191970"),     // Midnight Blue
+          bottomColor: Color(hex: "#483D8B"),  // Dark Slate Blue
+          entryBackgroundColor: Color(hex: "#E6E6FA").opacity(0.15),
+          pinColor: Color(hex: "#DDA0DD"),     // Plum
+          reminderColor: Color(hex: "#00CED1"),// Dark Turquoise
+          fontName: "Magiera-Script",
+          fontSize: 17,
+          lineSpacing: 1.4),
+
+    Theme(name: "Tropical Paradise",
+          accentColor: Color(hex: "#FF6347"),  // Tomato
+          topColor: Color(hex: "#00CED1"),     // Dark Turquoise
+          bottomColor: Color(hex: "#20B2AA"),  // Light Sea Green
+          entryBackgroundColor: Color(hex: "#F0FFF0").opacity(0.3),
+          pinColor: Color(hex: "#FFD700"),     // Gold
+          reminderColor: Color(hex: "#FF4500"),// Orange Red
+          fontName: "Bradley Hand",
+          fontSize: 18,
+          lineSpacing: 1.5),
+
+    Theme(name: "Minimalist Mono",
+          accentColor: Color(hex: "#000000"),  // Black
+          topColor: Color(hex: "#FFFFFF"),     // White
+          bottomColor: Color(hex: "#F5F5F5"),  // White Smoke
+          entryBackgroundColor: Color(hex: "#000000").opacity(0.05),
+          pinColor: Color(hex: "#696969"),     // Dim Gray
+          reminderColor: Color(hex: "#A9A9A9"),// Dark Gray
+          fontName: "Helvetica",
           fontSize: 16,
           lineSpacing: 1.2)
 ]

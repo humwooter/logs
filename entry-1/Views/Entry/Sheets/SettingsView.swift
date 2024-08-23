@@ -67,8 +67,12 @@ struct SettingsView: View {
             VStack {
                 List {
                         if !settingIconColors.isEmpty {
-                            alternateSettingsView().font(.system(size: UIFont.systemFontSize))
+                            alternateSettingsView()
+                                .scrollContentBackground(.hidden)
+                                .listRowBackground(getSectionColor(colorScheme: colorScheme))
+                                .font(.system(size: UIFont.systemFontSize))
                         }
+                    
 
                 }
                 
@@ -93,10 +97,18 @@ struct SettingsView: View {
         
     }
     
+    func getSectionColor(colorScheme: ColorScheme) -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        } else {
+            return userPreferences.entryBackgroundColor
+        }
+    }
+    
     @ViewBuilder
     func cloudSyncView() -> some View {
         HStack {
-            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror)
+            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror).tint(userPreferences.accentColor)
         }
 //        Picker("Sync Preference", selection: $userPreferences.syncPreference) {
 //                    Text("None").tag(UserPreferences.SyncPreference.none)
@@ -124,6 +136,9 @@ struct SettingsView: View {
                 NavigationStack {
                     List {
                         generalTabView()
+                            .scrollContentBackground(.hidden)
+                            .listRowBackground(getSectionColor(colorScheme: colorScheme))
+                            .font(.system(size: UIFont.systemFontSize))
                         //                                    .dismissOnTabTap()
                     }.navigationTitle("General")
                         .background {
@@ -137,7 +152,7 @@ struct SettingsView: View {
                 }
             } label: {
                 Label(
-                    title: { Text("General")
+                    title: { Text("General").foregroundStyle(getTextColor())
                     },
                     icon: { settingsIconView(systemImage: "gearshape.fill")}
                 )
@@ -173,6 +188,8 @@ struct SettingsView: View {
                 NavigationStack {
                     List {
                         stampsTabView()
+                            .scrollContentBackground(.hidden)
+                            .listRowBackground(getSectionColor(colorScheme: colorScheme))
                         
                     }.navigationTitle("Stamps")
                     .background {
@@ -186,7 +203,7 @@ struct SettingsView: View {
                 }
             } label: {
                 Label(
-                    title: { Text("Stamps")
+                    title: { Text("Stamps").foregroundStyle(getTextColor())
                     },
                     icon: { settingsIconView(systemImage: "hare.fill")}
                 )
@@ -196,8 +213,10 @@ struct SettingsView: View {
                 NavigationStack {
                     List {
                         preferencesTabView()
+                            .scrollContentBackground(.hidden)
+                            .listRowBackground(getSectionColor(colorScheme: colorScheme))
                         
-                    }.navigationTitle("Appearance")
+                    }.navigationTitle("Appearance").foregroundStyle(getTextColor())
                     .background {
                         ZStack {
                             Color(UIColor.systemGroupedBackground)
@@ -209,7 +228,7 @@ struct SettingsView: View {
                 }
             } label: {
                 Label(
-                    title: { Text("Appearance")
+                    title: { Text("Appearance").foregroundStyle(getTextColor())
                     },
                     icon: { settingsIconView(systemImage: "textformat.size")}
                 )
@@ -217,12 +236,16 @@ struct SettingsView: View {
             
             
             appTabView()
+                .scrollContentBackground(.hidden)
+                .listRowBackground(getSectionColor(colorScheme: colorScheme))
             
         }
         NavigationLink {
             NavigationStack {
                 List {
                     dataTabView()
+                        .scrollContentBackground(.hidden)
+                        .listRowBackground(getSectionColor(colorScheme: colorScheme))
                 }
                 .navigationTitle("Data")
                 .background {
@@ -237,7 +260,8 @@ struct SettingsView: View {
 
         } label: {
             Label(
-                title: { Text("Data").font(.system(size: UIFont.systemFontSize))
+                title: { Text("Data").foregroundStyle(getTextColor())
+                        .font(.system(size: UIFont.systemFontSize))
                 },
                 icon: { settingsIconView(systemImage: "arrow.up.arrow.down")}
             )
@@ -271,9 +295,11 @@ struct SettingsView: View {
             NavigationStack {
                 List {
                     introScreenViews()
+                        .scrollContentBackground(.hidden)
+                        .listRowBackground(getSectionColor(colorScheme: colorScheme))
                 }
-                .navigationTitle("Information").font(.system(size: UIFont.systemFontSize))
-   
+                .navigationTitle("Information").foregroundStyle(getTextColor())
+                .font(.system(size: UIFont.systemFontSize))
                 .background {
                         ZStack {
                             Color(UIColor.systemGroupedBackground)
@@ -285,11 +311,13 @@ struct SettingsView: View {
             }
         } label: {
             Label(
-                title: { Text("Info").font(.system(size: UIFont.systemFontSize))
+                title: { Text("Info").foregroundStyle(getTextColor())
+                        .font(.system(size: UIFont.systemFontSize))
                 },
-                icon: { settingsIconView(systemImage: "info")}
+                icon: { settingsIconView(systemImage: "info").foregroundStyle(userPreferences.accentColor)}
             )
         }
+     
     }
     
     @ViewBuilder
@@ -298,6 +326,9 @@ struct SettingsView: View {
             NavigationStack {
                 List {
                     appIconView()
+                        .foregroundStyle(getTextColor())
+                        .scrollContentBackground(.hidden)
+                        .listRowBackground(getSectionColor(colorScheme: colorScheme))
                 }
                 .navigationTitle("App Icon")
                 .background {
@@ -312,7 +343,8 @@ struct SettingsView: View {
             
         } label: {
             Label(
-                title: { Text("App Icon").font(.system(size: UIFont.systemFontSize))
+                title: { Text("App Icon").foregroundStyle(getTextColor())
+                        .font(.system(size: UIFont.systemFontSize))
                 },
                 icon: {
                     settingsIconView(systemImage: "app_icon")}
@@ -336,6 +368,8 @@ struct SettingsView: View {
                             Text(icon)
                         }
                     }
+                    .foregroundStyle(getTextColor())
+
                         .tag(icon)
                 }
             } label: {
@@ -351,7 +385,7 @@ struct SettingsView: View {
     @ViewBuilder
     func introScreenViews() -> some View {
         Section(header: Text("About")
-            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+            .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
 
 //            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
@@ -366,9 +400,13 @@ struct SettingsView: View {
                     }
                 }
             } label: {
-                Label("User Guide", systemImage: "info.circle.fill")
-            }
+                HStack {
+                    Text("User Guide")
+                    Spacer()
+                    Image(systemName:  "info.circle.fill").foregroundStyle(userPreferences.accentColor)
             
+                }
+            }
         }
     }
     
@@ -427,7 +465,7 @@ struct SettingsView: View {
     func stampsTabView() -> some View {
 //        let defaultTopColor = getDefaultBackgroundColor(colorScheme: colorScheme)
         Section(header: Text("Stamp Dashboard")
-            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+            .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
 //            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
             .font(.system(size: UIFont.systemFontSize))
         ) {
@@ -440,6 +478,10 @@ struct SettingsView: View {
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
                 IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
+                    .foregroundStyle(getTextColor())
+                    .font(.system(size: UIFont.systemFontSize))
+
+
             }
         }
     }
@@ -447,92 +489,130 @@ struct SettingsView: View {
     @ViewBuilder
     func preferencesTabView() -> some View {
         
-        Section(header: Text("Preferences")
-            .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
-//            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//        Section(header: Text("Preferences")
+//            .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+////            .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//            .font(.system(size: UIFont.systemFontSize))
+//        ) {
+//            ColorPicker("Accent Color", selection: $userPreferences.accentColor)
+//            FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
+//            HStack {
+//                Text("Line Spacing")
+//                Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+//            }
+//        }
+//        
+//        Section {
+//            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+//        } header: {
+//            
+//            HStack {
+//                Text("Background Colors")
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+//
+////                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//                    .font(.system(size: UIFont.systemFontSize))
+//                Spacer()
+//                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
+//                    .onTapGesture {
+//                        vibration_light.impactOccurred()
+//                        userPreferences.backgroundColors[0] = .clear
+//                        userPreferences.backgroundColors[1] = .clear
+//                    }
+//            }
+//        }
+//        
+//        Section {
+//                ColorPicker("Default Entry Background Color:", selection: $userPreferences.entryBackgroundColor)
+//      
+//        } header: {
+//            HStack {
+//                Text("Entry Background")
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+//
+////                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//                    .font(.system(size: UIFont.systemFontSize))
+//                Spacer()
+//                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
+//                    .onTapGesture {
+//                        vibration_light.impactOccurred()
+//                        userPreferences.entryBackgroundColor = .clear
+//                    }
+//            }
+//        }
+//
+//
+//        Section {
+//            ColorPicker("Pin Color", selection: $userPreferences.pinColor)
+//        } header: {
+//            HStack {
+//                Text("Pin Color")
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+//
+////                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//                    .font(.system(size: UIFont.systemFontSize))
+//                Spacer()
+//                Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
+//            }.font(.system(size: UIFont.systemFontSize))
+//        }
+//        
+//        Section {
+//            ColorPicker("Reminder Color", selection: $userPreferences.reminderColor)
+//        } header: {
+//            HStack {
+//                Text("Alerts")
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
+//
+////                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+//                    .font(.system(size: UIFont.systemFontSize))
+//                Spacer()
+//                Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+//            }.font(.system(size: UIFont.systemFontSize))
+//        }
+
+//        NavigationLink("Themes") {
+//            ThemeSheet()
+//                .environmentObject(coreDataManager)
+//                .environmentObject(userPreferences)
+//        }
+        Section {
+            Picker("Calendar Preference", selection: $userPreferences.calendarPreference) {
+                Text("Monthly").tag("Monthly")
+                Text("Weekly").tag("Weekly")
+            }
+            .pickerStyle(MenuPickerStyle()) // You can change this to another picker style if needed
+            .foregroundStyle(getTextColor())
             .font(.system(size: UIFont.systemFontSize))
-        ) {
-            ColorPicker("Accent Color", selection: $userPreferences.accentColor)
-            FontPicker(selectedFont:  $userPreferences.fontName, selectedFontSize: $userPreferences.fontSize, accentColor: $userPreferences.accentColor, inputCategories: fontCategories, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
-            HStack {
-                Text("Line Spacing")
-                Slider(value: $userPreferences.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
-            }
-        }
-        
-        Section {
-            BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
-        } header: {
-            
-            HStack {
-                Text("Background Colors")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
 
-//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
-                Spacer()
-                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                    .onTapGesture {
-                        vibration_light.impactOccurred()
-                        userPreferences.backgroundColors[0] = .clear
-                        userPreferences.backgroundColors[1] = .clear
-                    }
-            }
-        }
-        
-        Section {
-                ColorPicker("Default Entry Background Color:", selection: $userPreferences.entryBackgroundColor)
-      
         } header: {
             HStack {
-                Text("Entry Background")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
-
-//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Image(systemName: "calendar.circle.fill").foregroundStyle(userPreferences.accentColor)
+                Text("Calendar Preference").foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
                     .font(.system(size: UIFont.systemFontSize))
                 Spacer()
-                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                    .onTapGesture {
-                        vibration_light.impactOccurred()
-                        userPreferences.entryBackgroundColor = .clear
-                    }
+            }
+        }
+
+        
+        Section {
+            NavigationLink("Edit Theme") {
+                ThemeSheet()
+                    .environmentObject(coreDataManager)
+                    .environmentObject(userPreferences)
+            }
+            .font(.system(size: UIFont.systemFontSize))
+
+        } header: {
+            HStack {
+                Image(systemName: "paintpalette.fill").foregroundStyle(userPreferences.accentColor)
+                Text("Themes").foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
+                    .font(.system(size: UIFont.systemFontSize))
+                Spacer()
+              
             }
         }
 
 
-        Section {
-            ColorPicker("Pin Color", selection: $userPreferences.pinColor)
-        } header: {
-            HStack {
-                Text("Pin Color")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
-
-//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
-                Spacer()
-                Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
-            }.font(.system(size: UIFont.systemFontSize))
-        }
-        
-        Section {
-            ColorPicker("Reminder Color", selection: $userPreferences.reminderColor)
-        } header: {
-            HStack {
-                Text("Alerts")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
-
-//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .font(.system(size: UIFont.systemFontSize))
-                Spacer()
-                Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
-            }.font(.system(size: UIFont.systemFontSize))
-        }
-
-        NavigationLink("Themes") {
-            ThemeSheet()
-                .environmentObject(coreDataManager)
-                .environmentObject(userPreferences)
-        }
         
 
     }
@@ -542,12 +622,13 @@ struct SettingsView: View {
             Section {
                 if !isHiddenMediaManager {
                     MediaManagerView()
+                        .foregroundStyle(getTextColor())
                 }
             } header: {
                 HStack {
                     Image(systemName: "photo.on.rectangle.angled").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                     Text("Manage Data")
-                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                        .foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
                     
                     Spacer()
                     Image(systemName: isHiddenMediaManager ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
@@ -579,7 +660,8 @@ struct SettingsView: View {
     func generalTabView() -> some View {
 
         Section {
-            Toggle("Enable authentication", isOn: $userPreferences.showLockScreen) // Make sure to add this property to UserPreferences
+            Toggle("Enable authentication", isOn: $userPreferences.showLockScreen).tint(userPreferences.accentColor)
+                .foregroundStyle(getTextColor())
                 .onChange(of: userPreferences.showLockScreen) { newValue in
                     if newValue {
                         authenticate()
@@ -589,7 +671,7 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "lock.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Passcode")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
 
                 Spacer()
             }
@@ -597,17 +679,19 @@ struct SettingsView: View {
         }
         
         Section {
-            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror) // Make sure to add this property to UserPreferences
+            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror).tint(userPreferences.accentColor)
+                .foregroundStyle(getTextColor())
                 .onChange(of: userPreferences.enableCloudMirror) { newValue in
                     if newValue {
                         userPreferences.enableCloudMirror = newValue
                     }
                 }
+            
         } header: {
             HStack {
                 Image(systemName: "cloud.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Sync")
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
 
                 Spacer()
             }
@@ -616,7 +700,8 @@ struct SettingsView: View {
         
         
         Section {
-            Toggle("Activate hyperlinks", isOn: $userPreferences.showLinks) // Make sure to add this property to UserPreferences
+            Toggle("Activate hyperlinks", isOn: $userPreferences.showLinks).tint(userPreferences.accentColor)
+                .foregroundStyle(getTextColor())
                 .onChange(of: userPreferences.showLinks) { newValue in
                     if newValue {
                         userPreferences.showLinks = newValue
@@ -626,14 +711,14 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "link").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 Text("Link Detection")
-//                    .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
-                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5))
+                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
                 Spacer()
             }
             .font(.system(size: UIFont.systemFontSize))
         }
 
-        Toggle("Show most recent entry time", isOn: $userPreferences.showMostRecentEntryTime) // Make sure to add this property to UserPreferences
+        Toggle("Show most recent entry time", isOn: $userPreferences.showMostRecentEntryTime).tint(userPreferences.accentColor)
+            .foregroundStyle(getTextColor())
             .onChange(of: userPreferences.showMostRecentEntryTime) { newValue in
                 if newValue {
                     userPreferences.showMostRecentEntryTime = newValue
@@ -691,6 +776,24 @@ struct SettingsView: View {
             self.isUnlocked = true //for now
         }
     }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
+    func getTextColor() -> Color {
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
+        
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
+    }
+
     
 }
 //

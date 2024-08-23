@@ -36,6 +36,7 @@ struct RecentlyDeletedView: View {
     
     @State private var selectedEntries = Set<Entry>()
     @Binding var replyEntryId: String?
+    let dateStrings = DateStrings()
 
     
     var body: some View {
@@ -55,6 +56,7 @@ struct RecentlyDeletedView: View {
                             .contextMenu {
                                 Button {
                                     entry.unRemove(coreDataManager: coreDataManager)
+                                    dateStrings.addDate(formattedDate(entry.time))
                                 } label: {
                                     Label("Recovery entry", systemImage: "arrow.up")
                                 }
@@ -66,7 +68,7 @@ struct RecentlyDeletedView: View {
                             }
                   
                     } header: {
-                        entryHeaderView(entry: entry)
+                        entryHeaderView(entry: entry).foregroundStyle(getIdealHeaderTextColor())
                     }
                     
                     .listRowBackground(isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? Color("DefaultEntryBackground") : userPreferences.entryBackgroundColor)
@@ -128,7 +130,7 @@ struct RecentlyDeletedView: View {
 //    }
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
-            Text("\(formattedDateFull(entry.time ?? Date()))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
+            Text("\(formattedDateFull(entry.time ?? Date()))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
             Spacer()
             if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
@@ -140,14 +142,20 @@ struct RecentlyDeletedView: View {
         }
     }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless userPreferences.entryBackgroundColor != .clear
+    func getTextColor() -> Color {
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
         
-        return UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
     }
-    
-    func getDefaultEntryBackgroundColor() -> Color {
-        let color = colorScheme == .dark ? UIColor.secondarySystemBackground : UIColor.tertiarySystemBackground
-        
-        return Color(color)
+
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
     }
 }

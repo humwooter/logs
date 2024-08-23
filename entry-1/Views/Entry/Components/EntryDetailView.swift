@@ -30,7 +30,7 @@ struct EntryDetailView: View { //used in LogDetailView
     @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
 
     var body: some View {
-        finalView().padding(.vertical)
+        finalView()
             .onAppear {
                 showEntry = !entry.isHidden
                 isPinned = entry.isPinned
@@ -68,21 +68,13 @@ struct EntryDetailView: View { //used in LogDetailView
         
         
     }
-    
-    func getIdealTextColor() -> Color {
-        var entryBackgroundColor =  UIColor(userPreferences.entryBackgroundColor)
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
-    }
-    
-    
+
     @ViewBuilder
     func finalView() -> some View {
         ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading) {
                 HStack {
-                    entryHeaderView()
+                    entryHeaderView().foregroundStyle(getIdealHeaderTextColor())
                         .font(.system(size: UIFont.systemFontSize))
                     Spacer()
                 }
@@ -91,25 +83,48 @@ struct EntryDetailView: View { //used in LogDetailView
                 if let repliedId = entry.entryReplyId {
                         finalRepliedView()
                 } else {
-                    entryView()
+                    VStack(spacing: 0) {
+                        entryTitleView()
+                        entryContentView()
+                    }
                 }
-            }
+            }.padding(.vertical)
         }
     }
+    
+    func getTextColor() -> Color {
+        // Retrieve the background colors from user preferences
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
+        
+        // Call the calculateTextColor function with these values
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
+    }
+    
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
     
     @ViewBuilder
     func entrySectionHeader(entry: Entry) -> some View {
         HStack {
 
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-                .foregroundStyle(getIdealTextColor().opacity(0.5))
+                .foregroundStyle(getTextColor().opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
                         }
-                        .foregroundStyle(getIdealTextColor().opacity(0.35))
+                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
                     }
 
                 }
@@ -143,12 +158,12 @@ struct EntryDetailView: View { //used in LogDetailView
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
                     //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor, repliedEntry: entry)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .overlay(
                                   RoundedRectangle(cornerRadius: 15)
-                                      .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
+                                      .stroke(getTextColor().opacity(0.05), lineWidth: 2)
                             )
 
                             .background(repliedEntryBackgroundColor)
@@ -179,7 +194,7 @@ struct EntryDetailView: View { //used in LogDetailView
                             HStack {
                                 UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
                                     .stroke(lineWidth: 2)
-                                    .foregroundStyle(getIdealTextColor().opacity(0.3))
+                                    .foregroundStyle(getTextColor().opacity(0.3))
                                     .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
                                     .padding(.bottom)
                                 Spacer()
@@ -189,20 +204,28 @@ struct EntryDetailView: View { //used in LogDetailView
                
 
             }.padding(.horizontal)
-            entryView()
+            entryTitleView()
+            entryContentView()
             Spacer()
            }
     }
     
     @ViewBuilder
-    func entryView() -> some View {
+    private func entryTitleView() -> some View {
+        if let entryName = entry.title, !entryName.isEmpty {
+            Text(entryName)
+                .font(.custom(userPreferences.fontName, size: 1.35 * CGFloat(userPreferences.fontSize)))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                .padding(.vertical, 2)
+                .foregroundStyle(getTextColor())
+        }
+    }
+    
+    @ViewBuilder
+    func entryContentView() -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 VStack(alignment: .leading) {
-//                        entryHeaderView()
-//                        .font(.system(size: UIFont.systemFontSize))
-
-
                     VStack {
                         
                         if (userPreferences.showLinks) {
@@ -228,21 +251,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 entryContextMenuButtons()
         }
     }
-    
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
 
-        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
-        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        
-        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1])) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1]
-
-        
-        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
-        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
-        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
-        return fontColor
-    }
     
     
     @ViewBuilder

@@ -88,6 +88,12 @@ struct NewEntryView: View {
     @State private var showingEntryTitle = false
     @State private var entryTitle: String = ""
     @State private var tempEntryTitle: String = ""
+    
+    @State private var selectedTags: [String] = []
+    @State private var showTagSelection = false
+     @State private var showEntryNameSelection = false
+    
+    let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
 
     
     var body: some View {
@@ -146,7 +152,8 @@ struct NewEntryView: View {
                         Menu("", systemImage: "ellipsis.circle") {
                             
                             Button {
-                                showingEntryTitle = true
+//                                showingEntryTitle = true
+                                showEntryNameSelection = true
                             } label: {
 //                                Text("Add Name")
                                 Label("Add Name", systemImage: "pencil")
@@ -166,30 +173,33 @@ struct NewEntryView: View {
                                 Label("Set Reminder", systemImage: "bell.fill")
                             }
                             
-                        
-
+                            Button {
+                                showTagSelection = true
+                            } label: {
+                                Label("Add tag", systemImage: "tag")
+                            }
                         }
 
                         .sheet(isPresented: $showingDatePicker) {
                             dateEditSheet()
                         }
-                        .sheet(isPresented: $showingReminderSheet) {
-                            reminderSheet()
-                            .onAppear {
-                                if let reminderId = reminderId {
-                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
-                                }
-                                requestReminderAccess { granted in
-                                    if granted {
-                                        hasReminderAccess = true
-                                        print("Access to reminders granted.")
-                                    } else {
-                                        hasReminderAccess = false
-                                        print("Access to reminders denied or failed.")
-                                    }
-                                }
-                            }
-                        }
+//                        .sheet(isPresented: $showingReminderSheet) {
+//                            reminderSheet()
+//                            .onAppear {
+//                                if let reminderId = reminderId {
+//                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
+//                                }
+//                                requestReminderAccess { granted in
+//                                    if granted {
+//                                        hasReminderAccess = true
+//                                        print("Access to reminders granted.")
+//                                    } else {
+//                                        hasReminderAccess = false
+//                                        print("Access to reminders denied or failed.")
+//                                    }
+//                                }
+//                            }
+//                        }
 
             
                         Button(action: {
@@ -219,7 +229,37 @@ struct NewEntryView: View {
             .font(.system(size: UIFont.systemFontSize))
    
         }
-        
+        .overlay(
+            CustomPopupView(isPresented: $showTagSelection, height: 300) {
+                      TagSelectionPopup(isPresented: $showTagSelection, selectedTags: $selectedTags, availableTags: availableTags)
+                    .environmentObject(userPreferences)
+                  }
+              )
+              .overlay(
+                CustomPopupView(isPresented: $showEntryNameSelection, height: 50) {
+                      EntryNamePopup(isPresented: $showEntryNameSelection, entryName: $entryTitle)
+                        .environmentObject(userPreferences)
+                  }
+              )
+              .overlay(
+                CustomPopupView(isPresented: $showingReminderSheet, content: {
+                    ReminderPopupView(isPresented: $showingReminderSheet, reminderTitle: $reminderTitle, selectedReminderDate: $selectedReminderDate, selectedReminderTime: $selectedReminderTime, selectedRecurrence: $selectedRecurrence, reminderNotes: $entryContent, reminderId: $reminderId, showingReminderSheet: $showingReminderSheet, showDeleteReminderAlert: $showDeleteReminderAlert, hasReminderAccess: hasReminderAccess)
+                    .onAppear {
+                        if let reminderId = reminderId {
+                            fetchAndInitializeReminderDetails(reminderId: reminderId)
+                        }
+                        requestReminderAccess { granted in
+                            if granted {
+                                hasReminderAccess = true
+                                print("Access to reminders granted.")
+                            } else {
+                                hasReminderAccess = false
+                                print("Access to reminders denied or failed.")
+                            }
+                        }
+                    }
+                })
+                )
         .onTapGesture {
             focusField = true
             keyboardHeight = UIScreen.main.bounds.height/3
@@ -274,14 +314,7 @@ struct NewEntryView: View {
 
 
     
-    func requestReminderAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
+ 
 
     func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
         let eventStore = EKEventStore()
@@ -471,18 +504,7 @@ struct NewEntryView: View {
             
             .cornerRadius(15)
         } else {
-//            if !entryTitle.isEmpty {
-//                HStack {
-//                    Text(entryTitle)
-//                        .font(.custom(userPreferences.fontName, size: 1.3*userPreferences.fontSize))
-//                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
-//
-//                        .bold()
-//                    Spacer()
-//                }
-//                .padding(.horizontal)
-//
-//            }
+
         }
 //            .padding(.horizontal)
     }
@@ -575,50 +597,6 @@ struct NewEntryView: View {
         }
     }
 
-//    @ViewBuilder
-//    func textFieldView() -> some View {
-//
-//        VStack (alignment: .leading) {
-//
-//            ZStack {
-//                if entryContent.isEmpty {
-//                    VStack {
-//                        HStack {
-//                            Text("Start typing here...")
-//                                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.3))
-//                                .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-//                            Spacer()
-//                        }.padding(20)
-//                        Spacer()
-//                    }
-//                }
-//                GrowingTextField(text: $entryContent, fontName: userPreferences.fontName, fontSize: userPreferences.fontSize, fontColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))), cursorColor: UIColor(userPreferences.accentColor), cursorPosition: $cursorPosition, viewModel: textEditorViewModel).cornerRadius(15)
-//            }
-//
-//            ZStack(alignment: .topTrailing) {
-//                entryMediaView().cornerRadius(15.0).padding(10).scaledToFit()
-//                if selectedData != nil {
-//                    Button(role: .destructive, action: {
-//                        vibration_light.impactOccurred()
-//                        selectedData = nil
-//                        imageHeight = 0
-//                    }) {
-//                        Image(systemName: "x.circle").foregroundColor(.red.opacity(0.9)).frame(width: 25, height: 25).padding(15)                            .foregroundColor(.red)
-//                    }
-//                }
-//
-//            }
-//        }.background {
-//            ZStack {
-//                Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))).opacity(0.05)
-//            }.ignoresSafeArea(.all)
-//        }.cornerRadius(15)
-//        .padding()
-//        .onSubmit {
-//            finalizeCreation()
-//        }
-//    }
-    
     @ViewBuilder
     func dateEditSheet() -> some View {
         VStack {
@@ -1010,13 +988,13 @@ struct NewEntryView: View {
             } else {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
-                let newLog = Log(context: viewContext)
-                newLog.day = formattedDate(newEntry.time)
-                dateStringManager.addDate(newLog.day)
+//                let newLog = Log(context: viewContext)
+//                newLog.day = formattedDate(newEntry.time)
+//                dateStringManager.addDate(newLog.day)
 //                newLog.addToRelationship(newEntry)
-                newLog.id = UUID()
-                newEntry.logId = newLog.id
-                newEntry.relationship = newLog
+//                newLog.id = UUID()
+//                newEntry.logId = newLog.id
+//                newEntry.relationship = newLog
                 
                 datesModel.addTodayIfNotExists()
             }

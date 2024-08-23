@@ -46,6 +46,7 @@ struct EntryRowView: View {
             TextView(entry: entry, repliedEntryId: $repliedEntryId, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView)
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
+//                .listRowBackground(calculateTextColor(basedOn: userPreferences.backgroundColors.first ?? Color.clear, background2: userPreferences.backgroundColors[1], entryBackground: userPreferences.entryBackgroundColor, colorScheme: colorScheme))
                 .listRowBackground( UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
                 .padding(.bottom, padding)
                 .swipeActions(edge: .leading) {

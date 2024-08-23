@@ -287,7 +287,7 @@ struct EditingEntryView: View {
                 
                 VStack(alignment: .trailing) {
                                     entrySectionHeader(entry: repliedEntry)
-                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor, repliedEntry: entry)
                         .overlay(
                               RoundedRectangle(cornerRadius: 15)
                                   .stroke(getIdealTextColor().opacity(0.05), lineWidth: 1)
@@ -987,6 +987,7 @@ struct EditingEntryView: View {
             stopRecognition()
         }
     }
+    
     func createOrUpdateReminder() {
         let eventStore = EKEventStore()
         let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedDate) ?? Date()
@@ -1023,6 +1024,7 @@ struct EditingEntryView: View {
             }
         }
     }
+    
     func reminderExists(with identifier: String, in eventStore: EKEventStore) -> Bool {
         if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
             return true
@@ -1130,23 +1132,7 @@ struct EditingEntryView: View {
         }
     }
 
-    func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
-        switch option {
-        case "Daily":
-            return EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
-        case "Weekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        case "Weekends":
-            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, daysOfTheWeek: [EKRecurrenceDayOfWeek(.saturday), EKRecurrenceDayOfWeek(.sunday)], daysOfTheMonth: nil, monthsOfTheYear: nil, weeksOfTheYear: nil, daysOfTheYear: nil, setPositions: nil, end: nil)
-            return rule
-        case "Biweekly":
-            return EKRecurrenceRule(recurrenceWith: .weekly, interval: 2, end: nil)
-        case "Monthly":
-            return EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
-        default:
-            return nil
-        }
-    }
+
 
     func fetchAndInitializeReminderDetails(reminderId: String?) {
         guard let reminderId = reminderId, !reminderId.isEmpty else { return }

@@ -80,5 +80,9 @@ class DateStrings {
         return dateDictionary[monthYear]
     }
     
-    
+    // Check if a specific dateString exists in the dictionary.
+        func containsDate(_ dateString: String) -> Bool {
+            guard let monthYearKey = monthYear(from: dateString) else { return false }
+            return dateDictionary[monthYearKey]?.contains(dateString) ?? false
+        }
 }

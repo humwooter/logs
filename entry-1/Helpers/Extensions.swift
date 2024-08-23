@@ -172,36 +172,79 @@ extension UIColor {
         return alpha
     }
     
-    
-    static func blendedColor(from color1: UIColor, with color2: UIColor) -> UIColor {
-        print("entered blended color")
+    static func averageColor(of color1: UIColor, and color2: UIColor) -> UIColor {
 
-        print("color1: \(color1)")
-        print("color2: \(color2)")
-
+        let isColor1Clear = isClear(for: color1)
+        let isColor2Clear = isClear(for: color2)
+        
+        // Update color1 and color2 if they are clear
+        if isColor1Clear {
+            return color2
+        } else if isColor2Clear {
+            return color1
+        }
+        
         var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
         var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
 
         color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
         color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
 
-        if (a1 == 1) { //foreground color is completely opaque
-            return color1
-        }
-        let rBlended = (r1 * a1) + (r2 * a2)
-        let gBlended = (g1 * a1) + (g2 * a2)
-        let bBlended = (b1 * a1) + (b2 * a2)
-        let aBlended = min(1, a1 + (a2 * (1 - a1)))
-        print("aBlended")
-        
-        printColorComponents(color: color1)
-        printColorComponents(color: color2)
+        // Apply the alpha to the color components
+        r1 *= a1
+        g1 *= a1
+        b1 *= a1
 
+        r2 *= a2
+        g2 *= a2
+        b2 *= a2
 
-        return UIColor(red: rBlended, green: gBlended, blue: bBlended, alpha: aBlended)
+        // Calculate the average color components
+        let rAverage = (r1 + r2) / (a1 + a2)
+        let gAverage = (g1 + g2) / (a1 + a2)
+        let bAverage = (b1 + b2) / (a1 + a2)
+
+        // Return the blended color with full opacity (alpha = 1)
+        return UIColor(red: rAverage, green: gAverage, blue: bAverage, alpha: 1)
     }
 
+
     
+    static func blendedColor(from color1: UIColor, with color2: UIColor) -> UIColor {
+        var r1: CGFloat = 0, g1: CGFloat = 0, b1: CGFloat = 0, a1: CGFloat = 0
+        var r2: CGFloat = 0, g2: CGFloat = 0, b2: CGFloat = 0, a2: CGFloat = 0
+
+        color1.getRed(&r1, green: &g1, blue: &b1, alpha: &a1)
+        color2.getRed(&r2, green: &g2, blue: &b2, alpha: &a2)
+
+        print("Color 1: R: \(r1), G: \(g1), B: \(b1), A: \(a1)")
+        print("Color 2: R: \(r2), G: \(g2), B: \(b2), A: \(a2)")
+
+        // Calculate the resulting alpha
+        let aBlended = a1 + a2 * (1 - a1)
+
+        // If the resulting alpha is 0, return a clear color
+        if aBlended == 0 {
+            return UIColor.clear
+        }
+
+        // Calculate the blended color components
+        let rBlended = (r1 * a1 + r2 * a2 * (1 - a1)) / aBlended
+        let gBlended = (g1 * a1 + g2 * a2 * (1 - a1)) / aBlended
+        let bBlended = (b1 * a1 + b2 * a2 * (1 - a1)) / aBlended
+
+        print("Blended: R: \(rBlended), G: \(gBlended), B: \(bBlended), A: \(aBlended)")
+
+        // Adjust the blend factor if needed
+        let blendFactor: CGFloat = 0.5 // Adjust this value between 0 and 1
+        let adjustedRBlended = r1 * (1 - blendFactor) + rBlended * blendFactor
+        let adjustedGBlended = g1 * (1 - blendFactor) + gBlended * blendFactor
+        let adjustedBBlended = b1 * (1 - blendFactor) + bBlended * blendFactor
+
+        print("Adjusted Blend: R: \(adjustedRBlended), G: \(adjustedGBlended), B: \(adjustedBBlended), A: \(aBlended)")
+
+        return UIColor(red: adjustedRBlended, green: adjustedGBlended, blue: adjustedBBlended, alpha: aBlended)
+    }
 
     
     func toHexString() -> String {
@@ -374,6 +417,7 @@ extension UIColor {
         if isClear(for: backgroundColor) {
             print("background color is clear")
                 color = UIColor(getDefaultBackgroundColor(colorScheme: colorScheme))
+//            return color
         }
 
         // Decompose the UIColor into its RGBA components

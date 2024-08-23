@@ -81,7 +81,7 @@ struct NotEditingView: View {
     func finalView() -> some View {
         ZStack(alignment: .topTrailing) {
             VStack {
-                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7)
+                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7).foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
                 if let repliedId = replyEntryId {
                     finalRepliedView()
                 } else {
@@ -128,7 +128,7 @@ struct NotEditingView: View {
                             HStack {
                                 UpperLeftCornerShape(cornerRadius: 20, extendLengthX: 6, extendLengthY: 6)
                                     .stroke(lineWidth: 2)
-                                    .foregroundStyle(getIdealTextColor().opacity(0.3))
+                                    .foregroundStyle(getTextColor().opacity(0.3))
                                     .frame(maxWidth: .infinity, maxHeight: 5) // Correctly size the frame based on the shape dimensions
                                 Spacer()
                             }
@@ -143,19 +143,24 @@ struct NotEditingView: View {
            }
     }
     
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }
+    
+    
     @ViewBuilder
     func entrySectionHeader(entry: Entry) -> some View {
         HStack {
 
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-                .foregroundStyle(getIdealTextColor().opacity(0.5))
+                .foregroundStyle(getTextColor().opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
                             Text(formattedTime_long(date: timeLastUpdated))
                         }
-                        .foregroundStyle(getIdealTextColor().opacity(0.5))
+                        .foregroundStyle(getTextColor().opacity(0.5))
                     }
 
                 }
@@ -188,14 +193,13 @@ struct NotEditingView: View {
             if let repliedEntry = fetchEntryById(id: replyId, coreDataManager: coreDataManager) {
                 
                 VStack(alignment: .trailing) {
-                                    entrySectionHeader(entry: repliedEntry)
-                    //                    .padding(.horizontal, 10) // Apply horizontal padding consistently
-                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor)
+                entrySectionHeader(entry: repliedEntry)
+                    NotEditingView_thumbnail(entry: repliedEntry, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), repliedEntryBackgroundColor: $repliedEntryBackgroundColor, repliedEntry: entry)
                             .environmentObject(userPreferences)
                             .environmentObject(coreDataManager)
                             .overlay(
                                   RoundedRectangle(cornerRadius: 15)
-                                      .stroke(getIdealTextColor().opacity(0.05), lineWidth: 2)
+                                    .stroke(getTextColor().opacity(0.05), lineWidth: 2)
                             )
 
                             .background(repliedEntryBackgroundColor)
@@ -274,11 +278,7 @@ struct NotEditingView: View {
         
 //        var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
 //        var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-//        
-            var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-            var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-            var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-
+//
         
         HStack {
             Spacer()
@@ -365,21 +365,35 @@ struct NotEditingView: View {
         .padding(.top, 5)
     }
     
-//this works as of jun 27
+    
     func getTextColor() -> Color {
-        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
-            var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-            var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-            return Color(UIColor.fontColor(forBackgroundColor: blendedColor))
-        } else {
-            var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-            var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-            var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-            
-            
-            return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
-        }
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = entry.stampIndex == -1 ? userPreferences.entryBackgroundColor : Color(entry.color)
+        
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
     }
+
+//this works as of jun 27
+//    func getTextColor() -> Color {
+//        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) && entry.stampIndex == -1 {
+//            var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
+//            var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
+//            return Color(UIColor.fontColor(forBackgroundColor: blendedColor))
+//        } else {
+//            var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
+//            var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+//            var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
+//            
+//            
+//            return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+//        }
+//    }
 
     @ViewBuilder
     func videoPlayerView() -> some View { //make sure it's only for mp4's
@@ -415,7 +429,7 @@ struct NotEditingView: View {
                    .font(.custom(userPreferences.fontName, size: 1.35 * CGFloat(userPreferences.fontSize)))
                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                    .padding(.vertical, 2)
-                   .foregroundStyle(getForegroundStyle())
+                   .foregroundStyle(getTextColor())
            }
        }
        
@@ -424,18 +438,16 @@ struct NotEditingView: View {
            if userPreferences.showLinks {
                Text(makeAttributedString(from: entry.content))
                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                   .foregroundStyle(getForegroundStyle())
+                   .foregroundStyle(getTextColor())
            } else {
                Text(entry.content)
                    .frame(maxWidth: .infinity, alignment: .leading)
-                   .foregroundStyle(getForegroundStyle())
+                   .foregroundStyle(getTextColor())
            }
        }
        
        private func getForegroundStyle() -> Color {
-           let backgroundColor = backgroundColorForEntry()
-           let blendedColor = UIColor.blendedColor(from: entry.color, with: UIColor(backgroundColor))
-           return Color(UIColor.fontColor(forBackgroundColor: blendedColor))
+           getTextColor()
        }
        
        private func backgroundColorForEntry() -> Color {
@@ -478,10 +490,12 @@ struct NotEditingView_thumbnail: View {
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
     @State private var isVideoPlayerPresented = false
     @State private var mediaDim: CGFloat = 100
+    @State var repliedEntry: Entry
 
     
     var body : some View {
-        VStack {
+        VStack(alignment: .leading) {
+            entryTitleView()
             entryTextView()
                 //                    .font(.custom(userPreferences.fontName, size: CGFloat(userPreferences.fontSize)))
                 if let url = getUrl(for: entry.mediaFilename ?? "") {
@@ -503,6 +517,31 @@ struct NotEditingView_thumbnail: View {
         var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
         return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
     }
+    
+    func getTextColor() -> Color {
+        // Retrieve the background colors from user preferences
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = userPreferences.entryBackgroundColor
+        
+        // Call the calculateTextColor function with these values
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
+    }
+    
+    @ViewBuilder
+    private func entryTitleView() -> some View {
+        if let entryName = entry.title, !entryName.isEmpty {
+            Text(entryName)
+                .font(.custom(userPreferences.fontName, size: 1.0*CGFloat(userPreferences.fontSize)))
+                .foregroundStyle(getTextColor())
+        }
+    }
+    
     
     @ViewBuilder
     func entryMediaView() -> some View {
@@ -556,61 +595,37 @@ struct NotEditingView_thumbnail: View {
         }
     }
     
-    @ViewBuilder
-    func entrySectionHeader(entry: Entry) -> some View {
-        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-
-        
-        HStack {
-//            Image(systemName: "arrow.uturn.left")
-//                .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-
-                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
-                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)).opacity(0.3))
-                if let timeLastUpdated = entry.lastUpdated {
-                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
-                        HStack {
-                            Image(systemName: "arrow.right")
-                            Text(formattedTime_long(date: timeLastUpdated))
-                        }
-                        .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
-                    }
-
-                }
-
-            Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
-            Spacer()
-            
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
-                
-                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
-            }
-
-            if (entry.isPinned) {
-                Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
-
-            }
+    func getTextColor(color: Color) -> Color {
+        // Retrieve the background colors from user preferences
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        var entryBackground = userPreferences.entryBackgroundColor
+        if repliedEntry.stampIndex != -1 {
+            entryBackground = color
         }
-        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
-
+        // Call the calculateTextColor function with these values
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
     }
     
-    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
-        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-
-        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
-        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        
-        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
-
-        
-        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
-        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
-        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
-        return fontColor
-    }
+//    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
+//        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+//
+//        let foregroundColor =  isClear(for: UIColor(userPreferences.entryBackgroundColor)) ? UIColor(defaultEntryBackgroundColor) : UIColor(userPreferences.entryBackgroundColor)
+//        let backgroundColor_top = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+//        
+//        let backgroundColor_bottom = isClear(for: UIColor(userPreferences.backgroundColors[1] ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors[1] ?? Color.clear
+//
+//        
+//        let blendedBackgroundColors = UIColor.blendedColor(from: UIColor(backgroundColor_top), with: UIColor(backgroundColor_bottom))
+//        let blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(Color(backgroundColor_top)))
+//        let fontColor = UIColor.fontColor(forBackgroundColor: blendedColor)
+//        return fontColor
+//    }
 
     @ViewBuilder
     func videoPlayerView() -> some View { //make sure it's only for mp4's
@@ -633,6 +648,8 @@ struct NotEditingView_thumbnail: View {
         }
         return false
     }
+
+
     
     @ViewBuilder
     func entryTextView() -> some View {
@@ -646,11 +663,14 @@ struct NotEditingView_thumbnail: View {
             
                     Text(makeAttributedString(from: truncatedText))
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                        .foregroundStyle(getTextColor())
                 } else {
                     Text(truncatedText)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+//                        .foregroundStyle( Color(UIColor.fontColor(forBackgroundColor: blendedColor)))
+                        .foregroundStyle(getTextColor())
+
                 }
             } else {
                 var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
@@ -660,7 +680,9 @@ struct NotEditingView_thumbnail: View {
                     
                     VStack {
                         Text(makeAttributedString(from: truncatedText))
-                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                            .foregroundStyle(getTextColor())
+
+//                            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading) // Full width with left alignment
                             .onAppear {
                                 entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
@@ -669,7 +691,9 @@ struct NotEditingView_thumbnail: View {
                 } else {
                     Text(truncatedText)
                         .frame(maxWidth: .infinity, alignment: .leading) // Full width with left alignment
-                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
+                        .foregroundStyle(getTextColor())
+
+//                        .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: blendedBackground)))
                 }
             }
             

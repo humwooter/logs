@@ -21,6 +21,11 @@ struct UserPreferencesView: View {
     @Binding  var isFailure: Bool
     @State private var notificationMessage = ""
     
+    func getIdealHeaderTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
+    }   
+    
+    
     var body: some View {
         
         Section {
@@ -30,7 +35,7 @@ struct UserPreferencesView: View {
         } header: {
             HStack {
                 Image(systemName: "paintpalette.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                Text("Preferences Data").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)
+                Text("Preferences Data").foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
 
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
