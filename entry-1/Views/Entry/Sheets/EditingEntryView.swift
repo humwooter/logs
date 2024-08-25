@@ -45,7 +45,8 @@ struct EditingEntryView: View {
     @State private var previousMediaData: Data?
     @State var imageHeight: CGFloat = 0
     @State private var isTextButtonBarVisible: Bool = false
-    
+    @StateObject private var reminderManager = ReminderManager()
+
 
     @State private var selectedDate : Date = Date()
 
@@ -83,16 +84,9 @@ struct EditingEntryView: View {
      buttonBars()
             }
             .onAppear {
-                if let reminderId = entry.reminderId {
-                    fetchAndInitializeReminderDetails(reminderId: reminderId)
+                if let reminderId = reminderId {
+                    reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
-                
-                
-//                if entry.relationship == nil {
-//                    let log = createLog(date: selectedDate, coreDataManager: coreDataManager)
-//                    entry.relationship = log
-////                    log.addToRelationship(entry)
-//                }
                 print("ENTRY: \(entry)")
                 if let lastUpdated = entry.lastUpdated {
                     print("\(formattedTime_long(date: lastUpdated))")
@@ -152,20 +146,12 @@ struct EditingEntryView: View {
    reminderSheet()
 
                 
-                .onAppear {
-                    if let reminderId = entry.reminderId {
-                        fetchAndInitializeReminderDetails(reminderId: reminderId)
-                    }
-                    requestReminderAccess { granted in
-                        if granted {
-                            hasReminderAccess = true
-                            print("Access to reminders granted.")
-                        } else {
-                            hasReminderAccess = false
-                            print("Access to reminders denied or failed.")
+                    .onAppear {
+                        if let reminderId = reminderId {
+                            reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
                         }
+                        reminderManager.requestReminderAccess { _ in }
                     }
-                }
             }
             .navigationBarTitle("Editing Entry")
             .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
@@ -510,7 +496,7 @@ struct EditingEntryView: View {
                     }
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
-                            createOrUpdateReminder()
+                            saveReminder()
                         }
 
                     }
@@ -522,6 +508,25 @@ struct EditingEntryView: View {
             }
         }
     }
+    
+    private func saveReminder() {
+          reminderManager.createOrUpdateReminder(
+              reminderId: reminderId, // or the specific ID if editing an existing reminder
+              title: reminderManager.reminderTitle,
+              dueDate: reminderManager.selectedReminderDate,
+              recurrence: reminderManager.selectedRecurrence,
+              notes: "" // Any notes you want to add
+          ) { result in
+              switch result {
+              case .success(let reminderId):
+                  // Handle successful save, e.g., save reminderId to your data model
+                  print("Reminder saved with ID: \(reminderId)")
+              case .failure(let error):
+                  // Handle error, e.g., show an alert to the user
+                  print("Failed to save reminder: \(error)")
+              }
+          }
+      }
 
     @ViewBuilder
     func entryMediaView() -> some View {
@@ -632,123 +637,6 @@ struct EditingEntryView: View {
         }
     }
     
-    
-//    @ViewBuilder
-//    func buttonBar() -> some View {
-//        ScrollView(.horizontal, showsIndicators: false) {
-//            HStack(spacing: 35) {
-//                Button(action: {
-//                    withAnimation() {
-//                        isTextButtonBarVisible.toggle()
-//                    }
-//                }) {
-//                    HStack {
-//                        Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-//                            .font(.system(size: 20))
-//                            .foregroundColor(userPreferences.accentColor)
-//                    }
-//                }
-//
-//                if isTextButtonBarVisible {
-//                    textFormattingButtonBar()
-//                        .padding(.trailing)
-//
-//                }
-//                Spacer()
-//
-//                Button {
-//                    vibration_heavy.impactOccurred()
-//                    entry.isHidden.toggle()
-//                } label: {
-//                    Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                        .foregroundColor(userPreferences.accentColor)
-//                        .opacity(entry.isHidden ? 1 : 0.1)
-//                }
-//
-//                PhotosPicker(selection: $selectedItem, matching: .images) {
-//                    Image(systemName: "photo.fill")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                }
-//                .onChange(of: selectedItem) { _ in
-//                    selectedData = nil
-//                    Task {
-//                        if let data = try? await selectedItem?.loadTransferable(type: Data.self) {
-//                            selectedData = data
-//                            deletePrevMedia = true
-//                            imageHeight = UIScreen.main.bounds.height / 7
-//                        }
-//                    }
-//                }
-//
-//                Image(systemName: "camera.fill")
-//                    .font(.system(size: UIFont.buttonFontSize))
-//                    .onChange(of: selectedImage) { _ in
-//                        selectedData = nil
-//                        Task {
-//                            if let data = selectedImage?.jpegData(compressionQuality: 0.7) {
-//                                selectedData = data
-//                                deletePrevMedia = true
-//                                imageHeight = UIScreen.main.bounds.height / 7
-//                            }
-//                        }
-//                    }
-//                    .onTapGesture {
-//                        vibration_heavy.impactOccurred()
-//                        showCamera = true
-//                    }
-//
-//                Button {
-//                    selectedData = nil
-//                    vibration_heavy.impactOccurred()
-//                    isDocumentPickerPresented = true
-//                } label: {
-//                    Image(systemName: "link")
-//                        .font(.system(size: UIFont.buttonFontSize))
-//                }
-//                .fileImporter(
-//                    isPresented: $isDocumentPickerPresented,
-//                    allowedContentTypes: [UTType.image, UTType.pdf],
-//                    allowsMultipleSelection: false
-//                ) { result in
-//                    switch result {
-//                    case .success(let urls):
-//                        let url = urls[0]
-//                        do {
-//                            if url.startAccessingSecurityScopedResource() {
-//                                let fileData = try Data(contentsOf: url)
-//                                selectedData = fileData
-//
-//                                if isPDF(data: fileData) {
-//                                    selectedPDFLink = url
-//                                }
-//
-//                                deletePrevMedia = true
-//                                url.stopAccessingSecurityScopedResource()
-//                            } else {
-//                                print("Error accessing file")
-//                            }
-//                        } catch {
-//                            print("Error reading file: \(error)")
-//                        }
-//                    case .failure(let error):
-//                        print("Error selecting file: \(error)")
-//                    }
-//                }
-//            }
-//            .padding(.vertical, 10)
-//            .padding(.horizontal, 20)
-//        }
-//        .background {
-//            ZStack {
-//                Color.clear
-//                LinearGradient(colors: [UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))).opacity(0.05), Color.clear], startPoint: .top, endPoint: .bottom)
-//            }
-//            .ignoresSafeArea()
-//        }
-//        .foregroundColor(userPreferences.accentColor)
-//    }
-
 
     @ViewBuilder
     func buttonBar() -> some View {
@@ -987,201 +875,7 @@ struct EditingEntryView: View {
             stopRecognition()
         }
     }
-    
-    func createOrUpdateReminder() {
-        let eventStore = EKEventStore()
-        let combinedDateTime = Calendar.current.date(bySettingHour: Calendar.current.component(.hour, from: selectedTime), minute: Calendar.current.component(.minute, from: selectedTime), second: 0, of: selectedDate) ?? Date()
 
-        eventStore.requestAccess(to: .reminder) { granted, error in
-            guard granted, error == nil else {
-                print("Access to reminders denied or failed.")
-                showingReminderSheet = false
-                return
-            }
-
-            if let reminderId = entry.reminderId, reminderExists(with: reminderId, in: eventStore) {
-                // Existing reminder found, update it
-                editAndSaveReminder(reminderId: reminderId, title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, updatedReminderId in
-                    if success, let updatedReminderId = updatedReminderId {
-                        entry.reminderId = updatedReminderId
-                        print("Reminder updated with identifier: \(updatedReminderId)")
-                    } else {
-                        print("Failed to update the reminder")
-                    }
-                    showingReminderSheet = false
-                }
-            } else {
-                // No existing reminder, create a new one
-                createAndSaveReminder(title: reminderTitle.isEmpty ? "Reminder" : reminderTitle, dueDate: combinedDateTime, recurrenceOption: selectedRecurrence) { success, newReminderId in
-                    if success, let newReminderId = newReminderId {
-                        entry.reminderId = newReminderId
-                        print("New reminder created with identifier: \(newReminderId)")
-                    } else {
-                        print("Failed to create a new reminder")
-                    }
-                    showingReminderSheet = false
-                }
-            }
-        }
-    }
-    
-    func reminderExists(with identifier: String, in eventStore: EKEventStore) -> Bool {
-        if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
-            return true
-        } else {
-            return false
-        }
-    }
-
-
-    
-    func requestReminderAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-//        eventStore.requestAccess(to: .reminder) { granted, error in
-//            DispatchQueue.main.async {
-//                completion(granted)
-//            }
-//        }
-        
-        eventStore.requestFullAccessToReminders { granted, error in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-
-    }
-
-    func editAndSaveReminder(reminderId: String?, title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
-        let eventStore = EKEventStore()
-
-        eventStore.requestFullAccessToReminders { granted, error in
-            guard granted, error == nil else {
-                DispatchQueue.main.async {
-                    completion(false, nil)
-                }
-                return
-            }
-
-            var reminder: EKReminder
-            if let reminderId = reminderId, let existingReminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
-                reminder = existingReminder
-            } else {
-                reminder = EKReminder(eventStore: eventStore)
-                reminder.calendar = eventStore.defaultCalendarForNewReminders()
-            }
-
-            reminder.title = title
-            reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-            if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
-                reminder.recurrenceRules = [recurrenceRule] // Replace existing rules with the new one
-            }
-
-            do {
-                try eventStore.save(reminder, commit: true)
-                DispatchQueue.main.async {
-                    completion(true, reminder.calendarItemIdentifier)
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    completion(false, nil)
-                }
-            }
-        }
-    }
-
-    
-    func createAndSaveReminder(title: String, dueDate: Date, recurrenceOption: String, completion: @escaping (Bool, String?) -> Void) {
-        // Initialize the store.
-        let eventStore = EKEventStore()
-
-        // Request access to reminders.
-        requestReminderAccess { granted in
-            if granted {
-                let reminder = EKReminder(eventStore: eventStore)
-                reminder.calendar = eventStore.defaultCalendarForNewReminders()
-                reminder.title = title
-                reminder.dueDateComponents = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: dueDate)
-                
-                // Set recurrence rule if applicable
-                if let recurrenceRule = createRecurrenceRule(fromOption: recurrenceOption) {
-                    reminder.addRecurrenceRule(recurrenceRule)
-                }
-
-                // Try to save the reminder
-                do {
-                    try eventStore.save(reminder, commit: true)
-                    completion(true, reminder.calendarItemIdentifier) // Return success and the reminder identifier
-                } catch {
-                    completion(false, nil) // Return failure
-                }
-            } else {
-                // Handle the case where permission is not granted
-                completion(false, nil)
-            }
-        }
-    }
-
-
-    
-    func requestCalendarAccess(completion: @escaping (Bool) -> Void) {
-        let eventStore = EKEventStore()
-        eventStore.requestFullAccessToEvents { granted, error in
-            DispatchQueue.main.async {
-                completion(granted)
-            }
-        }
-    }
-
-
-
-    func fetchAndInitializeReminderDetails(reminderId: String?) {
-        guard let reminderId = reminderId, !reminderId.isEmpty else { return }
-
-        let eventStore = EKEventStore()
-        eventStore.requestFullAccessToReminders { granted, error in
-            guard granted, error == nil else {
-                print("Access to reminders denied or failed.")
-                return
-            }
-            
-            DispatchQueue.main.async {
-                if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
-                    // Update title
-                    reminderTitle = reminder.title ?? ""
-                    
-                    // Update date and time if dueDateComponents is available
-                    if let dueDateComponents = reminder.dueDateComponents,
-                       let dueDate = Calendar.current.date(from: dueDateComponents) {
-                        selectedDate = dueDate
-                        selectedTime = dueDate
-                    }
-                    
-                    // Update recurrence option if a recurrence rule is available
-                    if let recurrenceRule = reminder.recurrenceRules?.first,
-                       let recurrenceOption = mapRecurrenceRuleToOption(recurrenceRule) {
-                        selectedRecurrence = recurrenceOption
-                    }
-                }
-            }
-        }
-    }
-    func mapRecurrenceRuleToOption(_ rule: EKRecurrenceRule) -> String? {
-        switch rule.frequency {
-        case .daily:
-            return "Daily"
-        case .weekly:
-            if rule.daysOfTheWeek?.count == 2,
-               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.saturday)) == true,
-               rule.daysOfTheWeek?.contains(EKRecurrenceDayOfWeek(.sunday)) == true {
-                return "Weekends"
-            }
-            return "Weekly"
-        case .monthly:
-            return "Monthly"
-        default:
-            return nil
-        }
-    }
 
 
 }

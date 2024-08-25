@@ -100,7 +100,7 @@ struct RemindersView: View {
             let reminder = reminders[index]
             
             // Delete the reminder from the EventStore
-            deleteReminder(reminder: reminder)
+            reminderManager.deleteReminder(reminder: reminder)
             
             // Find and delete the corresponding Entry from Core Data
             if let entry = entries.first(where: { $0.reminderId == reminder.calendarItemIdentifier }) {
@@ -198,26 +198,36 @@ struct RemindersView: View {
   
 
 
-    private func editReminder(reminder: EKReminder) {
-        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminder.calendarItemIdentifier) {
-            reminderManager.createOrUpdateReminder { success in
-                if success {
-                    print("Reminder updated successfully.")
-                } else {
-                    print("Failed to update the reminder.")
-                }
-            }
-        }
-    }
-
-    private func deleteReminder(reminder: EKReminder) {
-        do {
-            try eventStore.remove(reminder, commit: true)
-            print("Reminder deleted successfully.")
-        } catch {
-            print("Failed to delete the reminder: \(error.localizedDescription)")
-        }
-    }
+//    private func editReminder(reminder: EKReminder) {
+//        // Fetch and initialize the reminder details
+//        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminder.calendarItemIdentifier)
+//        
+//        // Update the reminder with the current manager's properties
+//        reminderManager.createOrUpdateReminder(
+//            reminderId: reminder.calendarItemIdentifier,
+//            title: reminderManager.reminderTitle,
+//            dueDate: reminderManager.selectedReminderDate,
+//            recurrence: reminderManager.selectedRecurrence,
+//            notes: reminder.notes ?? ""
+//        ) { result in
+//            switch result {
+//            case .success(let reminderId):
+//                print("Reminder updated successfully with ID: \(reminderId).")
+//            case .failure(let error):
+//                print("Failed to update the reminder: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+//
+//
+//    private func deleteReminder(reminder: EKReminder) {
+//        do {
+//            try eventStore.remove(reminder, commit: true)
+//            print("Reminder deleted successfully.")
+//        } catch {
+//            print("Failed to delete the reminder: \(error.localizedDescription)")
+//        }
+//    }
 
     private func mapRecurrenceRuleToString(_ rule: EKRecurrenceRule) -> String {
         switch rule.frequency {
