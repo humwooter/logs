@@ -240,10 +240,12 @@ struct TagSelectionPopup: View {
             if currentTags[tag] == false {
                 // Remove the tag from selectedTags if it is no longer selected
                 selectedTags.removeAll { $0 == tag.name }
+                tag.numEntries -= 1
             } else {
                 // Optionally, add the tag to selectedTags if it is selected
                 if let tagName = tag.name {
                     selectedTags.append(tagName)
+                    tag.numEntries += 1
                 }
             }
         }

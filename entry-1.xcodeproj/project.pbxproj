@@ -28,6 +28,7 @@
 		34C43B9B2A9DA51F005C1296 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */; };
 		34FD30242A8CE22C006A70B8 /* entry_1.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30222A8CE22C006A70B8 /* entry_1.xcdatamodeld */; };
 		34FD30262A8DDF13006A70B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34FD30252A8DDF13006A70B8 /* Extensions.swift */; };
+		4A09A6302C7D78FE0029BF1F /* TagViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A09A62F2C7D78FA0029BF1F /* TagViews.swift */; };
 		4A0FF6DA2AFADBCD0078F319 /* ImageViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0FF6D92AFADBCD0078F319 /* ImageViewer.swift */; };
 		4A0FF6DC2AFB8D110078F319 /* LogChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */; };
 		4A143A382B78983B007C55B5 /* PDFReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A143A372B78983A007C55B5 /* PDFReader.swift */; };
@@ -342,6 +343,7 @@
 		34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
 		34FD30252A8DDF13006A70B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		4A09A62F2C7D78FA0029BF1F /* TagViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViews.swift; sourceTree = "<group>"; };
 		4A0FF6D92AFADBCD0078F319 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
 		4A0FF6DB2AFB8D110078F319 /* LogChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogChartView.swift; sourceTree = "<group>"; };
 		4A143A372B78983A007C55B5 /* PDFReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFReader.swift; sourceTree = "<group>"; };
@@ -839,6 +841,7 @@
 		4A81FD3F2C2E2ABC004EC3D2 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				4A09A62F2C7D78FA0029BF1F /* TagViews.swift */,
 				4AFCF99B2B1619A000088460 /* TextView.swift */,
 				34973C182AB7E8E3003C8902 /* EntryContentViews.swift */,
 				4A7264342AEBAFAC0099EA84 /* EntryDetailView.swift */,
@@ -1360,6 +1363,7 @@
 				4A7264432AECECB60099EA84 /* NewEntryView.swift in Sources */,
 				4A8280D02C708E25005AC7BD /* ThemeSheet.swift in Sources */,
 				4A4AFF802B92C57800632C4D /* ButtonViews.swift in Sources */,
+				4A09A6302C7D78FE0029BF1F /* TagViews.swift in Sources */,
 				4ABBEF872AE7BF71005BD78A /* PickerViews.swift in Sources */,
 				4ABB76E82C4A2BDE002782EF /* NewLogDataView.swift in Sources */,
 				34A808292A8A167200B9BB5C /* entry_1App.swift in Sources */,

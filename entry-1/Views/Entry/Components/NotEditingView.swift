@@ -504,25 +504,31 @@ struct NotEditingView_thumbnail: View {
                     }
                 }
         }
+        .foregroundStyle(getTextColor())
         .onChange(of: entry.stampIndex, { oldValue, newValue in
             repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
         })
         .padding()
         .blur(radius: showEntry ? 0 : 7)
     }
-    
-    func getIdealTextColor() -> Color {
-        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
+
+    func getSectionColor() -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        }
+        return userPreferences.entryBackgroundColor
     }
     
+    
     func getTextColor() -> Color {
+        var entryBackground = getSectionColor()
+
+        if entry.stampIndex != -1 {
+            entryBackground = Color(entry.color)
+        }
         // Retrieve the background colors from user preferences
         let background1 = userPreferences.backgroundColors.first ?? Color.clear
         let background2 = userPreferences.backgroundColors[1]
-        let entryBackground = userPreferences.entryBackgroundColor
         
         // Call the calculateTextColor function with these values
         return calculateTextColor(
@@ -595,22 +601,6 @@ struct NotEditingView_thumbnail: View {
         }
     }
     
-    func getTextColor(color: Color) -> Color {
-        // Retrieve the background colors from user preferences
-        let background1 = userPreferences.backgroundColors.first ?? Color.clear
-        let background2 = userPreferences.backgroundColors[1]
-        var entryBackground = userPreferences.entryBackgroundColor
-        if repliedEntry.stampIndex != -1 {
-            entryBackground = color
-        }
-        // Call the calculateTextColor function with these values
-        return calculateTextColor(
-            basedOn: background1,
-            background2: background2,
-            entryBackground: entryBackground,
-            colorScheme: colorScheme
-        )
-    }
     
 //    func getTextColor() -> UIColor { //different implementation since the background will always be default unless
 //        let defaultEntryBackgroundColor =  getDefaultEntryBackgroundColor(colorScheme: colorScheme)

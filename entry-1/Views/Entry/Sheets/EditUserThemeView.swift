@@ -117,6 +117,7 @@ struct EditUserThemeView: View {
                         Spacer()
                         Image(systemName: "pin.fill").foregroundStyle(theme.pinColor)
                     }.font(.system(size: UIFont.systemFontSize))
+                    
                 }
                 
                 Section {

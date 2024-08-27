@@ -110,7 +110,6 @@ struct TextView : View {
                             }
                         
                         tagsView()
-                            .padding(.top)
                             .foregroundStyle(getTextColor().opacity(0.3))
                     }
         
@@ -207,13 +206,13 @@ struct TextView : View {
     func tagsView() -> some View {
         if let tags = entry.tags {
             if !tags.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Divider()
+                VStack(alignment: .leading, spacing: 1) {
+                    Divider().foregroundStyle(getTextColor())
                     
                     FlexibleTagGridView(tags: tags)
+                        .padding(.vertical)
                     
                 }
-                .padding(.vertical, 4)
             } else {
                 EmptyView()
             }
@@ -396,58 +395,5 @@ struct TextView : View {
     }
 
     
-}
-
-struct FlexibleTagGridView: View {
-    let tags: [String]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            FlowLayout(tags: tags)
-        }
-        .padding(.top)
-    }
-}
-
-struct FlowLayout: View {
-    let tags: [String]
-    let spacing: CGFloat = 5
-    
-    var body: some View {
-        var width: CGFloat = 0
-        var lines: [[String]] = [[]]
-        
-        // Group tags into lines that fit within the screen width
-        for tag in tags {
-            let tagWidth = tag.widthOfString(usingFont: .systemFont(ofSize: 10)) + 10 // 20 for padding
-            if width + tagWidth + spacing > UIScreen.main.bounds.width - 32 {
-                width = tagWidth
-                lines.append([tag])
-            } else {
-                lines[lines.count - 1].append(tag)
-                width += tagWidth + spacing
-            }
-        }
-        
-        return VStack(alignment: .leading, spacing: spacing) {
-            ForEach(lines, id: \.self) { line in
-                HStack(spacing: spacing) {
-                    ForEach(line, id: \.self) { tag in
-                        Text("#\(tag)")
-                            .font(.caption)
-                            .cornerRadius(5)
-                            .lineLimit(1)
-                    }
-                }
-            }
-        }
-    }
-}
-
-extension String {
-    func widthOfString(usingFont font: UIFont) -> CGFloat {
-        let fontAttributes = [NSAttributedString.Key.font: font]
-        return self.size(withAttributes: fontAttributes).width
-    }
 }
 

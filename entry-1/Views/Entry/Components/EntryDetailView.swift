@@ -30,7 +30,11 @@ struct EntryDetailView: View { //used in LogDetailView
     @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
 
     var body: some View {
-        finalView()
+        VStack(alignment: .leading) {
+            finalView()
+            tagsView().padding(.vertical ,2)
+                .foregroundStyle(getTextColor().opacity(0.4))
+        }
             .onAppear {
                 showEntry = !entry.isHidden
                 isPinned = entry.isPinned
@@ -88,7 +92,7 @@ struct EntryDetailView: View { //used in LogDetailView
                         entryContentView()
                     }
                 }
-            }.padding(.vertical)
+            }.padding(.top)
         }
     }
     
@@ -168,13 +172,29 @@ struct EntryDetailView: View { //used in LogDetailView
 
                             .background(repliedEntryBackgroundColor)
                             .cornerRadius(15.0)
-                }
+                                    }
                 .onAppear {
                     repliedEntryBackgroundColor = Color(UIColor.backgroundColor(entry: repliedEntry, colorScheme: colorScheme, userPreferences: userPreferences))
 
                 }
                 .frame(maxWidth: UIScreen.main.bounds.width * 0.6)
                 .scaledToFill()
+            }
+        }
+    }
+    
+    
+    @ViewBuilder
+    func tagsView() -> some View {
+        if let tags = entry.tags {
+            if !tags.isEmpty {
+                VStack(alignment: .leading, spacing: 1) {
+                    
+                    FlexibleTagGridView(tags: tags)
+                }
+                    
+            } else {
+                EmptyView()
             }
         }
     }
@@ -292,18 +312,7 @@ struct EntryDetailView: View { //used in LogDetailView
             Image(systemName: "doc.on.doc")
         }
         
-//        Button(action: {
-//            let pdfData = createPDFData_entry(entry: entry)
-//            let tmpURL = FileManager.default.temporaryDirectory.appendingPathComponent("entry.pdf")
-//            try? pdfData.write(to: tmpURL)
-//            let activityVC = UIActivityViewController(activityItems: [tmpURL], applicationActivities: nil)
-//            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-//                let window = windowScene.windows.first
-//                window?.rootViewController?.present(activityVC, animated: true, completion: nil)
-//            }
-//        }, label: {
-//            Label("Share Entry", systemImage: "square.and.arrow.up")
-//        })
+
         
         Button(action: {
             withAnimation(.easeOut) {

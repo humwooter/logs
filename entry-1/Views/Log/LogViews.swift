@@ -561,6 +561,7 @@ struct LogsView: View {
         .listRowBackground(getSectionColor(colorScheme: colorScheme))
         .onAppear {
                     datesModel.addTodayIfNotExists()
+//            datesModel[formattedDate(Date())] = true
                 }
     }
     

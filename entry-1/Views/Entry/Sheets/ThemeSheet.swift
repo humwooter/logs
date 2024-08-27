@@ -749,7 +749,7 @@ struct CurrentThemeEditView: View {
                     
                         .font(.system(size: UIFont.systemFontSize))
                     Spacer()
-                    Image(systemName: "pin.fill").foregroundStyle(userPreferences.pinColor)
+                    Image(systemName: "pin.fill").foregroundStyle(pinColor)
                 }.font(.system(size: UIFont.systemFontSize))
             }
             
@@ -762,7 +762,7 @@ struct CurrentThemeEditView: View {
                     
                         .font(.system(size: UIFont.systemFontSize))
                     Spacer()
-                    Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
+                    Image(systemName: "bell.fill").foregroundStyle(reminderColor)
                 }.font(.system(size: UIFont.systemFontSize))
             }
         }
