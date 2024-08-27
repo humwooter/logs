@@ -177,7 +177,7 @@ struct ThemeSheet: View {
 //        Spacer()
 //    }
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-            ForEach(additionalThemes) { theme in
+            ForEach(refinedThemes) { theme in
                 themeView(theme: theme, userTheme: nil, isCurrentTheme: false)
                         .contextMenu {
                         Button("Apply") {
@@ -248,7 +248,7 @@ struct ThemeSheet: View {
     }
     @ViewBuilder
     func themeView(theme: Theme, userTheme: UserTheme?, isCurrentTheme: Bool) -> some View {
-        VStack {
+        return VStack {
             HStack {
                 Spacer()
                 Menu {
@@ -302,8 +302,8 @@ struct ThemeSheet: View {
                                 .fill(theme.accentColor)
                                 .frame(width: 10, height: 10)
                             Text("accent")
-                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
-                            
+                                .foregroundStyle(getBackgroundTextColor())
+
                         }
                         
                         HStack(spacing: 8) {
@@ -311,8 +311,7 @@ struct ThemeSheet: View {
                                 .foregroundStyle(theme.pinColor)
                                 .frame(width: 10, height: 10)
                             Text("pin")
-                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
-                            
+                                .foregroundStyle(getBackgroundTextColor())
                         }
                         
                         HStack(spacing: 8) {
@@ -320,8 +319,8 @@ struct ThemeSheet: View {
                                 .foregroundStyle(theme.reminderColor)
                                 .frame(width: 10, height: 10)
                             Text("reminder")
-                                .foregroundStyle(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme))
-                            
+                                .foregroundStyle(getBackgroundTextColor())
+
                         }
                     }
                     .font(.custom(theme.fontName, size: theme.fontSize))
@@ -334,6 +333,10 @@ struct ThemeSheet: View {
         }
         .frame(maxWidth: 150, maxHeight: 250)
         
+        func getBackgroundTextColor() -> Color {
+            return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(theme.topColor), and: UIColor(theme.bottomColor))))
+        }
+        
     }
     
     func getThemeBackground(topColor: Color, bottomColor: Color) -> [Color] {
@@ -343,6 +346,8 @@ struct ThemeSheet: View {
         } else { return [topColor, bottomColor] }
 
     }
+    
+
 }
 
 
@@ -615,14 +620,13 @@ struct CurrentThemeEditView: View {
     @State private var pinColor: Color = Color.clear
     @State private var reminderColor: Color = Color.clear
     @Environment(\.colorScheme) var colorScheme
+    @State var hasInitialized: Bool = false
 
     var body : some View {
        
         NavigationStack {
             mainThemeView()
-                .onAppear {
-                    initializeProperties()
-                }
+           
                 .toolbar {
                     Button {
                         saveProperties()
@@ -632,6 +636,11 @@ struct CurrentThemeEditView: View {
                     }
 
                 }
+        }
+        .onAppear {
+            if !hasInitialized {
+                initializeProperties()
+            }
         }
     }
     
@@ -646,6 +655,7 @@ struct CurrentThemeEditView: View {
         userPreferences.pinColor = pinColor
         userPreferences.reminderColor = reminderColor
         presentationMode.wrappedValue.dismiss()
+        hasInitialized = true
 
     }
 
@@ -678,7 +688,7 @@ struct CurrentThemeEditView: View {
                 
                 HStack {
                     Text("Theme name: ")
-                    TextField("", text: $name, prompt: Text("Enter theme name: "))
+                    TextField("", text: $name)
                         .textFieldStyle(PlainTextFieldStyle())
                         .foregroundStyle(getIdealTextColor(topColor: backgroundColor_top, bottomColor: backgroundColor_bottom, colorScheme: colorScheme))
                     Spacer()
@@ -693,7 +703,7 @@ struct CurrentThemeEditView: View {
             }
             
             Section {
-                BackgroundColorPickerView(topColor: $userPreferences.backgroundColors[0], bottomColor: $userPreferences.backgroundColors[1])
+                BackgroundColorPickerView(topColor: $backgroundColor_top, bottomColor: $backgroundColor_bottom)
             } header: {
                 
                 HStack {
@@ -756,6 +766,8 @@ struct CurrentThemeEditView: View {
                 }.font(.system(size: UIFont.systemFontSize))
             }
         }
+        .font(.custom(String(fontName), size: CGFloat(Float(fontSize))))
+        .scrollContentBackground(.hidden)
         .background {
             ZStack {
                 Color(UIColor.systemGroupedBackground)
@@ -763,9 +775,7 @@ struct CurrentThemeEditView: View {
             }
             .ignoresSafeArea()
         }
-        .scrollContentBackground(.hidden)
         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor_top), colorScheme: colorScheme)))
-        .font(.custom(String(fontName), size: CGFloat(Float(fontSize))))
         .accentColor(accentColor)
     }
 }

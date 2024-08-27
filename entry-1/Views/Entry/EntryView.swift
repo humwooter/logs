@@ -24,11 +24,11 @@ struct EntryView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
     @EnvironmentObject var datesModel: DatesModel
 
-    @FetchRequest(
-        entity: Log.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
-        predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
-    ) var logs: FetchedResults<Log>
+//    @FetchRequest(
+//        entity: Log.entity(),
+//        sortDescriptors: [NSSortDescriptor(keyPath: \Log.day, ascending: true)],
+//        predicate: NSPredicate(format: "day == %@", formattedDate(Date()))
+//    ) var logs: FetchedResults<Log>
 //    @FetchRequest(
 //        entity: Entry.entity(),
 //        sortDescriptors: [NSSortDescriptor(keyPath: \Entry.time, ascending: true)],
@@ -148,20 +148,20 @@ struct EntryView: View {
     
     
     func updateFetchRequests() {
-        let currentDay = formattedDate(Date())
-        print("current day: \(currentDay)")
-        logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
-        if let log = logs.first {
-            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
-        }
-        else {
-            let dateStringManager = DateStrings()
-            let newLog = Log(context: coreDataManager.viewContext)
-            newLog.day = currentDay
-            dateStringManager.addDate(currentDay)
-            newLog.id = UUID()
-            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
-        }
+//        let currentDay = formattedDate(Date())
+//        print("current day: \(currentDay)")
+//        logs.nsPredicate = NSPredicate(format: "day == %@", currentDay)
+//        if let log = logs.first {
+//            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", log)
+//        }
+//        else {
+//            let dateStringManager = DateStrings()
+//            let newLog = Log(context: coreDataManager.viewContext)
+//            newLog.day = currentDay
+//            dateStringManager.addDate(currentDay)
+//            newLog.id = UUID()
+//            entries.nsPredicate = NSPredicate(format: "relationship == %@ OR isPinned == true", newLog)
+//        }
     }
     
     func deleteRow(at indexSet: IndexSet) {

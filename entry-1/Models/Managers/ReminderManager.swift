@@ -215,6 +215,15 @@ class ReminderManager: ObservableObject {
             return "None"
         }
     }
+    
+    func reminderExists(with identifier: String) -> Bool {
+        if let _ = eventStore.calendarItem(withIdentifier: identifier) as? EKReminder {
+            return true
+        } else {
+            return false
+        }
+    }
+
 }
 
 enum ReminderError: Error {

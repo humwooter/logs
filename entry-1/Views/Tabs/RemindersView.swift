@@ -157,10 +157,10 @@ struct RemindersView: View {
         VStack(alignment: .leading, spacing: 10) {
             // Reminder Title and Date
             HStack {
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Text(reminder.title ?? "Untitled Reminder")
-                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize)).bold()
                             .foregroundColor(getTextColor(entry: entry))
                         Spacer()
                         if reminder.isCompleted {
@@ -173,18 +173,18 @@ struct RemindersView: View {
                     if let dueDate = reminder.dueDateComponents?.date {
                         Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
                             .font(.subheadline)
-                            .foregroundColor(getTextColor(entry: entry))
+                            .foregroundColor(getTextColor(entry: entry).opacity(0.3))
                     }
                     
                     // Display recurrence information
                     if let recurrenceRule = reminder.recurrenceRules?.first {
                                         HStack {
-                                            Text("Repeats: \(mapRecurrenceRuleToString(recurrenceRule))")
-                                                .font(.caption)
-                                                .foregroundColor(getTextColor(entry: entry))
-                                            
-
+                                            Image(systemName: "repeat")
+                                            Text("\(mapRecurrenceRuleToString(recurrenceRule))")
+                                            Spacer()
                                         }
+                                                .foregroundStyle(userPreferences.accentColor)
+                                                .font(.caption)
                                     }
                 
                 }

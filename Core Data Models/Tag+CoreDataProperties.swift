@@ -18,7 +18,7 @@ extension Tag {
     @NSManaged public var id: UUID?
     @NSManaged public var name: String?
     @NSManaged public var numEntries: Int16
-    @NSManaged public var entryNames: [String]
+    @NSManaged public var entryIds: [String]
 
 }
 

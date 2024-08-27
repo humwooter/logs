@@ -128,7 +128,7 @@ class UserPreferences: ObservableObject, Codable {
                self.fontSize = preferences.fontSize
                self.lineSpacing = preferences.lineSpacing
                self.fontName = preferences.fontName
-//               self.stamps = preferences.stamps //don't update stamps for now
+               self.stamps = preferences.stamps //don't update stamps for now
                self.stampStorage = preferences.stampStorage
                self.activeAppIcon = preferences.activeAppIcon
            }
@@ -458,15 +458,15 @@ extension UserDefaults {
     func saveStamps(stamps: [Stamp], forKey key: String) {
         let idStrings = stamps.map { $0.id.uuidString }
         let names = stamps.map { $0.name }
+        let indices = stamps.map { $0.index }
         let uiColors = stamps.map { UIColor($0.color) }
         let imageNames = stamps.map { $0.imageName }
         let isActive = stamps.map { $0.isActive }
         
         let colorData = uiColors.compactMap { try? NSKeyedArchiver.archivedData(withRootObject: $0, requiringSecureCoding: false) }
         
-        set([idStrings, names, colorData, imageNames, isActive], forKey: key)
+        set([idStrings, names, indices, colorData, imageNames, isActive], forKey: key)
     }
-    
     
     
     func loadStamps(forKey key: String) -> [Stamp]? {

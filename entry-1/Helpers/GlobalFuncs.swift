@@ -126,6 +126,7 @@ func calculateTextColor(
     
     // Further blend this base with the entry background
     let blendedBackground = UIColor.averageColor(of: blendedBackground_base, and: uiEntryBackground)
+//    return Color(uiBackground2)
     
     // Determine the appropriate font color based on the blended background
     return Color(UIColor.fontColor(forBackgroundColor: blendedBackground, colorScheme: colorScheme))
@@ -351,6 +352,23 @@ func deleteOldEntries() {
         try mainContext.save()
     } catch let error {
         print("Failed to delete old entries: \(error)")
+    }
+}
+
+
+func deleteAllTags() {
+    let mainContext = CoreDataManager.shared.viewContext
+    let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+    
+    do {
+        let allTags = try mainContext.fetch(fetchRequest)
+        for tag in allTags {
+            mainContext.delete(tag)
+        }
+        try mainContext.save()
+        print("Successfully deleted all tags.")
+    } catch let error {
+        print("Failed to delete all tags: \(error)")
     }
 }
 

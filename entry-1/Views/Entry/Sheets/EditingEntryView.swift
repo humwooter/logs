@@ -65,7 +65,6 @@ struct EditingEntryView: View {
     @State private var selectedTime = Date()
     @State private var selectedRecurrence = "None"
     @State private var reminderTitle: String = ""
-    @State private var reminderId: String?
     @State private var hasReminderAccess = false
     @State private var dateUpdated = false
     @State var repliedEntryBackgroundColor: Color = Color.clear
@@ -73,7 +72,13 @@ struct EditingEntryView: View {
     // Define your recurrence options
     let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
-    
+    @State private var selectedTags: [String] = []
+    @State private var entryName: String = ""
+    @State private var showTagSelection = false
+     @State private var showEntryNameSelection = false
+    let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
+    @State private var currentTags: [Tag: Bool] = [:]
+
     var body : some View {
         NavigationStack {
             VStack {
@@ -84,7 +89,9 @@ struct EditingEntryView: View {
      buttonBars()
             }
             .onAppear {
-                if let reminderId = reminderId {
+                entryName = entry.title ?? ""
+                selectedTags = entry.tags ?? []
+                if let reminderId = entry.reminderId {
                     reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
                 print("ENTRY: \(entry)")
@@ -113,46 +120,6 @@ struct EditingEntryView: View {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
                 
             }
-            .sheet(isPresented: $showingDatePicker) {
-                
-                    VStack {
-                        HStack {
-                            Button("Cancel") {
-                                showingDatePicker = false
-                            }.foregroundStyle(.red)
-                            Spacer()
-                            Button("Done") {
-                                // Perform the action when the date is selected
-                                showingDatePicker = false
-                                dateUpdated = true
-                            }.foregroundStyle(Color(UIColor.label))
-                        }
-                        .font(.system(size: UIFont.buttonFontSize))
-                        .padding()
-                    }
-                List {
-
-                    DatePicker("Edit Date", selection: $selectedDate)
-                        .presentationDetents([.fraction(0.25)])
-                        .font(.system(size: UIFont.systemFontSize))
-                        .foregroundColor(userPreferences.accentColor)
-                        .padding(.horizontal)
-                    
-                    
-                    
-                }.navigationTitle("Select Custom Date")
-            }
-            .sheet(isPresented: $showingReminderSheet) {
-   reminderSheet()
-
-                
-                    .onAppear {
-                        if let reminderId = reminderId {
-                            reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
-                        }
-                        reminderManager.requestReminderAccess { _ in }
-                    }
-            }
             .navigationBarTitle("Editing Entry")
             .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
@@ -161,7 +128,15 @@ struct EditingEntryView: View {
                     
                   
                     HStack {
+                        
                         Menu("", systemImage: "ellipsis.circle") {
+                            
+                            Button {
+                                showEntryNameSelection = true
+                            } label: {
+                                Label("Add Name", systemImage: "pencil")
+                            }
+                            
                             Button {
                                 showingDatePicker.toggle()
 
@@ -175,7 +150,15 @@ struct EditingEntryView: View {
                             } label: {
                                 Label("Set Reminder", systemImage: "bell.fill")
                             }
+                            
+                            Button {
+                                showTagSelection = true
+                            } label: {
+                                Label("Add tag", systemImage: "tag")
+                            }
                         }
+                        .font(.customHeadline)
+
                      
                         Button(action: {
                             vibration_heavy.impactOccurred()
@@ -183,7 +166,7 @@ struct EditingEntryView: View {
                             focusField = false
                         }) {
                             Text("Done").bold()
-//                                .font(.system(size: 15))
+                                .font(.customHeadline)
                                 .foregroundColor(userPreferences.accentColor)
                         }
                     }
@@ -194,12 +177,77 @@ struct EditingEntryView: View {
                         cancelEdit() // Function to discard changes
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 0.9*UIFont.buttonFontSize))
+                            .font(.customHeadline)
                     }
                 }
             }
-            .font(.system(size: UIFont.buttonFontSize))
+            .font(.customHeadline)
         }
+        .overlay(
+            CustomPopupView(isPresented: $showingDatePicker, title:
+                                "Edit Date", onSave: {
+                // Dismiss the view
+                                    showingDatePicker = false
+                                    dateUpdated = true
+            }) {
+                DateEditPopupView(selectedDate: $selectedDate)
+                    .environmentObject(userPreferences)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showingReminderSheet, title:
+                                entry.reminderId?.isEmpty == true ? "Reminder" : "Edit Reminder", onSave: {
+                // Dismiss the view
+//                    showingReminderSheet = false
+                // Then save the reminder
+                    saveReminder()
+            }) {
+                ReminderPopupView(
+                    isPresented: $showingReminderSheet,
+                    reminderTitle: $reminderManager.reminderTitle,
+                    selectedReminderDate: $reminderManager.selectedReminderDate,
+                    selectedReminderTime: $reminderManager.selectedReminderTime,
+                    selectedRecurrence: $reminderManager.selectedRecurrence,
+                    reminderNotes: $entry.content,
+                    reminderId: $entry.reminderId,
+                    showingReminderSheet: $showingReminderSheet,
+                    showDeleteReminderAlert: $showDeleteReminderAlert,
+                    reminderManager: reminderManager
+                )
+                .onAppear {
+                    if let reminderId = entry.reminderId {
+                        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
+                    } else {
+                        entry.reminderId = UUID().uuidString
+                    }
+                    reminderManager.requestReminderAccess { _ in }
+                }
+            }
+        )
+        
+        .overlay(
+            CustomPopupView(isPresented: $showTagSelection, height: 300, title: "Select Tags", onSave: {
+                // Dismiss the view
+//                showTagSelection = false
+                // Then save the tags
+                    saveSelectedTags()
+            }) {
+                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entry.id, selectedTags: $selectedTags, currentTags: $currentTags)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showEntryNameSelection, title: (entry.title?.isEmpty == true ? "Entry Title" : entry.title) ?? "Entry Title", onSave: {
+                // Dismiss the view
+                showEntryNameSelection = false
+
+            }) {
+                EntryNamePopup(isPresented: $showEntryNameSelection, entryName: $entryName)
+                    .environmentObject(userPreferences)
+            }
+        )
    
         .onTapGesture {
             focusField = true
@@ -255,6 +303,7 @@ struct EditingEntryView: View {
             if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+                
             }
 
             if (entry.isPinned) {
@@ -262,7 +311,7 @@ struct EditingEntryView: View {
 
             }
         }
-        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+        .font(.buttonSize)
 
     }
     
@@ -295,6 +344,10 @@ struct EditingEntryView: View {
         }
     }
 
+    private func saveSelectedTags() {
+        entry.tags = selectedTags
+    }
+    
     func getIdealTextColor() -> Color {
         var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
         return Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor)))
@@ -311,7 +364,7 @@ struct EditingEntryView: View {
                 }) {
                     HStack {
                         Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-                            .font(.system(size: 20))
+                            .font(.buttonSize)
                             .foregroundColor(userPreferences.accentColor)
                             .padding()
                     }
@@ -343,7 +396,7 @@ struct EditingEntryView: View {
                     .padding(.horizontal)
             }
         }
-        .font(.system(size: UIFont.buttonFontSize))
+        .font(.buttonSize)
     }
     
 
@@ -395,39 +448,36 @@ struct EditingEntryView: View {
         }
     }
     
-    
     @ViewBuilder
     func reminderSheet() -> some View {
         NavigationStack {
-            if hasReminderAccess {
+            if reminderManager.hasReminderAccess {
                 List {
                     Section {
-                        TextField("Title", text: $reminderTitle)
+                        TextField("Title", text: $reminderManager.reminderTitle)
                             .background(Color.clear) // Set the background to clear
-                               .textFieldStyle(PlainTextFieldStyle()) // Use
+                            .textFieldStyle(PlainTextFieldStyle())
                             .frame(maxWidth: .infinity)
                             .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-
                     }
+                    
                     Section {
-                        DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
-                        DatePicker("Time", selection: $selectedTime, displayedComponents: .hourAndMinute)
-
+                        DatePicker("Date", selection: $reminderManager.selectedReminderDate, displayedComponents: .date)
+                        DatePicker("Time", selection: $reminderManager.selectedReminderTime, displayedComponents: .hourAndMinute)
                     }
                     .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                     .accentColor(userPreferences.accentColor)
-
+                    
                     NavigationLink {
                         List {
-                            Picker("Recurrence", selection: $selectedRecurrence) {
-                                ForEach(recurrenceOptions, id: \.self) { option in
+                            Picker("Recurrence", selection: $reminderManager.selectedRecurrence) {
+                                ForEach(reminderManager.recurrenceOptions, id: \.self) { option in
                                     Text(option).tag(option)
                                 }
                             }
-                            .font(.system(size: 15))
+                            .font(.customHeadline)
                             .pickerStyle(.inline)
                             .accentColor(userPreferences.accentColor)
-
                         }
                     } label: {
                         Label("Repeat", systemImage: "repeat")
@@ -437,19 +487,17 @@ struct EditingEntryView: View {
                     .accentColor(userPreferences.accentColor)
                     
                     Section {
-              
-                        
                         Button {
-                            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
-                                completeReminder(reminderId: reminderId) { success, error in
-                                    if success {
+                            if let reminderId = entry.reminderId, reminderManager.reminderExists(with: reminderId) {
+                                reminderManager.deleteReminder(reminderId: reminderId) { result in
+                                    switch result {
+                                    case .success:
                                         print("Reminder completed successfully.")
                                         entry.reminderId = ""
-                                    } else {
-                                        print("Failed to complete the reminder: \(String(describing: error))")
+                                    case .failure(let error):
+                                        print("Failed to complete the reminder: \(error.localizedDescription)")
                                     }
                                 }
-                                print("Reminder completed")
                                 showingReminderSheet = false
                             }
                         } label: {
@@ -463,55 +511,60 @@ struct EditingEntryView: View {
                             Label("Delete", systemImage: "trash")
                                 .foregroundColor(.red)
                         }
-
                     }
                 }
-                    
                 .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
-                          Button("Delete", role: .destructive) {
-                              // Call your delete reminder function here
-                              deleteReminder(reminderId: entry.reminderId)
-                              showingReminderSheet = false
-                          }
-                          Button("Cancel", role: .cancel) {}
-                      } message: {
-                          Text("This action cannot be undone.")
-                      }
-                
-                .background {
-                        ZStack {
-                            Color(UIColor.systemGroupedBackground)
-                                .ignoresSafeArea()
+                    Button("Delete", role: .destructive) {
+                        if let reminderId = entry.reminderId {
+                            reminderManager.deleteReminder(reminderId: reminderId) { result in
+                                switch result {
+                                case .success:
+                                    print("Reminder deleted successfully.")
+                                case .failure(let error):
+                                    print("Failed to delete reminder: \(error.localizedDescription)")
+                                }
+                            }
                         }
+                        showingReminderSheet = false
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("This action cannot be undone.")
+                }
+                .background {
+                    ZStack {
+                        Color(UIColor.systemGroupedBackground)
+                            .ignoresSafeArea()
+                    }
                 }
                 .scrollContentBackground(.hidden)
                 .font(.system(size: UIFont.buttonFontSize))
-                .navigationTitle("Set Reminder")
                 .navigationBarTitleDisplayMode(.automatic)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
-                            showingReminderSheet = false
-                        }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            saveReminder()
-                        }
-
-                    }
-                }
-                .font(.system(size: UIFont.buttonFontSize))
+//                .toolbar {
+//                    ToolbarItem(placement: .navigationBarLeading) {
+//                        Button("Cancel") {
+//                            showingReminderSheet = false
+//                        }
+//                    }
+//                    ToolbarItem(placement: .navigationBarTrailing) {
+//                        Button("Done") {
+//                            saveReminder()
+//                            showingReminderSheet = false
+//                        }
+//                    }
+//                }
+//                .font(.system(size: UIFont.buttonFontSize))
                 .padding()
             } else {
                 Text("Reminder Permissions Disabled")
+                    .foregroundColor(.gray)
             }
         }
     }
     
     private func saveReminder() {
           reminderManager.createOrUpdateReminder(
-              reminderId: reminderId, // or the specific ID if editing an existing reminder
+            reminderId: entry.reminderId, // or the specific ID if editing an existing reminder
               title: reminderManager.reminderTitle,
               dueDate: reminderManager.selectedReminderDate,
               recurrence: reminderManager.selectedRecurrence,
@@ -589,7 +642,7 @@ struct EditingEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
-                    .font(.system(size: UIFont.buttonFontSize))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -599,7 +652,7 @@ struct EditingEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: UIFont.buttonFontSize))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -609,7 +662,7 @@ struct EditingEntryView: View {
                 self.textEditorViewModel.textToInsert = "\n"
             }) {
                 Image(systemName: "return")
-                    .font(.system(size: UIFont.buttonFontSize))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -646,7 +699,7 @@ struct EditingEntryView: View {
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             Spacer()
         
@@ -654,14 +707,16 @@ struct EditingEntryView: View {
                 vibration_heavy.impactOccurred()
                 entry.isHidden.toggle()
             } label: {
-                Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
+                Image(systemName: entry.isHidden ? "eye.slash.fill" : "eye.fill")
+                    .font(.buttonSize)
+                    .foregroundColor(userPreferences.accentColor).opacity(entry.isHidden ? 1 : 0.1)
             }
             
             
             PhotosPicker(selection:$selectedItem, matching: .images) {
                 Image(systemName: "photo.fill")
-                    .font(.system(size: 20))
-                
+                    .font(.buttonSize)
+
             }
             .onChange(of: selectedItem) { _ in
                 selectedData = nil
@@ -676,7 +731,7 @@ struct EditingEntryView: View {
 
             
             Image(systemName: "camera.fill")
-                .font(.system(size: 20))
+                .font(.buttonSize)
                 .onChange(of: selectedImage) { _ in
                     selectedData = nil
                     Task {
@@ -698,7 +753,7 @@ struct EditingEntryView: View {
                 isDocumentPickerPresented = true
             } label: {
                 Image(systemName: "link")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,
@@ -768,8 +823,16 @@ struct EditingEntryView: View {
                       entry.logId = log.id
 //                      log.addToRelationship(entry)
                   } else {
-                      createLog(date: selectedDate, coreDataManager: coreDataManager)
+//                      createLog(date: selectedDate, coreDataManager: coreDataManager)
                   }
+              }
+              
+              if entryName.isEmpty == false {
+                  entry.title = entryName
+              }
+              
+              if selectedTags.isEmpty == false {
+                  entry.tags = selectedTags
               }
               
               if dateUpdated {

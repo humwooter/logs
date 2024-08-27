@@ -59,6 +59,7 @@ struct NewEntryView: View {
     @State private var isTextButtonBarVisible: Bool = false
     @State private var cursorPosition: NSRange? = nil
     @StateObject private var reminderManager = ReminderManager()
+    @State private var currentTags: [Tag: Bool] = [:]
 
     @State private var selectedDate : Date = Date()
     @State private var selectedTime = Date()
@@ -88,6 +89,8 @@ struct NewEntryView: View {
     
     @State private var showingEntryTitle = false
     @State private var entryTitle: String = ""
+    @State private var entryId: UUID = UUID()
+
     @State private var tempEntryTitle: String = ""
     
     @State private var selectedTags: [String] = []
@@ -107,7 +110,8 @@ struct NewEntryView: View {
                             Spacer()
                             if let reminderId = self.reminderId, !reminderId.isEmpty {
                                 Image(systemName: "bell.fill").foregroundStyle(userPreferences.reminderColor)
-                                    .font(.system(size: 15))
+                                    .font(.buttonSize)
+//                                    .font(.system(size: 15))
                                     .padding(.horizontal)
                             }
                         }
@@ -179,29 +183,8 @@ struct NewEntryView: View {
                             } label: {
                                 Label("Add tag", systemImage: "tag")
                             }
-                        }
-
-                        .sheet(isPresented: $showingDatePicker) {
-                            dateEditSheet()
-                        }
-//                        .sheet(isPresented: $showingReminderSheet) {
-//                            reminderSheet()
-//                            .onAppear {
-//                                if let reminderId = reminderId {
-//                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
-//                                }
-//                                requestReminderAccess { granted in
-//                                    if granted {
-//                                        hasReminderAccess = true
-//                                        print("Access to reminders granted.")
-//                                    } else {
-//                                        hasReminderAccess = false
-//                                        print("Access to reminders denied or failed.")
-//                                    }
-//                                }
-//                            }
-//                        }
-
+                        }.font(.customHeadline)
+                      
             
                         Button(action: {
                             vibration_heavy.impactOccurred()
@@ -212,58 +195,95 @@ struct NewEntryView: View {
                             keyboardHeight = 0
                         }) {
                             Text("Done")
-//                                .font(.system(size: 15))
                                 .foregroundColor(userPreferences.accentColor)
+                                .font(.customHeadline)
                         }
                     }
                 }
+                
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         vibration_heavy.impactOccurred()
+                        //delete any reminders if set:
+                        // Delete any reminders if set:
+                        reminderManager.deleteReminder(reminderId: reminderId ?? "") { result in
+                            switch result {
+                            case .success:
+                                // Handle successful deletion, e.g., clear the reminderId or show a confirmation message
+                                print("Reminder successfully deleted.")
+                                self.reminderId = nil // Optionally clear the reminderId if it was deleted
+                            case .failure(let error):
+                                // Handle the error, e.g., show an alert or log the error
+                                print("Failed to delete reminder: \(error.localizedDescription)")
+                                // You could also present an alert to the user here if needed
+                            }
+                        }
+
                         presentationMode.wrappedValue.dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-//                            .font(.system(size: 15))
+                            .font(.customHeadline)
+//                            .font(.
                     }
                 }
             }
-            .font(.system(size: UIFont.systemFontSize))
-   
+            .font(.customHeadline)
+
         }
         .overlay(
-            CustomPopupView(isPresented: $showTagSelection, height: 300) {
-                      TagSelectionPopup(isPresented: $showTagSelection, selectedTags: $selectedTags, availableTags: availableTags)
+            CustomPopupView(isPresented: $showingDatePicker, height: 300, title:
+                                "Edit Date", onSave: {
+                // Dismiss the view
+                                    showingDatePicker = false
+            }) {
+                DateEditPopupView(selectedDate: $selectedDate)
                     .environmentObject(userPreferences)
-                  }
-              )
-              .overlay(
-                CustomPopupView(isPresented: $showEntryNameSelection, height: 50) {
-                      EntryNamePopup(isPresented: $showEntryNameSelection, entryName: $entryTitle)
-                        .environmentObject(userPreferences)
-                  }
-              )
-              .overlay(
-                      CustomPopupView(isPresented: $showingReminderSheet, content: {
-                          ReminderPopupView(
-                              isPresented: $showingReminderSheet,
-                              reminderTitle: $reminderManager.reminderTitle,
-                              selectedReminderDate: $reminderManager.selectedReminderDate,
-                              selectedReminderTime: $reminderManager.selectedReminderTime,
-                              selectedRecurrence: $reminderManager.selectedRecurrence,
-                              reminderNotes: $entryContent,
-                              reminderId: $reminderId,
-                              showingReminderSheet: $showingReminderSheet,
-                              showDeleteReminderAlert: $showDeleteReminderAlert,
-                            reminderManager: reminderManager
-                          )
-                          .onAppear {
-                              if let reminderId = reminderId {
-                                  reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
-                              }
-                              reminderManager.requestReminderAccess { _ in }
-                          }
-                      })
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showTagSelection, title: "Select Tags", onSave: {
+                // Dismiss the view
+                showTagSelection = false
+                // Then save the tags
+                    saveSelectedTags()
+            }) {
+                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entryId, selectedTags: $selectedTags, currentTags: $currentTags)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showEntryNameSelection, title: entryTitle.isEmpty ? "Entry Title" : entryTitle, onSave: {
+                // Dismiss the view
+                showEntryNameSelection = false
+
+            }) {
+                EntryNamePopup(isPresented: $showEntryNameSelection, entryName: $entryTitle)
+                    .environmentObject(userPreferences)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showingReminderSheet, title: "Reminder", onSave: {
+                // Dismiss the view
+//                showingReminderSheet = false
+                // Then save the reminder
+                    saveReminder()
+            }) {
+                ReminderPopupView(
+                    isPresented: $showingReminderSheet,
+                    reminderTitle: $reminderManager.reminderTitle,
+                    selectedReminderDate: $reminderManager.selectedReminderDate,
+                    selectedReminderTime: $reminderManager.selectedReminderTime,
+                    selectedRecurrence: $reminderManager.selectedRecurrence,
+                    reminderNotes: $entryContent,
+                    reminderId: $reminderId,
+                    showingReminderSheet: $showingReminderSheet,
+                    showDeleteReminderAlert: $showDeleteReminderAlert,
+                    reminderManager: reminderManager
                 )
+
+            }
+        )
         .onTapGesture {
             focusField = true
             keyboardHeight = UIScreen.main.bounds.height/3
@@ -271,24 +291,42 @@ struct NewEntryView: View {
        
     }
     
+    private func saveSelectedTags() {
+        for (tag, isSelected) in currentTags {
+            if isSelected == true {
+                if let tagName = tag.name {
+                    selectedTags.append(tagName)
+                }
+            }
+        }
+    }
+    
     private func saveReminder() {
-          reminderManager.createOrUpdateReminder(
-              reminderId: reminderId, // or the specific ID if editing an existing reminder
-              title: reminderManager.reminderTitle,
-              dueDate: reminderManager.selectedReminderDate,
-              recurrence: reminderManager.selectedRecurrence,
-              notes: "" // Any notes you want to add
-          ) { result in
-              switch result {
-              case .success(let reminderId):
-                  // Handle successful save, e.g., save reminderId to your data model
-                  print("Reminder saved with ID: \(reminderId)")
-              case .failure(let error):
-                  // Handle error, e.g., show an alert to the user
-                  print("Failed to save reminder: \(error)")
-              }
-          }
-      }
+        if reminderId == nil {
+            reminderId = UUID().uuidString
+        }
+        reminderManager.createOrUpdateReminder(
+            reminderId: reminderId,
+            title: reminderManager.reminderTitle,
+            dueDate: reminderManager.selectedReminderDate,
+            recurrence: reminderManager.selectedRecurrence,
+            notes: ""
+        ) { result in
+            switch result {
+            case .success(let savedReminderId):
+                DispatchQueue.main.async {
+                    self.reminderId = savedReminderId
+                    print("Reminder saved with ID: \(savedReminderId)")
+//                    self.updateNewEntryWithReminderId(savedReminderId)
+                }
+            case .failure(let error):
+                print("Failed to save reminder: \(error)")
+                DispatchQueue.main.async {
+                    self.reminderId = nil
+                }
+            }
+        }
+    }
   
     
     @ViewBuilder
@@ -346,7 +384,7 @@ struct NewEntryView: View {
                 }) {
                     HStack {
                         Image(systemName: isTextButtonBarVisible ? "chevron.left" : "text.justify.left")
-                            .font(.system(size: 20))
+                            .font(.buttonSize)
                             .foregroundColor(userPreferences.accentColor)
                             .padding()
                     }
@@ -365,24 +403,6 @@ struct NewEntryView: View {
     @ViewBuilder
     func textFieldView() -> some View {
         VStack(alignment: .leading) {
-            ZStack {
-//                if entryTitle.isEmpty {
-//                    VStack {
-//                        HStack {
-//                            Text("Title...")
-//                                .foregroundColor(.gray)
-//                                .padding(.leading, 20)
-//                            Spacer()
-//                        }
-//                        Spacer()
-//                    }
-//                }
-//                TextField("Title", text: $entryTitle)
-//                    .padding()
-//                    .background(Color(UIColor.systemGroupedBackground))
-//                    .cornerRadius(8)
-            }
-            
             ZStack {
                 if entryContent.isEmpty {
                     VStack {
@@ -422,146 +442,6 @@ struct NewEntryView: View {
             finalizeCreation()
         }
     }
-
-    @ViewBuilder
-    func dateEditSheet() -> some View {
-        VStack {
-            HStack {
-                Button("Cancel") {
-                    showingDatePicker = false
-                }.foregroundStyle(.red)
-                Spacer()
-                Button("Done") {
-                    // Perform the action when the date is selected
-                    showingDatePicker = false
-                }.foregroundStyle(Color(UIColor.label))
-            }
-            .font(.system(size: 15))
-            .padding()
-        }
-    List {
-
-        DatePicker("Edit Date", selection: $selectedDate)
-            .presentationDetents([.fraction(0.25)])
-            .font(.system(size: 15))
-            .foregroundColor(userPreferences.accentColor)
-            .padding(.horizontal)
-    }.navigationTitle("Select Custom Date")
-    }
-
-    @ViewBuilder
-    func reminderSheet() -> some View {
-        NavigationStack {
-            if hasReminderAccess {
-                List {
-                    Section {
-                        TextField("Reminder Title", text: $reminderManager.reminderTitle)
-                            .background(Color.clear) // Set the background to clear
-                               .textFieldStyle(PlainTextFieldStyle()) // Use
-                            .frame(maxWidth: .infinity)
-//                            .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-
-                    }
-                    Section {
-                        DatePicker("Due Date", selection: $reminderManager.selectedReminderDate, displayedComponents: .date)
-                        DatePicker("Time", selection: $reminderManager.selectedReminderTime, displayedComponents: .hourAndMinute)
-
-                    }
-//                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-                    .accentColor(userPreferences.accentColor)
-
-                    NavigationLink {
-                        List {
-                            Picker("Recurrence", selection: $selectedRecurrence) {
-                                ForEach(recurrenceOptions, id: \.self) { option in
-                                    Text(option).tag(option)
-                                }
-                            }
-                            .font(.system(size: 15))
-                            .pickerStyle(.inline)
-                            .accentColor(userPreferences.accentColor)
-
-                        }
-                    } label: {
-                        Label("Repeat", systemImage: "repeat")
-                    }
-      
-                    .font(.system(size: 15))
-//                    .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
-                    .accentColor(userPreferences.accentColor)
-                    
-                    Section {
-              
-                        
-                        Button {
-                            if let reminderId = self.reminderId, !reminderId.isEmpty {
-                                completeReminder(reminderId: reminderId) { success, error in
-                                    if success {
-                                        print("Reminder completed successfully.")
-                                        self.reminderId = ""
-                                    } else {
-                                        print("Failed to complete the reminder: \(String(describing: error))")
-                                    }
-                                }
-                                print("Reminder completed")
-                                showingReminderSheet = false
-                            }
-                        } label: {
-                            Label("Complete", systemImage: "calendar.badge.checkmark")
-                                .foregroundColor(.green)
-                        }
-
-                        Button {
-                            showDeleteReminderAlert = true
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                                .foregroundColor(.red)
-                        }
-
-                    }
-                }
-                    
-                .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
-                          Button("Delete", role: .destructive) {
-                              // Call your delete reminder function here
-                              deleteReminder(reminderId: reminderId)
-                              showingReminderSheet = false
-                          }
-                          Button("Cancel", role: .cancel) {}
-                      } message: {
-                          Text("This action cannot be undone.")
-                      }
-                
-                .background {
-                        ZStack {
-                            Color(UIColor.systemGroupedBackground)
-                                .ignoresSafeArea()
-                        }
-                }
-                .scrollContentBackground(.hidden)
-                .font(.system(size: 15))
-                .navigationTitle("Set Reminder")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Cancel") {
-                            showingReminderSheet = false
-                        }
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            saveReminder()
-                        }
-
-                    }
-                }
-                .font(.system(size: 15))
-                .padding()
-            } else {
-                Text("Reminder Permissions Disabled")
-            }
-        }
-    }
-    
 
 
     @ViewBuilder
@@ -615,7 +495,7 @@ struct NewEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -625,7 +505,7 @@ struct NewEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -635,7 +515,7 @@ struct NewEntryView: View {
                 self.textEditorViewModel.textToInsert = "\n"
             }) {
                 Image(systemName: "return")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -655,7 +535,7 @@ struct NewEntryView: View {
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             Spacer()
         
@@ -663,14 +543,16 @@ struct NewEntryView: View {
                 vibration_heavy.impactOccurred()
                 isHidden.toggle()
             } label: {
-                Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill").font(.system(size: 20)).foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
+                Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill")
+                    .font(.buttonSize)
+                    .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
             }
             
             
             PhotosPicker(selection:$selectedItem, matching: .images) {
                 Image(systemName: "photo.fill")
-                    .font(.system(size: 20))
-                
+                    .font(.buttonSize)
+
             }
             .onChange(of: selectedItem) { _ in
                 selectedData = nil
@@ -684,7 +566,7 @@ struct NewEntryView: View {
 
             
             Image(systemName: "camera.fill")
-                .font(.system(size: 20))
+                .font(.buttonSize)
                 .onChange(of: selectedImage) { _ in
                     selectedData = nil
                     Task {
@@ -705,7 +587,7 @@ struct NewEntryView: View {
                 isDocumentPickerPresented = true
             } label: {
                 Image(systemName: "link")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,
@@ -754,8 +636,9 @@ struct NewEntryView: View {
     }
     
     func finalizeCreation() {
+        print("REMINDER ID: \(reminderId)")
         let newEntry = Entry(context: viewContext)
-        newEntry.id = UUID()
+        newEntry.id = entryId
         newEntry.content = entryContent
         newEntry.time = selectedDate
         newEntry.lastUpdated = nil
@@ -793,11 +676,19 @@ struct NewEntryView: View {
             }
         }
         
+        if !selectedTags.isEmpty {
+            newEntry.tags = selectedTags
+        }
+        
+        print("REMINDER ID before if let: \(String(describing: reminderId))")
         if let reminderId {
+            print("REMINDER ID inside if let: \(reminderId)")
             newEntry.reminderId = reminderId
         } else {
+            print("REMINDER ID is nil or empty")
             newEntry.reminderId = ""
         }
+        print("REMINDER ID after if let: \(String(describing: newEntry.reminderId))")
         
 
         // Fetch the log with the appropriate day

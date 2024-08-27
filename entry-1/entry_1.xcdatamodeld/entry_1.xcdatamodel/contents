@@ -42,7 +42,7 @@
         <relationship name="relationship" optional="YES" toMany="YES" deletionRule="No Action" destinationEntity="Entry" inverseName="relationship" inverseEntity="Entry"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES">
-        <attribute name="entryNames" optional="YES" attributeType="Transformable"/>
+        <attribute name="entryIds" optional="YES" attributeType="Transformable"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="numEntries" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>

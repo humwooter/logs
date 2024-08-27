@@ -49,7 +49,7 @@ struct EditUserThemeView: View {
                 ) {
                     HStack {
                         Text("Theme name: ")
-                        TextField("", text: $theme.name, prompt: Text("Enter theme name: "))
+                        TextField("", text: $theme.name)
                             .textFieldStyle(PlainTextFieldStyle())
                             .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
                         Spacer()

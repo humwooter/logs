@@ -124,15 +124,19 @@ struct ScrollableWeeklyCalendarView: View {
             Text("\(day.day!)")
                 .font(.callout)
         }
-        .frame(width: 40, height: 40)  // Increase the size of the circle
-        .background(
-            Circle()
+        .frame(width: 40, height: 40).background {
+            Circle().fill(isSelected ? selectionColor : unselectedColor)
                 .strokeBorder(unselectedColor.opacity(0.6), lineWidth: 1)
-                .background {
-                    LinearGradient(colors: isSelected ? [selectionColor] : [unselectedColor, Color.clear] , startPoint: .center, endPoint: .bottom).clipShape(Circle())
-                }
-//                .background(Circle().fill(isSelected ? selectionColor : unselectedColor))
-        )
+            //                .background(
+            //                    RadialGradient(
+            //                        gradient: Gradient(colors: [Color.clear, isSelected ? selectionColor : unselectedColor]),
+            //                        center: .center,
+            //                        startRadius: 0,
+            //                        endRadius: 20 // Adjust this to control the spread of the gradient
+        }
+        .clipShape(Circle())
+//                )
+        
         .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) : getTextColor())
         .onTapGesture {
             if datesModel.doesDateExist(dayDate: day) {

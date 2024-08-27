@@ -75,48 +75,44 @@ struct TextView : View {
         if (!entry.isFault) {
             Section {
                 if (entry.isShown) {
-                    NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
-                        .blur(radius: !entry.isHidden ? 0 : 7)
-                        .contextMenu {
-                            entryContextMenuButtons()
-                        }
-                        .onAppear {
-                            if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                                if !reminderExists(with: reminderId) {
-                                    entry.reminderId = ""
-                                } else {
-                                    reminderIsComplete(reminderId: reminderId) { isCompleted in
-                                        DispatchQueue.main.async {
-                                            if isCompleted {
-                                                entry.reminderId = ""
-                                            } else {
-                                                print("The reminder is not completed or does not exist.")
+                    VStack {
+                        NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
+                            .blur(radius: !entry.isHidden ? 0 : 7)
+                            .contextMenu {
+                                entryContextMenuButtons()
+                            }
+                            .onAppear {
+                                if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                                    if !reminderExists(with: reminderId) {
+                                        entry.reminderId = ""
+                                    } else {
+                                        reminderIsComplete(reminderId: reminderId) { isCompleted in
+                                            DispatchQueue.main.async {
+                                                if isCompleted {
+                                                    entry.reminderId = ""
+                                                } else {
+                                                    print("The reminder is not completed or does not exist.")
+                                                }
                                             }
                                         }
-                                    }
-                                    do {
-                                        try coreDataManager.viewContext.save()
-                                    } catch {
-                                        print("Failed to save viewContext: \(error)")
+                                        do {
+                                            try coreDataManager.viewContext.save()
+                                        } catch {
+                                            print("Failed to save viewContext: \(error)")
+                                        }
                                     }
                                 }
                             }
-                        }
-                        .onChange(of: isEditing) { newValue in
-                                              if newValue {
-                                                  editingContent = entry.content
-                                              }
-                                          }
-//                        .onChange(of: isEditing) { newValue in
-//                            if newValue {
-//                                editingContent = entry.attributedContent ?? buildAttributedString(
-//                                    content: entry.content,
-//                                    formattingData: entry.formattedContent,
-//                                    fontSize: userPreferences.fontSize,
-//                                    fontName: userPreferences.fontName
-//                                )
-//                            }
-//                        }
+                            .onChange(of: isEditing) { newValue in
+                                if newValue {
+                                    editingContent = entry.content
+                                }
+                            }
+                        
+                        tagsView()
+                            .padding(.top)
+                            .foregroundStyle(getTextColor().opacity(0.3))
+                    }
         
                         .sheet(isPresented: $isEditing) {
                             EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
@@ -150,9 +146,6 @@ struct TextView : View {
         header: {
                 entrySectionHeader()
             }
-            footer: {
-                entrySectionFooter()
-            }
             .onAppear {
                 showEntry = !entry.isHidden
             }
@@ -161,20 +154,26 @@ struct TextView : View {
         
     }
     
-//    private func updateAttributedStringFont() {
-//        let newFont = UIFont(name: userPreferences.fontName, size: userPreferences.fontSize) ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-//        let newAttributes: [NSAttributedString.Key: Any] = [
-//            .font: newFont,
-//            .foregroundColor: UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label))))
-//        ]
-//        
-//        let mutableAttributedString = NSMutableAttributedString(attributedString: editingContent)
-//        mutableAttributedString.addAttributes(newAttributes, range: NSRange(location: 0, length: mutableAttributedString.length))
-//        editingContent = mutableAttributedString
-//    }
+    func getSectionColor() -> Color {
+        if entry.stampIndex != -1 {
+            return Color(entry.color)
+        }
+        
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        }
+        return userPreferences.entryBackgroundColor
+    }
     
+    func getTextColor() -> Color {
+        calculateTextColor(
+            basedOn: userPreferences.backgroundColors.first ?? Color.clear,
+            background2: userPreferences.backgroundColors[1],
+            entryBackground: getSectionColor(),
+            colorScheme: colorScheme
+        )
+    }
 
-    
     func deleteEntry(entry: Entry) {
         let mainContext = coreDataManager.viewContext
         mainContext.performAndWait {
@@ -205,13 +204,19 @@ struct TextView : View {
     }
     
     @ViewBuilder
-    func entrySectionFooter() -> some View {
-        HStack {
-//            Spacer()
-//            if entry.shouldSyncWithCloudKit {
-//                Label("", systemImage: "cloud")
-//                    .foregroundStyle(.white.opacity(0.1))
-//            }
+    func tagsView() -> some View {
+        if let tags = entry.tags {
+            if !tags.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Divider()
+                    
+                    FlexibleTagGridView(tags: tags)
+                    
+                }
+                .padding(.vertical, 4)
+            } else {
+                EmptyView()
+            }
         }
     }
     
@@ -392,3 +397,57 @@ struct TextView : View {
 
     
 }
+
+struct FlexibleTagGridView: View {
+    let tags: [String]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            FlowLayout(tags: tags)
+        }
+        .padding(.top)
+    }
+}
+
+struct FlowLayout: View {
+    let tags: [String]
+    let spacing: CGFloat = 5
+    
+    var body: some View {
+        var width: CGFloat = 0
+        var lines: [[String]] = [[]]
+        
+        // Group tags into lines that fit within the screen width
+        for tag in tags {
+            let tagWidth = tag.widthOfString(usingFont: .systemFont(ofSize: 10)) + 10 // 20 for padding
+            if width + tagWidth + spacing > UIScreen.main.bounds.width - 32 {
+                width = tagWidth
+                lines.append([tag])
+            } else {
+                lines[lines.count - 1].append(tag)
+                width += tagWidth + spacing
+            }
+        }
+        
+        return VStack(alignment: .leading, spacing: spacing) {
+            ForEach(lines, id: \.self) { line in
+                HStack(spacing: spacing) {
+                    ForEach(line, id: \.self) { tag in
+                        Text("#\(tag)")
+                            .font(.caption)
+                            .cornerRadius(5)
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+extension String {
+    func widthOfString(usingFont font: UIFont) -> CGFloat {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        return self.size(withAttributes: fontAttributes).width
+    }
+}
+

@@ -32,6 +32,12 @@ func buildAttributedString(content: String, formattingData: Data?, fontSize: CGF
     return NSAttributedString(string: content, attributes: attributes)
 }
 
+extension Font {
+    static let customHeadline = Font.system(size: UIFont.systemFontSize*1.15, weight: .medium, design: .default)
+    
+    static let buttonSize = Font.system(size: UIFont.systemFontSize*1.3, weight: .regular, design: .default)
+}
+
 extension UTType {
     static var themePackage: UTType {
         UTType(exportedAs: "com.gnupes.dodum.logs.themePkg")
@@ -402,7 +408,7 @@ extension UIColor {
 
         // Determine and return the font color based on luminance to maximize contrast
         // If the luminance is greater than 0.5 (more light), we choose black font color, otherwise white.
-        print("luminance: \(luminance)")
+//        print("luminance: \(luminance)")
         return luminance > 0.5 ? .black : .white
     }
     
@@ -428,7 +434,7 @@ extension UIColor {
 
         // Determine and return the font color based on luminance to maximize contrast
         // If the luminance is greater than 0.5 (more light), we choose black font color, otherwise white.
-        print("luminance: \(luminance)")
+//        print("luminance: \(luminance)")
         return luminance > 0.5 ? .black : .white
     }
 
