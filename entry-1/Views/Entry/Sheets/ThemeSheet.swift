@@ -66,11 +66,7 @@ struct ThemeSheet: View {
             defaultThemesView()
         }
         .background {
-            ZStack {
-                Color(UIColor.systemGroupedBackground)
-                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-            }
-            .ignoresSafeArea()
+            userPreferences.backgroundView(colorScheme: colorScheme)
         }
         .scrollContentBackground(.hidden)
         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
@@ -264,7 +260,8 @@ struct ThemeSheet: View {
                         }
                         Spacer()
                         Image(systemName: "ellipsis")
-                    }.font(.caption2)
+                    }
+                    .font(.customCaption)
                 }
                 .foregroundStyle(getIdealHeaderTextColor().opacity(0.3))
 
@@ -275,7 +272,7 @@ struct ThemeSheet: View {
                 RoundedRectangle(cornerRadius: 15)
                     .fill(LinearGradient(gradient: Gradient(colors: getThemeBackground(topColor: theme.topColor, bottomColor: theme.bottomColor)), startPoint: .top, endPoint: .bottom))
                     .strokeBorder(calculateTextColor(basedOn: theme.topColor, background2: theme.bottomColor, entryBackground: theme.entryBackgroundColor, colorScheme: colorScheme).opacity(0.2))
-                    .frame(width: 150, height: 150)  // Entire square block
+                    .frame(CGSize.superLargeIconSize())  // Entire square block
 
                 
                 
@@ -284,7 +281,7 @@ struct ThemeSheet: View {
                     // Small cube for entry background
                     RoundedRectangle(cornerRadius: 10)
                         .fill(getEntryBackground(entryBackgroundColor: theme.entryBackgroundColor))
-                        .frame(width: 130, height: 30)  // Adjusted to fit better within the square
+                        .frame(width: 0.8*CGSize.buttonWidth, height: CGSize.buttonWidth*0.2)  // Entire square block
                         .padding(.horizontal)
                         .overlay(
                             HStack(alignment: .center) {
@@ -300,7 +297,7 @@ struct ThemeSheet: View {
                         HStack(spacing: 8) {
                             Circle()
                                 .fill(theme.accentColor)
-                                .frame(width: 10, height: 10)
+                                .frame(width: 0.1*CGSize.smallButtonWidth, height: 0.13*CGSize.smallButtonWidth)
                             Text("accent")
                                 .foregroundStyle(getBackgroundTextColor())
 
@@ -309,7 +306,7 @@ struct ThemeSheet: View {
                         HStack(spacing: 8) {
                             Image(systemName: "pin.fill").resizable()
                                 .foregroundStyle(theme.pinColor)
-                                .frame(width: 10, height: 10)
+                                .frame(width: 0.1*CGSize.smallButtonWidth, height: 0.13*CGSize.smallButtonWidth)
                             Text("pin")
                                 .foregroundStyle(getBackgroundTextColor())
                         }
@@ -317,7 +314,7 @@ struct ThemeSheet: View {
                         HStack(spacing: 8) {
                             Image(systemName: "bell.fill").resizable()
                                 .foregroundStyle(theme.reminderColor)
-                                .frame(width: 10, height: 10)
+                                .frame(width: 0.1*CGSize.smallButtonWidth, height: 0.13*CGSize.smallButtonWidth)
                             Text("reminder")
                                 .foregroundStyle(getBackgroundTextColor())
 
@@ -331,7 +328,6 @@ struct ThemeSheet: View {
                 menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
             }
         }
-        .frame(maxWidth: 150, maxHeight: 250)
         
         func getBackgroundTextColor() -> Color {
             return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(theme.topColor), and: UIColor(theme.bottomColor))))
@@ -604,178 +600,3 @@ extension ThemeSheet {
 
 }
 
-
-struct CurrentThemeEditView: View {
-    @EnvironmentObject var userPreferences: UserPreferences
-    @Environment(\.presentationMode) var presentationMode
-
-    @State private var accentColor: Color = Color.clear
-    @State private var name: String = ""
-    @State private var fontName: String = ""
-    @State private var fontSize: CGFloat = 0
-    @State private var lineSpacing: CGFloat = 0
-    @State private var backgroundColor_top: Color = Color.clear
-    @State private var backgroundColor_bottom: Color = Color.clear
-    @State private var entryBackgroundColor: Color = Color.clear
-    @State private var pinColor: Color = Color.clear
-    @State private var reminderColor: Color = Color.clear
-    @Environment(\.colorScheme) var colorScheme
-    @State var hasInitialized: Bool = false
-
-    var body : some View {
-       
-        NavigationStack {
-            mainThemeView()
-           
-                .toolbar {
-                    Button {
-                        saveProperties()
-                    } label: {
-                        Label("Save", systemImage: "")
-                            .foregroundStyle(accentColor)                        .font(.system(size: UIFont.systemFontSize+5))
-                    }
-
-                }
-        }
-        .onAppear {
-            if !hasInitialized {
-                initializeProperties()
-            }
-        }
-    }
-    
-    private func saveProperties() {
-        userPreferences.themeName = name
-        userPreferences.accentColor = accentColor
-        userPreferences.fontName = fontName
-        userPreferences.fontSize = fontSize
-        userPreferences.lineSpacing = lineSpacing
-        userPreferences.backgroundColors = [backgroundColor_top, backgroundColor_bottom]
-        userPreferences.entryBackgroundColor = entryBackgroundColor
-        userPreferences.pinColor = pinColor
-        userPreferences.reminderColor = reminderColor
-        presentationMode.wrappedValue.dismiss()
-        hasInitialized = true
-
-    }
-
-    
-    private func initializeProperties() {
-        name = userPreferences.themeName
-        accentColor = userPreferences.accentColor
-        fontName = userPreferences.fontName
-        fontSize = userPreferences.fontSize
-        lineSpacing = userPreferences.lineSpacing
-        backgroundColor_top = userPreferences.backgroundColors.first ?? Color.clear
-        backgroundColor_bottom = userPreferences.backgroundColors[1]
-        entryBackgroundColor = userPreferences.entryBackgroundColor
-        pinColor = userPreferences.pinColor
-        reminderColor = userPreferences.reminderColor
-    }
-    
-    func getIdealHeaderTextColor() -> Color {
-        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(backgroundColor_top), and: UIColor(backgroundColor_bottom)), colorScheme: colorScheme))
-    }
-    
-    @ViewBuilder
-    func mainThemeView() -> some View {
-        List {
-            Section(header: Text("Preferences")
-                .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
-                .font(.system(size: UIFont.systemFontSize))
-            ) {
-                
-                
-                HStack {
-                    Text("Theme name: ")
-                    TextField("", text: $name)
-                        .textFieldStyle(PlainTextFieldStyle())
-                        .foregroundStyle(getIdealTextColor(topColor: backgroundColor_top, bottomColor: backgroundColor_bottom, colorScheme: colorScheme))
-                    Spacer()
-                }
-                
-                ColorPicker("Accent Color", selection: $accentColor)
-                FontPicker(selectedFont:  $fontName, selectedFontSize: $fontSize, accentColor: $accentColor, inputCategories: fontCategories, topColor_background: $backgroundColor_top, bottomColor_background: $backgroundColor_bottom, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
-                HStack {
-                    Text("Line Spacing")
-                    Slider(value: $lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
-                }
-            }
-            
-            Section {
-                BackgroundColorPickerView(topColor: $backgroundColor_top, bottomColor: $backgroundColor_bottom)
-            } header: {
-                
-                HStack {
-                    Text("Background Colors")
-                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
-                    
-                        .font(.system(size: UIFont.systemFontSize))
-                    Spacer()
-                    Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                        .onTapGesture {
-                            vibration_light.impactOccurred()
-                            backgroundColor_top = .clear
-                            backgroundColor_bottom = .clear
-                        }
-                }
-            }
-            
-            Section {
-                ColorPicker("Default Entry Background Color:", selection: $entryBackgroundColor)
-                
-            } header: {
-                HStack {
-                    Text("Entry Background")
-                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
-                    
-                        .font(.system(size: UIFont.systemFontSize))
-                    Spacer()
-                    Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                        .onTapGesture {
-                            vibration_light.impactOccurred()
-                            userPreferences.entryBackgroundColor = .clear
-                        }
-                }
-            }
-            
-            
-            Section {
-                ColorPicker("Pin Color", selection: $pinColor)
-            } header: {
-                HStack {
-                    Text("Pin Color")
-                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
-                    
-                        .font(.system(size: UIFont.systemFontSize))
-                    Spacer()
-                    Image(systemName: "pin.fill").foregroundStyle(pinColor)
-                }.font(.system(size: UIFont.systemFontSize))
-            }
-            
-            Section {
-                ColorPicker("Reminder Color", selection: $reminderColor)
-            } header: {
-                HStack {
-                    Text("Alerts")
-                        .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
-                    
-                        .font(.system(size: UIFont.systemFontSize))
-                    Spacer()
-                    Image(systemName: "bell.fill").foregroundStyle(reminderColor)
-                }.font(.system(size: UIFont.systemFontSize))
-            }
-        }
-        .font(.custom(String(fontName), size: CGFloat(Float(fontSize))))
-        .scrollContentBackground(.hidden)
-        .background {
-            ZStack {
-                Color(UIColor.systemGroupedBackground)
-                LinearGradient(colors: [backgroundColor_top, backgroundColor_bottom], startPoint: .top, endPoint: .bottom)
-            }
-            .ignoresSafeArea()
-        }
-        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor_top), colorScheme: colorScheme)))
-        .accentColor(accentColor)
-    }
-}

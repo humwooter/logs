@@ -18,7 +18,9 @@ struct ContentView: View {
     @State private var isShowingReplyCreationView = false
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
-    
+    @State var editingEntryId: String? = nil
+    @State var isEditing: Bool = false
+
     @FetchRequest(
            entity: Entry.entity(),
            sortDescriptors: [], // No sorting applied
@@ -138,14 +140,14 @@ struct ContentView: View {
 //                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 
                 if !isIpad {
-                    CustomTabViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    CustomTabViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)
                         .accentColor(userPreferences.accentColor)
                         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 } else {
-                    CustomNavigationViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    CustomNavigationViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)

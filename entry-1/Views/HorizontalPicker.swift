@@ -16,6 +16,8 @@ enum PickerOptions: String, CaseIterable {
     case reminders = "Reminders"
     case search = "Search"
 }
+
+
 struct HorizontalPicker: View {
     @Binding var selectedOption: PickerOptions
     var animation: Namespace.ID
@@ -51,6 +53,7 @@ struct HorizontalPicker: View {
                                         Image(systemName: "magnifyingglass")
                                     }
                                 }
+                                .font(.customHeadline)
                                 .foregroundColor(selectedOption == option ? userPreferences.accentColor : unselectedColor)
                                 
                                 if selectedOption == option {

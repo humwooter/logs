@@ -485,11 +485,37 @@ extension UserDefaults {
            return zip6(ids, names, indices, colors, imageNames, isActive).map { Stamp(id: $0, name: $1, index: $2, color: $3, imageName: $4, isActive: $5) }
        }
     
+
+    
     
 }
 
 
 extension UserPreferences {
+    
+    func getBackgroundColors(colorScheme: ColorScheme) -> [Color] {
+        var colors: [Color] = []
+        if isClear(for: UIColor(self.backgroundColors.first ?? Color.clear)) {
+            colors.append(getDefaultBackgroundColor(colorScheme: colorScheme))
+        } else {
+            colors.append(self.backgroundColors.first ?? Color.clear)
+        }
+        
+        if isClear(for: UIColor(self.backgroundColors[1])) {
+            colors.append(getDefaultBackgroundColor(colorScheme: colorScheme))
+        } else {
+            colors.append(self.backgroundColors[1])
+        }
+        return colors
+    }
+    
+    func backgroundView(colorScheme: ColorScheme) -> some View {
+        ZStack {
+            LinearGradient(colors: getBackgroundColors(colorScheme: colorScheme), startPoint: .top, endPoint: .bottom)
+        }
+        .ignoresSafeArea(.all)
+    }
+    
     static func importFromJson(from url: URL) throws -> UserPreferences {
            let data = try Data(contentsOf: url)
            let decoder = JSONDecoder()

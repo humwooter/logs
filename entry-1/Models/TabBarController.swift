@@ -283,7 +283,11 @@ struct CustomNavigationViewModel: View { // For iPad
     @Binding var repliedEntryId: String?
 
     @State private var selection: Int? = 1 // Active tab index, now optional
+    
+    @Binding var editingEntryId: String?
+    @Binding var isEditing: Bool
 @State private var isShown_firstTab = true
+    
     var body: some View {
         NavigationSplitView {
             List {
@@ -377,6 +381,9 @@ struct CustomTabViewModel: View {
     @State private var isIpad = UIDevice.current.userInterfaceIdiom == .pad
     @Binding var isShowingReplyCreationView: Bool
     @Binding var repliedEntryId: String?
+    @Binding var editingEntryId: String?
+    @Binding var isEditing: Bool
+
 
     var opacity_val = 0.35
 

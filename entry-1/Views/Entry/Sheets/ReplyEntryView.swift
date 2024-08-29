@@ -90,10 +90,7 @@ struct ReplyEntryView: View {
     var body: some View {
         NavigationStack {
             VStack {
-
                     VStack {
-                        
-                        
                         HStack() {
                             Spacer()
                             if let reminderId = self.reminderId, !reminderId.isEmpty {
@@ -102,7 +99,6 @@ struct ReplyEntryView: View {
                                     .padding(.horizontal)
                             }
                         }
-//                            textFieldView()
                         finalRepliedView()
                         Spacer()
                     }
@@ -137,11 +133,7 @@ struct ReplyEntryView: View {
             }
      
             .background {
-                    ZStack {
-                        Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                    }
-                    .ignoresSafeArea()
+                userPreferences.backgroundView(colorScheme: colorScheme)
             }
             .fullScreenCover(isPresented: $isCameraPresented) {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
@@ -216,8 +208,8 @@ struct ReplyEntryView: View {
                     }
                 }
             }
-            .font(.system(size: UIFont.systemFontSize))
-   
+            .font(.customHeadline)
+
         }
         
         .onTapGesture {
@@ -513,14 +505,14 @@ struct ReplyEntryView: View {
                     showingDatePicker = false
                 }.foregroundStyle(Color(UIColor.label))
             }
-            .font(.system(size: 15))
+            .font(.customHeadline)
             .padding()
         }
     List {
 
         DatePicker("Edit Date", selection: $selectedDate)
             .presentationDetents([.fraction(0.25)])
-            .font(.system(size: 15))
+            .font(.customHeadline)
             .foregroundColor(userPreferences.accentColor)
             .padding(.horizontal)
     }.navigationTitle("Select Custom Date")
@@ -554,7 +546,7 @@ struct ReplyEntryView: View {
                                     Text(option).tag(option)
                                 }
                             }
-                            .font(.system(size: 15))
+                            .font(.customHeadline)
                             .pickerStyle(.inline)
                             .accentColor(userPreferences.accentColor)
 
@@ -563,7 +555,7 @@ struct ReplyEntryView: View {
                         Label("Repeat", systemImage: "repeat")
                     }
       
-                    .font(.system(size: 15))
+                    .font(.customHeadline)
                     .foregroundStyle(colorScheme == .dark ? Color.white : Color.black)
                     .accentColor(userPreferences.accentColor)
                     
@@ -616,7 +608,7 @@ struct ReplyEntryView: View {
                         }
                 }
                 .scrollContentBackground(.hidden)
-                .font(.system(size: 15))
+                .font(.customHeadline)
                 .navigationTitle("Set Reminder")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarLeading) {
@@ -631,7 +623,7 @@ struct ReplyEntryView: View {
 
                     }
                 }
-                .font(.system(size: 15))
+                .font(.customHeadline)
                 .padding()
             } else {
                 Text("Reminder Permissions Disabled")
@@ -668,7 +660,7 @@ struct ReplyEntryView: View {
 
             }
         }
-        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+        .font(.customCaption)
 
     }
     
@@ -777,7 +769,7 @@ struct ReplyEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t• "
             }) {
                 Image(systemName: "list.bullet")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -787,7 +779,7 @@ struct ReplyEntryView: View {
                 self.textEditorViewModel.textToInsert = "\t"
             }) {
                 Image(systemName: "arrow.forward.to.line")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -797,7 +789,7 @@ struct ReplyEntryView: View {
                 self.textEditorViewModel.textToInsert = "\n"
             }) {
                 Image(systemName: "return")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor)
             }
 
@@ -818,7 +810,7 @@ struct ReplyEntryView: View {
             Button(action: startOrStopRecognition) {
                 Image(systemName: "mic.fill")
                     .foregroundColor(!isListening ? userPreferences.accentColor : Color.complementaryColor(of: userPreferences.accentColor))
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             Spacer()
         
@@ -827,14 +819,14 @@ struct ReplyEntryView: View {
                 isHidden.toggle()
             } label: {
                 Image(systemName: isHidden ? "eye.slash.fill" : "eye.fill")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
                     .foregroundColor(userPreferences.accentColor).opacity(isHidden ? 1 : 0.1)
             }
             
             
             PhotosPicker(selection:$selectedItem, matching: .images) {
                 Image(systemName: "photo.fill")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
 
             }
             .onChange(of: selectedItem) { _ in
@@ -849,7 +841,7 @@ struct ReplyEntryView: View {
 
             
             Image(systemName: "camera.fill")
-                .font(.system(size: 20))
+                .font(.buttonSize)
                 .onChange(of: selectedImage) { _ in
                     selectedData = nil
                     Task {
@@ -870,7 +862,7 @@ struct ReplyEntryView: View {
                 isDocumentPickerPresented = true
             } label: {
                 Image(systemName: "link")
-                    .font(.system(size: 20))
+                    .font(.buttonSize)
             }
             .fileImporter(
                 isPresented: $isDocumentPickerPresented,

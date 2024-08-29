@@ -27,7 +27,7 @@ struct ButtonDashboard: View {
         var body: some View {
             let buttonWidth = isIpad ? UIScreen.main.bounds.width/5 : UIScreen.main.bounds.width/4.5
 
-                dashboardView(button_width: buttonWidth)
+            dashboardView(button_width: CGSize.smallButtonWidth)
 
           }
     
@@ -45,14 +45,15 @@ struct ButtonDashboard: View {
                             
                         }
                     }
+                    .frame(minWidth: 4.3*button_width, minHeight: 4.3*button_width)
+                    .padding()
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+//                    .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+                    .font(.customHeadline)
 
                     Spacer()
                 }
         }
-        .frame(minWidth: 4.3*button_width, minHeight: 4.3*button_width)
-        .scaledToFit()
     }
     
     
@@ -60,21 +61,42 @@ struct ButtonDashboard: View {
     private func dashboardSection(startIndex: Int, buttonWidth: CGFloat) -> some View {
         VStack {
             Spacer()
-            HStack(alignment: .center, spacing: 20) {
+            HStack(alignment: .center, spacing: 0) {
                 ForEach(startIndex..<startIndex+2, id: \.self) { index in
                     
-                    buttonSection(index: index, button_width: buttonWidth)
+                    if index != startIndex+1 {
+                        buttonSection(index: index, button_width: buttonWidth)
+                            .padding(.trailing)
+                    } else {
+                        buttonSection(index: index, button_width: buttonWidth)
+
+                    }
+                
                     
                 }
             }
-            HStack(alignment: .center, spacing: 20) {
+            HStack(alignment: .center, spacing: 0) {
                 ForEach(startIndex+2..<startIndex+5, id: \.self) { index in
-                    buttonSection(index: index, button_width: buttonWidth)
+                    
+                    if index != startIndex+4 {
+                        buttonSection(index: index, button_width: buttonWidth)
+                            .padding(.trailing)
+                    } else {
+                        buttonSection(index: index, button_width: buttonWidth)
+
+                    }
                 }
             }
-            HStack(alignment: .center, spacing: 20) {
+            HStack(alignment: .center, spacing: 0) {
                 ForEach(startIndex+5..<startIndex+7, id: \.self) { index in
-                    buttonSection(index: index, button_width: buttonWidth)
+                    if index != startIndex+6 {
+                        buttonSection(index: index, button_width: buttonWidth)
+                            .padding(.trailing)
+                    } else {
+                        buttonSection(index: index, button_width: buttonWidth)
+
+                    }
+
                 }
             }
             Spacer()
@@ -231,7 +253,7 @@ struct IconPicker: View {
                 }
             }
             .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
-            .font(.system(size: UIFont.systemFontSize))
+            .font(.customHeadline)
         }
     }
     
@@ -249,7 +271,7 @@ struct IconPicker: View {
                         // Display the category header
                         Text(category)
                             .bold()
-                            .font(.headline).foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor))))
+                            .font(.buttonSize).foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor))))
                             .padding(.top, 10)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.leading, 10) // Left padding for alignment
@@ -310,7 +332,8 @@ struct IconPicker: View {
             }
             .scrollContentBackground(.hidden)
             .navigationTitle("Button \(buttonIndex + 1)")
-            .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+            .searchable(text: $searchText)
+            .font(.buttonSize)
             .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
         }
 
@@ -387,7 +410,8 @@ struct FontPicker: View {
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Font Type")
-        .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+        .searchable(text: $searchText)
+        .font(.customHeadline)
         .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
     }
     

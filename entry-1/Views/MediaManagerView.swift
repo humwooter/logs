@@ -29,7 +29,8 @@ struct MediaManagerView: View {
     var body: some View {
         Section {
             NavigationLink(destination: detailsView()) {
-                Text("Larger than 5 MB").font(.caption)
+                Text("Larger than 5 MB")
+                    .font(.customCaption)
             }
                 mainView()
         }
@@ -138,7 +139,7 @@ struct AsyncMediaView: View {
                         .padding(4)
                         .background(Color.black.opacity(0.5))
                         .foregroundColor(.white)
-                        .font(.caption)
+                        .font(.customCaption)
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
             

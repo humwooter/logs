@@ -36,6 +36,7 @@ struct RecentlyDeletedView: View {
     
     @State private var selectedEntries = Set<Entry>()
     @Binding var replyEntryId: String?
+
     let dateStrings = DateStrings()
 
     
@@ -44,7 +45,7 @@ struct RecentlyDeletedView: View {
         
         List(selection: $selectedEntries) {
             Section(header: Text("Entries are available here for 10 days, after which they will be permanently deleted").textCase(.none)
-                .font(.caption)
+                .font(.customCaption)
                 .foregroundColor(Color(getTextColor()).opacity(0.5))
                 .frame(maxWidth: .infinity)
             ) {}
@@ -80,11 +81,7 @@ struct RecentlyDeletedView: View {
         .environment(\.editMode, .constant(isEditing ? EditMode.active : EditMode.inactive))
 
         .background {
-            ZStack {
-                Color(UIColor.systemGroupedBackground)
-                LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
-            }
+            userPreferences.backgroundView(colorScheme: colorScheme)
         }
         .scrollContentBackground(.hidden)
         .navigationTitle("Recently Deleted")
@@ -102,7 +99,7 @@ struct RecentlyDeletedView: View {
                                    }
                            } label: {
                                Text("Delete \(selectedEntries.count > 0 ? "" : "All")")
-                                   .font(.system(size: UIFont.systemFontSize))
+                                   .font(.customHeadline)
                            }
 
                        }
@@ -113,24 +110,22 @@ struct RecentlyDeletedView: View {
                            isEditing.toggle()
                        } label: {
                            Text(isEditing ? "Done" : "Edit")
-                               .font(.system(size: UIFont.systemFontSize))
+                               .font(.customHeadline)
                        }
                    }
                }
         .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always)).font(.system(size: UIFont.systemFontSize))
+        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always))
+        .font(.customHeadline)
         .searchBarTextColor(isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear)
 
     }
-    
-//    private func deleteEntries(entries: [Entry]) {
-//        for entry in entries {
-//            deleteEntry(entry: entry, coreDataManager: coreDataManager)
-//        }
-//    }
+
     @ViewBuilder func entryHeaderView(entry: Entry) -> some View {
         HStack {
-            Text("\(formattedDateFull(entry.time ?? Date()))").font(.system(size: UIFont.systemFontSize)).foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
+            Text("\(formattedDateFull(entry.time ?? Date()))")
+                .font(.customHeadline)
+                .foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
             Spacer()
             if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)

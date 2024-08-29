@@ -286,7 +286,7 @@ struct TagSelectionPopup: View {
 
             // Update currentTags with the new tag
             currentTags[newTag] = true
-            selectedTags.append(formattedTagName)
+//            selectedTags.append(formattedTagName)
             
             print("CURRENT TAGS: \(currentTags)")
         } catch {
@@ -308,22 +308,16 @@ struct TagButton: View {
         Button(action: action) {
             HStack {
                 Text(tag.name ?? "")
-                    .font(.caption)
+                    .font(.customCaption)
                     .padding()
                     .background(
                         isSelected ?
-                            LinearGradient(gradient: Gradient(colors: [userPreferences.accentColor.opacity(0.8), userPreferences.accentColor]), startPoint: .topLeading, endPoint: .bottomTrailing) :
-                            LinearGradient(gradient: Gradient(colors: [userPreferences.entryBackgroundColor.opacity(0.8), userPreferences.entryBackgroundColor]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                        userPreferences.accentColor :
+                            getSectionColor()
                     )
-                    .foregroundColor(isSelected ? .white : .primary)
+                    .foregroundColor(isSelected ? getSelectedTextColor() : getTextColor())
                     .cornerRadius(20)
-                
-//                if isSelected {
-//                    Image(systemName: "checkmark.circle.fill")
-//                        .font(.footnote)
-//                        .foregroundColor(.white)
-//                        .padding(.trailing, 5)
-//                }
+
             }
         }
     }
@@ -336,6 +330,10 @@ struct TagButton: View {
             return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
         }
         return userPreferences.entryBackgroundColor
+    }
+    
+    func getSelectedTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor)))
     }
     
     func getTextColor() -> Color {
@@ -352,151 +350,6 @@ struct TagButton: View {
     }
     
 }
-
-
-//struct TagSelectionPopup: View {
-//    @Binding var isPresented: Bool
-//    @Binding var selectedTags: [String]
-//    @State private var newTagName: String = ""
-//
-//    @FetchRequest(
-//        entity: Tag.entity(),
-//        sortDescriptors: [NSSortDescriptor(keyPath: \Tag.numEntries, ascending: false), NSSortDescriptor(keyPath: \Tag.name, ascending: true)]
-//    ) var availableTags: FetchedResults<Tag>
-//    
-//    @EnvironmentObject var userPreferences: UserPreferences
-//    @EnvironmentObject var coreDataManager: CoreDataManager
-//    @Environment(\.colorScheme) var colorScheme
-//    
-//    var body: some View {
-//        VStack {
-//            // New Tag Input Section
-//            HStack {
-//                TextField("Create new tag", text: $newTagName)
-//                    .font(.buttonSize)
-//                    .padding(.horizontal)
-//                    .padding(.vertical, 8)
-//                    .foregroundStyle(getTextColor())
-//                    .background(
-//                        RoundedRectangle(cornerRadius: 10)
-//                            .stroke(getTextColor().opacity(0.5), lineWidth: 1)
-//                    )
-//
-//                
-//                Button(action: addNewTag) {
-//                    Image(systemName: "plus.circle.fill")
-//                        .font(.title2)
-//                        .foregroundColor(userPreferences.accentColor)
-//                }
-//                .padding(.trailing)
-//                .disabled(newTagName.isEmpty)
-//            }
-//            .padding(.vertical)
-//
-//            // Tag Selection Grid
-//            ScrollView {
-//                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))]) {
-//                    ForEach(availableTags, id: \.id) { tag in
-//                        TagButton(tag: tag, isSelected: selectedTags.contains(tag.name ?? "unnamed tag")) {
-//                            toggleTagSelection(tag.name ?? "unnamed tag")
-//                        }
-//                    }
-//                }
-//                .padding()
-//            }
-//        }
-//        .frame(maxHeight: 400)
-//        .background(getSectionColor())
-//        .cornerRadius(20)
-//        .shadow(radius: 10)
-//        .padding()
-//    }
-//    
-//    func getTextColor() -> Color {
-//        let background1 = userPreferences.backgroundColors.first ?? Color.clear
-//        let background2 = userPreferences.backgroundColors[1]
-//        let entryBackground = getSectionColor()
-//        
-//        return calculateTextColor(
-//            basedOn: background1,
-//            background2: background2,
-//            entryBackground: entryBackground,
-//            colorScheme: colorScheme
-//        )
-//
-//    }
-//    
-//    func getSectionColor() -> Color {
-//        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
-//            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-//        }
-//        return userPreferences.entryBackgroundColor
-//    }
-//    
-//    // Toggle tag selection
-//    private func toggleTagSelection(_ tagName: String) {
-//        if selectedTags.contains(tagName) {
-//            selectedTags.removeAll { $0 == tagName }
-//        } else {
-//            selectedTags.append(tagName)
-//        }
-//    }
-//
-//    // Add new tag to Core Data
-//    private func addNewTag() {
-//        guard !newTagName.isEmpty else { return }
-//        
-//        let newTag = Tag(context: coreDataManager.viewContext)
-//        newTag.name = newTagName
-//        newTag.numEntries = 0
-//        
-//        do {
-//            try coreDataManager.viewContext.save()
-//            selectedTags.append(newTag.name!)
-//            newTagName = ""
-//        } catch {
-//            print("Error saving new tag: \(error)")
-//        }
-//    }
-//}
-//
-//struct TagButton: View {
-//    let tag: Tag
-//    let isSelected: Bool
-//    let action: () -> Void
-//    
-//    @EnvironmentObject var userPreferences: UserPreferences
-//    @Environment(\.colorScheme) var colorScheme
-//    
-//    var body: some View {
-//        let selectedColor = userPreferences.accentColor
-//        let unselectedColor = userPreferences.entryBackgroundColor
-//        
-//        Button(action: action) {
-//            HStack {
-//                Text(tag.name ?? "")
-//                    .font(.buttonSize)
-//                    .padding(.horizontal)
-//                    .padding(.vertical, 5)
-//                    .background(
-//                        isSelected ?
-//                            LinearGradient(gradient: Gradient(colors: [selectedColor.opacity(0.8), selectedColor]), startPoint: .topLeading, endPoint: .bottomTrailing) :
-//                            LinearGradient(gradient: Gradient(colors: [unselectedColor.opacity(0.8), unselectedColor]), startPoint: .topLeading, endPoint: .bottomTrailing)
-//                    )
-//                    .foregroundColor(isSelected ? .white : .primary)
-//                    .cornerRadius(20)
-////                    .shadow(color: isSelected ? selectedColor.opacity(0.4) : Color.gray.opacity(0.2), radius: 5, x: 0, y: 3)
-//                
-////                if isSelected {
-////                    Image(systemName: "checkmark.circle.fill")
-////                        .font(.footnote)
-////                        .foregroundColor(.white)
-////                        .padding(.trailing, 5)
-////                }
-//            }
-//        }
-//    }
-//}
 
 
 struct DateEditPopupView: View {
@@ -584,7 +437,7 @@ struct ReminderPopupView: View {
                 Text("This action cannot be undone.")
             }
             .scrollContentBackground(.hidden)
-            .font(.system(size: 15))
+            .font(.customHeadline)
             .padding()
         } else {
             Text("Reminder Permissions Disabled")
@@ -617,7 +470,7 @@ struct ReminderPopupView: View {
                     }
                 }
                 .foregroundStyle(getTextColor())
-                .font(.system(size: 15))
+                .font(.customHeadline)
                 .pickerStyle(MenuPickerStyle())
                 .accentColor(userPreferences.accentColor)
 
@@ -670,5 +523,160 @@ struct ReminderPopupView: View {
             entryBackground: entryBackground,
             colorScheme: colorScheme
         )
+    }
+}
+
+import Foundation
+import SwiftUI
+import CoreData
+
+struct FolderSelectionView: View {
+    @Binding var isPresented: Bool
+    @Binding var folderId: String?
+    @State private var newFolderName: String = ""
+    @State private var refreshID = UUID()
+    
+    @FetchRequest(
+        entity: Folder.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Folder.order, ascending: true), NSSortDescriptor(keyPath: \Folder.name, ascending: true)],
+        animation: .default
+    ) var availableFolders: FetchedResults<Folder>
+    
+    @EnvironmentObject var userPreferences: UserPreferences
+    @EnvironmentObject var coreDataManager: CoreDataManager
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        VStack {
+            // New Folder Input Section
+            HStack {
+                TextField("Create new folder", text: $newFolderName, prompt: Text("Enter folder name")
+                            .foregroundStyle(getTextColor().opacity(0.5)))
+                    .textFieldStyle(.plain)
+                    .padding()
+                    .font(.buttonSize)
+                    .foregroundStyle(getTextColor())
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(userPreferences.entryBackgroundColor)
+                            .stroke(getTextColor().opacity(0.2), lineWidth: 1)
+                    )
+
+                Button(action: addNewFolder) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(userPreferences.accentColor)
+                }
+                .padding(.trailing)
+                .disabled(newFolderName.isEmpty)
+            }
+            .padding(.horizontal)
+            .padding(.vertical)
+
+            // Folder Selection List
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())]) {
+                    ForEach(availableFolders, id: \.id) { folder in
+                        folderButton(folder: folder, isSelected: folder.id.uuidString == folderId) {
+                            toggleFolderSelection(folder)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+        .cornerRadius(20)
+        .id(refreshID) // Force the view to refresh when refreshID changes
+    }
+    
+    func getTextColor() -> Color {
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : background1
+        let entryBackground = getSectionColor()
+        
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
+        )
+    }
+    
+    func getSectionColor() -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        }
+        return userPreferences.entryBackgroundColor
+    }
+  
+    func getSelectedTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor)))
+    }
+    
+    // Add new folder to Core Data
+    private func addNewFolder() {
+        guard !newFolderName.isEmpty else { return }
+        
+        // Check if the folder already exists
+        if availableFolders.contains(where: { $0.name == newFolderName }) {
+            print("Folder already exists: \(newFolderName)")
+            return
+        }
+        
+        // Create and save the new folder
+        let newFolder = Folder(context: coreDataManager.viewContext)
+        newFolder.id = UUID()
+        newFolder.name = newFolderName
+        newFolder.order = Int16(availableFolders.count)
+        newFolder.entryCount = 0
+        
+        do {
+            try coreDataManager.viewContext.save()
+            newFolderName = ""
+            refreshID = UUID() // Change the refreshID to force the view to reload
+        } catch {
+            print("Error saving new folder: \(error)")
+        }
+    }
+    
+    // Toggle folder selection
+    private func toggleFolderSelection(_ folder: Folder) {
+        if folderId == folder.id.uuidString {
+            // If the selected folder is clicked again, unselect it
+            folderId = nil
+        } else {
+            // Otherwise, select the new folder
+            folderId = folder.id.uuidString
+        }
+        
+//        do {
+//            try coreDataManager.viewContext.save()
+//        } catch {
+//            print("Error updating folder selection: \(error)")
+//        }
+//        
+        // Dismiss the selection view (optional based on your logic)
+        // isPresented = false
+    }
+    
+    @ViewBuilder
+    func folderButton(folder: Folder, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Label(folder.name ?? "", systemImage: "folder.fill")
+                Spacer()
+                if isSelected {
+                    Image(systemName: "checkmark")
+                }
+            }
+            .padding()
+            .background(
+                isSelected ?
+                userPreferences.accentColor :
+                    getSectionColor()
+            )
+            .foregroundColor(isSelected ? getSelectedTextColor() : getTextColor())
+            .cornerRadius(10)
+        }
     }
 }

@@ -24,6 +24,7 @@ struct EntryRowView: View {
     // user interface state
     @Binding  var isShowingEntryCreationView: Bool
     @Binding var isShowingReplyCreationView: Bool
+    @Binding var isShowingEntryEditView: Bool
     @Binding  var repliedEntryId: String?
 
     @State private var selectedEntry: Entry?
@@ -37,13 +38,13 @@ struct EntryRowView: View {
 
     // haptic feedback engine
     @State private var engine: CHHapticEngine?
-    @State var textColor = Color.white
+//    @State var textColor = Color.white
 
     
     
     var body: some View {
         if !entry.isFault {
-            TextView(entry: entry, repliedEntryId: $repliedEntryId, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView)
+            TextView(entry: entry, entryViewModel: EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView,  replyEntryId: $repliedEntryId))
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
 //                .listRowBackground(calculateTextColor(basedOn: userPreferences.backgroundColors.first ?? Color.clear, background2: userPreferences.backgroundColors[1], entryBackground: userPreferences.entryBackgroundColor, colorScheme: colorScheme))

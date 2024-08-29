@@ -39,7 +39,7 @@ struct StampDataView: View {
                 Spacer()
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
             }
-            .font(.system(size: UIFont.systemFontSize))
+            .font(.buttonSize)
             .onTapGesture {
                 isHidden.toggle()
             }

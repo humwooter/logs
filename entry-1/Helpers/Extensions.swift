@@ -32,10 +32,31 @@ func buildAttributedString(content: String, formattingData: Data?, fontSize: CGF
     return NSAttributedString(string: content, attributes: attributes)
 }
 
+extension CGSize {
+    static let calendarButtonWidth = UIScreen.main.bounds.size.width/10
+    static let smallButtonWidth = UIScreen.main.bounds.size.width/4.5
+
+    static let buttonWidth = UIScreen.main.bounds.size.width/2.5
+    static func mediumIconSize() -> CGSize {
+        return CGSize(width: UIFont.systemFontSize, height: UIFont.systemFontSize)
+    }
+    
+    static func largeIconSize() -> CGSize {
+        return CGSize(width: 2.0*UIFont.systemFontSize, height: 2.0*UIFont.systemFontSize)
+    }
+    static func superLargeIconSize() -> CGSize {
+        
+        return CGSize(width: self.buttonWidth, height: self.buttonWidth)
+    }
+}
+
 extension Font {
     static let customHeadline = Font.system(size: UIFont.systemFontSize*1.15, weight: .medium, design: .default)
-    
+    static let customCaption = Font.system(size: UIFont.systemFontSize*0.8, weight: .regular, design: .default)
+
     static let buttonSize = Font.system(size: UIFont.systemFontSize*1.3, weight: .regular, design: .default)
+    static let sectionHeaderSize = Font.system(size: UIFont.systemFontSize*1.0, weight: .regular, design: .default)
+
 }
 
 extension UTType {
@@ -129,6 +150,18 @@ func isDark(for color: UIColor) -> Bool {
 }
 
 extension View {
+        func frame(_ size: CGSize) -> some View {
+            self.frame(width: size.width, height: size.height)
+        }
+    // MARK: - View modifier
+        @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+            if condition {
+                transform(self)
+            } else {
+                self
+            }
+        }
+    
     @available(iOS 14, *)
     func navigationBarTitleTextColor(_ color: Color) -> some View {
         let uiColor = UIColor(color)

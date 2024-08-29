@@ -18,22 +18,44 @@ struct EntryDetailView: View { //used in LogDetailView
     @State var shareSheetShown = false
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
-    let entry: Entry
+//    @Binding var isEditing: Bool
+
+    @ObservedObject var entry: Entry
     @State private var isFullScreen = false
     
 
     @State private var mediaDim: CGFloat = 100
      var showContextMenu: Bool = false
+    var isInList: Bool = false
+    @State private var isEditing = false
+
 
 @State var showEntry = true
 @State var isPinned = false
     @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
+    
+    
+    var entryViewModel: EntryViewModel {
+        EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
-            finalView()
-            tagsView().padding(.vertical ,2)
-                .foregroundStyle(getTextColor().opacity(0.4))
+            if showContextMenu {
+                finalView()
+                    .contextMenu {
+                        entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
+                    }
+                    .sheet(isPresented: $isEditing) { //added this here
+                        EditingEntryView(entry: entry, isEditing: $isEditing)
+                                .foregroundColor(userPreferences.accentColor)
+                                .presentationDragIndicator(.hidden)
+                                .environmentObject(userPreferences)
+                                .environmentObject(coreDataManager)
+                        }
+            } else {
+                finalView()
+            }
         }
             .onAppear {
                 showEntry = !entry.isHidden
@@ -68,7 +90,14 @@ struct EntryDetailView: View { //used in LogDetailView
                 }
             
             }
-            .blur(radius: !entry.isHidden ? 0 : 7)
+            .sheet(isPresented: $isEditing) { //added this here
+                EditingEntryView(entry: entry, isEditing: $isEditing)
+                        .foregroundColor(userPreferences.accentColor)
+                        .presentationDragIndicator(.hidden)
+                        .environmentObject(userPreferences)
+                        .environmentObject(coreDataManager)
+                }
+//            .blur(radius: !entry.isHidden ? 0 : 7)
         
         
     }
@@ -79,11 +108,9 @@ struct EntryDetailView: View { //used in LogDetailView
             VStack(alignment: .leading) {
                 HStack {
                     entryHeaderView().foregroundStyle(getIdealHeaderTextColor())
-                        .font(.system(size: UIFont.systemFontSize))
                     Spacer()
                 }
                 Spacer()
-//                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7)
                 if let repliedId = entry.entryReplyId {
                         finalRepliedView()
                 } else {
@@ -92,7 +119,23 @@ struct EntryDetailView: View { //used in LogDetailView
                         entryContentView()
                     }
                 }
+                
+                tagsView().padding(.vertical ,2)
+                    .foregroundStyle(getTextColor().opacity(0.4))
             }.padding(.top)
+
+        }
+        .blur(radius: !entry.isHidden ? 0 : 7)
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+    }
+    
+    
+    func getSectionColor(colorScheme: ColorScheme) -> Color {
+        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
+            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        } else {
+            return userPreferences.entryBackgroundColor
         }
     }
     
@@ -150,7 +193,7 @@ struct EntryDetailView: View { //used in LogDetailView
 
             }
         }
-        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+        .font(.customCaption)
 
     }
     
@@ -243,6 +286,28 @@ struct EntryDetailView: View { //used in LogDetailView
     
     @ViewBuilder
     func entryContentView() -> some View {
+        entryBodyView()
+//        if showContextMenu {
+//            entryBodyView()
+//                    .contextMenu {
+//                        entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
+//                    }
+//                    .sheet(isPresented: $isEditing) { //added this here
+//                        EditingEntryView(entry: entry, isEditing: $isEditing)
+//                                .foregroundColor(userPreferences.accentColor)
+//                                .presentationDragIndicator(.hidden)
+//                                .environmentObject(userPreferences)
+//                                .environmentObject(coreDataManager)
+//                        }
+//        } else {
+//            entryBodyView()
+//        }
+    }
+    
+    
+
+    @ViewBuilder
+    func entryBodyView() -> some View {
         VStack(alignment: .leading, spacing: 5) {
             HStack {
                 VStack(alignment: .leading) {
@@ -250,7 +315,7 @@ struct EntryDetailView: View { //used in LogDetailView
                         
                         if (userPreferences.showLinks) {
                             Text(makeAttributedString(from: entry.content ?? ""))
-
+                            
                         } else {
                             Text(entry.content)
                         }
@@ -259,37 +324,36 @@ struct EntryDetailView: View { //used in LogDetailView
                     .fixedSize(horizontal: false, vertical: true) // Allow text to wrap vertically
                     .padding(2)
                     .foregroundStyle(Color(getTextColor()))
-                  
+                    
                 }
                 Spacer() // Push the image to the right
             }
             
             entryMediaView()
-
-        }
-        .contextMenu {
-                entryContextMenuButtons()
+            
         }
     }
-
     
     
     @ViewBuilder
     func entryHeaderView() -> some View {
         HStack {
             Text(formattedTime(time: entry.time))
-                .font(.footnote)
                 .foregroundStyle(Color(getTextColor()).opacity(0.4))
             if (entry.stampIndex != -1 ) {
                 Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                     .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
             }
-//            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
-//                Spacer()
-//                Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
-//            }
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId), isInList {
+                Spacer()
+                Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
         }
+        .font(.sectionHeaderSize)
     }
+    
+    
+    
     @ViewBuilder
     func entryContextMenuButtons() -> some View {
         

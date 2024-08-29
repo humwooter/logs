@@ -172,7 +172,7 @@ struct RemindersView: View {
                     
                     if let dueDate = reminder.dueDateComponents?.date {
                         Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
-                            .font(.subheadline)
+                            .font(.customHeadline)
                             .foregroundColor(getTextColor(entry: entry).opacity(0.3))
                     }
                     
@@ -184,7 +184,7 @@ struct RemindersView: View {
                                             Spacer()
                                         }
                                                 .foregroundStyle(userPreferences.accentColor)
-                                                .font(.caption)
+                                                .font(.sectionHeaderSize)
                                     }
                 
                 }
@@ -195,39 +195,6 @@ struct RemindersView: View {
         .padding()
     }
 
-  
-
-
-//    private func editReminder(reminder: EKReminder) {
-//        // Fetch and initialize the reminder details
-//        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminder.calendarItemIdentifier)
-//        
-//        // Update the reminder with the current manager's properties
-//        reminderManager.createOrUpdateReminder(
-//            reminderId: reminder.calendarItemIdentifier,
-//            title: reminderManager.reminderTitle,
-//            dueDate: reminderManager.selectedReminderDate,
-//            recurrence: reminderManager.selectedRecurrence,
-//            notes: reminder.notes ?? ""
-//        ) { result in
-//            switch result {
-//            case .success(let reminderId):
-//                print("Reminder updated successfully with ID: \(reminderId).")
-//            case .failure(let error):
-//                print("Failed to update the reminder: \(error.localizedDescription)")
-//            }
-//        }
-//    }
-//
-//
-//    private func deleteReminder(reminder: EKReminder) {
-//        do {
-//            try eventStore.remove(reminder, commit: true)
-//            print("Reminder deleted successfully.")
-//        } catch {
-//            print("Failed to delete the reminder: \(error.localizedDescription)")
-//        }
-//    }
 
     private func mapRecurrenceRuleToString(_ rule: EKRecurrenceRule) -> String {
         switch rule.frequency {

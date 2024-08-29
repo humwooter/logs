@@ -61,7 +61,7 @@ struct LogsDataView: View {
                 Image(systemName: isHidden ? "chevron.down" : "chevron.up").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
                 
             }
-            .font(.system(size: UIFont.systemFontSize))
+            .font(.customHeadline)
             .onTapGesture {
                 isHidden.toggle()
             }

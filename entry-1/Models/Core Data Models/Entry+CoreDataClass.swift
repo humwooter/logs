@@ -78,11 +78,6 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(logId, forKey: .logId)
         try container.encodeIfPresent(tags, forKey: .tags)
 
-        
-//        if let attributedContent = self.attributedContent {
-//            let attributedContentWrapper = AttributedStringCodableWrapper(attributedString: attributedContent as! NSAttributedString)
-//            try container.encode(attributedContentWrapper, forKey: .attributedContent)
-//        }
     }
     
     private enum CodingKeys: String, CodingKey {

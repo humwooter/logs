@@ -42,7 +42,7 @@ struct FlowLayout: View {
                 HStack(spacing: spacing) {
                     ForEach(line, id: \.self) { tag in
                         Text("#\(tag)")
-                            .font(.caption)
+                            .font(.customCaption)
                             .cornerRadius(5)
                             .lineLimit(1)
                     }

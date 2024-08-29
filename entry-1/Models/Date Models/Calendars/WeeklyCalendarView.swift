@@ -35,6 +35,7 @@ struct ScrollableWeeklyCalendarView: View {
     private func monthHeaderView() -> some View {
         HStack {
             Image(systemName: "chevron.left")
+                .font(.customHeadline)
                 .onTapGesture {
                     vibration_light.impactOccurred()
                     shiftPage(value: -1)
@@ -53,13 +54,14 @@ struct ScrollableWeeklyCalendarView: View {
                                     }
                                 }
                             Text("\(weekRange(for: currentPage))")
-                                .font(.subheadline)
+                    .font(.customHeadline)
                                 .foregroundStyle(getTextColor().opacity(0.5))
                         }
 
             Spacer()
 
             Image(systemName: "chevron.right")
+                .font(.customHeadline)
                 .onTapGesture {
                     vibration_light.impactOccurred()
                     shiftPage(value: 1)
@@ -108,7 +110,7 @@ struct ScrollableWeeklyCalendarView: View {
         LazyVGrid(columns: columns) {
             ForEach(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"], id: \.self) { day in
                 Text(day)
-                    .font(.callout)
+                    .font(.customHeadline)
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(getTextColor().opacity(0.3))
             }
@@ -122,20 +124,14 @@ struct ScrollableWeeklyCalendarView: View {
 
         VStack {
             Text("\(day.day!)")
-                .font(.callout)
+                .font(.customHeadline)
         }
-        .frame(width: 40, height: 40).background {
+        .frame(width: CGSize.calendarButtonWidth, height: CGSize.calendarButtonWidth)
+        .background {
             Circle().fill(isSelected ? selectionColor : unselectedColor)
                 .strokeBorder(unselectedColor.opacity(0.6), lineWidth: 1)
-            //                .background(
-            //                    RadialGradient(
-            //                        gradient: Gradient(colors: [Color.clear, isSelected ? selectionColor : unselectedColor]),
-            //                        center: .center,
-            //                        startRadius: 0,
-            //                        endRadius: 20 // Adjust this to control the spread of the gradient
         }
         .clipShape(Circle())
-//                )
         
         .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) : getTextColor())
         .onTapGesture {

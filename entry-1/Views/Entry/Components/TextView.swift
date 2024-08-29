@@ -42,9 +42,9 @@ struct TextView : View {
      
      @EnvironmentObject var userPreferences: UserPreferences
      @ObservedObject var entry : Entry
+    
      
-     @State private var editingContent : String = ""
-     @State private var isEditing : Bool = false
+//     @State private var editingContent : String = ""
      
      @State private var engine: CHHapticEngine?
      @FocusState private var focusField: Bool
@@ -65,11 +65,17 @@ struct TextView : View {
        @State private var pdfFileURL: URL?
      @State private var pdfData: Data?
      @State private var isExporting = false
-     
-     @Binding var repliedEntryId: String? //should store the id of the current entry
-     @Binding var isShowingEntryCreationView: Bool
-     @Binding var isShowingReplyCreationView: Bool
+    @State private var isEditing = false
 
+//
+//     @Binding var repliedEntryId: String? //should store the id of the current entry
+//     @Binding var isShowingEntryCreationView: Bool
+//     @Binding var isShowingReplyCreationView: Bool
+//    @Binding var isShowingEntryEditView: Bool
+
+    @StateObject  var entryViewModel: EntryViewModel
+
+    
     var body : some View {
         
         if (!entry.isFault) {
@@ -79,7 +85,7 @@ struct TextView : View {
                         NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
                             .blur(radius: !entry.isHidden ? 0 : 7)
                             .contextMenu {
-                                entryContextMenuButtons()
+                                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
                             }
                             .onAppear {
                                 if let reminderId = entry.reminderId, !reminderId.isEmpty {
@@ -103,18 +109,18 @@ struct TextView : View {
                                     }
                                 }
                             }
-                            .onChange(of: isEditing) { newValue in
-                                if newValue {
-                                    editingContent = entry.content
-                                }
-                            }
+//                            .onChange(of: entryViewModel.isShowingEntryEditView) { newValue in
+//                                if newValue {
+//                                    editingContent = entry.content
+//                                }
+//                            }
                         
                         tagsView()
                             .foregroundStyle(getTextColor().opacity(0.3))
                     }
         
-                        .sheet(isPresented: $isEditing) {
-                            EditingEntryView(entry: entry, editingContent: $editingContent, isEditing: $isEditing)
+                    .sheet(isPresented: $isEditing) {
+                        EditingEntryView(entry: entry, isEditing: $isEditing)
                                 .foregroundColor(userPreferences.accentColor)
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
@@ -143,7 +149,7 @@ struct TextView : View {
                 
             }
         header: {
-                entrySectionHeader()
+                entryHeaderView()
             }
             .onAppear {
                 showEntry = !entry.isHidden
@@ -218,100 +224,7 @@ struct TextView : View {
             }
         }
     }
-    
-    @ViewBuilder
-    func entryContextMenuButtons() -> some View {
-        Button(action: {
-            withAnimation {
-                isEditing = true
-            }
-        }) {
-            Text("Edit")
-            Image(systemName: "pencil")
-                .foregroundColor(userPreferences.accentColor)
-        }
-        
-        Button(action: {
-            withAnimation {
-                repliedEntryId = entry.id.uuidString
-                isShowingReplyCreationView = true
-            }
-        }) {
-            Text("Reply")
-            Image(systemName: "arrow.uturn.left")
-                .foregroundColor(userPreferences.accentColor)
-        }
-        
-        Button(action: {
-            UIPasteboard.general.string = entry.content
-        }) {
-            Text("Copy Message")
-            Image(systemName: "doc.on.doc")
-        }
-        
-        
-        Button(action: {
-            withAnimation(.easeOut) {
-                entry.isHidden.toggle()
-                coreDataManager.save(context: coreDataManager.viewContext)
-            }
 
-        }, label: {
-            Label(!entry.isHidden ? "Hide Entry" : "Unhide Entry", systemImage: entry.isHidden ? "eye.slash.fill" : "eye.fill")
-        })
-        
-        if let filename = entry.mediaFilename {
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let fileURL = documentsDirectory.appendingPathComponent(filename)
-            if mediaExists(at: fileURL) {
-                if let data =  getMediaData(fromFilename: filename) {
-                    
-                    if !isPDF(data: data) {
-                        let image = UIImage(data: data)!
-                        Button(action: {
-                            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                            let fileURL = documentsDirectory.appendingPathComponent(filename)
-                            
-                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                            
-                        }, label: {
-                            Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                        })
-                    } else {
-                         
-                    }
-                }
-            }
-            
-        }
-        
-        Button(action: {
-            withAnimation {
-                entry.isPinned.toggle()
-                coreDataManager.save(context: coreDataManager.viewContext)
-            }
-        }) {
-            Text(entry.isPinned ? "Unpin" : "Pin")
-            Image(systemName: "pin.fill")
-                .foregroundColor(.red)
-          
-        }
-        
-        Button(action: {
-            entry.shouldSyncWithCloudKit.toggle()
-            
-            // Save the flag change in local storage first
-            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
-
-            // Save the entry in the appropriate store
-            CoreDataManager.shared.saveEntry(entry)
-        }) {
-            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
-            Image(systemName: "cloud.fill")
-        }
-
-        
-    }
     
 
     func updateReminders() {
@@ -343,7 +256,7 @@ struct TextView : View {
     
     
     @ViewBuilder
-    func entrySectionHeader() -> some View {
+    func entryHeaderView() -> some View {
         HStack {
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
@@ -378,8 +291,8 @@ struct TextView : View {
             Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                 .contentTransition(.symbolEffect(.replace.offUp))
         }
-
-        .font(.system(size: UIFont.systemFontSize))
+        .font(.sectionHeaderSize)
+//        .font(.system(size: UIFont.systemFontSize))
         .onTapGesture {
             vibration_light.impactOccurred()
                 entry.isShown.toggle()

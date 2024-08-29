@@ -81,7 +81,10 @@ struct NotEditingView: View {
     func finalView() -> some View {
         ZStack(alignment: .topTrailing) {
             VStack {
-                entryHeaderView().font(.system(size: UIFont.systemFontSize)).padding([.top, .bottom, .trailing], 7).foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
+                entryHeaderView()
+                    .font(.sectionHeaderSize)
+                    .padding([.top, .bottom, .trailing], 7)
+                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
                 if let repliedId = replyEntryId {
                     finalRepliedView()
                 } else {
@@ -94,7 +97,6 @@ struct NotEditingView: View {
     @ViewBuilder
     func entryView() -> some View {
             VStack {
-//                entryHeaderView().font(.system(size: UIFont.systemFontSize))
                 entryTextView()
                 if let url = getUrl(for: entry.mediaFilename ?? "") {
                     if mediaExists(at: url) {
@@ -182,7 +184,7 @@ struct NotEditingView: View {
 
             }
         }
-        .font(.system(size: max(UIFont.systemFontSize*0.8,5)))
+        .font(.customCaption)
 
     }
 
@@ -275,11 +277,6 @@ struct NotEditingView: View {
     
     @ViewBuilder
     func entryHeaderView() -> some View {
-        
-//        var backgroundColor = getDefaultBackgroundColor(colorScheme: colorScheme)
-//        var blendedColor = UIColor.blendedColor(from: foregroundColor, with: UIColor(backgroundColor))
-//
-        
         HStack {
             Spacer()
             

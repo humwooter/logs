@@ -22,7 +22,8 @@ struct NotificationView: View {
                         .foregroundColor(.white)
                         .padding(.leading)
                 }
-                Text(message).font(.system(size: UIFont.systemFontSize))
+                Text(message)
+                    .font(.customHeadline)
                     .foregroundColor(.white)
                     .padding(.all)
             }

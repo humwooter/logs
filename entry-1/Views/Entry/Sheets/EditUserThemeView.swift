@@ -43,95 +43,12 @@ struct EditUserThemeView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section(header: Text("Preferences")
-                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
-                    .font(.system(size: UIFont.systemFontSize))
-                ) {
-                    HStack {
-                        Text("Theme name: ")
-                        TextField("", text: $theme.name)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
-                        Spacer()
-                    }
-                    .padding(.vertical, 8)
+                listSectionsView()
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
+                .listRowBackground(getSectionColor(colorScheme: colorScheme))
 
-//                             .font(.system(size: UIFont.systemFontSize))
-                    
-                    ColorPicker("Accent Color", selection: $theme.accentColor)
-                    FontPicker(
-                        selectedFont: $theme.fontName,
-                        selectedFontSize: $theme.fontSize,
-                        accentColor: $theme.accentColor,
-                        inputCategories: fontCategories,
-                        topColor_background: $theme.topColor,
-                        bottomColor_background: $theme.bottomColor,
-                        defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme)
-                    )
-                    HStack {
-                        Text("Line Spacing")
-                        Slider(value: $theme.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
-                    }
-                }
-                
-                Section {
-                    BackgroundColorPickerView(topColor: $theme.topColor, bottomColor: $theme.bottomColor)
-                } header: {
-                    HStack {
-                        Text("Background Colors")
-                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
-                            .font(.system(size: UIFont.systemFontSize))
-                        Spacer()
-                        Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                            .onTapGesture {
-                                vibration_light.impactOccurred()
-                                theme.topColor = .clear
-                                theme.bottomColor = .clear
-                            }
-                    }
-                }
-                
-                Section {
-                    ColorPicker("Default Entry Background Color:", selection: $theme.entryBackgroundColor)
-                } header: {
-                    HStack {
-                        Text("Entry Background")
-                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
-                            .font(.system(size: UIFont.systemFontSize))
-                        Spacer()
-                        Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
-                            .onTapGesture {
-                                vibration_light.impactOccurred()
-                                theme.entryBackgroundColor = .clear
-                            }
-                    }
-                }
-                
-                Section {
-                    ColorPicker("Pin Color", selection: $theme.pinColor)
-                } header: {
-                    HStack {
-                        Text("Pin Color")
-                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
-                            .font(.system(size: UIFont.systemFontSize))
-                        Spacer()
-                        Image(systemName: "pin.fill").foregroundStyle(theme.pinColor)
-                    }.font(.system(size: UIFont.systemFontSize))
-                    
-                }
-                
-                Section {
-                    ColorPicker("Reminder Color", selection: $theme.reminderColor)
-                } header: {
-                    HStack {
-                        Text("Alerts")
-                            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
-                            .font(.system(size: UIFont.systemFontSize))
-                        Spacer()
-                        Image(systemName: "bell.fill").foregroundStyle(theme.reminderColor)
-                    }.font(.system(size: UIFont.systemFontSize))
-                }
             }
+            .scrollContentBackground(.hidden)
             .background {
                 ZStack {
                     Color(UIColor.systemGroupedBackground)
@@ -139,7 +56,6 @@ struct EditUserThemeView: View {
                 }
                 .ignoresSafeArea()
             }
-            .scrollContentBackground(.hidden)
             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             .font(.custom(String(theme.fontName), size: CGFloat(Float(theme.fontSize))))
             .accentColor(theme.accentColor)
@@ -148,11 +64,108 @@ struct EditUserThemeView: View {
                     saveTheme()
                 } label: {
                     Label("Save", systemImage: "")
-                        .foregroundStyle(theme.accentColor)                        .font(.system(size: UIFont.systemFontSize+5))
+                        .foregroundStyle(theme.accentColor)                        
+                        .font(.customHeadline)
                 }
 
             }
            
+        }
+    }
+    
+    @ViewBuilder
+    func listSectionsView() -> some View {
+        Section(header: Text("Preferences")
+            .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+            .font(.customHeadline)
+        ) {
+            HStack {
+                Text("Theme name: ")
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
+
+                TextField("", text: $theme.name)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme))
+                Spacer()
+            }
+            .padding(.vertical, 8)
+
+            
+            ColorPicker("Accent Color", selection: $theme.accentColor)
+            FontPicker(
+                selectedFont: $theme.fontName,
+                selectedFontSize: $theme.fontSize,
+                accentColor: $theme.accentColor,
+                inputCategories: fontCategories,
+                topColor_background: $theme.topColor,
+                bottomColor_background: $theme.bottomColor,
+                defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme)
+            )
+            HStack {
+                Text("Line Spacing")
+                Slider(value: $theme.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
+            }
+        }
+        
+        Section {
+            BackgroundColorPickerView(topColor: $theme.topColor, bottomColor: $theme.bottomColor)
+        } header: {
+            HStack {
+                Text("Background Colors")
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                    .font(.customHeadline)
+                Spacer()
+                Label("reset", systemImage: "gobackward")
+                    .font(.customHeadline)
+                    .onTapGesture {
+                        vibration_light.impactOccurred()
+                        theme.topColor = .clear
+                        theme.bottomColor = .clear
+                    }
+            }
+        }
+        
+        Section {
+            ColorPicker("Default Entry Background Color:", selection: $theme.entryBackgroundColor)
+        } header: {
+            HStack {
+                Text("Entry Background")
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                    .font(.customHeadline)
+                Spacer()
+                Label("reset", systemImage: "gobackward").foregroundStyle(.red).font(.system(size: UIFont.systemFontSize))
+                    .onTapGesture {
+                        vibration_light.impactOccurred()
+                        theme.entryBackgroundColor = .clear
+                    }
+            }
+        }
+        
+        Section {
+            ColorPicker("Pin Color", selection: $theme.pinColor)
+        } header: {
+            HStack {
+                Text("Pin Color")
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                    .font(.customHeadline)
+                Spacer()
+                Image(systemName: "pin.fill").foregroundStyle(theme.pinColor)
+            }
+            .font(.customHeadline)
+
+        }
+        
+        Section {
+            ColorPicker("Reminder Color", selection: $theme.reminderColor)
+        } header: {
+            HStack {
+                Text("Alerts")
+                    .foregroundStyle(getIdealTextColor(topColor: theme.topColor, bottomColor: theme.bottomColor, colorScheme: colorScheme).opacity(0.5))
+                    .font(.customHeadline)
+                Spacer()
+                Image(systemName: "bell.fill").foregroundStyle(theme.reminderColor)
+            }
+            .font(.customHeadline)
         }
     }
     
@@ -179,5 +192,13 @@ struct EditUserThemeView: View {
         }
     }
 
+    func getSectionColor(colorScheme: ColorScheme) -> Color {
+        if isClear(for: UIColor(theme.entryBackgroundColor)) {
+            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+        } else {
+            return theme.entryBackgroundColor
+        }
+    }
+    
 }
 

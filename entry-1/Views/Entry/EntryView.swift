@@ -53,6 +53,8 @@ struct EntryView: View {
     @State private var selectedEntry: Entry?
     @State private var editingEntry: Entry?
     @State private var isShowingEntryCreationView = false
+    @State private var isShowingEntryEditView: Bool = false
+
     @Binding var isShowingReplyCreationView: Bool
 
     @Binding var repliedEntryId: String?
@@ -96,7 +98,7 @@ struct EntryView: View {
             }
             
             .background {
-                backgroundView()
+                userPreferences.backgroundView(colorScheme: colorScheme)
             }
             .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())
@@ -109,7 +111,7 @@ struct EntryView: View {
                     isShowingEntryCreationView = true
                 }, label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 15))
+                        .font(.customHeadline)
                 })
             }
             )
@@ -140,6 +142,8 @@ struct EntryView: View {
                         }
                 }
             }
+            
+
             .onChange(of: repliedEntryId) { _ in
                       isShowingReplyCreationView = shouldShowReplySheet // Update the state when repliedEntryId changes
                   }       
@@ -276,37 +280,23 @@ struct EntryView: View {
             }
         } label: {
             Image(systemName: "slider.horizontal.3")
-                .font(.system(size:13))
+                .font(.customHeadline)
             
         }
     }
     
-    
-    @ViewBuilder
-    func backgroundView() -> some View {
-        ZStack {
-            Color(UIColor.systemGroupedBackground)
-            LinearGradient(colors: [userPreferences.backgroundColors[0], userPreferences.backgroundColors.count > 1 ? userPreferences.backgroundColors[1] : userPreferences.backgroundColors[0]], startPoint: .top, endPoint: .bottom)
-        }
-        .ignoresSafeArea(.all)
-    }
-
-
-
+ 
     
     @ViewBuilder
     func sortedEntriesView() -> some View {
-//        let cloudEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true)
-//        let localEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: false)
+
         switch selectedSortOption {
         case .timeAscending:
             let sortedEntries = entries.sorted { $0.time > $1.time }
 
-//            let sortedEntries = coreDataManager.fetchEntries(shouldSyncWithCloudKit: true) + coreDataManager.fetchEntries(shouldSyncWithCloudKit: false)
-//            (entries).sorted { $0.time > $1.time } +
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -320,7 +310,7 @@ struct EntryView: View {
             let sortedEntries = syncedEntries + entries.sorted { $0.time < $1.time }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -335,7 +325,7 @@ struct EntryView: View {
             let sortedEntries = syncedEntries + entries.sorted { $0.stampIcon > $1.stampIcon }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -350,7 +340,7 @@ struct EntryView: View {
             let sortedEntries = syncedEntries + entries.sorted { $0.content.count > $1.content.count }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -372,7 +362,7 @@ struct EntryView: View {
                   }
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -387,7 +377,7 @@ struct EntryView: View {
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")
@@ -402,7 +392,7 @@ struct EntryView: View {
             
             ForEach(sortedEntries) { entry in
                 if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId)
+                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
                         .environmentObject(userPreferences)
                         .environmentObject(coreDataManager)
                         .id("\(entry.id)")

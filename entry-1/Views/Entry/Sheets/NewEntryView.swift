@@ -90,11 +90,13 @@ struct NewEntryView: View {
     @State private var showingEntryTitle = false
     @State private var entryTitle: String = ""
     @State private var entryId: UUID = UUID()
+    @State private var folderId: String?
 
     @State private var tempEntryTitle: String = ""
     
     @State private var selectedTags: [String] = []
     @State private var showTagSelection = false
+    @State private var showFolderSelection = false
      @State private var showEntryNameSelection = false
     
     let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
@@ -181,8 +183,15 @@ struct NewEntryView: View {
                             Button {
                                 showTagSelection = true
                             } label: {
-                                Label("Add tag", systemImage: "tag")
+                                Label("Add tag", systemImage: "number")
                             }
+                            
+                            Button {
+                                showFolderSelection = true
+                            } label: {
+                                Label("Add to folder", systemImage: "folder.fill")
+                            }
+                            
                         }.font(.customHeadline)
                       
             
@@ -253,7 +262,17 @@ struct NewEntryView: View {
             }
         )
         .overlay(
-            CustomPopupView(isPresented: $showEntryNameSelection, title: entryTitle.isEmpty ? "Entry Title" : entryTitle, onSave: {
+            CustomPopupView(isPresented: $showFolderSelection, title: "Select Folder", onSave: {
+                showFolderSelection = false
+
+            }) {
+                FolderSelectionView(isPresented: $showFolderSelection, folderId: $folderId)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showEntryNameSelection, title: "Entry Title" , onSave: {
                 // Dismiss the view
                 showEntryNameSelection = false
 
@@ -680,7 +699,6 @@ struct NewEntryView: View {
             newEntry.tags = selectedTags
         }
         
-        print("REMINDER ID before if let: \(String(describing: reminderId))")
         if let reminderId {
             print("REMINDER ID inside if let: \(reminderId)")
             newEntry.reminderId = reminderId
@@ -688,7 +706,12 @@ struct NewEntryView: View {
             print("REMINDER ID is nil or empty")
             newEntry.reminderId = ""
         }
-        print("REMINDER ID after if let: \(String(describing: newEntry.reminderId))")
+        
+        if let folderId = folderId {
+            newEntry.folderId = folderId
+        } else {
+            newEntry.folderId = ""
+        }
         
 
         // Fetch the log with the appropriate day
