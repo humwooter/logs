@@ -94,10 +94,13 @@ struct NewEntryView: View {
 
     @State private var tempEntryTitle: String = ""
     
-    @State private var selectedTags: [String] = []
+    @State private var selectedTags: String = ""
     @State private var showTagSelection = false
     @State private var showFolderSelection = false
      @State private var showEntryNameSelection = false
+    
+    @StateObject var tagViewModel: TagViewModel
+
     
     let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
 
@@ -131,6 +134,7 @@ struct NewEntryView: View {
    buttonBars()
            
             }
+
             .onAppear {
                     NotificationCenter.default.addObserver(forName: NSNotification.Name("CreateEntryWithStamp"), object: nil, queue: .main) { notification in
                         if let stampId = notification.object as? UUID {
@@ -253,10 +257,10 @@ struct NewEntryView: View {
             CustomPopupView(isPresented: $showTagSelection, title: "Select Tags", onSave: {
                 // Dismiss the view
                 showTagSelection = false
+                tagViewModel.saveSelectedTags(to: &selectedTags)
                 // Then save the tags
-                    saveSelectedTags()
             }) {
-                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entryId, selectedTags: $selectedTags, currentTags: $currentTags)
+                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entryId, selectedTagNames: $selectedTags, tagViewModel: tagViewModel)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
             }
@@ -310,15 +314,7 @@ struct NewEntryView: View {
        
     }
     
-    private func saveSelectedTags() {
-        for (tag, isSelected) in currentTags {
-            if isSelected == true {
-                if let tagName = tag.name {
-                    selectedTags.append(tagName)
-                }
-            }
-        }
-    }
+    
     
     private func saveReminder() {
         if reminderId == nil {
@@ -672,8 +668,8 @@ struct NewEntryView: View {
         newEntry.isPinned = false
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
-        newEntry.tags = []
-        
+        newEntry.tagNames = selectedTags
+
         newEntry.name = "" //change later
         if !entryTitle.isEmpty {
             newEntry.title = entryTitle
@@ -695,9 +691,8 @@ struct NewEntryView: View {
             }
         }
         
-        if !selectedTags.isEmpty {
-            newEntry.tags = selectedTags
-        }
+
+        
         
         if let reminderId {
             print("REMINDER ID inside if let: \(reminderId)")

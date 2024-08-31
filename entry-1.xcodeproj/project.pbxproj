@@ -271,6 +271,19 @@
 		4AD9E40C2B318B7800A3C444 /* EditingEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AD9E40B2B318B7800A3C444 /* EditingEntryView.swift */; };
 		4AE3AF2D2B3B1757002CA8B1 /* DataFuncs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */; };
 		4AED6CD22C620FAD007F7298 /* OldPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AED6CD12C620FAD007F7298 /* OldPersistence.swift */; };
+		4AEE31882C81C27600D6BE8F /* ExtraCorn.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31872C81C27600D6BE8F /* ExtraCorn.ttf */; };
+		4AEE31892C81C27600D6BE8F /* ExtraCorn.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31872C81C27600D6BE8F /* ExtraCorn.ttf */; };
+		4AEE318A2C81C27600D6BE8F /* ExtraCorn.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31872C81C27600D6BE8F /* ExtraCorn.ttf */; };
+		4AEE318C2C81C2A000D6BE8F /* TootMagistra.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE318B2C81C2A000D6BE8F /* TootMagistra.otf */; };
+		4AEE318D2C81C2A000D6BE8F /* TootMagistra.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE318B2C81C2A000D6BE8F /* TootMagistra.otf */; };
+		4AEE318E2C81C2A000D6BE8F /* TootMagistra.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE318B2C81C2A000D6BE8F /* TootMagistra.otf */; };
+		4AEE31942C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31932C81C3DF00D6BE8F /* GuavineDemoRegular.otf */; };
+		4AEE31952C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31932C81C3DF00D6BE8F /* GuavineDemoRegular.otf */; };
+		4AEE31962C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31932C81C3DF00D6BE8F /* GuavineDemoRegular.otf */; };
+		4AEE31982C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31972C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf */; };
+		4AEE31992C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31972C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf */; };
+		4AEE319A2C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 4AEE31972C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf */; };
+		4AEE319C2C82C8C900D6BE8F /* TagViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEE319B2C82C8C400D6BE8F /* TagViewModel.swift */; };
 		4AF545E42BDA1722007D8AFF /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF545E32BDA1722007D8AFF /* NotificationView.swift */; };
 		4AFCF99C2B1619A000088460 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* TextView.swift */; };
 		4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */; };
@@ -478,6 +491,11 @@
 		4AE3AF2C2B3B1757002CA8B1 /* DataFuncs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataFuncs.swift; sourceTree = "<group>"; };
 		4AE997C82C5442C000D9950E /* entry_1 july.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_1 july.xcdatamodel"; sourceTree = "<group>"; };
 		4AED6CD12C620FAD007F7298 /* OldPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldPersistence.swift; sourceTree = "<group>"; };
+		4AEE31872C81C27600D6BE8F /* ExtraCorn.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ExtraCorn.ttf; sourceTree = "<group>"; };
+		4AEE318B2C81C2A000D6BE8F /* TootMagistra.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = TootMagistra.otf; sourceTree = "<group>"; };
+		4AEE31932C81C3DF00D6BE8F /* GuavineDemoRegular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GuavineDemoRegular.otf; sourceTree = "<group>"; };
+		4AEE31972C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = GaldienRoundedDemoRegular.otf; sourceTree = "<group>"; };
+		4AEE319B2C82C8C400D6BE8F /* TagViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViewModel.swift; sourceTree = "<group>"; };
 		4AF545E32BDA1722007D8AFF /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		4AFCF99B2B1619A000088460 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModel.swift; sourceTree = "<group>"; };
@@ -623,6 +641,7 @@
 		4A00E5282C7EDE1A00677E86 /* View Models */ = {
 			isa = PBXGroup;
 			children = (
+				4AEE319B2C82C8C400D6BE8F /* TagViewModel.swift */,
 				4A372BB62C7EDF97007EE90E /* EntryViewModel.swift */,
 			);
 			path = "View Models";
@@ -908,6 +927,10 @@
 		4ACE30FC2AEE2DD200807858 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				4AEE31972C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf */,
+				4AEE31932C81C3DF00D6BE8F /* GuavineDemoRegular.otf */,
+				4AEE318B2C81C2A000D6BE8F /* TootMagistra.otf */,
+				4AEE31872C81C27600D6BE8F /* ExtraCorn.ttf */,
 				4A942A832B759F0F00C60BCC /* SpicyPotatos.ttf */,
 				4A942A7F2B759EDC00C60BCC /* NewBoba.ttf */,
 				4A942A7B2B759DEB00C60BCC /* MiniStory.ttf */,
@@ -1107,6 +1130,7 @@
 				4ACE30A02AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30FA2AEE294300807858 /* IrishuncialfabetaBold.ttf in Resources */,
 				4ACE30D52AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
+				4AEE319A2C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */,
 				4A942A702B759CBA00C60BCC /* Milkmoustachio.ttf in Resources */,
 				4A942A682B759C7400C60BCC /* Snickles.ttf in Resources */,
 				4ACE31012AEE2FE100807858 /* TheNightOne.otf in Resources */,
@@ -1117,12 +1141,15 @@
 				4ACE30B02AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
 				4ACE30F72AEE28DA00807858 /* AliceInWonderland.ttf in Resources */,
 				4A942A502B7598E700C60BCC /* Copyduck.ttf in Resources */,
+				4AEE318E2C81C2A000D6BE8F /* TootMagistra.otf in Resources */,
 				4ACE30902AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */,
 				4ACE30C82AEE1A3400807858 /* Barrbar-DOKOR.otf in Resources */,
+				4AEE31882C81C27600D6BE8F /* ExtraCorn.ttf in Resources */,
 				4ACE30EE2AEE28B700807858 /* QuaeriteRegnumDei.otf in Resources */,
 				4ACE308C2AEE0A4000807858 /* SunnySpellsBasicRegular-Yz1Wv.ttf in Resources */,
 				4ACE30E82AEE203300807858 /* CuteAurora.ttf in Resources */,
 				4A942A582B7599A500C60BCC /* Catbrother.ttf in Resources */,
+				4AEE31962C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */,
 				4A942A742B759CF100C60BCC /* ZukaDoodle.ttf in Resources */,
 				4A942A542B75990300C60BCC /* Shabina.otf in Resources */,
 				4ACE30982AEE0DE100807858 /* Auseklis.ttf in Resources */,
@@ -1157,15 +1184,19 @@
 				4ACE309D2AEE0E9100807858 /* MotleyForcesRegular.ttf in Resources */,
 				4ACE30D32AEE1CC500807858 /* MuedaCity.ttf in Resources */,
 				4A942A812B759EDC00C60BCC /* NewBoba.ttf in Resources */,
+				4AEE31892C81C27600D6BE8F /* ExtraCorn.ttf in Resources */,
 				4ACE30992AEE0DE100807858 /* Auseklis.ttf in Resources */,
 				4ACE30A12AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30C12AEE1A0700807858 /* NjalBold.otf in Resources */,
 				4ACE30B92AEE18C800807858 /* MagieraScript.ttf in Resources */,
 				4A6235DF2BCBC05C00AF8875 /* Borel-Regular.ttf in Resources */,
+				4AEE31952C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */,
 				4A942A852B759F1000C60BCC /* SpicyPotatos.ttf in Resources */,
 				4A942A512B7598E700C60BCC /* Copyduck.ttf in Resources */,
+				4AEE31982C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */,
 				4ACE30AD2AEE13B500807858 /* DancingScript-3j68.ttf in Resources */,
 				4A942A6D2B759C8D00C60BCC /* RichieBrusher.ttf in Resources */,
+				4AEE318D2C81C2A000D6BE8F /* TootMagistra.otf in Resources */,
 				4ACE30B12AEE13E800807858 /* ClickerScript-2djl.ttf in Resources */,
 				4ACE30A92AEE139C00807858 /* MageScript-KpaW.ttf in Resources */,
 				4A942A612B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
@@ -1181,6 +1212,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4ACE30E62AEE202600807858 /* Veggieburger.otf in Resources */,
+				4AEE318A2C81C27600D6BE8F /* ExtraCorn.ttf in Resources */,
 				4ACE31022AEE2FE100807858 /* TheNightOne.otf in Resources */,
 				4A942A7E2B759DEB00C60BCC /* MiniStory.ttf in Resources */,
 				4ACE30F82AEE28DA00807858 /* AliceInWonderland.ttf in Resources */,
@@ -1191,10 +1223,12 @@
 				4ACE30E92AEE203300807858 /* CuteAurora.ttf in Resources */,
 				4ACE30EF2AEE28B700807858 /* QuaeriteRegnumDei.otf in Resources */,
 				4ACE30D72AEE1ECF00807858 /* SparkyStonesRegular.ttf in Resources */,
+				4AEE318C2C81C2A000D6BE8F /* TootMagistra.otf in Resources */,
 				4ACE30B62AEE158F00807858 /* StainellaScript.ttf in Resources */,
 				4A942A5A2B7599A500C60BCC /* Catbrother.ttf in Resources */,
 				4ACE30CA2AEE1A3400807858 /* Barrbar-DOKOR.otf in Resources */,
 				4A942A5E2B7599C600C60BCC /* Catread.ttf in Resources */,
+				4AEE31992C81C42600D6BE8F /* GaldienRoundedDemoRegular.otf in Resources */,
 				4ACE310E2AEE40FE00807858 /* Greenleaf-1GRqe.ttf in Resources */,
 				4A942A622B759A2900C60BCC /* CraftyForYou.ttf in Resources */,
 				4A942A6A2B759C7400C60BCC /* Snickles.ttf in Resources */,
@@ -1208,6 +1242,7 @@
 				4ACE30FF2AEE2E9000807858 /* DarlinPop.ttf in Resources */,
 				4ACE309E2AEE0E9100807858 /* MotleyForcesRegular.ttf in Resources */,
 				4ACE309A2AEE0DE100807858 /* Auseklis.ttf in Resources */,
+				4AEE31942C81C3DF00D6BE8F /* GuavineDemoRegular.otf in Resources */,
 				4ACE30A22AEE131900807858 /* HaraldRunic.ttf in Resources */,
 				4ACE30C22AEE1A0700807858 /* NjalBold.otf in Resources */,
 				4ACE30F52AEE28CE00807858 /* AnggaranDasar.ttf in Resources */,
@@ -1324,6 +1359,7 @@
 				4A5E53152B8D9ED400F4521D /* EntryView.swift in Sources */,
 				4A72642F2AEBAC920099EA84 /* TimeFuncs.swift in Sources */,
 				34A8082B2A8A167200B9BB5C /* Persistence.swift in Sources */,
+				4AEE319C2C82C8C900D6BE8F /* TagViewModel.swift in Sources */,
 				4A72643A2AEBB0570099EA84 /* LogDetailView.swift in Sources */,
 				345E99182A90DE35004A81E2 /* ImagePicker.swift in Sources */,
 				4A81FD5F2C3EA0EC004EC3D2 /* EntryManager.swift in Sources */,

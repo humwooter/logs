@@ -115,12 +115,11 @@ struct TextView : View {
 //                                }
 //                            }
                         
-                        tagsView()
-                            .foregroundStyle(getTextColor().opacity(0.3))
+//                        tagsView()
                     }
         
                     .sheet(isPresented: $isEditing) {
-                        EditingEntryView(entry: entry, isEditing: $isEditing)
+                        EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                                 .foregroundColor(userPreferences.accentColor)
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
@@ -208,25 +207,8 @@ struct TextView : View {
         }
     }
     
-    @ViewBuilder
-    func tagsView() -> some View {
-        if let tags = entry.tags {
-            if !tags.isEmpty {
-                VStack(alignment: .leading, spacing: 1) {
-                    Divider().foregroundStyle(getTextColor())
-                    
-                    FlexibleTagGridView(tags: tags)
-                        .padding(.vertical)
-                    
-                }
-            } else {
-                EmptyView()
-            }
-        }
-    }
 
     
-
     func updateReminders() {
         if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
             if !reminderExists(with: reminderId) {
@@ -248,6 +230,10 @@ struct TextView : View {
                 print("Failed to save viewContext: \(error)")
             }
         }
+    }
+    
+    func getSectionTextColor() -> Color {
+        return Color(UIColor.fontColor(forBackgroundColor: UIColor(getSectionColor())))
     }
     
     func getIdealHeaderTextColor() -> Color {
@@ -309,4 +295,6 @@ struct TextView : View {
 
     
 }
+
+
 

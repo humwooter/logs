@@ -280,7 +280,27 @@ func checkDiskSpace() {
 //}
 
 
+func deleteFolder(folder: Folder, coreDataManager: CoreDataManager) {
+    let mainContext = coreDataManager.viewContext
+    
+    mainContext.performAndWait {
+        let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", folder.id as CVarArg)
+        do {
+            let fetchedFolders = try mainContext.fetch(fetchRequest)
+            guard let foldersToDeleteInContext = fetchedFolders.first else {
+                print("Failed to fetch entry in main context")
+                return
+            }
+            mainContext.delete(foldersToDeleteInContext)
+            try mainContext.save()
+            print("Folder successfully deleted")
+        } catch {
+            print("Failed to save main context: \(error)")
+        }
+    }
 
+}
 
 func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
     let mainContext = coreDataManager.viewContext

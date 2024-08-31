@@ -46,7 +46,10 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>SunnySpellsBasicRegular-Yz1Wv.ttf</string>
-		<string>ClickerScript-2djl.ttf</string>
+		<string>GaldienRoundedDemoRegular.otf</string>
+		<string>GuavineDemoRegular.otf</string>
+		<string>ExtraCorn.ttf</string>
+		<string>TootMagistra.otf</string>
 		<string>MotleyForcesRegular.ttf</string>
 		<string>Auseklis.ttf</string>
 		<string>BarelyEnoughRegular-JRD6o.ttf</string>

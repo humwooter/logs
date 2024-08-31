@@ -71,28 +71,26 @@ struct EditingEntryView: View {
     @State var repliedEntryBackgroundColor: Color = Color.clear
 
     // Define your recurrence options
-    let recurrenceOptions = ["None", "Daily", "Weekly", "Weekends", "Biweekly", "Monthly"]
 
-    @State private var selectedTags: [String] = []
+    @State private var selectedTagsName: String = ""
     @State private var entryName: String = ""
     @State private var showTagSelection = false
      @State private var showEntryNameSelection = false
     let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
     @State private var currentTags: [Tag: Bool] = [:]
-//    @State private var folderId: String?
+    @StateObject var tagViewModel: TagViewModel
 
     var body : some View {
         NavigationStack {
             VStack {
                 iconHeaderView()
-//                textFieldView()
                 finalRepliedView()
-
      buttonBars()
             }
             .onAppear {
+//                tagViewModel.initializeCurrentTags(with: entry.tagNames ?? "")
+                selectedTagsName = entry.tagNames ?? ""
                 entryName = entry.title ?? ""
-                selectedTags = entry.tags ?? []
                 if let reminderId = entry.reminderId {
                     reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
                 }
@@ -235,12 +233,10 @@ struct EditingEntryView: View {
         
         .overlay(
             CustomPopupView(isPresented: $showTagSelection, title: "Select Tags", onSave: {
-                // Dismiss the view
-//                showTagSelection = false
-                // Then save the tags
-                    saveSelectedTags()
+                tagViewModel.saveSelectedTags(to: &selectedTagsName)
+
             }) {
-                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entry.id, selectedTags: $selectedTags, currentTags: $currentTags)
+                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entry.id, selectedTagNames: $selectedTagsName, tagViewModel: tagViewModel)
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
 
@@ -361,10 +357,8 @@ struct EditingEntryView: View {
             }
         }
     }
+    
 
-    private func saveSelectedTags() {
-        entry.tags = selectedTags
-    }
     
     func getIdealTextColor() -> Color {
         var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
@@ -720,6 +714,8 @@ struct EditingEntryView: View {
           mainContext.performAndWait {
               entry.content = editingContent
               
+              entry.tagNames = selectedTagsName
+              
               if formattedDate(entry.time) != formattedDate(selectedDate) { //change to correct log
                   let previousLog = entry.relationship
                   previousLog?.removeFromRelationship(entry)
@@ -736,10 +732,7 @@ struct EditingEntryView: View {
                   entry.title = entryName
               }
               
-              if selectedTags.isEmpty == false {
-                  entry.tags = selectedTags
-              }
-              
+  
               if dateUpdated {
                   entry.time = selectedDate
               }

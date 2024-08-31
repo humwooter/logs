@@ -38,7 +38,7 @@ extension CGSize {
 
     static let buttonWidth = UIScreen.main.bounds.size.width/2.5
     static func mediumIconSize() -> CGSize {
-        return CGSize(width: UIFont.systemFontSize, height: UIFont.systemFontSize)
+        return CGSize(width: 1.5*UIFont.systemFontSize, height: 1.5*UIFont.systemFontSize)
     }
     
     static func largeIconSize() -> CGSize {
@@ -180,6 +180,32 @@ extension View {
         let uiColor = UIColor(color)
         UITextField.appearance().tintColor = uiColor
         return self
+    }
+    
+    func getBackgroundColors(colorScheme: ColorScheme, topColor: Color, bottomColor: Color) -> [Color] {
+        var colors: [Color] = []
+        if isClear(for: UIColor(topColor)) {
+            colors.append(getDefaultBackgroundColor(colorScheme: colorScheme))
+        } else {
+            colors.append(topColor)
+        }
+        
+        if isClear(for: UIColor(bottomColor)) {
+            colors.append(getDefaultBackgroundColor(colorScheme: colorScheme))
+        } else {
+            colors.append(bottomColor)
+        }
+        return colors
+    }
+    
+    func backgroundView(colorScheme: ColorScheme, backgroundColors: [Color]) -> any View {
+        if backgroundColors.count != 2 {
+            return LinearGradient(colors: [getDefaultBackgroundColor(colorScheme: colorScheme)], startPoint: .top, endPoint: .bottom)
+        }
+        return ZStack {
+            LinearGradient(colors: getBackgroundColors(colorScheme: colorScheme, topColor: backgroundColors[0], bottomColor: backgroundColors[1]), startPoint: .top, endPoint: .bottom)
+        }
+        .ignoresSafeArea(.all)
     }
     
     

@@ -90,8 +90,26 @@ struct NotEditingView: View {
                 } else {
                     entryView()
                 }
+                tagsView()
             }
         }
+    }
+    
+    @ViewBuilder
+    func tagsView() -> some View {
+        let textColor = getTextColor()
+        VStack(alignment: .leading, spacing: 1) {
+            if entry.tagNames?.isEmpty == false {
+                Divider()
+                
+                if let tags =  entry.tagNames?.split(separator: ",") {
+                    FlexibleTagGridView(tags: tags.map(String.init))
+                        .padding(.vertical)
+                }
+            }
+        }
+        .foregroundStyle(textColor.opacity(0.4))
+
     }
     
     @ViewBuilder
@@ -110,12 +128,7 @@ struct NotEditingView: View {
     }
     
     
-    func getIdealTextColor() -> Color {
-        var entryBackgroundColor = entry.stampIndex == -1 ? UIColor(userPreferences.entryBackgroundColor) : entry.color
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
-        var blendedBackground = UIColor.blendedColor(from: entryBackgroundColor, with: UIColor(backgroundColor))
-        return Color(UIColor.fontColor(forBackgroundColor: blendedBackground))
-    }
+ 
     
     @ViewBuilder
     func finalRepliedView() -> some View {

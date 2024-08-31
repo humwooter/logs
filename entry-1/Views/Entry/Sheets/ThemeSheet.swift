@@ -134,12 +134,6 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func customThemesView() -> some View {
-//        HStack {
-//            Text("Custom Themes").font(.headline).padding()
-//                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
-//            Spacer()
-//        }
-        
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             currentThemeView()
             ForEach(savedThemes, id: \.id) { userTheme in
@@ -167,11 +161,6 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func defaultThemesView() -> some View {
-//        HStack {
-//            Text("Default Themes").font(.headline).padding()
-//            .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear))))
-//        Spacer()
-//    }
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
             ForEach(refinedThemes) { theme in
                 themeView(theme: theme, userTheme: nil, isCurrentTheme: false)
@@ -180,9 +169,6 @@ struct ThemeSheet: View {
                             userPreferences.applyTheme(theme)
                         }
                     }
-         
-
-      
             }
         }
         .padding()
@@ -242,31 +228,27 @@ struct ThemeSheet: View {
             }
         }
     }
-    @ViewBuilder
+    
+ 
+    
     func themeView(theme: Theme, userTheme: UserTheme?, isCurrentTheme: Bool) -> some View {
+        
+        var label = ""
+        var themeName = ""
+        
+        if isCurrentTheme {
+            themeName = theme.name
+            label = "current"
+        } else if let userTheme = userTheme {
+            themeName = userTheme.name ?? "unnamed"
+          label = "custom"
+        } else {
+            themeName = theme.name
+            label = "default"
+        }
+        
         return VStack {
-            HStack {
-                Spacer()
-                Menu {
-                    menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
-                } label: {
-                    HStack {
-                        if isCurrentTheme {
-                            Text("current")
-                        } else if let userTheme = userTheme {
-                            Text("custom")
-                        } else {
-                            Text("default")
-                        }
-                        Spacer()
-                        Image(systemName: "ellipsis")
-                    }
-                    .font(.customCaption)
-                }
-                .foregroundStyle(getIdealHeaderTextColor().opacity(0.3))
-
-
-            }
+   
             ZStack {
                 // Larger square
                 RoundedRectangle(cornerRadius: 15)
@@ -281,7 +263,7 @@ struct ThemeSheet: View {
                     // Small cube for entry background
                     RoundedRectangle(cornerRadius: 10)
                         .fill(getEntryBackground(entryBackgroundColor: theme.entryBackgroundColor))
-                        .frame(width: 0.8*CGSize.buttonWidth, height: CGSize.buttonWidth*0.2)  // Entire square block
+                        .frame(width: 0.8*CGSize.buttonWidth, height: CGSize.buttonWidth*0.2)
                         .padding(.horizontal)
                         .overlay(
                             HStack(alignment: .center) {
@@ -293,7 +275,7 @@ struct ThemeSheet: View {
                         )
                     
                     
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 0) {
                         HStack(spacing: 8) {
                             Circle()
                                 .fill(theme.accentColor)
@@ -324,10 +306,35 @@ struct ThemeSheet: View {
                     .padding(.horizontal)
                 }
             }
+            .frame(CGSize.superLargeIconSize())  // Entire square block
             .contextMenu {
                 menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
             }
+            
+            HStack {
+                Menu {
+                    menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
+                } label: {
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Text(themeName).bold()
+                            Spacer()
+                            Image(systemName: "ellipsis")
+                        }
+                        HStack {
+                       Text(label)
+                                .foregroundStyle(getIdealHeaderTextColor().opacity(0.3))
+                            Spacer()
+                        }
+                    }
+                    .font(.customCaption)
+                }
+            }
+            .foregroundStyle(getIdealHeaderTextColor().opacity(0.6))
+            .padding(.horizontal)
         }
+
+//        .padding(.horizontal)
         
         func getBackgroundTextColor() -> Color {
             return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(theme.topColor), and: UIColor(theme.bottomColor))))
@@ -349,6 +356,7 @@ struct ThemeSheet: View {
 
 extension UserPreferences {
     func applyTheme(_ theme: Theme) {
+            self.themeName = theme.name
            self.accentColor = theme.accentColor
            self.backgroundColors = [theme.topColor, theme.bottomColor]
            self.entryBackgroundColor = theme.entryBackgroundColor
@@ -486,7 +494,7 @@ extension ThemeSheet {
             print("thumbnail.png created at \(thumbnailFileURL.path)")
 
             // Generate a unique file name by appending a UUID
-            let uniqueFileName = "\(fileName)-\(UUID().uuidString).themePkg"
+            let uniqueFileName = "\(fileName).themePkg"
             let themePackageURL = tempDirectory.appendingPathComponent(uniqueFileName)
 
             try fileManager.zipItem(at: themeDirectory, to: themePackageURL)
@@ -500,7 +508,7 @@ extension ThemeSheet {
         }
     }
 
-    func importThemePackage(url: URL) -> UserTheme? {
+    func importThemePackage(url: URL) -> UserTheme? {//add comments
         printContentsOfTmpDirectory()
            clearTempDirectory()
            printContentsOfTmpDirectory()

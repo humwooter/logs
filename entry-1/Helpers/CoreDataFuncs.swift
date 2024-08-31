@@ -10,6 +10,9 @@ import CoreData
 import SwiftUI
 import EventKit
 
+
+
+
 func fetchLogByDate(date: String, coreDataManager: CoreDataManager) -> Log? {
     let fetchRequest: NSFetchRequest<Log> = Log.fetchRequest()
     fetchRequest.predicate = NSPredicate(format: "day == %@", date)

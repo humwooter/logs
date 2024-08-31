@@ -31,17 +31,6 @@ let refinedThemes: [Theme] = [
           fontSize: 18,
           lineSpacing: 1.5),
 
-    Theme(name: "Mirage",
-          accentColor: Color(hex: "#FF6B35"),  // Orange Red
-          topColor: Color(hex: "#FFCB69"),     // Mellow Yellow
-          bottomColor: Color(hex: "#FFA177"),  // Light Salmon
-          entryBackgroundColor: Color(hex: "#FFF1E6").opacity(0.4), // Transparent Linen
-          pinColor: Color(hex: "#00A8E8"),     // Cerulean
-          reminderColor: Color(hex: "#662E9B"),// Purple Heart
-          fontName: "Papyrus Condensed",
-          fontSize: 17,
-          lineSpacing: 1.3),
-
     Theme(name: "Faerial",
           accentColor: Color(hex: "#FF85A1"),  // Light Coral
           topColor: Color(hex: "#004B23"),     // Dark Green

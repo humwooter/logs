@@ -153,7 +153,7 @@ struct SettingsView: View {
                 Label(
                     title: { Text("General").foregroundStyle(getTextColor())
                     },
-                    icon: { settingsIconView(systemImage: "gearshape.fill")}
+                    icon: { settingsIconView(systemImage: "gearshape.fill", appIconSize: nil)}
                 )
             }
             
@@ -204,7 +204,7 @@ struct SettingsView: View {
                 Label(
                     title: { Text("Stamps").foregroundStyle(getTextColor())
                     },
-                    icon: { settingsIconView(systemImage: "hare.fill")}
+                    icon: { settingsIconView(systemImage: "hare.fill", appIconSize: nil)}
                 )
             }
             
@@ -229,7 +229,7 @@ struct SettingsView: View {
                 Label(
                     title: { Text("Appearance").foregroundStyle(getTextColor())
                     },
-                    icon: { settingsIconView(systemImage: "textformat.size")}
+                    icon: { settingsIconView(systemImage: "textformat.size", appIconSize: nil)}
                 )
             }
             
@@ -325,7 +325,7 @@ struct SettingsView: View {
             NavigationStack {
                 List {
                     appIconView()
-                        .foregroundStyle(getTextColor())
+//                        .foregroundStyle(getTextColor())
                         .scrollContentBackground(.hidden)
                         .listRowBackground(getSectionColor(colorScheme: colorScheme))
                 }
@@ -347,7 +347,7 @@ struct SettingsView: View {
 
                 },
                 icon: {
-                    settingsIconView(systemImage: "app_icon")
+                    settingsIconView(systemImage: "app_icon", appIconSize: nil)
                 }
             )
 
@@ -358,7 +358,8 @@ struct SettingsView: View {
     @ViewBuilder
     func appIconView() -> some View {
         
-            Picker(selection: $userPreferences.activeAppIcon) {
+        Section {
+            Picker("App Icon", selection: $userPreferences.activeAppIcon) {
                 let customAppIcons : [String] = ["AppIcon-1", "AppIcon-2", "AppIcon-3"]
                 ForEach(customAppIcons, id: \.self) { icon in
                     HStack {
@@ -366,26 +367,25 @@ struct SettingsView: View {
                         Spacer()
                         if icon == "AppIcon-1" {
                             Text("\(icon) (Default)")
-                                .foregroundStyle(getTextColor())
-                                .font(.customHeadline)
-
                         } else {
                             Text(icon)
-                                .foregroundStyle(getTextColor())
-                                .font(.customHeadline)
-
                         }
                     }
-                .tag(icon)
+                    .tag(icon)
                 }
-            } label: {
-                if let currentIcon = UIImage(named: userPreferences.activeAppIcon) {
-                    Image(uiImage: currentIcon).resizable().frame(maxWidth: 100, maxHeight: 100).cornerRadius(10)
+            }.pickerStyle(MenuPickerStyle())
+                .foregroundStyle(getTextColor())
+                .font(.customHeadline)
+                .onChange(of: userPreferences.activeAppIcon) { oldValue, newValue in
+                    UIApplication.shared.setAlternateIconName(newValue)
                 }
+        } header: {
+            HStack {
+                settingsIconView(systemImage: "app_icon", appIconSize: CGSize.mediumIconSize())
+                Text("App Icon").foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
+                Spacer()
             }
-            .foregroundStyle(getTextColor())
-        .onChange(of: userPreferences.activeAppIcon) { oldValue, newValue in
-            UIApplication.shared.setAlternateIconName(newValue)
+            .font(.customHeadline)
         }
     }
     
@@ -418,14 +418,18 @@ struct SettingsView: View {
     }
     
     @ViewBuilder
-    func settingsIconView(systemImage: String) -> some View {
+    func settingsIconView(systemImage: String, appIconSize: CGSize? = nil) -> some View {
         ZStack {
             if systemImage == "app_icon" {
-                Image(uiImage: UIImage(named: "app_icon.svg")!).resizable().scaledToFill()
-                    .foregroundStyle(userPreferences.accentColor)
-                    .frame(CGSize.largeIconSize())
-
-                
+                if let appIconSize {
+                    Image(uiImage: UIImage(named: "app_icon.svg")!).resizable().scaledToFill()
+                        .foregroundStyle(userPreferences.accentColor)
+                        .frame(appIconSize)
+                } else {
+                    Image(uiImage: UIImage(named: "app_icon.svg")!).resizable().scaledToFill()
+                        .foregroundStyle(userPreferences.accentColor)
+                        .frame(CGSize.largeIconSize())
+                }
             } else {
                 Image(systemName: systemImage).scaledToFit()
                     .foregroundColor(userPreferences.accentColor)
@@ -456,12 +460,16 @@ struct SettingsView: View {
         }
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
-                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
+                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], sectionColor: getSectionColor(colorScheme: colorScheme), buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
                     .foregroundStyle(getTextColor())
                     .font(.customHeadline)
+                    .environmentObject(userPreferences)
 
 
             }
+        }
+        .onAppear {
+            print("STAMPS: \(userPreferences.stamps)")
         }
     }
     
@@ -481,7 +489,7 @@ struct SettingsView: View {
             .font(.customHeadline)
         } header: {
             HStack {
-                Image(systemName: "calendar.circle.fill").foregroundStyle(userPreferences.accentColor)
+                Image(systemName: "calendar").foregroundStyle(userPreferences.accentColor)
                 Text("Calendar Preference").foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
                 Spacer()
             }

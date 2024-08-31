@@ -120,7 +120,7 @@ struct FoldersView: View {
             }
         }
         .sheet(isPresented: $isPresentingNewFolderSheet) {
-            NewFolderSheet(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
+            NewFolderSheet(isShowingReplyCreationView: $isShowingReplyCreationView, isPresentingNewFolderSheet: $isPresentingNewFolderSheet, replyEntryId: $replyEntryId)
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
         }
@@ -130,8 +130,7 @@ struct FoldersView: View {
                 message: Text("Are you sure you want to delete this folder? All associated entries will be marked as removed."),
                 primaryButton: .destructive(Text("Delete")) {
                     if let folder = folderToDelete {
-                        markEntriesAsRemoved(for: folder)
-                        deleteFolder(folder: folder)
+                        deleteFolderPermanently(folder: folder)
                     }
                 },
                 secondaryButton: .cancel()
@@ -174,10 +173,11 @@ struct FoldersView: View {
 //        newFolderName = ""
 //    }
 
-    private func deleteFolder(folder: Folder) {
+    private func deleteFolderPermanently(folder: Folder) {
         markEntriesAsRemoved(for: folder)
-        viewContext.delete(folder)
-        try? viewContext.save()
+        deleteFolder(folder: folder, coreDataManager: coreDataManager)
+//        viewContext.delete(folder)
+//        try? viewContext.save()
     }
 
     private func markEntriesAsRemoved(for folder: Folder) {

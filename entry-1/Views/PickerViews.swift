@@ -14,6 +14,290 @@ import TipKit
 //var button_width : CGFloat = UIScreen.main.bounds.height/10
 
 
+//
+//  PickerViews.swift
+//  entry-1
+//
+//  Created by Katyayani G. Raman on 10/24/23.
+//
+
+import Foundation
+import SwiftUI
+import CoreData
+import UIKit
+import TipKit
+
+//var button_width : CGFloat = UIScreen.main.bounds.height/10
+
+
+
+
+struct IconPicker: View {
+    @Binding var selectedImage: String
+    @Binding var selectedColor: Color
+    @State var defaultTopColor: Color
+    @Binding var accentColor: Color
+    @State private var searchText = ""
+    @FocusState private var focusField: Bool
+
+//    @State var backgroundColors: [Color]
+    
+    @Binding var topColor_background: Color
+    @Binding var bottomColor_background: Color
+    @State var isEditingStampName = false
+    var sectionColor: Color
+    
+    var buttonIndex: Int
+    @Binding var buttonName: String
+    var inputCategories: [String: [String]]
+    let gridLayout: [GridItem] = [
+        .init(.flexible(), spacing: 10),
+        .init(.flexible(), spacing: 10),
+        .init(.flexible(), spacing: 10),
+        .init(.flexible(), spacing: 10)
+
+    ]
+
+    
+    var body: some View {
+        
+        Section {
+            NavigationLink(destination: imageListView()) {
+                HStack {
+                    Text(selectedImage)
+                    Spacer()
+                    Image(systemName: selectedImage).foregroundColor(selectedColor)
+
+                }
+            }
+            ColorPicker("Stamp Color", selection: $selectedColor)
+
+        } header:{
+            HStack {
+//                if isEditingStampName {
+//                    TextField("Stamp Name", text: $buttonName, prompt:
+//                                Text( "Enter Stamp Name").foregroundStyle(accentColor))
+//                        .focused($focusField)
+//
+//                    Spacer()
+//                    Image(systemName: "checkmark").foregroundStyle(.green)
+//                        .onTapGesture {
+//                            withAnimation {
+//                                isEditingStampName = false
+//                            }
+//                        }
+//                } else {
+//                    if buttonName.isEmpty {
+                        Text("Stamp \(buttonIndex + 1)")
+//                    } else {
+//                        Text(buttonName)
+//                    }
+                    Spacer()
+//                    Image(systemName: "pencil").foregroundStyle(accentColor)
+//                        .onTapGesture {
+//                            isEditingStampName.toggle()
+//                        }
+//                }
+            }
+            .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
+            .font(.system(size: UIFont.systemFontSize))
+        }
+    }
+    
+    func imageListView() -> some View {
+  
+           return NavigationStack {
+               ScrollView {
+                   ForEach(inputCategories.keys.sorted(), id: \.self) { category in
+                       categoryView(category: category)
+                   }
+                   .padding(.horizontal, 10) // Horizontal padding for the entire grid
+               }
+               .background {
+                       ZStack {
+                           Color(UIColor.systemGroupedBackground)
+                           LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
+                               .ignoresSafeArea()
+                       }
+               }
+               .scrollContentBackground(.hidden)
+               .navigationTitle("Button \(buttonIndex + 1)")
+               .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+               .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
+           }
+
+       }
+    
+    @ViewBuilder
+    func categoryView(category: String) -> some View {
+        let filteredImages = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
+        if (!filteredImages.isEmpty) {
+            // Display the category header
+            Text(category)
+                .bold()
+                .font(.headline)
+                .padding(.top, 10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 10) // Left padding for alignment
+                .foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(topColor_background))))
+            
+            LazyVGrid(columns: gridLayout, spacing: 10) {
+                // Display images for the category
+                ForEach(filteredImages, id: \.self) { image in
+                    stampIconView(image: image)
+                }
+            }
+        } else {
+            ZStack {
+                Color.clear
+                    .ignoresSafeArea()
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func stampIconView(image: String) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(selectedImage != image ? sectionColor : selectedColor)
+                .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
+            
+            
+            HStack {
+                Image(systemName: image)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(CGSize.largeIconSize())
+                    .foregroundColor(
+                        
+                        selectedImage != image
+                        ? selectedColor
+                        : textColor(for: UIColor(selectedColor))
+                    )
+            }
+            .foregroundColor(
+                selectedImage != image
+                ? textColor(for: UIColor.secondarySystemBackground)
+                : textColor(for: UIColor(selectedColor))
+            )
+        }
+        .onTapGesture {
+            if (selectedImage != image) {
+                vibration_medium.prepare()
+                vibration_medium.impactOccurred()
+                self.selectedImage = image
+            }
+        }
+    }
+}
+
+
+struct FontPicker: View {
+    @Binding var selectedFont: String
+    @Binding var selectedFontSize: CGFloat
+    @Binding var accentColor: Color
+    var inputCategories: [String: [String]]
+    @State private var searchText = ""
+    
+    @Binding var topColor_background: Color
+    @Binding var bottomColor_background: Color
+    @State var defaultTopColor: Color
+    
+    var body: some View {
+            NavigationLink(destination: fontListView()) {
+                HStack {
+                    Text("Font Family")
+                    Spacer()
+                    Text(selectedFont)
+
+                }
+            }
+
+        HStack {
+            Text("Font Size")
+            Slider(value: $selectedFontSize, in: 5...30, step: 0.5, label: { Text("Font Size") })
+        }
+    }
+    
+    func fontListView() -> some View {
+        List {
+            ForEach(inputCategories.keys.sorted(), id: \.self) { category in
+                let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }
+                if (!filteredFonts.isEmpty) {
+                    
+                    Section(header: Text(category).bold().foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)) {
+                        ForEach(filteredFonts, id: \.self) { font in
+                            
+                            HStack {
+                                Text(font)
+                                    .font(Font.custom(font, size: selectedFontSize))
+                                Spacer()
+                                if selectedFont == font {
+                                    Image(systemName: "checkmark").foregroundColor(accentColor)
+                                }
+                                
+                                
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                if (selectedFont != font) {
+                                    vibration_medium.prepare()
+                                    vibration_medium.impactOccurred()
+                                    self.selectedFont = font
+//                                    self.presentationMode.wrappedValue.dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .accentColor(accentColor)
+
+        }
+        .background {
+                ZStack {
+                    Color(UIColor.systemGroupedBackground)
+                    LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
+                        .ignoresSafeArea()
+                }
+        }
+        .scrollContentBackground(.hidden)
+        .navigationTitle("Font Type")
+        .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+        .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
+    }
+    
+}
+
+
+struct BackgroundColorPickerView: View {
+    @Binding var topColor: Color
+    @Binding var bottomColor: Color
+    @State var defaultColor = Color.clear
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        Section {
+            HStack() {
+                VStack {
+                    ColorPicker("Top Color", selection: $topColor, supportsOpacity: false)
+              
+                    ColorPicker("Bottom Color", selection: $bottomColor, supportsOpacity: false)
+                }
+                .shadow(radius: 1)
+                
+                
+                LinearGradient(gradient: Gradient(colors: [topColor, bottomColor]), startPoint: .top, endPoint: .bottom)
+                    .frame(height: 100)
+                    .cornerRadius(10)
+                    .shadow(radius: 1)
+            }
+        } header: {
+        }
+    }
+}
+
+
 
 
 
@@ -182,268 +466,5 @@ struct ButtonDashboard: View {
         }
     }
 }
-
-
-
-struct IconPicker: View {
-    @Binding var selectedImage: String
-    @Binding var selectedColor: Color
-    @State var defaultTopColor: Color
-    @Binding var accentColor: Color
-    @State private var searchText = ""
-    @FocusState private var focusField: Bool
-    @Environment(\.colorScheme) var colorScheme
-
-//    @State var backgroundColors: [Color]
-    
-    @Binding var topColor_background: Color
-    @Binding var bottomColor_background: Color
-    @State var isEditingStampName = false
-    
-    var buttonIndex: Int
-    @Binding var buttonName: String
-    var inputCategories: [String: [String]]
-    let gridLayout: [GridItem] = [
-        .init(.flexible(), spacing: 10),
-        .init(.flexible(), spacing: 10),
-        .init(.flexible(), spacing: 10),
-        .init(.flexible(), spacing: 10)
-
-    ]
-
-    
-    var body: some View {
-        
-        Section {
-            NavigationLink(destination: imageListView()) {
-                HStack {
-                    Text(selectedImage)
-                    Spacer()
-                    Image(systemName: selectedImage).foregroundColor(selectedColor)
-
-                }
-            }
-            ColorPicker("Stamp Color", selection: $selectedColor)
-
-        } header:{
-            HStack {
-                if isEditingStampName {
-                    TextField("Stamp Name", text: $buttonName, prompt:
-                                Text( "Enter Stamp Name").foregroundStyle(accentColor))
-                        .focused($focusField)
-
-                    Spacer()
-                    Image(systemName: "checkmark").foregroundStyle(.green)
-                        .onTapGesture {
-                            withAnimation {
-                                isEditingStampName = false
-                            }
-                        }
-                } else {
-                    if buttonName.isEmpty {
-                        Text("Stamp \(buttonIndex + 1)").foregroundStyle(getIdealHeaderTextColor())
-                    } else {
-                        Text(buttonName).foregroundStyle(getIdealHeaderTextColor())
-                    }
-                    Spacer()
-//                    Image(systemName: "pencil").foregroundStyle(accentColor)
-//                        .onTapGesture {
-//                            isEditingStampName.toggle()
-//                        }
-                }
-            }
-            .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
-            .font(.customHeadline)
-        }
-    }
-    
-    func getIdealHeaderTextColor() -> Color {
-        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(topColor_background), and: UIColor(bottomColor_background)), colorScheme: colorScheme))
-    }
-    
-    func imageListView() -> some View {
-        let backgroundColor = isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background
-        return NavigationStack {
-            ScrollView {
-                ForEach(inputCategories.keys.sorted(), id: \.self) { category in
-                    let filteredImages = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.contains(searchText) }
-                    if (!filteredImages.isEmpty) {
-                        // Display the category header
-                        Text(category)
-                            .bold()
-                            .font(.buttonSize).foregroundStyle(Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor))))
-                            .padding(.top, 10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 10) // Left padding for alignment
-                        
-                        LazyVGrid(columns: gridLayout, spacing: 10) {
-                            
-                            
-                            // Display images for the category
-                            ForEach(filteredImages, id: \.self) { image in
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(selectedImage != image ? Color("DefaultEntryBackground").opacity(1) : selectedColor)
-                                        .frame(maxWidth: 70, minHeight: 70, maxHeight: 150)
-                                    
-                                    
-                                    HStack {
-                                        Image(systemName: image)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 20, height: 20)  // Adjust width and height as needed
-                                            .foregroundColor(
-                                                
-                                                selectedImage != image
-                                                ? selectedColor
-                                                : textColor(for: UIColor(selectedColor))
-                                            )
-                                    }
-                                    .foregroundColor(
-                                        selectedImage != image
-                                        ? textColor(for: UIColor.secondarySystemBackground)
-                                        : textColor(for: UIColor(selectedColor))
-                                    )
-                                }
-                                .onTapGesture {
-                                    if (selectedImage != image) {
-                                        vibration_medium.prepare()
-                                        vibration_medium.impactOccurred()
-                                        self.selectedImage = image
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        ZStack {
-                            Color.clear
-                                .ignoresSafeArea()
-                        }
-                    }
-                }
-                .padding(.horizontal, 10) // Horizontal padding for the entire grid
-            }
-            .background {
-                    ZStack {
-                        Color(UIColor.systemGroupedBackground)
-                        LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
-                            .ignoresSafeArea()
-                    }
-            }
-            .scrollContentBackground(.hidden)
-            .navigationTitle("Button \(buttonIndex + 1)")
-            .searchable(text: $searchText)
-            .font(.buttonSize)
-            .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
-        }
-
-    }
-}
-
-struct FontPicker: View {
-    @Binding var selectedFont: String
-    @Binding var selectedFontSize: CGFloat
-    @Binding var accentColor: Color
-    var inputCategories: [String: [String]]
-    @State private var searchText = ""
-    
-    @Binding var topColor_background: Color
-    @Binding var bottomColor_background: Color
-    @State var defaultTopColor: Color
-    
-    var body: some View {
-            NavigationLink(destination: fontListView()) {
-                HStack {
-                    Text("Font Family")
-                    Spacer()
-                    Text(selectedFont)
-
-                }
-            }
-
-        HStack {
-            Text("Font Size")
-            Slider(value: $selectedFontSize, in: 5...30, step: 0.5, label: { Text("Font Size") })
-        }
-    }
-    
-    func fontListView() -> some View {
-        List {
-            ForEach(inputCategories.keys.sorted(), id: \.self) { category in
-                let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }
-                if (!filteredFonts.isEmpty) {
-                    
-                    Section(header: Text(category).bold().foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)) {
-                        ForEach(filteredFonts, id: \.self) { font in
-                            
-                            HStack {
-                                Text(font)
-                                    .font(Font.custom(font, size: selectedFontSize))
-                                Spacer()
-                                if selectedFont == font {
-                                    Image(systemName: "checkmark").foregroundColor(accentColor)
-                                }
-                                
-                                
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if (selectedFont != font) {
-                                    vibration_medium.prepare()
-                                    vibration_medium.impactOccurred()
-                                    self.selectedFont = font
-//                                    self.presentationMode.wrappedValue.dismiss()
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-      
-        }
-        .background {
-                ZStack {
-                    Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
-                        .ignoresSafeArea()
-                }
-        }
-        .scrollContentBackground(.hidden)
-        .navigationTitle("Font Type")
-        .searchable(text: $searchText)
-        .font(.customHeadline)
-        .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
-    }
-    
-}
-
-
-struct BackgroundColorPickerView: View {
-    @Binding var topColor: Color
-    @Binding var bottomColor: Color
-    @State var defaultColor = Color.clear
-    @Environment(\.colorScheme) var colorScheme
-
-    var body: some View {
-        Section {
-            HStack() {
-                VStack {
-                    ColorPicker("Top Color", selection: $topColor, supportsOpacity: false)
-              
-                    ColorPicker("Bottom Color", selection: $bottomColor, supportsOpacity: false)
-                }
-                .shadow(radius: 1)
-                
-                
-                LinearGradient(gradient: Gradient(colors: [topColor, bottomColor]), startPoint: .top, endPoint: .bottom)
-                    .frame(height: 100)
-                    .cornerRadius(10)
-                    .shadow(radius: 1)
-            }
-        } header: {
-        }
-    }
-}
-
 
 

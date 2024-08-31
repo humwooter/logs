@@ -119,7 +119,7 @@ struct EntryView: View {
                 updateFetchRequests()
             })
             .sheet(isPresented: $isShowingEntryCreationView) {
-                NewEntryView()
+                NewEntryView(tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .foregroundColor(userPreferences.accentColor)

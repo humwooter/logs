@@ -25,10 +25,16 @@
         <attribute name="stampIcon" optional="YES" attributeType="String"/>
         <attribute name="stampIndex" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="stampName" optional="YES" attributeType="String"/>
-        <attribute name="tags" optional="YES" attributeType="Transformable"/>
+        <attribute name="tagNames" optional="YES" attributeType="String"/>
         <attribute name="time" attributeType="Date" defaultDateTimeInterval="741576360" usesScalarValueType="NO"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <relationship name="relationship" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="Log" inverseName="relationship" inverseEntity="Log"/>
+        <fetchIndex name="tagNamesIndex">
+            <fetchIndexElement property="tagNames" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="entryContentIndex">
+            <fetchIndexElement property="content" type="Binary" order="ascending"/>
+        </fetchIndex>
     </entity>
     <entity name="Folder" representedClassName="Folder" syncable="YES">
         <attribute name="entryCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>

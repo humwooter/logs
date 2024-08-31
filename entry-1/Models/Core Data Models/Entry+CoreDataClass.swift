@@ -50,7 +50,7 @@ public class Entry: NSManagedObject, Codable {
         isDrafted = try values.decode(Bool.self, forKey: .isDrafted)
         pageNum_pdf = try values.decode(Int16.self, forKey: .pageNum_pdf)
         reminderId = try values.decodeIfPresent(String.self, forKey: .reminderId)
-        self.tags = try values.decodeIfPresent([String].self, forKey: .tags) ?? []
+        self.tagNames = try values.decodeIfPresent(String.self, forKey: .tagNames) ?? ""
 
     }
     
@@ -76,12 +76,12 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(isDrafted, forKey: .isDrafted)
         try container.encodeIfPresent(pageNum_pdf, forKey: .pageNum_pdf)
         try container.encodeIfPresent(logId, forKey: .logId)
-        try container.encodeIfPresent(tags, forKey: .tags)
+        try container.encodeIfPresent(tagNames, forKey: .tagNames)
 
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, logId, tags
+        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, logId, tagNames
     }
 }
 

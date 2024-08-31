@@ -34,7 +34,7 @@ extension Entry {
     @NSManaged public var reminderId: String?
     @NSManaged public var mediaFilename: String?
     @NSManaged public var mediaFilenames: [String]?
-    @NSManaged public var tags: [String]?
+    @NSManaged public var tagNames: String?
     @NSManaged public var entryReplyId: String? //if this is entry is created in response to another entry, then that entry's id is stored here
     @NSManaged public var folderId: String?
 

@@ -47,7 +47,7 @@ struct EntryDetailView: View { //used in LogDetailView
                         entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
                     }
                     .sheet(isPresented: $isEditing) { //added this here
-                        EditingEntryView(entry: entry, isEditing: $isEditing)
+                        EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                                 .foregroundColor(userPreferences.accentColor)
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
@@ -91,7 +91,7 @@ struct EntryDetailView: View { //used in LogDetailView
             
             }
             .sheet(isPresented: $isEditing) { //added this here
-                EditingEntryView(entry: entry, isEditing: $isEditing)
+                EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                         .foregroundColor(userPreferences.accentColor)
                         .presentationDragIndicator(.hidden)
                         .environmentObject(userPreferences)
@@ -121,7 +121,6 @@ struct EntryDetailView: View { //used in LogDetailView
                 }
                 
                 tagsView().padding(.vertical ,2)
-                    .foregroundStyle(getTextColor().opacity(0.4))
             }.padding(.top)
 
         }
@@ -229,18 +228,22 @@ struct EntryDetailView: View { //used in LogDetailView
     
     @ViewBuilder
     func tagsView() -> some View {
-        if let tags = entry.tags {
-            if !tags.isEmpty {
-                VStack(alignment: .leading, spacing: 1) {
-                    
-                    FlexibleTagGridView(tags: tags)
+        var textColor = getTextColor()
+        VStack(alignment: .leading, spacing: 1) {
+            if entry.tagNames?.isEmpty == false {
+                Divider()
+                    .foregroundStyle(textColor)
+                
+                if let tags =  entry.tagNames?.split(separator: ",") {
+                    FlexibleTagGridView(tags: tags.map(String.init))
+                        .foregroundStyle(textColor.opacity(0.5))
+                        .padding(.vertical)
                 }
-                    
-            } else {
-                EmptyView()
             }
         }
     }
+
+
     
     @ViewBuilder
     func finalRepliedView() -> some View {

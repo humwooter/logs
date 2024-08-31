@@ -212,10 +212,10 @@ struct NewFolderSheet: View {
     ) var folders: FetchedResults<Folder>
     
     @State private var newFolderName: String = ""
-    @State private var isPresentingNewFolderSheet = false
     @State private var editingFolder: Folder?
     @State private var searchText: String = ""
     @Binding var isShowingReplyCreationView: Bool
+    @Binding var isPresentingNewFolderSheet: Bool
     @Binding var replyEntryId: String?
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme

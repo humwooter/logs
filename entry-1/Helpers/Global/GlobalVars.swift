@@ -34,15 +34,15 @@ var defaultEntryBackground_light = Color.white
 
 
 let fontCategories: [String: [String]] = [
-    "Traditional": ["Helvetica", "TrebuchetMS", "AvenirNext-Regular", "STIX Two Math", "Gill Sans",  "Didot", "Georgia", "Futura", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter"],
+    "Traditional": ["Helvetica", "TrebuchetMS", "AvenirNext-Regular", "STIX Two Math", "Gill Sans",  "Didot", "Georgia", "Futura", "Arial Rounded MT Bold","Superclarendon Regular", "American Typewriter", "GaldienRoundedDemo-Regular"],
     "Monospace": ["Courier New",  "Menlo Regular", "Copperplate Light",],
-    "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin",  "MotleyForces-Regular",  "Mueda-City", "SunnySpellsBasic-Regular",  "Lilly", "Chalkboard SE Regular", "Cute_Aurora_demo", "Catread", "Catbrother", "Calloveya", "BadComic", "Mini Story", "Spicy Potatos", "New Boba", ],
+    "Handwriting": ["Bradley Hand", "Noteworthy Light", "SavoyeLetPlain", "Marker Felt Thin",   "Mueda-City", "SunnySpellsBasic-Regular",  "Lilly", "Chalkboard SE Regular", "Cute_Aurora_demo", "Catread", "Catbrother", "Calloveya", "BadComic", "Mini Story", "Spicy Potatos", "New Boba", ],
     "Cursive" : ["Savoye LET", "Borel-Regular", "Snell Roundhand", "SignPainter","DancingScript", "stainellascript", "Magiera-Script", "Barrbar"],
-    "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "HaraldRunic", "LuciusCipher", "AutumnDingbats"],
-    "Unique": [ "SparkyStones-Regular", "TheNightOne", "Boekopi", "Emperialisme", "PixelDigivolve", "Academy Engraved LET Plain:1.0",  "ZukaDoodle", "Milkmoustachio", "Papyrus Condensed", "ClickerScript-Regular", "BarelyEnough-Regular",],
+//    "Decorative": ["Bodoni Ornaments",  "Auseklis", "AstroDotBasic", "HaraldRunic", "LuciusCipher", "AutumnDingbats"],
+    "Unique": [ "SparkyStones-Regular", "BarelyEnough-Regular","Extra-Corn"],
     "Bold": ["Impact", "Copyduck", "MotleyForces-Regular"],
     "Antique": ["aAnggaranDasar", "IrishUncialfabeta-Bold", "QuaeriteRegnumDei"],
-    "Calligraphy": []
+    "Calligraphy": ["TootMagistra"]
 ]
 
 
@@ -67,7 +67,7 @@ let imageCategories: [String: [String]] = [
     "Transportation": ["car.fill", "bus.fill", "tram.fill", "ferry.fill", "sailboat.fill", "bicycle", "scooter"],
     "Special" : ["graduationcap.fill", "backpack.fill", "sparkle.magnifyingglass", "theatermasks.fill", "camera.filters", "birthday.cake.fill", "trophy.fill", "timelapse", "puzzlepiece.fill" , "puzzlepiece.extension.fill", "crown.fill", "infinity.circle.fill"],
     "Magic": ["suit.club.fill", "suit.spade.fill", "suit.diamond.fill", "hands.and.sparkles.fill", "wand.and.rays.inverse", "bubbles.and.sparkles.fill", "sparkles"],
-    "Tools": ["wrench.adjustable.fill", "hammer.fill", "eyedropper.halffull", "screwdriver.fill", "wrench.adjustable.fill", "wrench.and.screwdriver.fill", "stethoscope", "compass.drawing", "shield.fill", "pencil.and.ruler.fill"],
+    "Tools": ["hammer.fill", "eyedropper.halffull", "screwdriver.fill", "wrench.and.screwdriver.fill", "stethoscope", "compass.drawing", "shield.fill", "pencil.and.ruler.fill"],
     "Time": ["clock.fill", "alarm.fill", "alarm.waves.left.and.right.fill", "hourglass",  "hourglass.bottomhalf.filled", "hourglass.tophalf.filled"],
     "Celebratory" : ["balloon.fill", "fireworks"],
     "Other" : ["swirl.circle.righthalf.filled", "lightspectrum.horizontal", "camera.circle.fill",   "camera.aperture", "books.vertical.fill",  "poweroutlet.type.f", "doc.richtext.fill", "tropicalstorm.circle.fill", "network", "newspaper.fill", "signpost.right.and.left.fill"],

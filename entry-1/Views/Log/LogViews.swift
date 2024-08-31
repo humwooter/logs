@@ -130,6 +130,12 @@ struct LogsView: View {
             switch selectedOption {
             case .calendar:
                     mainLogsCalendarView()
+                    .refreshable {
+                        datesModel.addTodayIfNotExists()
+                        
+                        updateFetchRequests()
+            //            updateDateRange()
+                    }
             case .folders:
                 FoldersView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
                     .environmentObject(coreDataManager)
@@ -152,12 +158,7 @@ struct LogsView: View {
             userPreferences.backgroundView(colorScheme: colorScheme)
         }
         .scrollContentBackground(.hidden)
-        .refreshable {
-            datesModel.addTodayIfNotExists()
-            
-            updateFetchRequests()
-//            updateDateRange()
-        }
+
         .sheet(isPresented: $shareSheetShown) {
             if let log_uiimage = image {
                 let logImage = Image(
@@ -353,7 +354,6 @@ struct LogsView: View {
             .scrollContentBackground(.hidden)
             .listRowBackground(getSectionColor(colorScheme: colorScheme))
         }
-
         .refreshable {
             datesModel.addTodayIfNotExists()
             updateFetchRequests()
