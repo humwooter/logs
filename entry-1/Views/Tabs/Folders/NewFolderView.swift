@@ -281,6 +281,7 @@ struct NewFolderSheet: View {
             let newFolder = Folder(context: coreDataManager.viewContext)
             newFolder.id = UUID()
             newFolder.name = newFolderName
+            newFolder.folderType = "entry"
             newFolder.order = Int16(folders.count)
         }
         

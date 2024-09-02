@@ -94,7 +94,8 @@ struct NewEntryView: View {
 
     @State private var tempEntryTitle: String = ""
     
-    @State private var selectedTags: String = ""
+    @State private var selectedTags: [String] = []
+//    @State private var selectedTags: String = ""
     @State private var showTagSelection = false
     @State private var showFolderSelection = false
      @State private var showEntryNameSelection = false
@@ -258,6 +259,7 @@ struct NewEntryView: View {
                 // Dismiss the view
                 showTagSelection = false
                 tagViewModel.saveSelectedTags(to: &selectedTags)
+                print("SELECTED TAGS: \(selectedTags)")
                 // Then save the tags
             }) {
                 TagSelectionPopup(isPresented: $showTagSelection, entryId: $entryId, selectedTagNames: $selectedTags, tagViewModel: tagViewModel)
@@ -347,9 +349,7 @@ struct NewEntryView: View {
     @ViewBuilder
     func entryTitleView() -> some View {
         if showingEntryTitle {
-            
-            var fontColor = Color(UIColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))))
-            HStack {
+                        HStack {
                 ZStack {
                     if tempEntryTitle.isEmpty {
                         HStack {

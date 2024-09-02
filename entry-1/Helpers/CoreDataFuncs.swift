@@ -11,6 +11,27 @@ import SwiftUI
 import EventKit
 
 
+// Printing Functions
+func printAllTags(coreDataManager: CoreDataManager) {
+    let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+    
+    do {
+        let tags = try coreDataManager.viewContext.fetch(fetchRequest)
+        
+        print("All Tags:")
+        for tag in tags {
+            if let name = tag.name {
+                print("Tag Name: \(name)")
+                print("Number of Entries: \(tag.numEntries)")
+                print("Tag ID: \(tag.id?.uuidString ?? "N/A")")
+                print("---------------------------")
+            }
+        }
+    } catch {
+        print("Error fetching tags: \(error)")
+    }
+}
+//
 
 
 func fetchLogByDate(date: String, coreDataManager: CoreDataManager) -> Log? {

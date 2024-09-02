@@ -39,12 +39,12 @@ class EntryViewModel: ObservableObject {
         return selectedTags.joined(separator: ",")
     }
 
-    func updateEntryTags(_ entry: Entry, tagSelections: [String: Bool]) {
-        let newTagString = createTagString(from: tagSelections)
-        entry.tagNames = newTagString
-        coreDataManager.save(context: coreDataManager.viewContext)
-    }
-    
+//    func updateEntryTags(_ entry: Entry, tagSelections: [String: Bool]) {
+//        let newTagString = createTagString(from: tagSelections)
+//        entry.tagNames = newTagString
+//        coreDataManager.save(context: coreDataManager.viewContext)
+//    }
+//    
 
     
     func entryContextMenuButtons(entry: Entry, isShowingEntryEditView: Binding<Bool>) -> some View {

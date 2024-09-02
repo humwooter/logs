@@ -38,11 +38,11 @@ public class UserTheme: NSManagedObject, Codable {
           try container.encode(name, forKey: .name)
         
         try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: accentColor!, requiringSecureCoding: true), forKey: .accentColor)
-        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: topColor, requiringSecureCoding: true), forKey: .topColor)
-        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: bottomColor, requiringSecureCoding: true), forKey: .bottomColor)
-        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: entryBackgroundColor, requiringSecureCoding: true), forKey: .entryBackgroundColor)
-        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: pinColor, requiringSecureCoding: true), forKey: .pinColor)
-        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: reminderColor, requiringSecureCoding: true), forKey: .reminderColor)
+        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: topColor!, requiringSecureCoding: true), forKey: .topColor)
+        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: bottomColor!, requiringSecureCoding: true), forKey: .bottomColor)
+        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: entryBackgroundColor!, requiringSecureCoding: true), forKey: .entryBackgroundColor)
+        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: pinColor!, requiringSecureCoding: true), forKey: .pinColor)
+        try container.encodeIfPresent(try NSKeyedArchiver.archivedData(withRootObject: reminderColor!, requiringSecureCoding: true), forKey: .reminderColor)
         try container.encode(fontName, forKey: .fontName)
           try container.encode(fontSize, forKey: .fontSize)
           try container.encode(lineSpacing, forKey: .lineSpacing)
@@ -77,7 +77,8 @@ public class UserTheme: NSManagedObject, Codable {
               bottomColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear
           }
           if let colorData = try values.decodeIfPresent(Data.self, forKey: .pinColor) {
-              pinColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear
+              pinColor = try
+              NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear
           }
           if let colorData = try values.decodeIfPresent(Data.self, forKey: .reminderColor) {
               reminderColor = try NSKeyedUnarchiver.unarchivedObject(ofClass: UIColor.self, from: colorData) ?? UIColor.clear

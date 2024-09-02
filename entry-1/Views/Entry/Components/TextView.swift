@@ -82,8 +82,7 @@ struct TextView : View {
             Section {
                 if (entry.isShown) {
                     VStack {
-                        NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId).environmentObject(userPreferences).environmentObject(coreDataManager)
-                            .blur(radius: !entry.isHidden ? 0 : 7)
+                        NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId, entryViewModel: entryViewModel).environmentObject(userPreferences).environmentObject(coreDataManager)
                             .contextMenu {
                                 entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
                             }
@@ -109,13 +108,6 @@ struct TextView : View {
                                     }
                                 }
                             }
-//                            .onChange(of: entryViewModel.isShowingEntryEditView) { newValue in
-//                                if newValue {
-//                                    editingContent = entry.content
-//                                }
-//                            }
-                        
-//                        tagsView()
                     }
         
                     .sheet(isPresented: $isEditing) {

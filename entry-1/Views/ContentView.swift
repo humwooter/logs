@@ -52,6 +52,7 @@ struct ContentView: View {
                 }
             } else {
                 mainAppView().onAppear(perform: {
+                    printAllTags(coreDataManager: coreDataManager)
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
                     createLog(in: coreDataManager.viewContext)
                     deleteOldEntries()
@@ -62,6 +63,7 @@ struct ContentView: View {
                     updateDates()
                     
                     for entry in allEntries {
+                        // Existing media filename migration logic
                         if let mediaFilename = entry.mediaFilename {
                             if entry.mediaFilenames == nil {
                                 entry.mediaFilenames = []
@@ -69,9 +71,12 @@ struct ContentView: View {
                             }
                             
                             print("ENTRY MEDIA FILES: \(entry.mediaFilenames ?? [])")
-                            coreDataManager.save(context: coreDataManager.viewContext)
                         }
+                    
+                        // Save changes for each entry
+                        coreDataManager.save(context: coreDataManager.viewContext)
                     }
+
                 })
             }
         }
@@ -122,10 +127,10 @@ struct ContentView: View {
         }
     }
     
-    
 
     @ViewBuilder
     func mainAppView() -> some View {
+        var blendedBackground = UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first?.opacity(1) ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1]))
         VStack {
             if (!self.isUnlocked && userPreferences.showLockScreen){
                 lockScreenView()
@@ -140,14 +145,15 @@ struct ContentView: View {
 //                    .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 
                 if !isIpad {
-                    CustomTabViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing)
+                    CustomTabViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing).tabColorScheme(Color(blendedBackground))
+
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)
                         .accentColor(userPreferences.accentColor)
                         .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
                 } else {
-                    CustomNavigationViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing)
+                    CustomNavigationViewModel(isUnlocked: $isUnlocked, isShowingReplyCreationView: $isShowingReplyCreationView, repliedEntryId: $repliedEntryId, editingEntryId: $editingEntryId, isEditing: $isEditing).tabColorScheme(Color(blendedBackground))
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .environmentObject(datesModel)

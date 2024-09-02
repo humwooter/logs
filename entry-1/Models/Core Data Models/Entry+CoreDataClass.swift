@@ -50,7 +50,7 @@ public class Entry: NSManagedObject, Codable {
         isDrafted = try values.decode(Bool.self, forKey: .isDrafted)
         pageNum_pdf = try values.decode(Int16.self, forKey: .pageNum_pdf)
         reminderId = try values.decodeIfPresent(String.self, forKey: .reminderId)
-        self.tagNames = try values.decodeIfPresent(String.self, forKey: .tagNames) ?? ""
+        self.tagNames = try values.decodeIfPresent([String].self, forKey: .tagNames) ?? []
 
     }
     

@@ -15,12 +15,12 @@ class TagViewModel: ObservableObject {
         self.coreDataManager = coreDataManager
     }
     
-    func getSelectedTagsString() -> String {
-        return currentTags.filter { $0.value }.keys.joined(separator: ",")
+    func getSelectedTags() -> [String] {
+        return currentTags.filter { $0.value }.keys.sorted()
     }
     
     func saveSelectedTags(for entry: Entry) {
-        entry.tagNames = getSelectedTagsString()
+        entry.tagNames = getSelectedTags()
         
         updateTagCounts()
         
@@ -31,8 +31,8 @@ class TagViewModel: ObservableObject {
         }
     }
     
-    func saveSelectedTags(to tagNames: inout String) {
-        tagNames = getSelectedTagsString()
+    func saveSelectedTags(to selectedTags: inout [String]) {
+        selectedTags = getSelectedTags()
     }
     
     func updateTagCounts() {
@@ -63,8 +63,7 @@ class TagViewModel: ObservableObject {
         }
     }
     
-    func initializeCurrentTags(with tagNames: String) {
-        let tags = tagNames.split(separator: ",").map(String.init)
+    func initializeCurrentTags(with selectedTags: [String]) {
         let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
         
         do {
@@ -72,7 +71,7 @@ class TagViewModel: ObservableObject {
             
             for tag in allTags {
                 if let name = tag.name {
-                    currentTags[name] = tags.contains(name)
+                    currentTags[name] = selectedTags.contains(name)
                 }
             }
         } catch {
@@ -85,13 +84,37 @@ class TagViewModel: ObservableObject {
     }
     
     func addNewTag(_ tagName: String) {
+        print("in add new tag")
         guard !tagName.isEmpty else { return }
         
         let formattedTagName = formatToTagReadableString(tagName)
         
+        // Check if the tag already exists in Core Data
+        let fetchRequest: NSFetchRequest<Tag> = Tag.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", formattedTagName)
+        
+        do {
+            let existingTags = try coreDataManager.viewContext.fetch(fetchRequest)
+            if existingTags.isEmpty {
+                // Create new tag if it doesn't exist
+                let newTag = Tag(context: coreDataManager.viewContext)
+                newTag.name = formattedTagName
+                newTag.numEntries = 1
+                newTag.id = UUID()
+                currentTags[formattedTagName] = true
+
+                try coreDataManager.viewContext.save()
+                print("Created new tag: \(formattedTagName)")
+            } else {
+                print("Tag already exists: \(formattedTagName)")
+            }
+        } catch {
+            print("Error checking for existing tag: \(error)")
+        }
         if !currentTags.keys.contains(formattedTagName) {
             currentTags[formattedTagName] = true
         }
+
     }
     
     private func formatToTagReadableString(_ input: String) -> String {

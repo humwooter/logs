@@ -34,6 +34,6 @@ func getIdealTextColor(userPreferences: UserPreferences, colorScheme: ColorSchem
 }
 
 func getIdealTextColor(topColor: Color, bottomColor: Color, colorScheme: ColorScheme) -> Color {
-    var blendedBackground = UIColor.blendedColor(from: UIColor(topColor), with: UIColor(bottomColor))
+    let blendedBackground = UIColor.blendedColor(from: UIColor(topColor), with: UIColor(bottomColor))
     return Color(UIColor.fontColor(forBackgroundColor: blendedBackground, colorScheme: colorScheme))
 }

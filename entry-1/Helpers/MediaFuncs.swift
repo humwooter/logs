@@ -153,7 +153,6 @@ func isHeic(data: Data) -> Bool {
 
 public func mediaExists(at url: URL) -> Bool {
     if FileManager.default.fileExists(atPath: url.path) {
-        print("IMAGE EXISTS!")
     }
     return FileManager.default.fileExists(atPath: url.path)
     }
@@ -163,7 +162,6 @@ public func imageExists(at filename: String) -> Bool {
     let url = documentsDirectory.appendingPathComponent(filename)
     
     if FileManager.default.fileExists(atPath: url.path) {
-        print("IMAGE EXISTS!")
     }
     return FileManager.default.fileExists(atPath: url.path)
     }

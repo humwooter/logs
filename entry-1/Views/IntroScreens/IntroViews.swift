@@ -52,7 +52,7 @@ struct IntroViews: View {
                     .transition(.slide)
                     
                 }
-                .tabViewStyle(PageTabViewStyle()).pickerColor(userPreferences.backgroundColors[1] ?? Color.clear)
+                .tabViewStyle(PageTabViewStyle()).pickerColor(userPreferences.backgroundColors[1])
                 .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
 

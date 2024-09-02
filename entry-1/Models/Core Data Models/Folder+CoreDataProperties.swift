@@ -16,7 +16,9 @@ extension Folder {
     }
 
     @NSManaged public var id: UUID
+    @NSManaged public var parentId: UUID?
     @NSManaged public var name: String?
+    @NSManaged public var folderType: String?
     @NSManaged public var order: Int16
     @NSManaged public var entryCount: Int16
 

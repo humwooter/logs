@@ -227,21 +227,18 @@ struct EntryDetailView: View { //used in LogDetailView
     
     
     @ViewBuilder
-    func tagsView() -> some View {
-        var textColor = getTextColor()
-        VStack(alignment: .leading, spacing: 1) {
-            if entry.tagNames?.isEmpty == false {
-                Divider()
-                    .foregroundStyle(textColor)
-                
-                if let tags =  entry.tagNames?.split(separator: ",") {
-                    FlexibleTagGridView(tags: tags.map(String.init))
-                        .foregroundStyle(textColor.opacity(0.5))
-                        .padding(.vertical)
-                }
-            }
-        }
-    }
+     func tagsView() -> some View {
+         let textColor = getTextColor()
+         VStack(alignment: .leading, spacing: 1) {
+             if let tags = entry.tagNames, !tags.isEmpty {
+                 Divider()
+                 
+                 FlexibleTagGridView(tags: tags)
+                     .padding(.vertical)
+             }
+         }
+         .foregroundStyle(textColor.opacity(0.4))
+     }
 
 
     

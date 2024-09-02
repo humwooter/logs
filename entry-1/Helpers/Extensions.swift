@@ -38,7 +38,7 @@ extension CGSize {
 
     static let buttonWidth = UIScreen.main.bounds.size.width/2.5
     static func mediumIconSize() -> CGSize {
-        return CGSize(width: 1.5*UIFont.systemFontSize, height: 1.5*UIFont.systemFontSize)
+        return CGSize(width: 1.7*UIFont.systemFontSize, height: 1.7*UIFont.systemFontSize)
     }
     
     static func largeIconSize() -> CGSize {
@@ -128,7 +128,6 @@ func which_colorScheme(for color: UIColor) -> UIUserInterfaceStyle {
     
     // Standard threshold for determining if color is light or dark
     // This threshold can be adjusted based on desired sensitivity
-    print("background color luminannce: \(luminance)")
     return luminance > 0.5 ? .light : .dark
 }
 
@@ -173,6 +172,12 @@ extension View {
     func searchBarTextColor(_ color: Color) -> some View { //either black or white depending on background color
         let uiColor = UIColor(color)
         UITextField.appearance().overrideUserInterfaceStyle = which_colorScheme(for: uiColor) //this works!!
+        return self
+    }
+    
+    func tabColorScheme(_ color: Color) -> some View {
+        let uiColor = UIColor(color)
+        UITabBar.appearance().overrideUserInterfaceStyle = which_colorScheme(for: uiColor)
         return self
     }
     

@@ -71,11 +71,10 @@ extension String {
 
 
 
-
 struct TagSelectionPopup: View {
     @Binding var isPresented: Bool
     @Binding var entryId: UUID
-    @Binding var selectedTagNames: String
+    @Binding var selectedTagNames: [String]
     @State private var newTagName: String = ""
     @State private var refreshID = UUID()
     
@@ -205,4 +204,3 @@ struct TagButton: View {
         )
     }
 }
-

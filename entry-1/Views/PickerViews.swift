@@ -46,6 +46,7 @@ struct IconPicker: View {
     @Binding var bottomColor_background: Color
     @State var isEditingStampName = false
     var sectionColor: Color
+    var foregroundStyle: Color
     
     var buttonIndex: Int
     @Binding var buttonName: String
@@ -89,6 +90,7 @@ struct IconPicker: View {
 //                } else {
 //                    if buttonName.isEmpty {
                         Text("Stamp \(buttonIndex + 1)")
+                    .foregroundStyle(foregroundStyle.opacity(0.5))
 //                    } else {
 //                        Text(buttonName)
 //                    }
@@ -99,9 +101,9 @@ struct IconPicker: View {
 //                        }
 //                }
             }
-            .foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)
-            .font(.system(size: UIFont.systemFontSize))
+            .font(.customHeadline)
         }
+        .foregroundStyle(foregroundStyle)
     }
     
     func imageListView() -> some View {

@@ -42,6 +42,8 @@ struct NotEditingView: View {
     @StateObject private var thumbnailGenerator = ThumbnailGenerator()
      @State private var isVideoPlayerPresented = false
     @State var replyEntryId: String?
+    
+    var entryViewModel: EntryViewModel 
 
     
     var body : some View {
@@ -85,12 +87,17 @@ struct NotEditingView: View {
                     .font(.sectionHeaderSize)
                     .padding([.top, .bottom, .trailing], 7)
                     .foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
-                if let repliedId = replyEntryId {
-                    finalRepliedView()
-                } else {
-                    entryView()
-                }
+                VStack {
+                    if let repliedId = replyEntryId {
+                        finalRepliedView()
+                    } else {
+                        entryView()
+                    }
+              
+
                 tagsView()
+                }
+                .blur(radius: !entry.isHidden ? 0 : 7)
             }
         }
     }
@@ -99,17 +106,14 @@ struct NotEditingView: View {
     func tagsView() -> some View {
         let textColor = getTextColor()
         VStack(alignment: .leading, spacing: 1) {
-            if entry.tagNames?.isEmpty == false {
+            if let tags = entry.tagNames, !tags.isEmpty {
                 Divider()
                 
-                if let tags =  entry.tagNames?.split(separator: ",") {
-                    FlexibleTagGridView(tags: tags.map(String.init))
-                        .padding(.vertical)
-                }
+                FlexibleTagGridView(tags: tags)
+                    .padding(.vertical)
             }
         }
         .foregroundStyle(textColor.opacity(0.4))
-
     }
     
     @ViewBuilder
@@ -294,70 +298,7 @@ struct NotEditingView: View {
             Spacer()
             
             Menu {
-                Button(action: {
-                    withAnimation {
-                        isEditing = true
-                    }
-                }) {
-                    Text("Edit")
-                    Image(systemName: "pencil")
-                        .foregroundColor(userPreferences.accentColor)
-                }
-                
-                Button(action: {
-                    UIPasteboard.general.string = entry.content
-                }) {
-                    Text("Copy Message")
-                    Image(systemName: "doc.on.doc")
-                }
-                
-                
-                Button(action: {
-                    withAnimation(.easeOut) {
-//                        showEntry.toggle()
-                        entry.isHidden.toggle()
-                        coreDataManager.save(context: coreDataManager.viewContext)
-                    }
-                    
-                }, label: {
-                    Label(!entry.isHidden ? "Hide Entry" : "Unhide Entry", systemImage: showEntry ? "eye.slash.fill" : "eye.fill")
-                })
-                
-                if let filename = entry.mediaFilename {
-                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                    if mediaExists(at: fileURL) {
-                        if let data =  getMediaData(fromFilename: filename) {
-                            if isPDF(data: data) {
-                            }
-                            else {
-                                let image = UIImage(data: data)!
-                                Button(action: {
-                                    let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-                                    let fileURL = documentsDirectory.appendingPathComponent(filename)
-                                    
-                                    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                                    
-                                }, label: {
-                                    Label("Save Image", systemImage: "photo.badge.arrow.down.fill")
-                                })
-                            }
-                        }
-                    }
-                    
-                }
-                
-                Button(action: {
-                    withAnimation {
-                        entry.isPinned.toggle()
-                        coreDataManager.save(context: coreDataManager.viewContext)
-                    }
-                }) {
-                    Text(entry.isPinned ? "Unpin" : "Pin")
-                    Image(systemName: "pin.fill")
-                        .foregroundColor(.red)
-                    
-                }
+                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
             } label: {
                 HStack {
                     Spacer()

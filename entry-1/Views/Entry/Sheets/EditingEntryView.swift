@@ -72,7 +72,8 @@ struct EditingEntryView: View {
 
     // Define your recurrence options
 
-    @State private var selectedTagsName: String = ""
+//    @State private var selectedTagsName: String = ""
+    @State private var selectedTagsName: [String] = []
     @State private var entryName: String = ""
     @State private var showTagSelection = false
      @State private var showEntryNameSelection = false
@@ -89,7 +90,7 @@ struct EditingEntryView: View {
             }
             .onAppear {
 //                tagViewModel.initializeCurrentTags(with: entry.tagNames ?? "")
-                selectedTagsName = entry.tagNames ?? ""
+                selectedTagsName = entry.tagNames ?? []
                 entryName = entry.title ?? ""
                 if let reminderId = entry.reminderId {
                     reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
@@ -361,7 +362,7 @@ struct EditingEntryView: View {
 
     
     func getIdealTextColor() -> Color {
-        var backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
+        let backgroundColor = isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear
         return Color(UIColor.fontColor(forBackgroundColor: UIColor(backgroundColor)))
     }
     

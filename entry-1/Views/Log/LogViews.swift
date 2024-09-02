@@ -90,6 +90,7 @@ struct LogsView: View {
     var entryViewModel: EntryViewModel {
         return EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
     }
+    
 
     var body: some View {
         
@@ -285,7 +286,7 @@ struct LogsView: View {
     @ViewBuilder
     func suggestedSearchView() -> some View {
         List {
-            Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.4)) {
+            Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.5)) {
                 Button {
                     searchModel.tokens.append(.hiddenEntries)
                 } label: {

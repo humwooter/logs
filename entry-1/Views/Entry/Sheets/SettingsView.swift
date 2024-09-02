@@ -13,18 +13,6 @@ import LocalAuthentication
 import UniformTypeIdentifiers
 
 
-
-struct TempLog: Decodable {
-    var id: UUID
-    var day: String
-    var relationship: String
-}
-
-
-
-
-
-
 struct SettingsView: View {
     // data management and environment objects
     @EnvironmentObject var userPreferences: UserPreferences
@@ -460,12 +448,10 @@ struct SettingsView: View {
         }
         ForEach(0..<userPreferences.stamps.count, id: \.self) { index in
             if userPreferences.stamps[index].isActive {
-                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], sectionColor: getSectionColor(colorScheme: colorScheme), buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
+                IconPicker(selectedImage: $userPreferences.stamps[index].imageName, selectedColor: $userPreferences.stamps[index].color, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme), accentColor: $userPreferences.accentColor, topColor_background: $userPreferences.backgroundColors[0], bottomColor_background: $userPreferences.backgroundColors[1], sectionColor: getSectionColor(colorScheme: colorScheme), foregroundStyle: getTextColor(), buttonIndex: index, buttonName: $userPreferences.stamps[index].name, inputCategories: imageCategories)
                     .foregroundStyle(getTextColor())
                     .font(.customHeadline)
                     .environmentObject(userPreferences)
-
-
             }
         }
         .onAppear {
