@@ -86,9 +86,6 @@ extension Entry {
 
     
     func hideEntry () {
-        if self.isHidden == nil {
-            self.isHidden = false
-        }
         self.isHidden.toggle()
     }
     

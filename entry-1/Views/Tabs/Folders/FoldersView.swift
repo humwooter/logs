@@ -194,15 +194,29 @@ struct FoldersView: View {
             print("Failed to mark entries as removed: \(error)")
         }
     }
-
+    
     private func deleteFolders(at offsets: IndexSet) {
         for index in offsets {
             let folder = folders[index]
             markEntriesAsRemoved(for: folder)
             viewContext.delete(folder)
         }
-        try? viewContext.save()
+        do {
+            try viewContext.save()
+        } catch {
+            print("Failed to delete folders: \(error)")
+        }
     }
+
+//
+//    private func deleteFolders(at offsets: IndexSet) {
+//        for index in offsets {
+//            let folder = folders[index]
+//            markEntriesAsRemoved(for: folder)
+//            viewContext.delete(folder)
+//        }
+//        try? viewContext.save()
+//    }
 
     private func moveFolders(from source: IndexSet, to destination: Int) {
         var revisedFolders = folders.map { $0 }
@@ -283,7 +297,7 @@ struct FoldersView: View {
                       .foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
                   } footer: {
                       if folders.isEmpty {
-                          Text("No folders created yet")
+//                          Text("No folders created yet")
                       } else {
                           Spacer(minLength: 20)
                       }

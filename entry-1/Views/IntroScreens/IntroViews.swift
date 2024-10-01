@@ -75,6 +75,90 @@ struct IntroViews: View {
 }
 
 
+
+struct StampIntrosView: View {
+    @State private var selectedTab: Int = 0
+    @EnvironmentObject var userPreferences: UserPreferences
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.colorScheme) var colorScheme
+
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            IntroView(title: "Stamps: Your Visual Tags", content: [
+                (description: "Categorize and Highlight: Use stamps to quickly identify different types of entries, add context, or mark progress.", imageName: "tag.fill"),
+                (description: "Unlimited Stamps: Create as many stamps as you need, each with a unique name, icon, and color.", imageName: "plus.circle.fill"),
+                (description: "Organize with Folders: Group your stamps into folders for better management and easier access.", imageName: "folder.fill"),
+                (description: "Swipe to Access: In the main view, swipe right on an entry to reveal and apply your stamps.", imageName: "gesture.swipe.right")
+            ], color: userPreferences.accentColor)
+            .environmentObject(userPreferences)
+            .tag(0)
+            .transition(.slide)
+
+            // Add more IntroView tabs specifically about Stamps if needed
+
+        } // TabView
+        .tabViewStyle(PageTabViewStyle()).pickerColor(userPreferences.backgroundColors[1])
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+
+                }, label: {
+                    Text("Done")
+                        .font(.customHeadline)
+                })
+            }
+        }
+        .background {
+            userPreferences.backgroundView(colorScheme: colorScheme)
+        }
+    }
+}
+
+struct EntryIntrosView: View {
+    @State private var selectedTab: Int = 0
+    @EnvironmentObject var userPreferences: UserPreferences
+    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.colorScheme) var colorScheme
+
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            IntroView(title: "Entries: Your Thoughts Captured", content: [
+                (description: "Quick Entries: Jot down thoughts, plans, and notes. Each entry is timestamped and easily searchable.", imageName: "note.text"),
+                (description: "Rich Content: Add text, images, GIFs, and even PDFs to your entries.", imageName: "photo.on.rectangle.angled"),
+                (description: "Organize with Folders: Group your entries into folders for projects, topics, or any category you need.", imageName: "folder.fill"),
+                (description: "Reminders and Counters: Integrate reminders and counters with your entries to stay on top of tasks and track your progress.", imageName: "bell.fill")
+            ], color: userPreferences.accentColor)
+            .environmentObject(userPreferences)
+            .tag(0)
+            .transition(.slide)
+
+            // Add more IntroView tabs specifically about Entries if needed
+
+        } // TabView
+        .tabViewStyle(PageTabViewStyle()).pickerColor(userPreferences.backgroundColors[1])
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+
+                Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+
+                }, label: {
+                    Text("Done")
+                        .font(.customHeadline)
+                })
+            }
+        }
+        .background {
+            userPreferences.backgroundView(colorScheme: colorScheme)
+        }
+    }
+}
+
+
 struct IntroView: View {
     var title: String
     var content: [(description: String, imageName: String?)] // Updated to accept multiple pairs

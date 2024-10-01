@@ -18,11 +18,12 @@ class EntryViewModel: ObservableObject {
 
 
     private var coreDataManager = CoreDataManager(persistenceController: PersistenceController.shared)
-    @ObservedObject private var userPreferences: UserPreferences = UserPreferences()
+//    @ObservedObject var userPreferences: UserPreferences
     
     init(isShowingReplyCreationView: Binding<Bool>, replyEntryId: Binding<String?>) {
         self._isShowingReplyCreationView = isShowingReplyCreationView
         self._replyEntryId = replyEntryId
+//        self._userPreferences = userPreferences
     }
     
 //    var backgroundView: any View {
@@ -47,7 +48,7 @@ class EntryViewModel: ObservableObject {
 //    
 
     
-    func entryContextMenuButtons(entry: Entry, isShowingEntryEditView: Binding<Bool>) -> some View {
+    func entryContextMenuButtons(entry: Entry, isShowingEntryEditView: Binding<Bool>, userPreferences: UserPreferences) -> some View {
         return VStack {
             Button(action: {
                 withAnimation {

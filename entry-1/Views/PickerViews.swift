@@ -21,15 +21,6 @@ import TipKit
 //  Created by Katyayani G. Raman on 10/24/23.
 //
 
-import Foundation
-import SwiftUI
-import CoreData
-import UIKit
-import TipKit
-
-//var button_width : CGFloat = UIScreen.main.bounds.height/10
-
-
 
 
 struct IconPicker: View {

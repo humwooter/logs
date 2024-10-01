@@ -30,6 +30,7 @@ struct LogDetailView: View {
         
         // Convert logDay to a Date object
         guard let logDate = dateFromString(logDay) else {
+            print("LOG DAY: \(logDay)")
             fatalError("Invalid logDay format")
         }
         

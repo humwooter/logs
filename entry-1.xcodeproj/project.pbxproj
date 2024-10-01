@@ -175,6 +175,7 @@
 		4ABBEF872AE7BF71005BD78A /* PickerViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABBEF862AE7BF71005BD78A /* PickerViews.swift */; };
 		4ABBEF892AE8EB03005BD78A /* GlobalVars.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABBEF882AE8EB03005BD78A /* GlobalVars.swift */; };
 		4AC1F9D72C2B67A1008C1255 /* StampWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC1F9D62C2B679E008C1255 /* StampWidget.swift */; };
+		4AC2F0A92CABA99300BDE3B3 /* CloudPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC2F0A82CABA98D00BDE3B3 /* CloudPersistence.swift */; };
 		4AC45F582ADF71CD00246AEF /* Documents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AC45F572ADF71CD00246AEF /* Documents.swift */; };
 		4ACE308C2AEE0A4000807858 /* SunnySpellsBasicRegular-Yz1Wv.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE308B2AEE0A4000807858 /* SunnySpellsBasicRegular-Yz1Wv.ttf */; };
 		4ACE30902AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4ACE308F2AEE0B3F00807858 /* BarelyEnoughRegular-JRD6o.ttf */; };
@@ -293,6 +294,7 @@
 		4AEE31B52C85300900D6BE8F /* tagNamesMappingModel(String->List).xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4AEE31B22C85300900D6BE8F /* tagNamesMappingModel(String->List).xcmappingmodel */; };
 		4AEE31B72C85384A00D6BE8F /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEE31B62C85384700D6BE8F /* MigrationManager.swift */; };
 		4AEE31BA2C85493200D6BE8F /* ColorTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEE31B92C85492E00D6BE8F /* ColorTransformer.swift */; };
+		4AEE31BC2C86834600D6BE8F /* FilteredEntriesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEE31BB2C86833E00D6BE8F /* FilteredEntriesListView.swift */; };
 		4AF545E42BDA1722007D8AFF /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF545E32BDA1722007D8AFF /* NotificationView.swift */; };
 		4AFCF99C2B1619A000088460 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* TextView.swift */; };
 		4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */; };
@@ -454,6 +456,7 @@
 		4ABBEF862AE7BF71005BD78A /* PickerViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerViews.swift; sourceTree = "<group>"; };
 		4ABBEF882AE8EB03005BD78A /* GlobalVars.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalVars.swift; sourceTree = "<group>"; };
 		4AC1F9D62C2B679E008C1255 /* StampWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StampWidget.swift; sourceTree = "<group>"; };
+		4AC2F0A82CABA98D00BDE3B3 /* CloudPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudPersistence.swift; sourceTree = "<group>"; };
 		4AC45F572ADF71CD00246AEF /* Documents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Documents.swift; sourceTree = "<group>"; };
 		4ACE30842AEE04B500807858 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		4ACE308B2AEE0A4000807858 /* SunnySpellsBasicRegular-Yz1Wv.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SunnySpellsBasicRegular-Yz1Wv.ttf"; sourceTree = "<group>"; };
@@ -512,6 +515,7 @@
 		4AEE31B22C85300900D6BE8F /* tagNamesMappingModel(String->List).xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = "tagNamesMappingModel(String->List).xcmappingmodel"; sourceTree = "<group>"; };
 		4AEE31B62C85384700D6BE8F /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		4AEE31B92C85492E00D6BE8F /* ColorTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTransformer.swift; sourceTree = "<group>"; };
+		4AEE31BB2C86833E00D6BE8F /* FilteredEntriesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilteredEntriesListView.swift; sourceTree = "<group>"; };
 		4AF545E32BDA1722007D8AFF /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		4AFCF99B2B1619A000088460 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModel.swift; sourceTree = "<group>"; };
@@ -818,6 +822,7 @@
 		4A81FD3E2C2E2A9B004EC3D2 /* Sheets */ = {
 			isa = PBXGroup;
 			children = (
+				4AEE31BB2C86833E00D6BE8F /* FilteredEntriesListView.swift */,
 				4A372BB82C7FD7E1007EE90E /* CurrentThemeEditView.swift */,
 				4A1B563B2C715C95000FECA7 /* EditUserThemeView.swift */,
 				4A8280CF2C708E10005AC7BD /* ThemeSheet.swift */,
@@ -873,6 +878,7 @@
 		4A81FD4F2C337A33004EC3D2 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
+				4AC2F0A82CABA98D00BDE3B3 /* CloudPersistence.swift */,
 				4AEE31B62C85384700D6BE8F /* MigrationManager.swift */,
 				34A8082A2A8A167200B9BB5C /* Persistence.swift */,
 				4A81FD502C337A42004EC3D2 /* NewPersistence.swift */,
@@ -1343,6 +1349,7 @@
 				4A81FD4B2C32BBA1004EC3D2 /* EventManager.swift in Sources */,
 				4A28BCC92BC12D7C0026ACE9 /* TabBarController.swift in Sources */,
 				34C43B9B2A9DA51F005C1296 /* CoreDataManager.swift in Sources */,
+				4AC2F0A92CABA99300BDE3B3 /* CloudPersistence.swift in Sources */,
 				34A808302A8A167300B9BB5C /* ContentView.swift in Sources */,
 				34C43AFE2A976B6E005C1296 /* GifView.swift in Sources */,
 				4ACEB3D42B5F6BC500B76634 /* Stamp.swift in Sources */,
@@ -1405,6 +1412,7 @@
 				4A72643C2AEBB0AE0099EA84 /* RecentlyDeletedView.swift in Sources */,
 				4A81FD202C2BB42F004EC3D2 /* WidgetCoreDataManager.swift in Sources */,
 				4A1B563C2C715C9B000FECA7 /* EditUserThemeView.swift in Sources */,
+				4AEE31BC2C86834600D6BE8F /* FilteredEntriesListView.swift in Sources */,
 				4AB0ABA22BB1663200EF3548 /* CoreDataFuncs.swift in Sources */,
 				4ABBEF892AE8EB03005BD78A /* GlobalVars.swift in Sources */,
 				4A9FB8BB2BDDC2D500349AA9 /* LogStatsView.swift in Sources */,

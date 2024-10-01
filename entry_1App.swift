@@ -22,7 +22,6 @@ struct entry_1App: App {
     @ObservedObject var userPreferences = UserPreferences()
 
     init() {
-        ColorTransformer.register()
         // Any additional initialization if needed
     }
 

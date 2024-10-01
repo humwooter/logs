@@ -454,9 +454,9 @@ struct SettingsView: View {
                     .environmentObject(userPreferences)
             }
         }
-        .onAppear {
-            print("STAMPS: \(userPreferences.stamps)")
-        }
+//        .onAppear {
+//            print("STAMPS: \(userPreferences.stamps)")
+//        }
     }
     
     @ViewBuilder
@@ -563,25 +563,25 @@ struct SettingsView: View {
             .font(.customHeadline)
         }
         
-        Section {
-            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror).tint(userPreferences.accentColor)
-                .foregroundStyle(getTextColor())
-                .onChange(of: userPreferences.enableCloudMirror) { newValue in
-                    if newValue {
-                        userPreferences.enableCloudMirror = newValue
-                    }
-                }
-            
-        } header: {
-            HStack {
-                Image(systemName: "cloud.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
-                Text("Sync")
-                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
-
-                Spacer()
-            }
-            .font(.customHeadline)
-        }
+//        Section {
+//            Toggle("Enable Cloud Sync", isOn: $userPreferences.enableCloudMirror).tint(userPreferences.accentColor)
+//                .foregroundStyle(getTextColor())
+//                .onChange(of: userPreferences.enableCloudMirror) { newValue in
+//                    if newValue {
+//                        userPreferences.enableCloudMirror = newValue
+//                    }
+//                }
+//            
+//        } header: {
+//            HStack {
+//                Image(systemName: "cloud.fill").foregroundStyle(userPreferences.accentColor).padding(.horizontal, 5)
+//                Text("Sync")
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.4))
+//
+//                Spacer()
+//            }
+//            .font(.customHeadline)
+//        }
         
         
         Section {

@@ -76,7 +76,6 @@ struct MediaManagerView: View {
     }
     
     func findMediaFilesLargerThan5MB(at url: URL) -> [MediaFile] {
-        printDocumentsDirectoryContents()
         let fileManager = FileManager.default
         do {
             let files = try fileManager.contentsOfDirectory(at: url, includingPropertiesForKeys: [.fileSizeKey], options: [])

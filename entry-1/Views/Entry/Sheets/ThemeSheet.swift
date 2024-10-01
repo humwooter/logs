@@ -469,8 +469,26 @@ extension ThemeSheet {
 //        }
     }
 
+    func clearTempDirectory() {
+        let fileManager = FileManager.default
+        let tempDirectory = fileManager.temporaryDirectory
+
+        do {
+            let filePaths = try fileManager.contentsOfDirectory(at: tempDirectory, includingPropertiesForKeys: nil, options: [])
+            for filePath in filePaths {
+                try fileManager.removeItem(at: filePath)
+                print("Deleted file at \(filePath)")
+            }
+        } catch {
+            print("Failed to clear temp directory: \(error.localizedDescription)")
+        }
+    }
+
 
     func createThemePackage(userTheme: UserTheme, fileName: String) async -> URL? {
+        
+        clearTempDirectory()
+        
         guard let themeData = saveThemeAsJSON(userTheme: userTheme),
                 let thumbnailImage = await createThumbnailImage(userTheme: userTheme),
                 let thumbnailData = thumbnailImage.pngData() else {

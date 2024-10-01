@@ -52,30 +52,20 @@ struct ContentView: View {
                 }
             } else {
                 mainAppView().onAppear(perform: {
-                    printAllTags(coreDataManager: coreDataManager)
+                    
+//                    print("DATES MODEL: \(datesModel)")
+//                    print("DATE STRINGS: \(DateStrings())")
+//                    PersistenceController.shared.printDatabaseContents()
+//                    printAllTags(coreDataManager: coreDataManager)
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
-                    createLog(in: coreDataManager.viewContext)
+//                    coreDataManager.deleteAllLogEntitiesWithUndo()
                     deleteOldEntries()
                     initializeDateStrings()
                     if userPreferences.showLockScreen {
                         authenticate()
                     }
-                    updateDates()
-                    
-                    for entry in allEntries {
-                        // Existing media filename migration logic
-                        if let mediaFilename = entry.mediaFilename {
-                            if entry.mediaFilenames == nil {
-                                entry.mediaFilenames = []
-                                entry.mediaFilenames?.append(mediaFilename)
-                            }
-                            
-                            print("ENTRY MEDIA FILES: \(entry.mediaFilenames ?? [])")
-                        }
-                    
-                        // Save changes for each entry
-                        coreDataManager.save(context: coreDataManager.viewContext)
-                    }
+//                    updateDates()
+
 
                 })
             }
@@ -92,6 +82,7 @@ struct ContentView: View {
     func initializeDateStrings() {
         let dateStringsManager = DateStrings()
         for log in logs {
+            print("LOG: \(log)")
             dateStringsManager.addDate(log.day)
         }
     }

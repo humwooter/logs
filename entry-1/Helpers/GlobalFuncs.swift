@@ -341,7 +341,7 @@ func deleteEntry(entry: Entry, coreDataManager: CoreDataManager) {
             entry.deleteImage(coreDataManager: coreDataManager)
             
             // Perform the entry deletion
-            entry.relationship?.removeFromRelationship(entryToDeleteInContext)
+//            entry.relationship?.removeFromRelationship(entryToDeleteInContext)
             mainContext.delete(entryToDeleteInContext)
             
             try mainContext.save()

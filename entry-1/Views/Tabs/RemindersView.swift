@@ -119,13 +119,13 @@ struct RemindersView: View {
     }
 
 
-    private func loadReminders() {
-        reminders = entries.compactMap { entry in
-            guard let reminderId = entry.reminderId else { return nil }
-            return fetchReminder(with: reminderId)
-        }
-        reminders.sort { ($0.dueDateComponents?.date ?? Date()) < ($1.dueDateComponents?.date ?? Date()) }
-    }
+//    private func loadReminders() {
+//        reminders = entries.compactMap { entry in
+//            guard let reminderId = entry.reminderId else { return nil }
+//            return fetchReminder(with: reminderId)
+//        }
+//        reminders.sort { ($0.dueDateComponents?.date ?? Date()) < ($1.dueDateComponents?.date ?? Date()) }
+//    }
 
     private func fetchReminder(with identifier: String) -> EKReminder? {
         eventStore.calendarItem(withIdentifier: identifier) as? EKReminder
@@ -150,50 +150,158 @@ struct RemindersView: View {
             return daysUntilDue == 0 ? "Due today" : "Due in \(daysUntilDue) day(s)"
         }
     }
-
-
+    
     @ViewBuilder
     private func reminderView(reminder: EKReminder, entry: Entry) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Reminder Title and Date
-            HStack {
-                VStack(alignment: .leading, spacing: 10) {
-                    HStack {
-                        Text(reminder.title ?? "Untitled Reminder")
-                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize)).bold()
-                            .foregroundColor(getTextColor(entry: entry))
-                        Spacer()
-                        if reminder.isCompleted {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.green)
-                                .font(.caption)
-                        }
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text(reminder.title ?? "Untitled Reminder")
+                        .font(.headline)
+                        .foregroundColor(getTextColor(entry: entry))
+                    Spacer()
+                    if reminder.isCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.caption)
                     }
-                    
-                    if let dueDate = reminder.dueDateComponents?.date {
-                        Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
-                            .font(.customHeadline)
-                            .foregroundColor(getTextColor(entry: entry).opacity(0.3))
-                    }
-                    
-                    // Display recurrence information
-                    if let recurrenceRule = reminder.recurrenceRules?.first {
-                                        HStack {
-                                            Image(systemName: "repeat")
-                                            Text("\(mapRecurrenceRuleToString(recurrenceRule))")
-                                            Spacer()
-                                        }
-                                                .foregroundStyle(userPreferences.accentColor)
-                                                .font(.sectionHeaderSize)
-                                    }
+                }
                 
+                if let dueDate = reminder.dueDateComponents?.date {
+                    Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
+                        .font(.subheadline)
+                        .foregroundColor(getTextColor(entry: entry).opacity(0.7))
+                } else {
+                    Text("No due date")
+                        .font(.subheadline)
+                        .foregroundColor(getTextColor(entry: entry).opacity(0.7))
+                }
+                
+                // Display recurrence information
+                if let recurrenceRule = reminder.recurrenceRules?.first {
+                    HStack {
+                        Image(systemName: "repeat")
+                        Text("\(mapRecurrenceRuleToString(recurrenceRule))")
+                        Spacer()
+                    }
+                    .foregroundStyle(userPreferences.accentColor)
+                    .font(.subheadline)
                 }
             }
-
-            .padding(.top, 5)
+            Spacer()
+            // Days until due date display
+            if let dueDate = reminder.dueDateComponents?.date {
+                let daysUntilDue = daysUntilDueDate(dueDate)
+                VStack {
+                    Text("\(abs(daysUntilDue))")
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundColor(daysUntilDue < 0 ? .red : .green)
+                    Text(daysUntilDue < 0 ? "days overdue" : "days left")
+                        .font(.caption)
+                        .foregroundColor(daysUntilDue < 0 ? .red : .green)
+                }
+            } else {
+                VStack {
+                    Image(systemName: "calendar.badge.exclamationmark")
+                        .font(.largeTitle)
+                        .foregroundColor(.gray)
+                    Text("No due date")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
         }
         .padding()
     }
+
+    private func overdueInformation(for date: Date?) -> String {
+        guard let date = date else {
+            return "No due date"
+        }
+        let currentDate = Date()
+        let calendar = Calendar.current
+
+        if currentDate > date {
+            let daysOverdue = calendar.dateComponents([.day], from: date, to: currentDate).day ?? 0
+            return daysOverdue == 0 ? "Overdue today" : "\(daysOverdue) day(s) overdue"
+        } else {
+            let daysUntilDue = calendar.dateComponents([.day], from: currentDate, to: date).day ?? 0
+            return daysUntilDue == 0 ? "Due today" : "Due in \(daysUntilDue) day(s)"
+        }
+    }
+
+
+
+//    @ViewBuilder
+//    private func reminderView(reminder: EKReminder, entry: Entry) -> some View {
+//        VStack(alignment: .leading, spacing: 10) {
+//            // Reminder Title and Date
+//            HStack {
+//                VStack(alignment: .leading, spacing: 10) {
+//                    HStack {
+//                        Text(reminder.title ?? "Untitled Reminder")
+//                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize)).bold()
+//                            .foregroundColor(getTextColor(entry: entry))
+//                        Spacer()
+//                        if reminder.isCompleted {
+//                            Image(systemName: "checkmark.circle.fill")
+//                                .foregroundColor(.green)
+//                                .font(.caption)
+//                        }
+//                    }
+//                    
+//                    if let dueDate = reminder.dueDateComponents?.date {
+//                        Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
+//                            .font(.customHeadline)
+//                            .foregroundColor(getTextColor(entry: entry).opacity(0.3))
+//                    }
+//                    
+//                    // Display recurrence information
+//                    if let recurrenceRule = reminder.recurrenceRules?.first {
+//                                        HStack {
+//                                            Image(systemName: "repeat")
+//                                            Text("\(mapRecurrenceRuleToString(recurrenceRule))")
+//                                            Spacer()
+//                                        }
+//                                                .foregroundStyle(userPreferences.accentColor)
+//                                                .font(.sectionHeaderSize)
+//                                    }
+//                
+//                }
+//            }
+//
+//            .padding(.top, 5)
+//        }
+//        .padding()
+//    }
+    
+    private func loadReminders() {
+        reminders = entries.compactMap { entry in
+            guard let reminderId = entry.reminderId else { return nil }
+            return fetchReminder(with: reminderId)
+        }
+        reminders.sort { firstReminder, secondReminder in
+            let firstDaysUntilDue = daysUntilDueDate(firstReminder.dueDateComponents?.date)
+            let secondDaysUntilDue = daysUntilDueDate(secondReminder.dueDateComponents?.date)
+            return firstDaysUntilDue < secondDaysUntilDue
+        }
+    }
+
+    
+    private func daysUntilDueDate(_ date: Date?) -> Int {
+        guard let date = date else {
+            // If there's no due date, we can assign a high number to sort it at the end
+            return Int.max
+        }
+        let currentDate = Date()
+        let calendar = Calendar.current
+        let startOfCurrentDate = calendar.startOfDay(for: currentDate)
+        let startOfDueDate = calendar.startOfDay(for: date)
+        let components = calendar.dateComponents([.day], from: startOfCurrentDate, to: startOfDueDate)
+        return components.day ?? 0
+    }
+
 
 
     private func mapRecurrenceRuleToString(_ rule: EKRecurrenceRule) -> String {

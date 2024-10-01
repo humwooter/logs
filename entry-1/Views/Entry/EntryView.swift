@@ -125,21 +125,17 @@ struct EntryView: View {
                     .foregroundColor(userPreferences.accentColor)
                     .presentationDragIndicator(.hidden)
                     .environmentObject(datesModel)
-                    .onAppear {
-                        print("REPLY ID: \(repliedEntryId)")
-                    }
+          
             }
             .sheet(isPresented: $isShowingReplyCreationView) {
                 if let repliedId = repliedEntryId {
-                    ReplyEntryView(replyEntryId: repliedId)
+                    ReplyEntryView(replyEntryId: repliedId, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .foregroundColor(userPreferences.accentColor)
                         .presentationDragIndicator(.hidden)
                         .environmentObject(datesModel)
-                        .onAppear {
-                            print("REPLY ID: \(repliedEntryId)")
-                        }
+      
                 }
             }
             

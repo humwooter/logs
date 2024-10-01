@@ -29,6 +29,14 @@ class DateStrings {
         }
     }
     
+    
+    // Function to check if a date string is in the valid format (MM/dd/yyyy)
+       static func isValidDateFormat(_ dateString: String) -> Bool {
+           let dateFormatter = DateFormatter()
+           dateFormatter.dateFormat = "MM/dd/yyyy"
+           return dateFormatter.date(from: dateString) != nil
+       }
+    
     // Load the dictionary from UserDefaults.
     private static func loadFromUserDefaults() -> [String: [String]] {
         let decoder = JSONDecoder()

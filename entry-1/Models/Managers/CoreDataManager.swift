@@ -50,13 +50,13 @@ final class CoreDataManager: ObservableObject {
     func createEntry(in context: NSManagedObjectContext, for date: Date, shouldSync: Bool = false) -> Entry {
         let store = getAppropriateStore(for: shouldSync)
         let entry = Entry(context: context)
-        if entry.relationship != nil {
-            entry.logId = entry.relationship?.id
-//            entry.relationship?.entry_ids.append(entry.id.uuidString)
-            entry.relationship = nil //remove relationship before moving to cloud
-            entry.relationship?.removeFromRelationship(entry)
-            print("removed log from relationship")
-        }
+//        if entry.relationship != nil {
+//            entry.logId = entry.relationship?.id
+////            entry.relationship?.entry_ids.append(entry.id.uuidString)
+//            entry.relationship = nil //remove relationship before moving to cloud
+//            entry.relationship?.removeFromRelationship(entry)
+//            print("removed log from relationship")
+//        }
         do {
             try context.assign(entry, to: store)
             
@@ -542,81 +542,121 @@ func mergeChanges(from context: NSManagedObjectContext) {
         saveEntry(existingEntry)
        }
     
+    func deleteAllLogEntities() {
+        let context = self.viewContext
+        
+        // Create a fetch request for the Log entity
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Log")
+        
+        // Create a batch delete request
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        do {
+            // Perform the batch delete
+            try context.execute(batchDeleteRequest)
+            
+            // Save the context to persist the changes
+            try context.save()
+            
+            print("Successfully deleted all Log entities")
+        } catch {
+            print("Failed to delete Log entities: \(error)")
+        }
+        
+        // Refresh the view context to ensure it reflects the changes
+        context.reset()
+    }
 
-//    @objc private func entryDidChange(notification: Notification) {
-//        guard let userInfo = notification.userInfo else { return }
-//
-//        if let updatedObjects = userInfo[NSUpdatedObjectsKey] as? Set<NSManagedObject> {
-//            for object in updatedObjects {
-//                if let entry = object as? Entry {
-//                    if let shouldSync = entry.changedValues()["shouldSyncWithCloudKit"] as? Bool, shouldSync {
-//                        CloudKitManager.shared.syncSpecificEntries(entries: [entry]) { error in
-//                            if let error = error {
-//                                print("Error syncing entry: \(error.localizedDescription)")
-//                            } else {
-//                                print("Successfully synced entry to CloudKit")
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
+    func deleteAllLogEntitiesWithUndo() {
+        print("Deleting all logs permanently")
+        let context = self.viewContext
+        
+        // Create a fetch request for the Log entity
+        let fetchRequest: NSFetchRequest<NSManagedObject> = NSFetchRequest(entityName: "Log")
+        
+        do {
+            // Fetch all Log entities
+            let logs = try context.fetch(fetchRequest)
+            
+            // Delete each Log entity
+            for log in logs {
+                print("Deleting log: \(log)")
+                context.delete(log)
+            }
+            
+            // Save the context to persist the changes
+            try context.save()
+            
+            print("Successfully deleted all Log entities")
+        } catch {
+            print("Failed to delete Log entities: \(error)")
+        }
+    }
 
 }
 
 
 extension CoreDataManager {
     func isEntryInCloudStorage(_ entry: Entry) -> Bool {
-            let entryObjectID = entry.objectID
-            let cloudStore = getCloudStore()
+        guard let cloudStore = getCloudStore() else {
+            print("Cloud store not found")
+            return false
+        }
+        
+        let entryObjectID = entry.objectID
+        do {
+            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "SELF == %@", entryObjectID)
+            fetchRequest.fetchLimit = 1
+            fetchRequest.affectedStores = [cloudStore]
             
-            do {
-                let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "SELF == %@", entryObjectID)
-                fetchRequest.fetchLimit = 1
-                fetchRequest.affectedStores = [cloudStore]
-                
-                let result = try backgroundContext.fetch(fetchRequest)
-                return !result.isEmpty
-            } catch {
-                print("Error checking if entry is in cloud storage: \(error)")
-                return false
-            }
+            let result = try backgroundContext.fetch(fetchRequest)
+            let isInCloud = !result.isEmpty
+            print("Entry is \(isInCloud ? "" : "not ")in cloud storage")
+            return isInCloud
+        } catch {
+            print("Error checking if entry is in cloud storage: \(error)")
+            return false
         }
+    }
 
-        func isEntryInLocalStorage(_ entry: Entry) -> Bool {
-            let entryObjectID = entry.objectID
-            let localStore = getLocalStore()
+    func isEntryInLocalStorage(_ entry: Entry) -> Bool {
+        guard let localStore = getLocalStore() else {
+            print("Local store not found")
+            return false
+        }
+        
+        let entryObjectID = entry.objectID
+        do {
+            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "SELF == %@", entryObjectID)
+            fetchRequest.fetchLimit = 1
+            fetchRequest.affectedStores = [localStore]
             
-            do {
-                let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "SELF == %@", entryObjectID)
-                fetchRequest.fetchLimit = 1
-                fetchRequest.affectedStores = [localStore]
-                
-                let result = try backgroundContext.fetch(fetchRequest)
-                return !result.isEmpty
-            } catch {
-                print("Error checking if entry is in local storage: \(error)")
-                return false
-            }
+            let result = try backgroundContext.fetch(fetchRequest)
+            let isInLocal = !result.isEmpty
+            print("Entry is \(isInLocal ? "" : "not ")in local storage")
+            return isInLocal
+        } catch {
+            print("Error checking if entry is in local storage: \(error)")
+            return false
         }
+    }
 
-        private func getCloudStore() -> NSPersistentStore {
-            guard let cloudStore = persistentContainer.persistentStoreCoordinator.persistentStores.first(where: { $0.configurationName == "Cloud" }) else {
-                if let store =  persistentContainer.persistentStoreCoordinator.persistentStores.first {
-                    return store //should return local store as fallback
-                }
-                fatalError("Cloud store not found")
-            }
-            return cloudStore
+    private func getCloudStore() -> NSPersistentStore? {
+        let coordinator = persistentContainer.persistentStoreCoordinator
+        let cloudStore = coordinator.persistentStores.first { store in
+            store.configurationName == "Cloud"
         }
+        return cloudStore
+    }
 
-        private func getLocalStore() -> NSPersistentStore {
-            guard let localStore = persistentContainer.persistentStoreCoordinator.persistentStores.first(where: { $0.configurationName == "PF_DEFAULT_CONFIGURATION_NAME" }) else {
-                fatalError("Local store not found")
-            }
-            return localStore
+    private func getLocalStore() -> NSPersistentStore? {
+        let coordinator = persistentContainer.persistentStoreCoordinator
+        let localStore = coordinator.persistentStores.first { store in
+            store.configurationName == nil || store.configurationName == ""
         }
+        return localStore
+    }
 }
+

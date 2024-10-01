@@ -161,43 +161,7 @@ struct NewEntryView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
-                        Menu("", systemImage: "ellipsis.circle") {
-                            
-                            Button {
-//                                showingEntryTitle = true
-                                showEntryNameSelection = true
-                            } label: {
-//                                Text("Add Name")
-                                Label("Add Name", systemImage: "pencil")
-                            }
-                            
-                            Button {
-                                showingDatePicker.toggle()
-
-                            } label: {
-                                Label("Edit Date", systemImage: "calendar")
-                            }
-                            
-                            Button {
-                                showingReminderSheet = true
-
-                            } label: {
-                                Label("Set Reminder", systemImage: "bell.fill")
-                            }
-                            
-                            Button {
-                                showTagSelection = true
-                            } label: {
-                                Label("Add tag", systemImage: "number")
-                            }
-                            
-                            Button {
-                                showFolderSelection = true
-                            } label: {
-                                Label("Add to folder", systemImage: "folder.fill")
-                            }
-                            
-                        }.font(.customHeadline)
+                        toolbarMenu()
                       
             
                         Button(action: {
@@ -343,6 +307,47 @@ struct NewEntryView: View {
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    func toolbarMenu() -> some View {
+        Menu("", systemImage: "ellipsis.circle") {
+            
+            Button {
+//                                showingEntryTitle = true
+                showEntryNameSelection = true
+            } label: {
+//                                Text("Add Name")
+                Label("Add Name", systemImage: "pencil")
+            }
+            
+            Button {
+                showingDatePicker.toggle()
+
+            } label: {
+                Label("Edit Date", systemImage: "calendar")
+            }
+            
+            Button {
+                showingReminderSheet = true
+
+            } label: {
+                Label("Set Reminder", systemImage: "bell.fill")
+            }
+            
+            Button {
+                showTagSelection = true
+            } label: {
+                Label("Add tag", systemImage: "number")
+            }
+            
+            Button {
+                showFolderSelection = true
+            } label: {
+                Label("Add to folder", systemImage: "folder.fill")
+            }
+            
+        }.font(.customHeadline)
     }
   
     
@@ -723,12 +728,12 @@ struct NewEntryView: View {
             } else {
                 // Create a new log if needed
                 let dateStringManager = DateStrings()
-//                let newLog = Log(context: viewContext)
-//                newLog.day = formattedDate(newEntry.time)
-//                dateStringManager.addDate(newLog.day)
-//                newLog.addToRelationship(newEntry)
-//                newLog.id = UUID()
-//                newEntry.logId = newLog.id
+                let newLog = Log(context: viewContext)
+                newLog.day = formattedDate(newEntry.time)
+                dateStringManager.addDate(newLog.day)
+                newLog.addToRelationship(newEntry)
+                newLog.id = UUID()
+                newEntry.logId = newLog.id
 //                newEntry.relationship = newLog
                 
                 datesModel.addTodayIfNotExists()

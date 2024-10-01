@@ -1,99 +1,91 @@
 //import CoreData
-//import CloudKit
 //
 //struct PersistenceController {
 //    static let shared = PersistenceController()
+//    let container: NSPersistentCloudKitContainer
 //
-//    let localContainer: NSPersistentContainer
-//    var cloudContainer: NSPersistentCloudKitContainer?
-//
-//    init(inMemory: Bool = false) {
-//        let modelName = "entry_1"
-//        let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")!
-//        let model = NSManagedObjectModel(contentsOf: modelURL)!
-//
-//        localContainer = NSPersistentContainer(name: modelName, managedObjectModel: model)
-//        
-//        let defaultDirectoryURL = NSPersistentContainer.defaultDirectoryURL()
-//        let localStoreURL = defaultDirectoryURL.appendingPathComponent("entry_1.sqlite")
-//        let localStoreDescription = NSPersistentStoreDescription(url: localStoreURL)
-//        localStoreDescription.configuration = "Default"
-//
-//        localContainer.persistentStoreDescriptions = [localStoreDescription]
-//
-//        if inMemory {
-//            for description in localContainer.persistentStoreDescriptions {
-//                description.url = URL(fileURLWithPath: "/dev/null")
-//            }
-//        }
-//
-//        localContainer.loadPersistentStores { description, error in
-//            if let error = error as NSError? {
-//                fatalError("Failed to load persistent stores: \(error), \(error.userInfo)")
-//            }
-//        }
-//
-//        localContainer.viewContext.automaticallyMergesChangesFromParent = true
-//        localContainer.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-//
-////        if UserDefaults.standard.bool(forKey: "enableCloudMirror") {
-//            setCloudContainer()
-////        }
+//    enum CoreDataError: Error {
+//        case migrationFailed(Error)
+//        case failedToLoadPersistentStores(Error)
 //    }
 //
-//    mutating func setCloudContainer() {
-////        if cloudContainer != nil {
-////            removeCloudContainer()
-////        }
+//    init(inMemory: Bool = false) throws {
+//        container = NSPersistentCloudKitContainer(name: "entry_1")
 //
-//        let modelName = "entry_1"
-//        let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")!
-//        let model = NSManagedObjectModel(contentsOf: modelURL)!
+//        let localStoreDescription = NSPersistentStoreDescription()
+//        localStoreDescription.url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("entry_1.sqlite")
+//        localStoreDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+//        localStoreDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
 //
-//        let container = NSPersistentCloudKitContainer(name: modelName, managedObjectModel: model)
-//        let defaultDirectoryURL = NSPersistentContainer.defaultDirectoryURL()
-//
-//        let localStoreURL = defaultDirectoryURL.appendingPathComponent("entry_1.sqlite")
-//        let localStoreDescription = NSPersistentStoreDescription(url: localStoreURL)
-//        localStoreDescription.configuration = "Default"
-//
-//        let cloudStoreURL = defaultDirectoryURL.appendingPathComponent("entry_1cloud.sqlite")
+//        let cloudStoreURL = NSPersistentContainer.defaultDirectoryURL().appendingPathComponent("entry_1cloud.sqlite")
 //        let cloudStoreDescription = NSPersistentStoreDescription(url: cloudStoreURL)
 //        cloudStoreDescription.configuration = "Cloud"
 //        cloudStoreDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: "iCloud.com.gnupes.dodum.logs")
+//        cloudStoreDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+//        cloudStoreDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
 //
 //        container.persistentStoreDescriptions = [localStoreDescription, cloudStoreDescription]
 //
-//        container.loadPersistentStores { description, error in
-//            if let error = error as NSError? {
-//                fatalError("Failed to load persistent stores: \(error), \(error.userInfo)")
+//        if inMemory {
+//            container.persistentStoreDescriptions.forEach { $0.url = URL(fileURLWithPath: "/dev/null") }
+//        }
+//
+//        try container.loadPersistentStores { description, error in
+//            if let error = error {
+//                throw CoreDataError.failedToLoadPersistentStores(error)
+//            } else {
+//                print("Successfully loaded persistent store: \(description.url?.absoluteString ?? "unknown URL")")
+//
+//                // Optionally, perform custom transformations here after the store loads
+//                do {
+//                    try performCustomTransformations() // Add your custom transformations
+//                } catch {
+//                    print("Error performing custom transformations: \(error)")
+//                }
 //            }
 //        }
 //
 //        container.viewContext.automaticallyMergesChangesFromParent = true
 //        container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-//
-//        cloudContainer = container
 //    }
 //
-//    mutating func removeCloudContainer() {
-//        deleteAllCloudEntries()
-//        cloudContainer = nil
-//        print("Cloud sync turned off and cloud entries deleted")
-//    }
+//    // Add your custom migration logic here
+//    private func performCustomTransformations() throws {
+//        // 1. Check if migration is needed (e.g., using UserDefaults)
+//        let userDefaults = UserDefaults.standard
+//        guard !userDefaults.bool(forKey: "migrationCompleted") else {
+//            return // Migration already done
+//        }
 //
-//    private func deleteAllCloudEntries() {
-//        guard let cloudContainer = cloudContainer else { return }
-//        let context = cloudContainer.viewContext
-//        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Entry.fetchRequest()
-//        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+//        // 2. Disable automatic migration (temporarily)
+//        container.persistentStoreDescriptions.forEach {
+//            $0.shouldInferMappingModelAutomatically = false
+//            $0.shouldMigrateStoreAutomatically = false
+//        }
 //
+//        // 3. Perform the migration
+//        let coordinator = container.persistentStoreCoordinator
+//        let sourceStoreURL = // ... URL of the old store if needed ...
 //        do {
-//            try context.execute(batchDeleteRequest)
-//            try context.save()
-//            print("Deleted all cloud entries")
+//            try coordinator.migratePersistentStore(
+//                at: sourceStoreURL,
+//                to: container.persistentStoreDescriptions[0].url!,
+//                options: nil,
+//                withType: NSSQLiteStoreType
+//            )
+//
+//            // 4. Re-enable automatic migration after your custom migration
+//            container.persistentStoreDescriptions.forEach {
+//                $0.shouldInferMappingModelAutomatically = true
+//                $0.shouldMigrateStoreAutomatically = true
+//            }
+//
+//            // 5. Mark migration as complete
+//            userDefaults.set(true, forKey: "migrationCompleted")
+//            print("Custom migration successful!")
 //        } catch {
-//            print("Failed to delete cloud entries: \(error)")
+//            // Handle migration error, e.g., rollback, notify the user
+//            throw CoreDataError.migrationFailed(error)
 //        }
 //    }
 //}

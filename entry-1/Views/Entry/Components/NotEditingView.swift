@@ -298,7 +298,7 @@ struct NotEditingView: View {
             Spacer()
             
             Menu {
-                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
+                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing, userPreferences: userPreferences)
             } label: {
                 HStack {
                     Spacer()

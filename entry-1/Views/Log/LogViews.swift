@@ -205,62 +205,71 @@ struct LogsView: View {
        }
     
     @ViewBuilder
-      func filteredEntriesListView() -> some View {
-          let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
-              .sorted { $0.time ?? Date() > $1.time ?? Date() }
-          
-          
-          ScrollView {
-              LazyVStack(spacing: 10) {
-                  ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
-                      if index < currentLoadedCount {
-                          VStack(spacing: 5) {
-                              entryHeaderView(entry: entry).foregroundStyle(getIdealHeaderTextColor())
-                                                          .padding(.horizontal)
-                                                          .padding(.top, 10)
-                                                      
-                              Section {
-                                  EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry, showContextMenu: true)
-                                      .environmentObject(userPreferences)
-                                      .environmentObject(coreDataManager)
-                                      .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
-                                      .lineSpacing(userPreferences.lineSpacing)
-                              }
-                              
-                              .background(getSectionColor(colorScheme: colorScheme))
-                              .cornerRadius(10)
-
-                        }
-                
-                      }
-                  }
-                  .onAppear {
-                      currentLoadedCount = min(initialLoadCount, entries.count)
-                  }
-                  
-                  
-                  if currentLoadedCount < entries.count {
-                      ProgressView()
-                          .onAppear {
-                              loadMoreContent(totalCount: entries.count)
-                          }
-                  }
-              }
-              .padding(.horizontal)
-     
-          }
-      }
-      
-      @State private var currentLoadedCount = 0
-      private let initialLoadCount = 5
-      private let additionalLoadCount = 5
-      
-      private func loadMoreContent(totalCount: Int) {
-          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-              currentLoadedCount = min(currentLoadedCount + additionalLoadCount, totalCount)
-          }
-      }
+        func filteredEntriesListView() -> some View {
+            FilteredEntriesListView(searchModel: searchModel, entryFilter: EntryFilter(searchText: $searchModel.searchText, filters: $searchModel.tokens))
+                .environmentObject(userPreferences)
+                .environmentObject(coreDataManager)
+                .scrollContentBackground(.hidden)
+                .listRowBackground(getSectionColor(colorScheme: colorScheme))
+        }
     
+//    @ViewBuilder
+//      func filteredEntriesListView() -> some View {
+//          let entries = filteredEntries(entries: Array(allEntries), searchText: searchModel.searchText, tags: searchModel.tokens)
+//              .sorted { $0.time ?? Date() > $1.time ?? Date() }
+//          
+//          
+//          ScrollView {
+//              LazyVStack(spacing: 10) {
+//                  ForEach(Array(entries.enumerated()), id: \.element) { index, entry in
+//                      if index < currentLoadedCount {
+//                          VStack(spacing: 5) {
+//                              entryHeaderView(entry: entry).foregroundStyle(getIdealHeaderTextColor())
+//                                                          .padding(.horizontal)
+//                                                          .padding(.top, 10)
+//                                                      
+//                              Section {
+//                                  EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry, showContextMenu: true)
+//                                      .environmentObject(userPreferences)
+//                                      .environmentObject(coreDataManager)
+//                                      .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))
+//                                      .lineSpacing(userPreferences.lineSpacing)
+//                              }
+//                              
+//                              .background(getSectionColor(colorScheme: colorScheme))
+//                              .cornerRadius(10)
+//
+//                        }
+//                
+//                      }
+//                  }
+//                  .onAppear {
+//                      currentLoadedCount = min(initialLoadCount, entries.count)
+//                  }
+//                  
+//                  
+//                  if currentLoadedCount < entries.count {
+//                      ProgressView()
+//                          .onAppear {
+//                              loadMoreContent(totalCount: entries.count)
+//                          }
+//                  }
+//              }
+//              .padding(.horizontal)
+//     
+//          }
+//      }
+//      
+//      @State private var currentLoadedCount = 0
+//      private let initialLoadCount = 5
+//      private let additionalLoadCount = 5
+//      
+//      private func loadMoreContent(totalCount: Int) {
+//          DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//              currentLoadedCount = min(currentLoadedCount + additionalLoadCount, totalCount)
+//          }
+//      }
+//    
 
 
     
@@ -284,93 +293,178 @@ struct LogsView: View {
     }
     
     @ViewBuilder
-    func suggestedSearchView() -> some View {
-        List {
-            Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.5)) {
-                Button {
-                    searchModel.tokens.append(.hiddenEntries)
-                } label: {
-                    HStack {
-                        Image(systemName: "eye.fill")
-                            .foregroundStyle(userPreferences.accentColor)
-                            .padding(.horizontal, 5)
-                        Text("Hidden Entries")
-                            .foregroundStyle(getTextColor())
+        func suggestedSearchView() -> some View {
+            List {
+                Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.5)) {
+                    Button {
+                        searchModel.tokens.append(.isHidden(true))
+                    } label: {
+                        HStack {
+                            Image(systemName: "eye.fill")
+                                .foregroundStyle(userPreferences.accentColor)
+                                .padding(.horizontal, 5)
+                            Text("Hidden Entries")
+                                .foregroundStyle(getTextColor())
+                        }
+                    }
+                    
+                    Button {
+                        searchModel.tokens.append(.hasMedia(true))
+                    } label: {
+                        HStack {
+                            Image(systemName: "paperclip")
+                                .foregroundStyle(userPreferences.accentColor)
+                                .padding(.horizontal, 5)
+                            
+                            Text("Entries with Media")
+                                .foregroundStyle(getTextColor())
+                        }
+                    }
+                    
+                    Button {
+                        searchModel.tokens.append(.hasReminder(true))
+                    } label: {
+                        HStack {
+                            Image(systemName: "bell.fill")
+                                .foregroundStyle(userPreferences.accentColor)
+                                .padding(.horizontal, 5)
+                            
+                            Text("Entries with Reminder")
+                                .foregroundStyle(getTextColor())
+                        }
+                    }
+                    
+                    Button {
+                        searchModel.tokens.append(.isPinned(true))
+                    } label: {
+                        HStack {
+                            Image(systemName: "pin.fill")
+                                .foregroundStyle(userPreferences.accentColor)
+                                .padding(.horizontal, 5)
+                            
+                            Text("Pinned Entries")
+                                .foregroundStyle(getTextColor())
+                        }
+                    }
+                    
+                    Button {
+                        searchModel.tokens.append(.stampIcon(searchModel.searchText))
+                    } label: {
+                        HStack {
+                            Image(systemName: "star.circle.fill")
+                                .foregroundStyle(userPreferences.accentColor)
+                                .padding(.horizontal, 5)
+                            
+                            Text("Stamp Icon Label")
+                                .foregroundStyle(getTextColor())
+                        }
                     }
                 }
-                
-                Button {
-                    searchModel.tokens.append(.mediaEntries)
-                } label: {
-                    HStack {
-                        Image(systemName: "paperclip")
-                            .foregroundStyle(userPreferences.accentColor)
-                            .padding(.horizontal, 5)
-                        
-                        Text("Entries with Media")
-                            .foregroundStyle(getTextColor())
-                    }
-                }
-                
-                Button {
-                    searchModel.tokens.append(.reminderEntries)
-                } label: {
-                    HStack {
-                        Image(systemName: "bell.fill")
-                            .foregroundStyle(userPreferences.accentColor)
-                            .padding(.horizontal, 5)
-                        
-                        Text("Entries with Reminder")
-                            .foregroundStyle(getTextColor())
-                    }
-                }
-                
-                Button {
-                    searchModel.tokens.append(.pinnedEntries)
-                } label: {
-                    HStack {
-                        Image(systemName: "pin.fill")
-                            .foregroundStyle(userPreferences.accentColor)
-                            .padding(.horizontal, 5)
-                        
-                        Text("Pinned Entries")
-                            .foregroundStyle(getTextColor())
-                    }
-                }
-                
-                
-                Button {
-                    searchModel.tokens.append(.stampNameEntries)
-                } label: {
-                    HStack {
-                        Image(systemName: "star.circle.fill")
-                            .foregroundStyle(userPreferences.accentColor)
-                            .padding(.horizontal, 5)
-                        
-                        Text("Stamp Icon Label")
-                            .foregroundStyle(getTextColor())
-                    }
+                .scrollContentBackground(.hidden)
+                .listRowBackground(getSectionColor(colorScheme: colorScheme))
+            }
+            .refreshable {
+                datesModel.addTodayIfNotExists()
+                updateFetchRequests()
+            }
+            .sheet(isPresented: $shareSheetShown) {
+                if let log_uiimage = image {
+                    let logImage = Image(uiImage: log_uiimage)
+                    ShareLink(item: logImage, preview: SharePreview("", image: logImage))
                 }
             }
-            .scrollContentBackground(.hidden)
-            .listRowBackground(getSectionColor(colorScheme: colorScheme))
+            .listStyle(.insetGrouped)
+            .navigationTitle("Logs")
+            .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
         }
-        .refreshable {
-            datesModel.addTodayIfNotExists()
-            updateFetchRequests()
-        }
-        .sheet(isPresented: $shareSheetShown) {
-            if let log_uiimage = image {
-                let logImage = Image(
-                    uiImage: log_uiimage)
-                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
-            }
-        }
-        .listStyle(.insetGrouped)
-        
-        .navigationTitle("Logs")
-        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
-    }
+//    @ViewBuilder
+//    func suggestedSearchView() -> some View {
+//        List {
+//            Section(header: Text("Suggested").foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color.gray))).opacity(0.5)) {
+//                Button {
+//                    searchModel.tokens.append(.hiddenEntries)
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "eye.fill")
+//                            .foregroundStyle(userPreferences.accentColor)
+//                            .padding(.horizontal, 5)
+//                        Text("Hidden Entries")
+//                            .foregroundStyle(getTextColor())
+//                    }
+//                }
+//                
+//                Button {
+//                    searchModel.tokens.append(.mediaEntries)
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "paperclip")
+//                            .foregroundStyle(userPreferences.accentColor)
+//                            .padding(.horizontal, 5)
+//                        
+//                        Text("Entries with Media")
+//                            .foregroundStyle(getTextColor())
+//                    }
+//                }
+//                
+//                Button {
+//                    searchModel.tokens.append(.reminderEntries)
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "bell.fill")
+//                            .foregroundStyle(userPreferences.accentColor)
+//                            .padding(.horizontal, 5)
+//                        
+//                        Text("Entries with Reminder")
+//                            .foregroundStyle(getTextColor())
+//                    }
+//                }
+//                
+//                Button {
+//                    searchModel.tokens.append(.pinnedEntries)
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "pin.fill")
+//                            .foregroundStyle(userPreferences.accentColor)
+//                            .padding(.horizontal, 5)
+//                        
+//                        Text("Pinned Entries")
+//                            .foregroundStyle(getTextColor())
+//                    }
+//                }
+//                
+//                
+//                Button {
+//                    searchModel.tokens.append(.stampNameEntries)
+//                } label: {
+//                    HStack {
+//                        Image(systemName: "star.circle.fill")
+//                            .foregroundStyle(userPreferences.accentColor)
+//                            .padding(.horizontal, 5)
+//                        
+//                        Text("Stamp Icon Label")
+//                            .foregroundStyle(getTextColor())
+//                    }
+//                }
+//            }
+//            .scrollContentBackground(.hidden)
+//            .listRowBackground(getSectionColor(colorScheme: colorScheme))
+//        }
+//        .refreshable {
+//            datesModel.addTodayIfNotExists()
+//            updateFetchRequests()
+//        }
+//        .sheet(isPresented: $shareSheetShown) {
+//            if let log_uiimage = image {
+//                let logImage = Image(
+//                    uiImage: log_uiimage)
+//                ShareLink(item: logImage, preview: SharePreview("", image: logImage))
+//            }
+//        }
+//        .listStyle(.insetGrouped)
+//        
+//        .navigationTitle("Logs")
+//        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+//    }
     
     
     @ViewBuilder
@@ -446,7 +540,7 @@ struct LogsView: View {
     @ViewBuilder
       func logsListView() -> some View {
           ForEach(Array(datesModel.dates.filter{$0.value.isSelected}.keys.sorted(by: >)), id: \.self) { dateString in
-                  if let logDate = datesModel.dates[dateString] {
+              if let logDate = datesModel.dates[dateString], DateStrings.isValidDateFormat(dateString) {
                   ScrollView {
                       LazyVStack {
                           NavigationLink(destination: LogDetailView(logDay: dateString, isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
@@ -466,7 +560,9 @@ struct LogsView: View {
                       }
                   }
               }
+            
           }
+     
           .scrollContentBackground(.hidden)
           .listRowBackground(getSectionColor(colorScheme: colorScheme))
       }
@@ -492,59 +588,59 @@ struct LogsView: View {
         .navigationTitle(title)
     }
     
-    
-    func filteredEntries(entries: [Entry], searchText: String, tags: [FilterTokens]) -> [Entry] {
-        guard !searchText.isEmpty || !tags.isEmpty else { return entries }
-
-        return entries.filter { entry in
-            let matchesSearchText = searchText.isEmpty || entry.content.lowercased().contains(searchText.lowercased())
-
-            let matchesTags: Bool
-            if tags.isEmpty {
-                matchesTags = true // If no tags, consider it a match.
-            } else {
-                matchesTags = tags.contains { tag in
-                    switch tag {
-                    case .hiddenEntries:
-                        return entry.isHidden
-                    case .stampNameEntries:
-                        return entry.stampIcon.lowercased().contains(searchText.lowercased())
-                    case .stampIndexEntries:
-                        if let index = Int(searchText) {
-                            return entry.stampIndex == index
-                        }
-                        return false
-                    case .mediaEntries:
-                        if let filename = entry.mediaFilename, !filename.isEmpty {
-                            return imageExists(at: filename)
-                        }
-                        return false
-                    case .searchTextEntries:
-                        return entry.content.lowercased().contains(searchText.lowercased())
-                    case .reminderEntries:
-                        if let reminderId = entry.reminderId {
-                            return !reminderId.isEmpty
-                        } else {
-                            return false
-                        }
-                    case .pinnedEntries:
-                        return entry.isPinned
-                    }
-                }
-            }
-
-            
-            if tags.first == .mediaEntries || tags.first == .hiddenEntries || tags.first == .pinnedEntries { //to consider both tag and search text
-                return matchesTags && matchesSearchText
-            }
-            if tags.isEmpty {
-                return matchesSearchText
-            }
-            else {
-                return matchesTags
-            }
-        }
-    }
+//    
+//    func filteredEntries(entries: [Entry], searchText: String, tags: [FilterTokens]) -> [Entry] {
+//        guard !searchText.isEmpty || !tags.isEmpty else { return entries }
+//
+//        return entries.filter { entry in
+//            let matchesSearchText = searchText.isEmpty || entry.content.lowercased().contains(searchText.lowercased())
+//
+//            let matchesTags: Bool
+//            if tags.isEmpty {
+//                matchesTags = true // If no tags, consider it a match.
+//            } else {
+//                matchesTags = tags.contains { tag in
+//                    switch tag {
+//                    case .hiddenEntries:
+//                        return entry.isHidden
+//                    case .stampNameEntries:
+//                        return entry.stampIcon.lowercased().contains(searchText.lowercased())
+//                    case .stampIndexEntries:
+//                        if let index = Int(searchText) {
+//                            return entry.stampIndex == index
+//                        }
+//                        return false
+//                    case .mediaEntries:
+//                        if let filename = entry.mediaFilename, !filename.isEmpty {
+//                            return imageExists(at: filename)
+//                        }
+//                        return false
+//                    case .searchTextEntries:
+//                        return entry.content.lowercased().contains(searchText.lowercased())
+//                    case .reminderEntries:
+//                        if let reminderId = entry.reminderId {
+//                            return !reminderId.isEmpty
+//                        } else {
+//                            return false
+//                        }
+//                    case .pinnedEntries:
+//                        return entry.isPinned
+//                    }
+//                }
+//            }
+//
+//            
+//            if tags.first == .mediaEntries || tags.first == .hiddenEntries || tags.first == .pinnedEntries { //to consider both tag and search text
+//                return matchesTags && matchesSearchText
+//            }
+//            if tags.isEmpty {
+//                return matchesSearchText
+//            }
+//            else {
+//                return matchesTags
+//            }
+//        }
+//    }
 
 
     
@@ -661,25 +757,78 @@ struct LogParentView : View {
             .environmentObject(coreDataManager)
             .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
                         switch token {
-                        case .hiddenEntries:
-                            Text("Hidden")
-                        case .mediaEntries:
-                            Text("Media")
-                        case .stampIndexEntries:
-                            Text("Index")
-                        case .stampNameEntries:
-                            Text("Name")
-                        case .searchTextEntries:
-                            Text(searchModel.searchText)
-                        case .reminderEntries:
-                            Text("Reminder")
-                        case .pinnedEntries:
-                            Text("Pinned")
+                        case .isHidden(let value):
+                            Label("Hidden", systemImage: "eye.slash")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .hasMedia(let value):
+                            Label("Media", systemImage: "paperclip")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .hasReminder(let value):
+                            Label("Reminder", systemImage: "bell")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .isPinned(let value):
+                            Label("Pinned", systemImage: "pin")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .stampIcon(let icon):
+                            if icon.isEmpty {
+                                Label("Stamp Label", systemImage: "hare.fill")
+                            } else {
+                                Label(icon, systemImage: "stamp")
+                            }
+                        case .content(let searchText):
+                            Label(searchText, systemImage: "magnifyingglass")
+                        case .title(let searchText):
+                            Label(searchText, systemImage: "text.magnifyingglass")
+                        case .tag(let tagName):
+                            Label(tagName, systemImage: "tag")
+                        case .date(let date):
+                            Label(dateFormatter.string(from: date), systemImage: "calendar")
+                        case .time(let start, let end):
+                            Label("\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock")
+                        case .lastUpdated(let start, let end):
+                            Label("Updated: \(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock.arrow.circlepath")
+                        case .color(let color):
+                            Label("Color", systemImage: "circle.fill")
+                                .foregroundColor(Color(color))
+                        case .tagNames(let tags):
+                            Label(tags.joined(separator: ", "), systemImage: "tag")
+                        case .isShown(let value):
+                            Label("Shown", systemImage: "eye")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .isRemoved(let value):
+                            Label("Removed", systemImage: "trash")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .isDrafted(let value):
+                            Label("Draft", systemImage: "doc.text")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .shouldSyncWithCloudKit(let value):
+                            Label("Sync", systemImage: "icloud")
+                                .foregroundColor(value ? .primary : .secondary)
+                        case .folderId(let id):
+                            Label("Folder: \(id)", systemImage: "folder")
                         }
-                  
-                
-                
-            }
+                    }
+//            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
+//                        switch token {
+//                        case .hiddenEntries:
+//                            Text("Hidden")
+//                        case .mediaEntries:
+//                            Text("Media")
+//                        case .stampIndexEntries:
+//                            Text("Index")
+//                        case .stampNameEntries:
+//                            Text("Name")
+//                        case .searchTextEntries:
+//                            Text(searchModel.searchText)
+//                        case .reminderEntries:
+//                            Text("Reminder")
+//                        case .pinnedEntries:
+//                            Text("Pinned")
+//                        }
+//                  
+//                
+//                
+//            }
             .searchBarTextColor(isClear(for: UIColor(userPreferences.backgroundColors.first ?? Color.clear)) ? getDefaultBackgroundColor(colorScheme: colorScheme) : userPreferences.backgroundColors.first ?? Color.clear)
             .font(.customHeadline)
             .focused($isSearchFieldFocused)

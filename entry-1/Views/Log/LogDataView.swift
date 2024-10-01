@@ -224,17 +224,14 @@ struct LogsDataView: View {
 //                                        datesModel.dates.append(LogDate(dateString: formattedDate(Date()), isSelected: true, hasLog: true, date: dateComponents))
 //                                    }
                                 } else {
-                                    // Log does not exist, import it as new
+//                                     Log does not exist, import it as new
                                     if let logData = try? JSONSerialization.data(withJSONObject: jsonObject, options: []) {
                                         let decoder = JSONDecoder()
                                         decoder.userInfo[CodingUserInfoKey.managedObjectContext] = coreDataManager.viewContext
                                         let log = try decoder.decode(Log.self, from: logData)
-                                        dateStringsManager.addDate(log.day)
-//                                        if let dateComponents = dateComponents(from: log.day) {
-//                                            datesModel.dates.append(LogDate(dateString: log.day,  isSelected: false, hasLog: true, date: dateComponents))
-//                                        }
+//                                        coreDataManager.viewContext.insert(log)
 
-                                        coreDataManager.viewContext.insert(log)
+                                        dateStringsManager.addDate(log.day)
                                     }
                                 }
                             }

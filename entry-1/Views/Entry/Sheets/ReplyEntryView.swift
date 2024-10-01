@@ -86,6 +86,21 @@ struct ReplyEntryView: View {
 
     @State var isEditing = false //for being able to use NotEditingView for repliedEntryView
     @State var entryBackgroundColor: Color = Color.clear
+    @StateObject private var reminderManager = ReminderManager()
+
+    @State private var showTagSelection = false
+    @State private var showFolderSelection = false
+    @State private var showEntryNameSelection = false
+    @State private var showingEntryTitle = false
+    @State private var entryTitle: String = ""
+    @State private var entryId: UUID = UUID()
+    @State private var folderId: String?
+    
+    @State private var selectedTags: [String] = []
+
+
+    
+    @StateObject var tagViewModel: TagViewModel
     
     var body: some View {
         NavigationStack {
@@ -146,44 +161,7 @@ struct ReplyEntryView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack {
-                        Menu("", systemImage: "ellipsis.circle") {
-                            Button {
-                                showingDatePicker.toggle()
-
-                            } label: {
-                                Label("Edit Date", systemImage: "calendar")
-                            }
-                            
-                            Button {
-                                showingReminderSheet = true
-
-                            } label: {
-                                Label("Set Reminder", systemImage: "bell.fill")
-                            }
-                        }
-
-                        .sheet(isPresented: $showingDatePicker) {
-                            dateEditSheet()
-                        }
-                        .sheet(isPresented: $showingReminderSheet) {
-                            reminderSheet()
-                            .onAppear {
-                                if let reminderId = reminderId {
-                                    fetchAndInitializeReminderDetails(reminderId: reminderId)
-                                }
-                                requestReminderAccess { granted in
-                                    if granted {
-                                        hasReminderAccess = true
-                                        print("Access to reminders granted.")
-                                    } else {
-                                        hasReminderAccess = false
-                                        print("Access to reminders denied or failed.")
-                                    }
-                                }
-                            }
-                        }
-
-            
+                        toolbarMenu()
                         Button(action: {
                             vibration_heavy.impactOccurred()
                             
@@ -193,24 +171,106 @@ struct ReplyEntryView: View {
                             keyboardHeight = 0
                         }) {
                             Text("Done")
-//                                .font(.system(size: 15))
                                 .foregroundColor(userPreferences.accentColor)
+                                .font(.customHeadline)
                         }
                     }
                 }
+                
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
                         vibration_heavy.impactOccurred()
+                        //delete any reminders if set:
+                        // Delete any reminders if set:
+                        reminderManager.deleteReminder(reminderId: reminderId ?? "") { result in
+                            switch result {
+                            case .success:
+                                // Handle successful deletion, e.g., clear the reminderId or show a confirmation message
+                                print("Reminder successfully deleted.")
+                                self.reminderId = nil // Optionally clear the reminderId if it was deleted
+                            case .failure(let error):
+                                // Handle the error, e.g., show an alert or log the error
+                                print("Failed to delete reminder: \(error.localizedDescription)")
+                                // You could also present an alert to the user here if needed
+                            }
+                        }
+
                         presentationMode.wrappedValue.dismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-//                            .font(.system(size: 15))
+                            .font(.customHeadline)
+//                            .font(.
                     }
                 }
             }
             .font(.customHeadline)
 
         }
+        .overlay(
+            CustomPopupView(isPresented: $showingDatePicker, height: 300, title:
+                                "Edit Date", onSave: {
+                // Dismiss the view
+                                    showingDatePicker = false
+            }) {
+                DateEditPopupView(selectedDate: $selectedDate)
+                    .environmentObject(userPreferences)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showTagSelection, title: "Select Tags", onSave: {
+                // Dismiss the view
+                showTagSelection = false
+                tagViewModel.saveSelectedTags(to: &selectedTags)
+                print("SELECTED TAGS: \(selectedTags)")
+                // Then save the tags
+            }) {
+                TagSelectionPopup(isPresented: $showTagSelection, entryId: $entryId, selectedTagNames: $selectedTags, tagViewModel: tagViewModel)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showFolderSelection, title: "Select Folder", onSave: {
+                showFolderSelection = false
+
+            }) {
+                FolderSelectionView(isPresented: $showFolderSelection, folderId: $folderId)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showEntryNameSelection, title: "Entry Title" , onSave: {
+                // Dismiss the view
+                showEntryNameSelection = false
+
+            }) {
+                EntryNamePopup(isPresented: $showEntryNameSelection, entryName: $entryTitle)
+                    .environmentObject(userPreferences)
+            }
+        )
+        .overlay(
+            CustomPopupView(isPresented: $showingReminderSheet, title: "Reminder", onSave: {
+                // Dismiss the view
+//                showingReminderSheet = false
+                // Then save the reminder
+                    saveReminder()
+            }) {
+                ReminderPopupView(
+                    isPresented: $showingReminderSheet,
+                    reminderTitle: $reminderManager.reminderTitle,
+                    selectedReminderDate: $reminderManager.selectedReminderDate,
+                    selectedReminderTime: $reminderManager.selectedReminderTime,
+                    selectedRecurrence: $reminderManager.selectedRecurrence,
+                    reminderNotes: $entryContent,
+                    reminderId: $reminderId,
+                    showingReminderSheet: $showingReminderSheet,
+                    showDeleteReminderAlert: $showDeleteReminderAlert,
+                    reminderManager: reminderManager
+                )
+
+            }
+        )
         
         .onTapGesture {
             focusField = true
@@ -219,6 +279,33 @@ struct ReplyEntryView: View {
        
     }
     
+    
+    private func saveReminder() {
+        if reminderId == nil {
+            reminderId = UUID().uuidString
+        }
+        reminderManager.createOrUpdateReminder(
+            reminderId: reminderId,
+            title: reminderManager.reminderTitle,
+            dueDate: reminderManager.selectedReminderDate,
+            recurrence: reminderManager.selectedRecurrence,
+            notes: ""
+        ) { result in
+            switch result {
+            case .success(let savedReminderId):
+                DispatchQueue.main.async {
+                    self.reminderId = savedReminderId
+                    print("Reminder saved with ID: \(savedReminderId)")
+//                    self.updateNewEntryWithReminderId(savedReminderId)
+                }
+            case .failure(let error):
+                print("Failed to save reminder: \(error)")
+                DispatchQueue.main.async {
+                    self.reminderId = nil
+                }
+            }
+        }
+    }
     
     func createOrUpdateReminder() {
         let eventStore = EKEventStore()
@@ -421,6 +508,47 @@ struct ReplyEntryView: View {
         default:
             return nil
         }
+    }
+    
+    @ViewBuilder
+    func toolbarMenu() -> some View {
+        Menu("", systemImage: "ellipsis.circle") {
+            
+            Button {
+//                                showingEntryTitle = true
+                showEntryNameSelection = true
+            } label: {
+//                                Text("Add Name")
+                Label("Add Name", systemImage: "pencil")
+            }
+            
+            Button {
+                showingDatePicker.toggle()
+
+            } label: {
+                Label("Edit Date", systemImage: "calendar")
+            }
+            
+            Button {
+                showingReminderSheet = true
+
+            } label: {
+                Label("Set Reminder", systemImage: "bell.fill")
+            }
+            
+            Button {
+                showTagSelection = true
+            } label: {
+                Label("Add tag", systemImage: "number")
+            }
+            
+            Button {
+                showFolderSelection = true
+            } label: {
+                Label("Add to folder", systemImage: "folder.fill")
+            }
+            
+        }.font(.customHeadline)
     }
     
     @ViewBuilder
@@ -932,7 +1060,8 @@ struct ReplyEntryView: View {
         newEntry.isPinned = false
         newEntry.isShown = true
         newEntry.shouldSyncWithCloudKit = false
-        
+        newEntry.tagNames = selectedTags
+
     
         
         if let data = selectedData {
@@ -977,6 +1106,8 @@ struct ReplyEntryView: View {
           // Using formattedDate function
                 datesModel.addTodayIfNotExists()
             }
+//            datesModel.addTodayIfNotExists()
+
             try viewContext.save()
         } catch {
             print("Error saving new entry: \(error)")

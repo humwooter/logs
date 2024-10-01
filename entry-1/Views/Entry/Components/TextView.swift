@@ -84,7 +84,7 @@ struct TextView : View {
                     VStack {
                         NotEditingView(entry: entry, isEditing: $isEditing, foregroundColor: UIColor(getDefaultEntryBackgroundColor(colorScheme: colorScheme)), replyEntryId: entry.entryReplyId, entryViewModel: entryViewModel).environmentObject(userPreferences).environmentObject(coreDataManager)
                             .contextMenu {
-                                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
+                                entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing, userPreferences: userPreferences)
                             }
                             .onAppear {
                                 if let reminderId = entry.reminderId, !reminderId.isEmpty {
@@ -174,7 +174,7 @@ struct TextView : View {
         let mainContext = coreDataManager.viewContext
         mainContext.performAndWait {
             let filename = entry.mediaFilename
-            let parentLog = entry.relationship
+//            let parentLog = entry.relationship
             
             
             // Fetch the entry in the main context
@@ -189,7 +189,7 @@ struct TextView : View {
                 
                 print("Entry being deleted: \(entryToDeleteInContext)")
   
-                parentLog?.removeFromRelationship(entry)
+//                parentLog?.removeFromRelationship(entry)
                 entryToDeleteInContext.isRemoved = true
                 try mainContext.save()
                 
@@ -266,7 +266,7 @@ struct TextView : View {
 
             }
             
-            Image(systemName: entry.isShown ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
+            Image(systemName: entry.isHidden ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
                 .contentTransition(.symbolEffect(.replace.offUp))
         }
         .font(.sectionHeaderSize)

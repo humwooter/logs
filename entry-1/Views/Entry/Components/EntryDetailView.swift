@@ -44,7 +44,7 @@ struct EntryDetailView: View { //used in LogDetailView
             if showContextMenu {
                 finalView()
                     .contextMenu {
-                        entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
+                        entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing, userPreferences: userPreferences)
                     }
                     .sheet(isPresented: $isEditing) { //added this here
                         EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
@@ -116,7 +116,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 } else {
                     VStack(spacing: 0) {
                         entryTitleView()
-                        entryContentView()
+                        entryBodyView()
                     }
                 }
                 
@@ -268,7 +268,7 @@ struct EntryDetailView: View { //used in LogDetailView
 
             }.padding(.horizontal)
             entryTitleView()
-            entryContentView()
+            entryBodyView()
             Spacer()
            }
     }
@@ -284,25 +284,7 @@ struct EntryDetailView: View { //used in LogDetailView
         }
     }
     
-    @ViewBuilder
-    func entryContentView() -> some View {
-        entryBodyView()
-//        if showContextMenu {
-//            entryBodyView()
-//                    .contextMenu {
-//                        entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing)
-//                    }
-//                    .sheet(isPresented: $isEditing) { //added this here
-//                        EditingEntryView(entry: entry, isEditing: $isEditing)
-//                                .foregroundColor(userPreferences.accentColor)
-//                                .presentationDragIndicator(.hidden)
-//                                .environmentObject(userPreferences)
-//                                .environmentObject(coreDataManager)
-//                        }
-//        } else {
-//            entryBodyView()
-//        }
-    }
+
     
     
 
