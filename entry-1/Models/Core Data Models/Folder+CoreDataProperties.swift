@@ -21,6 +21,9 @@ extension Folder {
     @NSManaged public var folderType: String?
     @NSManaged public var order: Int16
     @NSManaged public var entryCount: Int16
+    @NSManaged public var isRemoved: Bool
+    @NSManaged public var dateCreated: Date?
+
 
 }
 

@@ -33,7 +33,8 @@ struct EntryDetailView: View { //used in LogDetailView
 @State var showEntry = true
 @State var isPinned = false
     @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
-    
+    @State var filterOption: EntryDateFilters? = nil
+
     
     var entryViewModel: EntryViewModel {
         EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
@@ -101,6 +102,25 @@ struct EntryDetailView: View { //used in LogDetailView
         
         
     }
+    
+    func formatDate(_ date: Date, filter: EntryDateFilters) -> String {
+        let dateFormatter = DateFormatter()
+        
+        switch filter {
+        case .day:
+            dateFormatter.dateFormat = "h:mm a" // Only time
+        case .week:
+            dateFormatter.dateFormat = "d" // Day of the month (e.g., "15")
+            let day = dateFormatter.string(from: date)
+            dateFormatter.dateFormat = "h:mm a" // Time
+            return "\(dateFormatter.string(from: date)), the \(day)th"
+        case .month:
+            dateFormatter.dateFormat = "MMM d, h:mm a" // Full date (e.g., "Oct 15, 5:00 PM")
+        }
+        
+        return dateFormatter.string(from: date)
+    }
+
 
     @ViewBuilder
     func finalView() -> some View {
@@ -159,10 +179,34 @@ struct EntryDetailView: View { //used in LogDetailView
     
     
     @ViewBuilder
-    func entrySectionHeader(entry: Entry) -> some View {
+    func entryHeaderView() -> some View {
         HStack {
-
-                Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
+            ZStack {
+                if let filter = filterOption {
+                    Text("\(formatDate(entry.time, filter: filter))")
+                } else {
+                    Text(formattedTime(time: entry.time))
+                }
+            }
+                .foregroundStyle(Color(getTextColor()).opacity(0.4))
+            if (entry.stampIndex != -1 ) {
+                Image(systemName: entry.stampIcon).tag(entry.stampIcon)
+                    .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+            }
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId), isInList {
+                Spacer()
+                Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
+            }
+        }
+        .font(.sectionHeaderSize)
+    }
+    
+    
+    @ViewBuilder
+    func entrySectionHeader(entry: Entry) -> some View { //for replies
+        HStack {
+  
+                    Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(getTextColor().opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
                     if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
@@ -316,23 +360,6 @@ struct EntryDetailView: View { //used in LogDetailView
         }
     }
     
-    
-    @ViewBuilder
-    func entryHeaderView() -> some View {
-        HStack {
-            Text(formattedTime(time: entry.time))
-                .foregroundStyle(Color(getTextColor()).opacity(0.4))
-            if (entry.stampIndex != -1 ) {
-                Image(systemName: entry.stampIcon).tag(entry.stampIcon)
-                    .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-            }
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId), isInList {
-                Spacer()
-                Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
-            }
-        }
-        .font(.sectionHeaderSize)
-    }
     
     
     

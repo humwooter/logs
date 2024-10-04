@@ -26,7 +26,9 @@ public class Folder: NSManagedObject, Codable {
         name = try values.decodeIfPresent(String.self, forKey: .name)!
         order = try values.decodeIfPresent(Int16.self, forKey: .order)!
         entryCount = try values.decodeIfPresent(Int16.self, forKey: .entryCount)!
+        isRemoved = try values.decodeIfPresent(Bool.self, forKey: .isRemoved)!
 
+        dateCreated = try values.decodeIfPresent(Date.self, forKey: .dateCreated)!
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -39,10 +41,13 @@ public class Folder: NSManagedObject, Codable {
         try container.encodeIfPresent(entryCount, forKey: .entryCount)
 
         try container.encodeIfPresent(name, forKey: .name)
+        try container.encodeIfPresent(isRemoved, forKey: .isRemoved)
+        try container.encodeIfPresent(dateCreated, forKey: .dateCreated)
+
 
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, name, order, entryCount
+        case id, name, order, entryCount, isRemoved, dateCreated
     }
 }

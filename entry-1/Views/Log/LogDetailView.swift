@@ -54,7 +54,7 @@ struct LogDetailView: View {
     var body: some View {
         if !entries.isEmpty {
                 List(entries, id: \.self) { entry in
-                    EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry, showContextMenu: true, isInList: true)
+                    EntryDetailView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, entry: entry, showContextMenu: true, isInList: true, filterOption: nil)
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .font(.custom(userPreferences.fontName, size: userPreferences.fontSize))

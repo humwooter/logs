@@ -327,6 +327,7 @@ struct FolderSelectionView: View {
     @FetchRequest(
         entity: Folder.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Folder.order, ascending: true), NSSortDescriptor(keyPath: \Folder.name, ascending: true)],
+        predicate:   NSPredicate(format: "isRemoved != true"),
         animation: .default
     ) var availableFolders: FetchedResults<Folder>
     
@@ -417,6 +418,8 @@ struct FolderSelectionView: View {
         newFolder.name = newFolderName
         newFolder.order = Int16(availableFolders.count)
         newFolder.entryCount = 0
+        newFolder.dateCreated = Date()
+        newFolder.isRemoved = false
         
         do {
             try coreDataManager.viewContext.save()

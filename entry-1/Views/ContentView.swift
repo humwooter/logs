@@ -60,6 +60,7 @@ struct ContentView: View {
                     print("userPreferences.isFirstLaunch: \(userPreferences.isFirstLaunch)")
 //                    coreDataManager.deleteAllLogEntitiesWithUndo()
                     deleteOldEntries()
+                    deleteOldFolders()
                     initializeDateStrings()
                     if userPreferences.showLockScreen {
                         authenticate()

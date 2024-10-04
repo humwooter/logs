@@ -138,7 +138,7 @@ struct LogsView: View {
             //            updateDateRange()
                     }
             case .folders:
-                FoldersView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
+                FoldersView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, searchModel: searchModel)
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
             case .reminders:
@@ -206,7 +206,7 @@ struct LogsView: View {
     
     @ViewBuilder
         func filteredEntriesListView() -> some View {
-            FilteredEntriesListView(searchModel: searchModel, entryFilter: EntryFilter(searchText: $searchModel.searchText, filters: $searchModel.tokens))
+            FilteredEntriesListView(searchModel: searchModel, entryFilter: EntryFilter(searchText: $searchModel.searchText, filters: $searchModel.tokens), isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
                 .scrollContentBackground(.hidden)
@@ -367,12 +367,7 @@ struct LogsView: View {
                 datesModel.addTodayIfNotExists()
                 updateFetchRequests()
             }
-            .sheet(isPresented: $shareSheetShown) {
-                if let log_uiimage = image {
-                    let logImage = Image(uiImage: log_uiimage)
-                    ShareLink(item: logImage, preview: SharePreview("", image: logImage))
-                }
-            }
+
             .listStyle(.insetGrouped)
             .navigationTitle("Logs")
             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
@@ -517,6 +512,53 @@ struct LogsView: View {
             colorScheme: colorScheme
         )
     }
+    
+    func formattedDate_logs(dateString: String) -> String {
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "MM/dd/yyyy" // Adjust this if your dateString format is different
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "MMMM d, yyyy"
+        
+        if let date = inputFormatter.date(from: dateString) {
+            return outputFormatter.string(from: date)
+        } else {
+            return dateString // Return original string if parsing fails
+        }
+    }
+    
+    func entryCount(for dateString: String) -> Int {
+        // Convert dateString to a Date object
+        let inputFormatter = DateFormatter()
+        inputFormatter.dateFormat = "MM/dd/yyyy" // Adjust this if your dateString format is different
+        
+        guard let logDate = inputFormatter.date(from: dateString) else {
+            print("Invalid dateString: \(dateString)")
+            return 0
+        }
+        
+        // Define the start and end of the day
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: logDate)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else {
+            return 0
+        }
+        
+        // Set up the fetch request with a predicate that matches entries for the specific logDay
+        let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isRemoved == NO AND time >= %@ AND time < %@", startOfDay as NSDate, endOfDay as NSDate)
+        
+        do {
+            let entries = try coreDataManager.viewContext.fetch(fetchRequest)
+            return entries.count
+        } catch {
+            print("Failed to fetch entries: \(error)")
+            return 0
+        }
+    }
+
+
+
 
     
     @ViewBuilder
@@ -527,11 +569,17 @@ struct LogsView: View {
 
                 .foregroundStyle(userPreferences.accentColor)
             
-            Text(dateString)
+            Text(formattedDate_logs(dateString: dateString))
                 .font(.customHeadline)
                 .foregroundStyle(getTextColor())
             
             Spacer()
+            HStack {
+                Text("\(entryCount(for: dateString))")
+                    .foregroundStyle(userPreferences.accentColor.opacity(0.5))
+//                Image(systemName: "chevron.right")
+//                    .foregroundStyle(getTextColor().opacity(0.5))
+            }
         }
 
     }

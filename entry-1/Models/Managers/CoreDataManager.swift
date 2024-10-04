@@ -1,4 +1,5 @@
 import CoreData
+import EventKit
 import CloudKit
 import SwiftUI
 
@@ -309,7 +310,7 @@ final class CoreDataManager: ObservableObject {
         fetchRequest.predicate = NSPredicate(format: "shouldSyncWithCloudKit == YES")
 
         guard let cloudStore = persistentContainer.persistentStoreCoordinator.persistentStores.first(where: { $0.configurationName == "Cloud" }) else {
-            print("Error: Cloud store not found")
+//            print("Error: Cloud store not found")
             return
         }
 
@@ -599,7 +600,7 @@ func mergeChanges(from context: NSManagedObjectContext) {
 extension CoreDataManager {
     func isEntryInCloudStorage(_ entry: Entry) -> Bool {
         guard let cloudStore = getCloudStore() else {
-            print("Cloud store not found")
+//            print("Cloud store not found")
             return false
         }
         
@@ -657,6 +658,77 @@ extension CoreDataManager {
             store.configurationName == nil || store.configurationName == ""
         }
         return localStore
+    }
+    
+    func removeFolder(folder: Folder, context: NSManagedObjectContext) {
+        do {
+            folder.isRemoved = true
+            try context.save()
+        } catch {
+            print("Failed to delete folder: \(error)")
+        }
+    }
+    
+    
+    func deleteFolder(folder: Folder, context: NSManagedObjectContext) {
+        context.performAndWait {
+            context.delete(folder)
+            do {
+                try context.save()
+            } catch {
+                print("Failed to delete folder: \(error)")
+            }
+        }
+    }
+    
+    func deleteEntry(entry: Entry) {
+        let mainContext = viewContext
+        
+        mainContext.performAndWait {
+            let fetchRequest: NSFetchRequest<Entry> = Entry.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "id == %@", entry.id as CVarArg)
+            do {
+                let fetchedEntries = try mainContext.fetch(fetchRequest)
+                guard let entryToDeleteInContext = fetchedEntries.first else {
+                    print("Failed to fetch entry in main context")
+                    return
+                }
+                
+                // If there's an associated reminder, attempt to delete it
+                if let reminderId = entryToDeleteInContext.reminderId, !reminderId.isEmpty {
+                    let eventStore = EKEventStore() // Initialize EKEventStore to work with reminders
+                    eventStore.requestFullAccessToReminders { granted, error in
+                        guard granted, error == nil else {
+                            print("Access to reminders denied or failed: \(String(describing: error))")
+                            return
+                        }
+                        
+                        DispatchQueue.main.async {
+                            if let reminder = eventStore.calendarItem(withIdentifier: reminderId) as? EKReminder {
+                                do {
+                                    try eventStore.remove(reminder, commit: true)
+                                    print("Reminder successfully deleted")
+                                } catch {
+                                    print("Failed to delete reminder: \(error)")
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Delete image associated with the entry
+                entry.deleteImage(coreDataManager: self)
+                if let relationship = entry.relationship {
+                    entry.relationship?.removeFromRelationship(entryToDeleteInContext)
+                }
+                mainContext.delete(entryToDeleteInContext)
+                
+                try mainContext.save()
+                print("Entry successfully deleted")
+            } catch {
+                print("Failed to save main context: \(error)")
+            }
+        }
     }
 }
 

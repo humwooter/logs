@@ -138,18 +138,7 @@ struct RemindersView: View {
         return dateFormatter.string(from: date)
     }
     
-    private func overdueInformation(for date: Date) -> String {
-        let currentDate = Date()
-        let calendar = Calendar.current
-        
-        if currentDate > date {
-            let daysOverdue = calendar.dateComponents([.day], from: date, to: currentDate).day ?? 0
-            return daysOverdue == 0 ? "Overdue today" : "\(daysOverdue) day(s) overdue"
-        } else {
-            let daysUntilDue = calendar.dateComponents([.day], from: currentDate, to: date).day ?? 0
-            return daysUntilDue == 0 ? "Due today" : "Due in \(daysUntilDue) day(s)"
-        }
-    }
+
     
     @ViewBuilder
     private func reminderView(reminder: EKReminder, entry: Entry) -> some View {
@@ -196,10 +185,11 @@ struct RemindersView: View {
                     Text("\(abs(daysUntilDue))")
                         .font(.largeTitle)
                         .bold()
-                        .foregroundColor(daysUntilDue < 0 ? .red : .green)
+                        .foregroundColor(daysUntilDue < 0 ? .red : userPreferences.reminderColor)
                     Text(daysUntilDue < 0 ? "days overdue" : "days left")
                         .font(.caption)
-                        .foregroundColor(daysUntilDue < 0 ? .red : .green)
+                        .foregroundColor(daysUntilDue < 0 ? .red : userPreferences.reminderColor)
+
                 }
             } else {
                 VStack {

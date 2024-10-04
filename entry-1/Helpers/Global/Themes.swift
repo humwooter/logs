@@ -9,191 +9,271 @@ import UIKit
 import Foundation
 
 let refinedThemes: [Theme] = [
-    // Theme 1: Sunrise
-    Theme(name: "Sunrise",
-          accentColor: Color(red: 1.0, green: 0.0, blue: 0.0), // #FF0000
-          topColor: Color(red: 1.0, green: 0.2706, blue: 0.0),  // #FF4500
-          bottomColor: Color(red: 1.0, green: 0.8431, blue: 0.0), // #FFD700
-          entryBackgroundColor: Color(red: 1.0, green: 0.8941, blue: 0.7686, opacity: 0.3), // #FFE4C4
-          pinColor: Color(red: 0.5451, green: 0.0, blue: 0.0),  // #8B0000
-          reminderColor: Color(red: 1.0, green: 0.8431, blue: 0.0), // #FFD700
-          fontName: "TrebuchetMS",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 2: Ocean
-    Theme(name: "Ocean",
-          accentColor: Color(red: 0.0, green: 0.50196, blue: 0.50196), // #008080
-          topColor: Color(red: 0.0, green: 0.0, blue: 0.5451), // #00008B
-          bottomColor: Color(red: 0.6784, green: 0.8471, blue: 0.9020), // #ADD8E6
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 1.0, green: 0.4980, blue: 0.3137), // #FF7F50
-          reminderColor: Color(red: 0.1804, green: 0.5451, blue: 0.3412), // #2E8B57
-          fontName: "AvenirNext-Regular",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 3: Lavender Fields
-    Theme(name: "Lavender Fields",
-          accentColor: Color(red: 0.2941, green: 0.0, blue: 0.5098), // #4B0082
-          topColor: Color(red: 0.9019, green: 0.9019, blue: 0.9804), // #E6E6FA
-          bottomColor: Color(red: 0.50196, green: 0.0, blue: 0.50196), // #800080
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.3),
-          pinColor: Color(red: 1.0, green: 0.7529, blue: 0.7961), // #FFC0CB
-          reminderColor: Color(red: 0.9333, green: 0.5098, blue: 0.9333), // #EE82EE
-          fontName: "Noteworthy Light",
-          fontSize: 17,
-          lineSpacing: 1.5),
-    
-    // Theme 4: Forest
-    Theme(name: "Forest",
-          accentColor: Color(red: 0.1333, green: 0.5451, blue: 0.1333), // #228B22
-          topColor: Color(red: 0.0, green: 0.3922, blue: 0.0), // #006400
-          bottomColor: Color(red: 0.5647, green: 0.9333, blue: 0.5647), // #90EE90
-          entryBackgroundColor: Color(red: 0.5961, green: 0.9843, blue: 0.5961, opacity: 0.3),
-          pinColor: Color(red: 0.5451, green: 0.2706, blue: 0.0745), // #8B4513
-          reminderColor: Color(red: 0.5020, green: 0.5020, blue: 0.0), // #808000
-          fontName: "Georgia",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 5: Midnight
-    Theme(name: "Midnight",
-          accentColor: Color(red: 0.7529, green: 0.7529, blue: 0.7529), // #C0C0C0
-          topColor: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000
-          bottomColor: Color(red: 0.0980, green: 0.0980, blue: 0.4392), // #191970
-          entryBackgroundColor: Color(red: 0.0, green: 0.0, blue: 0.0, opacity: 0.2),
-          pinColor: Color(red: 0.2941, green: 0.0, blue: 0.5098), // #4B0082
-          reminderColor: Color(red: 0.0, green: 0.50196, blue: 0.50196), // #008080
-          fontName: "Menlo Regular",
-          fontSize: 16,
-          lineSpacing: 1.4),
-    
-    // Theme 6: Sunset Beach
-    Theme(name: "Sunset Beach",
-          accentColor: Color(red: 1.0, green: 0.5490, blue: 0.0), // #FF8C00
-          topColor: Color(red: 1.0, green: 0.4980, blue: 0.3137), // #FF7F50
-          bottomColor: Color(red: 0.9569, green: 0.6431, blue: 0.3765), // #F4A460
-          entryBackgroundColor: Color(red: 0.9804, green: 0.9216, blue: 0.8431, opacity: 0.3), // #FAEBD7
-          pinColor: Color(red: 0.0, green: 0.7490, blue: 1.0), // #00BFFF
-          reminderColor: Color(red: 0.2824, green: 0.8196, blue: 0.8), // #48D1CC
-          fontName: "Helvetica",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 7: Snow
-    Theme(name: "Snow",
-          accentColor: Color(red: 0.6863, green: 0.9333, blue: 0.9333), // #AFEEEE
-          topColor: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
-          bottomColor: Color(red: 0.8275, green: 0.8275, blue: 0.8275), // #D3D3D3
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.0, green: 0.0, blue: 0.5451), // #00008B
-          reminderColor: Color(red: 0.7529, green: 0.7529, blue: 0.7529), // #C0C0C0
+    // Theme 14: Silver Moon
+    Theme(name: "Silver Moon",
+          accentColor: Color(red: 0.753, green: 0.753, blue: 0.753), // #C0C0C0 Silver
+          topColor: Color(red: 0.000, green: 0.000, blue: 0.000),    // #000000 Black
+          bottomColor: Color(red: 0.753, green: 0.753, blue: 0.753), // Silver
+          entryBackgroundColor: Color(red: 1.000, green: 1.000, blue: 1.000, opacity: 0.2), // #FFFFFF White with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.753, green: 0.753, blue: 0.753), // Silver
           fontName: "Copperplate Light",
           fontSize: 16,
           lineSpacing: 1.5),
     
-    // Theme 8: Autumn
-    Theme(name: "Autumn",
-          accentColor: Color(red: 0.8627, green: 0.0784, blue: 0.2353), // #DC143C
-          topColor: Color(red: 1.0, green: 0.6471, blue: 0.0), // #FFA500
-          bottomColor: Color(red: 0.5451, green: 0.2706, blue: 0.0745), // #8B4513
-          entryBackgroundColor: Color(red: 0.9647, green: 0.8706, blue: 0.7020, opacity: 0.3), // #F5DEB3
-          pinColor: Color(red: 0.5451, green: 0.0, blue: 0.0), // #8B0000
-          reminderColor: Color(red: 0.8549, green: 0.6471, blue: 0.1255), // #DAA520
-          fontName: "American Typewriter",
-          fontSize: 16,
-          lineSpacing: 1.6),
-    
-    // Theme 9: Royal
-    Theme(name: "Royal",
-          accentColor: Color(red: 0.2549, green: 0.4118, blue: 0.8824), // #4169E1
-          topColor: Color(red: 0.2549, green: 0.4118, blue: 0.8824),
-          bottomColor: Color(red: 1.0, green: 0.8431, blue: 0.0), // #FFD700
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.5451, green: 0.0, blue: 0.0), // #8B0000
-          reminderColor: Color(red: 1.0, green: 1.0, blue: 1.0), // #FFFFFF
-          fontName: "Didot",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 10: Pastel Dream
-    Theme(name: "Pastel Dream",
-          accentColor: Color(red: 0.5647, green: 0.9333, blue: 0.5647), // #90EE90
-          topColor: Color(red: 1.0, green: 0.7137, blue: 0.7569), // #FFB6C1
-          bottomColor: Color(red: 0.6784, green: 0.8471, blue: 0.9020), // #ADD8E6
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.9020, green: 0.9020, blue: 0.9804), // #E6E6FA
-          reminderColor: Color(red: 1.0, green: 0.8549, blue: 0.7255), // #FFDAB9
-          fontName: "Chalkboard SE Regular",
-          fontSize: 17,
-          lineSpacing: 1.5),
-    
-    // Theme 11: Monochrome
-    Theme(name: "Monochrome",
-          accentColor: Color(red: 0.0, green: 0.0, blue: 0.0), // #000000
-          topColor: Color(red: 0.6627, green: 0.6627, blue: 0.6627), // #A9A9A9
-          bottomColor: Color(red: 0.8275, green: 0.8275, blue: 0.8275), // #D3D3D3
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.4118, green: 0.4118, blue: 0.4118), // #696969
-          reminderColor: Color(red: 0.7529, green: 0.7529, blue: 0.7529), // #C0C0C0
-          fontName: "Courier New",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 12: Tropical
-    Theme(name: "Tropical",
-          accentColor: Color(red: 0.5765, green: 0.4392, blue: 0.8588), // #9370DB
-          topColor: Color(red: 0.2509, green: 0.8784, blue: 0.8157), // #40E0D0
-          bottomColor: Color(red: 1.0, green: 0.4980, blue: 0.3137), // #FF7F50
-          entryBackgroundColor: Color(red: 0.9333, green: 0.9098, blue: 0.6667, opacity: 0.3), // #F5DEB3
-          pinColor: Color(red: 1.0, green: 0.4118, blue: 0.7059), // #FF69B4
-          reminderColor: Color(red: 0.1961, green: 0.8039, blue: 0.1961), // #32CD32
-          fontName: "Gill Sans",
-          fontSize: 16,
-          lineSpacing: 1.5),
-    
-    // Theme 13: Earth
-    Theme(name: "Earth",
-          accentColor: Color(red: 0.5451, green: 0.2706, blue: 0.0745), // #8B4513
-          topColor: Color(red: 0.6275, green: 0.3216, blue: 0.1765), // #A0522D
-          bottomColor: Color(red: 0.4196, green: 0.5569, blue: 0.1373), // #6B8E23
-          entryBackgroundColor: Color(red: 0.9333, green: 0.9098, blue: 0.6667, opacity: 0.3), // #F5DEB3
-          pinColor: Color(red: 0.3333, green: 0.4196, blue: 0.1843), // #556B2F
-          reminderColor: Color(red: 0.8039, green: 0.5216, blue: 0.2471), // #CD853F
+    // Theme 15: Golden Sunset
+    Theme(name: "Golden Sunset",
+          accentColor: Color(red: 1.000, green: 0.843, blue: 0.000), // #FFD700 Gold
+          topColor: Color(red: 0.996, green: 0.737, blue: 0.102),    // #FEBC17 Bright Orange
+          bottomColor: Color(red: 0.863, green: 0.078, blue: 0.235), // #DC143C Crimson
+          entryBackgroundColor: Color(red: 1.000, green: 0.894, blue: 0.769, opacity: 0.3), // #FFE4C4 Bisque
+          pinColor: Color(red: 1.000, green: 0.549, blue: 0.000),    // #FF8C00 Dark Orange
+          reminderColor: Color(red: 1.000, green: 0.271, blue: 0.000), // #FF4500 Orange Red
           fontName: "TrebuchetMS",
           fontSize: 16,
           lineSpacing: 1.5),
     
-    // Theme 14: Candy
-    Theme(name: "Candy",
-          accentColor: Color(red: 1.0, green: 1.0, blue: 0.0), // #FFFF00
-          topColor: Color(red: 1.0, green: 0.4118, blue: 0.7059), // #FF69B4
-          bottomColor: Color(red: 0.4902, green: 0.9765, blue: 1.0), // #7DF9FF
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.1961, green: 0.8039, blue: 0.1961), // #32CD32
-          reminderColor: Color(red: 0.9333, green: 0.5098, blue: 0.9333), // #EE82EE
-          fontName: "Cute_Aurora_demo",
+    // Theme 16: Azure Sky
+    Theme(name: "Azure Sky",
+          accentColor: Color(red: 0.000, green: 0.498, blue: 1.000), // #007FFF Azure
+          topColor: Color(red: 0.529, green: 0.808, blue: 0.922),    // #87CEEB Sky Blue
+          bottomColor: Color(red: 0.000, green: 0.749, blue: 1.000), // #00BFFF Deep Sky Blue
+          entryBackgroundColor: Color(red: 0.831, green: 0.925, blue: 0.969, opacity: 0.3), // #D4F2F0 Light Blue with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.000, green: 0.000, blue: 0.804), // #0000CD Medium Blue
+          fontName: "AvenirNext-Regular",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 17: Rustic Earth
+    Theme(name: "Rustic Earth",
+          accentColor: Color(red: 0.545, green: 0.271, blue: 0.075), // #8B4513 Saddle Brown
+          topColor: Color(red: 0.627, green: 0.322, blue: 0.176),    // #A0522D Sienna
+          bottomColor: Color(red: 0.333, green: 0.420, blue: 0.184), // #556B2F Dark Olive Green
+          entryBackgroundColor: Color(red: 0.961, green: 0.871, blue: 0.702, opacity: 0.3), // #F5DEB3 Wheat
+          pinColor: Color(red: 0.545, green: 0.000, blue: 0.000),    // #8B0000 Dark Red
+          reminderColor: Color(red: 0.804, green: 0.522, blue: 0.247), // #CD853F Peru
+          fontName: "Georgia",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 18: Crimson Tide
+    Theme(name: "Crimson Tide",
+          accentColor: Color(red: 0.863, green: 0.078, blue: 0.235), // #DC143C Crimson
+          topColor: Color(red: 0.545, green: 0.000, blue: 0.000),    // #8B0000 Dark Red
+          bottomColor: Color(red: 0.000, green: 0.000, blue: 0.000), // Black
+          entryBackgroundColor: Color(red: 0.753, green: 0.753, blue: 0.753, opacity: 0.2), // #C0C0C0 Silver with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.863, green: 0.078, blue: 0.235), // Crimson
+          fontName: "Impact",
           fontSize: 17,
           lineSpacing: 1.4),
     
-    // Continue adding themes up to Theme 35...
+    // Theme 19: Arctic Ice
+    Theme(name: "Arctic Ice",
+          accentColor: Color(red: 0.753, green: 0.753, blue: 0.753), // #C0C0C0 Silver
+          topColor: Color(red: 0.878, green: 0.925, blue: 0.957),    // #E0ECF4 Light Blue
+          bottomColor: Color(red: 1.000, green: 1.000, blue: 1.000), // White
+          entryBackgroundColor: Color(red: 1.000, green: 1.000, blue: 1.000, opacity: 0.2), // White with opacity
+          pinColor: Color(red: 0.529, green: 0.808, blue: 0.922),    // #87CEEB Sky Blue
+          reminderColor: Color(red: 0.000, green: 0.749, blue: 1.000), // #00BFFF Deep Sky Blue
+          fontName: "Gill Sans",
+          fontSize: 16,
+          lineSpacing: 1.5),
     
-    // Due to space constraints, I'm including a total of 35 unique and aesthetically balanced themes.
-    // Each theme utilizes color theory, contrast, and transparency to highlight colors.
+    // Theme 20: Forest Green
+    Theme(name: "Forest Green",
+          accentColor: Color(red: 0.000, green: 0.392, blue: 0.000), // #006400 Dark Green
+          topColor: Color(red: 0.133, green: 0.545, blue: 0.133),    // #228B22 Forest Green
+          bottomColor: Color(red: 0.196, green: 0.804, blue: 0.196), // #32CD32 Lime Green
+          entryBackgroundColor: Color(red: 0.859, green: 0.929, blue: 0.859, opacity: 0.3), // #DBEDDB Light Green
+          pinColor: Color(red: 0.545, green: 0.271, blue: 0.075),    // #8B4513 Saddle Brown
+          reminderColor: Color(red: 0.000, green: 0.392, blue: 0.000), // Dark Green
+          fontName: "Noteworthy Light",
+          fontSize: 16,
+          lineSpacing: 1.5),
     
-    // Theme 35: Denim
-    Theme(name: "Denim",
-          accentColor: Color(red: 0.0, green: 0.0, blue: 1.0), // #0000FF
-          topColor: Color(red: 0.6784, green: 0.8471, blue: 0.9020), // #ADD8E6
-          bottomColor: Color(red: 0.0, green: 0.0, blue: 0.5451), // #00008B
-          entryBackgroundColor: Color(red: 1.0, green: 1.0, blue: 1.0, opacity: 0.2),
-          pinColor: Color(red: 0.2745, green: 0.5098, blue: 0.7059), // #4682B4
-          reminderColor: Color(red: 0.4157, green: 0.3529, blue: 0.8039), // #6A5ACD
+    // Theme 21: Midnight Blue
+    Theme(name: "Midnight Blue",
+          accentColor: Color(red: 0.098, green: 0.098, blue: 0.439), // #191970 Midnight Blue
+          topColor: Color(red: 0.000, green: 0.000, blue: 0.000),    // Black
+          bottomColor: Color(red: 0.098, green: 0.098, blue: 0.439), // Midnight Blue
+          entryBackgroundColor: Color(red: 0.753, green: 0.753, blue: 0.753, opacity: 0.2), // Silver with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.416, green: 0.353, blue: 0.804), // #6A5ACD Slate Blue
+          fontName: "Menlo Regular",
+          fontSize: 16,
+          lineSpacing: 1.4),
+    
+    // Theme 22: Autumn Leaves
+    Theme(name: "Autumn Leaves",
+          accentColor: Color(red: 0.804, green: 0.361, blue: 0.361), // #CD5C5C Indian Red
+          topColor: Color(red: 0.996, green: 0.737, blue: 0.102),    // #FEBC17 Bright Orange
+          bottomColor: Color(red: 0.545, green: 0.271, blue: 0.075), // Saddle Brown
+          entryBackgroundColor: Color(red: 0.961, green: 0.871, blue: 0.702, opacity: 0.3), // Wheat
+          pinColor: Color(red: 0.863, green: 0.078, blue: 0.235),    // Crimson
+          reminderColor: Color(red: 0.804, green: 0.361, blue: 0.361), // Indian Red
+          fontName: "American Typewriter",
+          fontSize: 16,
+          lineSpacing: 1.6),
+    
+    // Theme 23: Rose Gold
+    Theme(name: "Rose Gold",
+          accentColor: Color(red: 0.718, green: 0.427, blue: 0.565), // #B77090 Rose
+          topColor: Color(red: 0.863, green: 0.627, blue: 0.478),    // #DC9F7A Light Brown
+          bottomColor: Color(red: 0.718, green: 0.427, blue: 0.565), // Rose
+          entryBackgroundColor: Color(red: 0.961, green: 0.871, blue: 0.702, opacity: 0.3), // Wheat
+          pinColor: Color(red: 1.000, green: 0.843, blue: 0.000),    // Gold
+          reminderColor: Color(red: 0.863, green: 0.627, blue: 0.478), // Light Brown
+          fontName: "SavoyeLetPlain",
+          fontSize: 17,
+          lineSpacing: 1.5),
+    
+    // Theme 24: Ocean Wave
+    Theme(name: "Ocean Wave",
+          accentColor: Color(red: 0.000, green: 0.502, blue: 0.502), // #008080 Teal
+          topColor: Color(red: 0.529, green: 0.808, blue: 0.922),    // Sky Blue
+          bottomColor: Color(red: 0.000, green: 0.502, blue: 0.502), // Teal
+          entryBackgroundColor: Color(red: 0.831, green: 0.925, blue: 0.969, opacity: 0.3), // Light Blue with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.000, green: 0.749, blue: 1.000), // Deep Sky Blue
+          fontName: "Futura",
+          fontSize: 16,
+          lineSpacing: 1.4),
+    
+    // Theme 25: Sand Dune
+    Theme(name: "Sand Dune",
+          accentColor: Color(red: 0.824, green: 0.706, blue: 0.549), // #D2B48C Tan
+          topColor: Color(red: 0.961, green: 0.871, blue: 0.702),    // Wheat
+          bottomColor: Color(red: 0.824, green: 0.706, blue: 0.549), // Tan
+          entryBackgroundColor: Color(red: 0.961, green: 0.871, blue: 0.702, opacity: 0.3), // Wheat with opacity
+          pinColor: Color(red: 0.545, green: 0.271, blue: 0.075),    // Saddle Brown
+          reminderColor: Color(red: 0.627, green: 0.322, blue: 0.176), // Sienna
+          fontName: "Superclarendon Regular",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 26: Cherry Blossom
+    Theme(name: "Cherry Blossom",
+          accentColor: Color(red: 1.000, green: 0.714, blue: 0.757), // #FFB6C1 Light Pink
+          topColor: Color(red: 1.000, green: 0.753, blue: 0.796),    // #FFC0CB Pink
+          bottomColor: Color(red: 1.000, green: 0.894, blue: 0.961), // #FFE4E1 Misty Rose
+          entryBackgroundColor: Color(red: 1.000, green: 0.937, blue: 0.961, opacity: 0.3), // #FFF0F5 Lavender Blush with opacity
+          pinColor: Color(red: 0.196, green: 0.804, blue: 0.196),    // #32CD32 Lime Green
+          reminderColor: Color(red: 1.000, green: 0.714, blue: 0.757), // Light Pink
+          fontName: "Lilly",
+          fontSize: 17,
+          lineSpacing: 1.5),
+    
+    // Theme 27: Stormy Night
+    Theme(name: "Stormy Night",
+          accentColor: Color(red: 0.184, green: 0.310, blue: 0.310), // #2F4F4F Dark Slate Gray
+          topColor: Color(red: 0.169, green: 0.169, blue: 0.169),    // #2B2B2B Dark Gray
+          bottomColor: Color(red: 0.098, green: 0.098, blue: 0.439), // Midnight Blue
+          entryBackgroundColor: Color(red: 0.753, green: 0.753, blue: 0.753, opacity: 0.2), // Silver with opacity
+          pinColor: Color(red: 0.416, green: 0.353, blue: 0.804),    // Slate Blue
+          reminderColor: Color(red: 0.502, green: 0.000, blue: 0.502), // #800080 Purple
+          fontName: "Menlo Regular",
+          fontSize: 16,
+          lineSpacing: 1.4),
+    
+    // Theme 28: Sunflower
+    Theme(name: "Sunflower",
+          accentColor: Color(red: 1.000, green: 0.843, blue: 0.000), // Gold
+          topColor: Color(red: 0.933, green: 0.910, blue: 0.667),    // #EEE8AA Pale Goldenrod
+          bottomColor: Color(red: 0.196, green: 0.804, blue: 0.196), // Lime Green
+          entryBackgroundColor: Color(red: 0.965, green: 0.871, blue: 0.702, opacity: 0.3), // Wheat
+          pinColor: Color(red: 0.545, green: 0.271, blue: 0.075),    // Saddle Brown
+          reminderColor: Color(red: 1.000, green: 0.843, blue: 0.000), // Gold
+          fontName: "SunnySpellsBasic-Regular",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 29: Lavender Fields
+    Theme(name: "Lavender Fields",
+          accentColor: Color(red: 0.729, green: 0.333, blue: 0.827), // #BA55D3 Medium Orchid
+          topColor: Color(red: 0.792, green: 0.608, blue: 0.827),    // #CA9EC4 Light Purple
+          bottomColor: Color(red: 0.529, green: 0.808, blue: 0.922), // Sky Blue
+          entryBackgroundColor: Color(red: 0.902, green: 0.902, blue: 0.980, opacity: 0.3), // Lavender
+          pinColor: Color(red: 0.541, green: 0.169, blue: 0.886),    // #8A2BE2 Blue Violet
+          reminderColor: Color(red: 0.933, green: 0.510, blue: 0.933), // Violet
+          fontName: "Noteworthy Light",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 30: Coral Reef
+    Theme(name: "Coral Reef",
+          accentColor: Color(red: 1.000, green: 0.498, blue: 0.314), // #FF7F50 Coral
+          topColor: Color(red: 0.282, green: 0.820, blue: 0.800),    // #48D1CC Medium Turquoise
+          bottomColor: Color(red: 0.529, green: 0.808, blue: 0.922), // Sky Blue
+          entryBackgroundColor: Color(red: 0.831, green: 0.925, blue: 0.969, opacity: 0.3), // Light Blue with opacity
+          pinColor: Color(red: 1.000, green: 0.412, blue: 0.706),    // #FF69B4 Hot Pink
+          reminderColor: Color(red: 0.282, green: 0.820, blue: 0.800), // Medium Turquoise
+          fontName: "Bradley Hand",
+          fontSize: 17,
+          lineSpacing: 1.5),
+    
+    // Theme 31: Sapphire
+    Theme(name: "Sapphire",
+          accentColor: Color(red: 0.059, green: 0.322, blue: 0.729), // #0F52BA Sapphire Blue
+          topColor: Color(red: 0.000, green: 0.000, blue: 0.502),    // #000080 Navy
+          bottomColor: Color(red: 0.098, green: 0.098, blue: 0.439), // Midnight Blue
+          entryBackgroundColor: Color(red: 0.753, green: 0.753, blue: 0.753, opacity: 0.2), // Silver with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 0.000, green: 0.000, blue: 0.545), // #00008B Dark Blue
           fontName: "Arial Rounded MT Bold",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 32: Emerald Isle
+    Theme(name: "Emerald Isle",
+          accentColor: Color(red: 0.000, green: 0.502, blue: 0.000), // #008000 Green
+          topColor: Color(red: 0.235, green: 0.702, blue: 0.443),    // #3BB371 Medium Sea Green
+          bottomColor: Color(red: 0.000, green: 0.392, blue: 0.000), // Dark Green
+          entryBackgroundColor: Color(red: 0.859, green: 0.929, blue: 0.859, opacity: 0.3), // Light Green with opacity
+          pinColor: Color(red: 1.000, green: 0.843, blue: 0.000),    // Gold
+          reminderColor: Color(red: 0.000, green: 0.502, blue: 0.000), // Green
+          fontName: "Georgia",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 33: Fire and Ice
+    Theme(name: "Fire and Ice",
+          accentColor: Color(red: 1.000, green: 0.271, blue: 0.000), // #FF4500 Orange Red
+          topColor: Color(red: 0.118, green: 0.565, blue: 1.000),    // #1E90FF Dodger Blue
+          bottomColor: Color(red: 1.000, green: 0.549, blue: 0.000), // #FF8C00 Dark Orange
+          entryBackgroundColor: Color(red: 0.878, green: 0.925, blue: 0.957, opacity: 0.3), // Light Blue with opacity
+          pinColor: Color(red: 1.000, green: 1.000, blue: 1.000),    // White
+          reminderColor: Color(red: 1.000, green: 0.271, blue: 0.000), // Orange Red
+          fontName: "Impact",
+          fontSize: 17,
+          lineSpacing: 1.4),
+    
+    // Theme 34: Cocoa Delight
+    Theme(name: "Cocoa Delight",
+          accentColor: Color(red: 0.396, green: 0.263, blue: 0.129), // #654321 Dark Brown
+          topColor: Color(red: 0.545, green: 0.271, blue: 0.075),    // Saddle Brown
+          bottomColor: Color(red: 0.627, green: 0.322, blue: 0.176), // Sienna
+          entryBackgroundColor: Color(red: 0.961, green: 0.871, blue: 0.702, opacity: 0.3), // Wheat
+          pinColor: Color(red: 0.824, green: 0.706, blue: 0.549),    // Tan
+          reminderColor: Color(red: 0.545, green: 0.271, blue: 0.075), // Saddle Brown
+          fontName: "STIX Two Math",
+          fontSize: 16,
+          lineSpacing: 1.5),
+    
+    // Theme 35: Royal Purple
+    Theme(name: "Royal Purple",
+          accentColor: Color(red: 0.416, green: 0.353, blue: 0.804), // #6A5ACD Slate Blue
+          topColor: Color(red: 0.541, green: 0.169, blue: 0.886),    // #8A2BE2 Blue Violet
+          bottomColor: Color(red: 0.294, green: 0.000, blue: 0.510), // #4B0082 Indigo
+          entryBackgroundColor: Color(red: 0.902, green: 0.902, blue: 0.980, opacity: 0.3), // Lavender with opacity
+          pinColor: Color(red: 1.000, green: 0.843, blue: 0.000),    // Gold
+          reminderColor: Color(red: 0.416, green: 0.353, blue: 0.804), // Slate Blue
+          fontName: "Didot",
           fontSize: 16,
           lineSpacing: 1.5)
 ]
+
 
 
 //let refinedThemes: [Theme] = [

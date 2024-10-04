@@ -375,6 +375,28 @@ func deleteOldEntries() {
     }
 }
 
+func deleteOldFolders() {
+    let tenDaysAgo = Calendar.current.date(byAdding: .day, value: -10, to: Date())
+    
+    
+    let mainContext = CoreDataManager.shared.viewContext
+    let fetchRequest: NSFetchRequest<Folder> = Folder.fetchRequest()
+    fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+        NSPredicate(format: "isRemoved == %@", NSNumber(value: true)),
+        NSPredicate(format: "dateCreated < %@", tenDaysAgo! as CVarArg)
+    ])
+    
+    do {
+        let oldFolders = try mainContext.fetch(fetchRequest)
+        for folder in oldFolders {
+            deleteFolder(folder: folder, coreDataManager: CoreDataManager.shared)
+        }
+        try mainContext.save()
+    } catch let error {
+        print("Failed to delete old entries: \(error)")
+    }
+}
+
 
 func deleteAllTags() {
     let mainContext = CoreDataManager.shared.viewContext
