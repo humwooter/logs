@@ -8,7 +8,7 @@ import SwiftUI
 import EventKit
 import CoreData
 
-struct ScheduleView: View {
+struct ScheduleView: View, UserPreferencesProvider {
     @ObservedObject var eventManager = EventManager()
     @ObservedObject var reminderManager = ReminderManager()
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -208,7 +208,7 @@ struct ScheduleView: View {
         .padding(3)
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: CGFloat(dayColumn_width), alignment: .leading)
     }
     
     // Helper function to get the entry title or first 10 characters of content
@@ -238,7 +238,7 @@ struct ScheduleView: View {
                 .padding(3)
                 .background(getEntryBackgroundColor())
                 .cornerRadius(8)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(width: CGFloat(dayColumn_width), alignment: .leading)
             )
         } else {
             return AnyView(EmptyView())
@@ -260,7 +260,7 @@ struct ScheduleView: View {
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
         .frame(height: max(CGFloat(duration / 3600) * 60, 40)) // Minimum height of 40
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(width: CGFloat(dayColumn_width), alignment: .leading)
     }
     
     // Horizontal line showing the current time across all day columns
@@ -349,94 +349,3 @@ struct ScheduleView: View {
     
 }
 
-
-
-
-
-
-extension ScheduleView {
-    
-    private func getName(for name: String) -> String {
-        return name.prefix(15) + "..."
-    }
-    
-    private func formatHour(hour: Int) -> String { //short with AM PM
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "h a" // 12-hour format with AM/PM
-
-        var calendar = Calendar.current
-        calendar.timeZone = TimeZone.current // Ensure correct timezone
-
-        // Create a DateComponents for just the hour
-        let components = DateComponents(hour: hour)
-        
-        // Get the date from the components
-        if let date = calendar.date(from: components) {
-            return dateFormatter.string(from: date)
-        }
-        
-        // Fallback if date couldn't be created
-        return "\(hour):00"
-    }
-    
-    // Utility function to convert date string to Date
-    private func dateFromString(_ dateString: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MM/dd/yyyy"
-        return formatter.date(from: dateString)
-    }
-    
-    // Utility function to check if date string is valid
-    private func isValidDateFormat(_ dateString: String) -> Bool {
-        return dateFromString(dateString) != nil
-    }
-    
-    // Utility function to format the date string
-    private func formattedDateString(_ dateString: String) -> String {
-        if let date = dateFromString(dateString) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: date)
-        } else {
-            return dateString
-        }
-    }
-    
-    // Utility functions for color handling
-    func getSectionColor(colorScheme: ColorScheme) -> Color {
-        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
-            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-        } else {
-            return userPreferences.entryBackgroundColor
-        }
-    }
-    
-    func getTextColor() -> Color {
-        let background1 = userPreferences.backgroundColors.first ?? Color.clear
-        let background2 = userPreferences.backgroundColors[1]
-        let entryBackground = userPreferences.entryBackgroundColor
-        return calculateTextColor(
-            basedOn: background1,
-            background2: background2,
-            entryBackground: entryBackground,
-            colorScheme: colorScheme
-        )
-    }
-    
-    func getIdealHeaderTextColor() -> Color {
-        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
-    }
-    
-    func getEntryBackgroundColor() -> Color {
-        let entryBackgroundColor = userPreferences.entryBackgroundColor
-        if isClear(for: UIColor(entryBackgroundColor)) {
-            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-        } else {
-            return entryBackgroundColor
-        }
-    }
-    
-    private func isClear(for color: UIColor) -> Bool {
-        return color.cgColor.alpha == 0
-    }
-}
