@@ -807,59 +807,59 @@ struct LogParentView : View {
             .environmentObject(datesModel)
             .environmentObject(userPreferences)
             .environmentObject(coreDataManager)
-            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
-                        switch token {
-                        case .isHidden(let value):
-                            Label("Hidden", systemImage: "eye.slash")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .hasMedia(let value):
-                            Label("Media", systemImage: "paperclip")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .hasReminder(let value):
-                            Label("Reminder", systemImage: "bell")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .isPinned(let value):
-                            Label("Pinned", systemImage: "pin")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .stampIcon(let icon):
-                            if icon.isEmpty {
-                                Label("Stamp Label", systemImage: "hare.fill")
-                            } else {
-                                Label(icon, systemImage: "stamp")
-                            }
-                        case .content(let searchText):
-                            Label(searchText, systemImage: "magnifyingglass")
-                        case .title(let searchText):
-                            Label(searchText, systemImage: "text.magnifyingglass")
-                        case .tag(let tagName):
-                            Label(tagName, systemImage: "tag")
-                        case .date(let date):
-                            Label(dateFormatter.string(from: date), systemImage: "calendar")
-                        case .time(let start, let end):
-                            Label("\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock")
-                        case .lastUpdated(let start, let end):
-                            Label("Updated: \(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock.arrow.circlepath")
-                        case .color(let color):
-                            Label("Color", systemImage: "circle.fill")
-                                .foregroundColor(Color(color))
-                        case .tagNames(let tags):
-                            Label(tags.joined(separator: ", "), systemImage: "tag")
-                        case .isShown(let value):
-                            Label("Shown", systemImage: "eye")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .isRemoved(let value):
-                            Label("Removed", systemImage: "trash")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .isDrafted(let value):
-                            Label("Draft", systemImage: "doc.text")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .shouldSyncWithCloudKit(let value):
-                            Label("Sync", systemImage: "icloud")
-                                .foregroundColor(value ? .primary : .secondary)
-                        case .folderId(let id):
-                            Label("Folder: \(id)", systemImage: "folder")
-                        }
-                    }
+//            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
+//                        switch token {
+//                        case .isHidden(let value):
+//                            Label("Hidden", systemImage: "eye.slash")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .hasMedia(let value):
+//                            Label("Media", systemImage: "paperclip")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .hasReminder(let value):
+//                            Label("Reminder", systemImage: "bell")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .isPinned(let value):
+//                            Label("Pinned", systemImage: "pin")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .stampIcon(let icon):
+//                            if icon.isEmpty {
+//                                Label("Stamp Label", systemImage: "hare.fill")
+//                            } else {
+//                                Label(icon, systemImage: "stamp")
+//                            }
+//                        case .content(let searchText):
+//                            Label(searchText, systemImage: "magnifyingglass")
+//                        case .title(let searchText):
+//                            Label(searchText, systemImage: "text.magnifyingglass")
+//                        case .tag(let tagName):
+//                            Label(tagName, systemImage: "tag")
+//                        case .date(let date):
+//                            Label(dateFormatter.string(from: date), systemImage: "calendar")
+//                        case .time(let start, let end):
+//                            Label("\(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock")
+//                        case .lastUpdated(let start, let end):
+//                            Label("Updated: \(dateFormatter.string(from: start)) - \(dateFormatter.string(from: end))", systemImage: "clock.arrow.circlepath")
+//                        case .color(let color):
+//                            Label("Color", systemImage: "circle.fill")
+//                                .foregroundColor(Color(color))
+//                        case .tagNames(let tags):
+//                            Label(tags.joined(separator: ", "), systemImage: "tag")
+//                        case .isShown(let value):
+//                            Label("Shown", systemImage: "eye")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .isRemoved(let value):
+//                            Label("Removed", systemImage: "trash")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .isDrafted(let value):
+//                            Label("Draft", systemImage: "doc.text")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .shouldSyncWithCloudKit(let value):
+//                            Label("Sync", systemImage: "icloud")
+//                                .foregroundColor(value ? .primary : .secondary)
+//                        case .folderId(let id):
+//                            Label("Folder: \(id)", systemImage: "folder")
+//                        }
+//                    }
 //            .searchable(text: $searchModel.searchText, tokens: $searchModel.tokens, isPresented: showSearch) { token in
 //                        switch token {
 //                        case .hiddenEntries:

@@ -20,6 +20,9 @@ struct ScheduleView: View {
     @State private var reminders: [Date: [EKReminder]] = [:]
     @State private var events: [Date: [EKEvent]] = [:]
     
+    var dayColumn_width = 200
+    var dayColumn_height = 100
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Weekly calendar view allowing date selection
@@ -138,7 +141,7 @@ struct ScheduleView: View {
                 overlayDetails(forDateString: dayString)
             }
         }
-        .frame(width: 150, alignment: .leading) // Fixed width for each day's column
+        .frame(width: CGFloat(dayColumn_width), alignment: .leading) // Fixed width for each day's column
     }
     
     private func hourBlock(hour: Int) -> some View {
@@ -192,19 +195,17 @@ struct ScheduleView: View {
     
     // View for displaying an entry
     private func entryRow(entry: Entry) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
+        HStack {
             if entry.stampIndex != -1 {
-                HStack {
-                    Image(systemName: entry.stampIcon)
-                        .foregroundColor(Color(entry.color))
-                    Spacer()
-                }
+                Image(systemName: entry.stampIcon)
+                    .foregroundColor(Color(entry.color))
             }
+        
             Text(entryTitle(for: entry))
                 .font(.caption)
                 .foregroundColor(getTextColor())
         }
-        .padding(8)
+        .padding(3)
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -222,24 +223,19 @@ struct ScheduleView: View {
     }
     
     
-    private func getName(for name: String) -> String {
-        return name.prefix(5) + "..."
-    }
+  
     // View for displaying a reminder
     private func reminderRow(reminder: EKReminder) -> some View {
         if let _ = reminder.dueDateComponents?.date {
             return AnyView(
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
+                HStack {
                         Image(systemName: "bell.fill")
                             .foregroundColor(userPreferences.reminderColor)
-                        Spacer()
-                    }
                     Text(getName(for: reminder.title))
                         .font(.caption)
                         .foregroundColor(getTextColor())
                 }
-                .padding(8)
+                .padding(3)
                 .background(getEntryBackgroundColor())
                 .cornerRadius(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -251,14 +247,16 @@ struct ScheduleView: View {
     
     // View for displaying an event
     private func eventRow(event: EKEvent, duration: TimeInterval) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(event.title ?? "")
+        HStack {
+            Image(systemName: "calendar.badge.clock")
+                .foregroundColor(userPreferences.accentColor)
+            Text(getName(for: event.title ?? ""))
                 .font(.caption)
                 .foregroundColor(getTextColor())
 //            Text("Event Details")
 //                .font(.subheadline)
         }
-        .padding(8)
+        .padding(3)
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
         .frame(height: max(CGFloat(duration / 3600) * 60, 40)) // Minimum height of 40
@@ -357,6 +355,10 @@ struct ScheduleView: View {
 
 
 extension ScheduleView {
+    
+    private func getName(for name: String) -> String {
+        return name.prefix(15) + "..."
+    }
     
     private func formatHour(hour: Int) -> String { //short with AM PM
         let dateFormatter = DateFormatter()
