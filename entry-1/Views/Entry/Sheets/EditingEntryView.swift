@@ -204,9 +204,6 @@ struct EditingEntryView: View {
         .overlay(
             CustomPopupView(isPresented: $showingReminderSheet, title:
                                 entry.reminderId?.isEmpty == true ? "Reminder" : "Edit Reminder", onSave: {
-                // Dismiss the view
-//                    showingReminderSheet = false
-                // Then save the reminder
                     saveReminder()
             }) {
                 ReminderPopupView(

@@ -32,6 +32,7 @@ extension Entry {
     @NSManaged public var stampIcon: String
     @NSManaged public var stampName: String?
     @NSManaged public var reminderId: String?
+    @NSManaged public var eventId: String?
     @NSManaged public var mediaFilename: String?
     @NSManaged public var mediaFilenames: [String]?
     @NSManaged public var tagNames: [String]?

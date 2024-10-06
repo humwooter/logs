@@ -187,6 +187,31 @@ class ReminderManager: ObservableObject {
         }
     }
     
+    func fetchReminders(startDate: Date, endDate: Date, completion: @escaping (Result<[EKReminder], Error>) -> Void) {
+        guard hasReminderAccess else {
+            completion(.failure(ReminderError.accessDenied))
+            return
+        }
+
+        let predicate = eventStore.predicateForReminders(in: nil)
+        
+        eventStore.fetchReminders(matching: predicate) { reminders in
+            guard let reminders = reminders else {
+                completion(.failure(ReminderError.reminderNotFound))
+                return
+            }
+
+            let filteredReminders = reminders.filter { reminder in
+                guard let dueDate = reminder.dueDateComponents?.date else { return false }
+                return (dueDate >= startDate && dueDate < endDate)
+            }
+
+            completion(.success(filteredReminders))
+        }
+    }
+
+
+    
     private func createRecurrenceRule(fromOption option: String) -> EKRecurrenceRule? {
         let recurrenceRules: [String: EKRecurrenceRule] = [
             "Daily": EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil),

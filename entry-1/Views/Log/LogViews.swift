@@ -152,6 +152,10 @@ struct LogsView: View {
                 else {
                     filteredEntriesListView()
                 }
+            case .schedule:
+                ScheduleView()
+                    .environmentObject(coreDataManager)
+                    .environmentObject(userPreferences)
             }
 
         }

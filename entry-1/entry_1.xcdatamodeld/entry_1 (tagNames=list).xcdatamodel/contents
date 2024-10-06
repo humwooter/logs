@@ -4,6 +4,7 @@
         <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName=""/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="entryReplyId" optional="YES" attributeType="String"/>
+        <attribute name="eventId" optional="YES" attributeType="String"/>
         <attribute name="folderId" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDrafted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

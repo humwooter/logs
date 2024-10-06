@@ -15,6 +15,7 @@ enum PickerOptions: String, CaseIterable {
     case folders = "Folders"
     case reminders = "Reminders"
     case search = "Search"
+    case schedule = "Schedule"
 }
 
 
@@ -49,6 +50,8 @@ struct HorizontalPicker: View {
                                         Image(systemName: "folder.fill")
                                     case "Reminders":
                                         Image(systemName: "bell.fill")
+                                    case "Schedule":
+                                        Image(systemName: "calendar.day.timeline.leading")
                                     default:
                                         Image(systemName: "magnifyingglass")
                                     }

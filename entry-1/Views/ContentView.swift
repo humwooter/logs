@@ -82,10 +82,10 @@ struct ContentView: View {
     
     func initializeDateStrings() {
         let dateStringsManager = DateStrings()
-        for log in logs {
-            print("LOG: \(log)")
-            dateStringsManager.addDate(log.day)
-        }
+//        for log in logs {
+//            print("LOG: \(log)")
+//            dateStringsManager.addDate(log.day)
+//        }
     }
     
     @ViewBuilder
