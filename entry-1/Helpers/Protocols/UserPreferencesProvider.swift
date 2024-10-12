@@ -20,7 +20,7 @@ extension UserPreferencesProvider {
     
     // Shortens a name to a 15-character prefix and adds "..."
     func getName(for name: String) -> String {
-        return name.prefix(15) + "..."
+        return name.prefix(25) + "..."
     }
     
     // Formats hour in short with AM/PM

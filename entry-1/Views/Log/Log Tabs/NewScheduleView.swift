@@ -21,9 +21,8 @@ struct ScheduleView: View, UserPreferencesProvider {
 
     // Predefined sizes
     let timeLabelWidth: CGFloat = 70
-    let hourHeight: CGFloat = 60
-    let eventMinHeight: CGFloat = 40
-    let minDayColumnWidth: CGFloat = 150 // Minimum width for day columns
+    let hourHeight: CGFloat = 90
+    let minDayColumnWidth: CGFloat = 200 // Minimum width for day columns
 
     var body: some View {
         NavigationView {
@@ -96,11 +95,6 @@ struct ScheduleView: View, UserPreferencesProvider {
             let shouldScrollHorizontally = totalContentWidth > availableWidth
 
             let calculatedDayColumnWidth: CGFloat = shouldScrollHorizontally ? minDayColumnWidth : availableWidth / CGFloat(dayColumnCount)
-//            if shouldScrollHorizontally {
-//                calculatedDayColumnWidth = minDayColumnWidth
-//            } else {
-//                calculatedDayColumnWidth = availableWidth / CGFloat(dayColumnCount)
-//            }
 
             TimelineView(.animation(minimumInterval: 60, paused: false)) { context in
                 ScrollView(.vertical) {
@@ -112,12 +106,12 @@ struct ScheduleView: View, UserPreferencesProvider {
                             if shouldScrollHorizontally {
                                 ScrollView(.horizontal) {
                                     HStack(spacing: 0) {
-                                        dayColumns(calculatedDayColumnWidth: calculatedDayColumnWidth, hourHeight: hourHeight, eventMinHeight: eventMinHeight)
+                                        dayColumns(calculatedDayColumnWidth: calculatedDayColumnWidth, hourHeight: hourHeight)
                                     }
                                 }
                             } else {
                                 HStack(spacing: 0) {
-                                    dayColumns(calculatedDayColumnWidth: calculatedDayColumnWidth, hourHeight: hourHeight, eventMinHeight: eventMinHeight)
+                                    dayColumns(calculatedDayColumnWidth: calculatedDayColumnWidth, hourHeight: hourHeight)
                                 }
                             }
                         }
@@ -135,13 +129,12 @@ struct ScheduleView: View, UserPreferencesProvider {
     }
 
     @ViewBuilder
-    private func dayColumns(calculatedDayColumnWidth: CGFloat, hourHeight: CGFloat, eventMinHeight: CGFloat) -> some View {
+    private func dayColumns(calculatedDayColumnWidth: CGFloat, hourHeight: CGFloat) -> some View {
         ForEach(selectedDates, id: \.self) { date in
             dayColumnView(
                 for: date,
                 dayColumnWidth: calculatedDayColumnWidth,
-                hourHeight: hourHeight,
-                eventMinHeight: eventMinHeight
+                hourHeight: hourHeight
             )
         }
     }
@@ -149,8 +142,7 @@ struct ScheduleView: View, UserPreferencesProvider {
     private func dayColumnView(
         for date: Date,
         dayColumnWidth: CGFloat,
-        hourHeight: CGFloat,
-        eventMinHeight: CGFloat
+        hourHeight: CGFloat
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(formattedDateString(for: date))
@@ -171,8 +163,7 @@ struct ScheduleView: View, UserPreferencesProvider {
                 overlayDetails(
                     forDate: date,
                     dayColumnWidth: dayColumnWidth,
-                    hourHeight: hourHeight,
-                    eventMinHeight: eventMinHeight
+                    hourHeight: hourHeight
                 )
             }
         }
@@ -182,41 +173,187 @@ struct ScheduleView: View, UserPreferencesProvider {
     private func overlayDetails(
         forDate date: Date,
         dayColumnWidth: CGFloat,
-        hourHeight: CGFloat,
-        eventMinHeight: CGFloat
+        hourHeight: CGFloat
     ) -> some View {
-        ZStack(alignment: .topLeading) {
-            if let dayEntries = entries[date] {
-                ForEach(dayEntries) { entry in
-                    let position = positionForTime(entry.time, in: date, hourHeight: hourHeight)
-                    entryRow(entry: entry, dayColumnWidth: dayColumnWidth)
-                        .offset(y: position)
-                }
-            }
-            if let dayReminders = reminders[date] {
-                ForEach(dayReminders, id: \.calendarItemIdentifier) { reminder in
-                    if let dueDate = reminder.dueDateComponents?.date {
-                        let position = positionForTime(dueDate, in: date, hourHeight: hourHeight)
-                        reminderRow(reminder: reminder, dayColumnWidth: dayColumnWidth)
-                            .offset(y: position)
-                    }
-                }
-            }
-            if let dayEvents = events[date] {
-                ForEach(dayEvents, id: \.eventIdentifier) { event in
-                    let position = positionForTime(event.startDate, in: date, hourHeight: hourHeight)
-                    let duration = event.endDate.timeIntervalSince(event.startDate)
-                    eventRow(
-                        event: event,
-                        duration: duration,
-                        dayColumnWidth: dayColumnWidth,
-                        eventMinHeight: eventMinHeight,
-                        hourHeight: hourHeight
+        let items = createEventItems(forDate: date, hourHeight: hourHeight)
+        let positionedItems = calculateOverlaps(for: items, dayColumnWidth: dayColumnWidth)
+
+        return ZStack(alignment: .topLeading) {
+            ForEach(positionedItems) { item in
+                item.contentView
+                    .frame(width: item.width, height: item.height)
+                    .offset(
+                        x: item.xOffset,
+                        y: item.positionY
                     )
-                    .offset(y: position)
+            }
+        }
+    }
+
+    private func createEventItems(
+        forDate date: Date,
+        hourHeight: CGFloat
+    ) -> [EventItem] {
+        var items: [EventItem] = []
+        let defaultDuration: TimeInterval = 30 * 60 // 30 minutes
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+
+        if let dayEntries = entries[date] {
+            for entry in dayEntries {
+                let entryStart = entry.time
+                let entryEnd = entry.time.addingTimeInterval(defaultDuration)
+                let duration = entryEnd.timeIntervalSince(entryStart)
+                let durationInHours = duration / 3600
+                let itemHeight = CGFloat(durationInHours) * hourHeight
+                let positionY = positionForTime(entryStart, in: date, hourHeight: hourHeight)
+                let contentView = AnyView(
+                    entryRow(entry: entry)
+                )
+                let item = EventItem(
+                    id: entry.id ?? UUID(),
+                    startDate: entryStart,
+                    endDate: entryEnd,
+                    contentView: contentView,
+                    positionY: positionY,
+                    height: itemHeight
+                )
+                items.append(item)
+            }
+        }
+
+        if let dayReminders = reminders[date] {
+            for reminder in dayReminders {
+                if let dueDate = reminder.dueDateComponents?.date {
+                    let reminderStart = dueDate
+                    let reminderEnd = dueDate.addingTimeInterval(defaultDuration)
+                    let duration = reminderEnd.timeIntervalSince(reminderStart)
+                    let durationInHours = duration / 3600
+                    let itemHeight = CGFloat(durationInHours) * hourHeight
+                    let positionY = positionForTime(reminderStart, in: date, hourHeight: hourHeight)
+                    let contentView = AnyView(
+                        reminderRow(reminder: reminder)
+                    )
+                    let item = EventItem(
+                        id: UUID(),
+                        startDate: reminderStart,
+                        endDate: reminderEnd,
+                        contentView: contentView,
+                        positionY: positionY,
+                        height: itemHeight
+                    )
+                    items.append(item)
                 }
             }
         }
+
+        if let dayEvents = events[date] {
+            for event in dayEvents {
+                let eventStart = max(event.startDate, startOfDay)
+                let eventEnd = min(event.endDate, endOfDay)
+                let duration = eventEnd.timeIntervalSince(eventStart)
+                let durationInHours = duration / 3600
+                let itemHeight = CGFloat(durationInHours) * hourHeight
+                let positionY = positionForTime(eventStart, in: date, hourHeight: hourHeight)
+                let contentView = AnyView(
+                    eventRow(event: event)
+                )
+                let item = EventItem(
+                    id: UUID(),
+                    startDate: eventStart,
+                    endDate: eventEnd,
+                    contentView: contentView,
+                    positionY: positionY,
+                    height: itemHeight
+                )
+                items.append(item)
+            }
+        }
+
+        return items.sorted { $0.startDate < $1.startDate }
+    }
+
+    private func calculateOverlaps(for items: [EventItem], dayColumnWidth: CGFloat) -> [PositionedEventItem] {
+        var positionedItems: [PositionedEventItem] = []
+
+        var groups: [[EventItem]] = []
+        var currentGroup: [EventItem] = []
+        var currentGroupEndDate: Date?
+
+        let sortedItems = items.sorted { $0.startDate < $1.startDate }
+
+        for item in sortedItems {
+            if currentGroup.isEmpty {
+                currentGroup.append(item)
+                currentGroupEndDate = item.endDate
+            } else {
+                // Check if item overlaps with currentGroup
+                if item.startDate < currentGroupEndDate! {
+                    currentGroup.append(item)
+                    // Update currentGroupEndDate if needed
+                    if item.endDate > currentGroupEndDate! {
+                        currentGroupEndDate = item.endDate
+                    }
+                } else {
+                    // Process currentGroup
+                    let groupPositionedItems = assignColumnsAndPositions(for: currentGroup, dayColumnWidth: dayColumnWidth)
+                    positionedItems.append(contentsOf: groupPositionedItems)
+                    // Start new group
+                    currentGroup = [item]
+                    currentGroupEndDate = item.endDate
+                }
+            }
+        }
+        // Process last group
+        if !currentGroup.isEmpty {
+            let groupPositionedItems = assignColumnsAndPositions(for: currentGroup, dayColumnWidth: dayColumnWidth)
+            positionedItems.append(contentsOf: groupPositionedItems)
+        }
+
+        return positionedItems
+    }
+
+    private func assignColumnsAndPositions(for group: [EventItem], dayColumnWidth: CGFloat) -> [PositionedEventItem] {
+        var positionedItems: [PositionedEventItem] = []
+        var activeItems: [UUID] = []
+        var columnAssignments: [UUID: Int] = [:]
+        var itemDict: [UUID: EventItem] = [:]
+        var maxColumns = 0
+
+        for item in group.sorted(by: { $0.startDate < $1.startDate }) {
+            itemDict[item.id] = item
+            // Remove from activeItems items that have ended
+            activeItems = activeItems.filter { itemDict[$0]?.endDate ?? Date.distantPast > item.startDate }
+            let usedColumns = Set(activeItems.compactMap { columnAssignments[$0] })
+
+            // Assign the lowest available column
+            var column = 0
+            while usedColumns.contains(column) {
+                column += 1
+            }
+            columnAssignments[item.id] = column
+            activeItems.append(item.id)
+            maxColumns = max(maxColumns, column + 1)
+        }
+
+        // Now compute positions for each item in the group
+        for item in group {
+            let column = columnAssignments[item.id] ?? 0
+            let itemWidth = dayColumnWidth / CGFloat(maxColumns)
+            let itemX = CGFloat(column) * itemWidth
+            let positionedItem = PositionedEventItem(
+                id: item.id,
+                contentView: item.contentView,
+                positionY: item.positionY,
+                xOffset: itemX,
+                width: itemWidth,
+                height: item.height
+            )
+            positionedItems.append(positionedItem)
+        }
+
+        return positionedItems
     }
 
     private func formattedDateString(for date: Date) -> String {
@@ -225,7 +362,7 @@ struct ScheduleView: View, UserPreferencesProvider {
         return formatter.string(from: date)
     }
 
-    private func entryRow(entry: Entry, dayColumnWidth: CGFloat) -> some View {
+    private func entryRow(entry: Entry) -> some View {
         HStack {
             if entry.stampIndex != -1 {
                 Image(systemName: entry.stampIcon)
@@ -239,10 +376,9 @@ struct ScheduleView: View, UserPreferencesProvider {
         .padding(3)
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
-        .frame(width: dayColumnWidth, alignment: .leading)
     }
 
-    private func reminderRow(reminder: EKReminder, dayColumnWidth: CGFloat) -> some View {
+    private func reminderRow(reminder: EKReminder) -> some View {
         Group {
             if let dueDate = reminder.dueDateComponents?.date {
                 HStack {
@@ -255,21 +391,12 @@ struct ScheduleView: View, UserPreferencesProvider {
                 .padding(3)
                 .background(getEntryBackgroundColor())
                 .cornerRadius(8)
-                .frame(width: dayColumnWidth, alignment: .leading)
             }
         }
     }
 
-    private func eventRow(
-        event: EKEvent,
-        duration: TimeInterval,
-        dayColumnWidth: CGFloat,
-        eventMinHeight: CGFloat,
-        hourHeight: CGFloat
-    ) -> some View {
-        let eventHeight = max(CGFloat(duration / 3600) * hourHeight, eventMinHeight)
-
-        return HStack {
+    private func eventRow(event: EKEvent) -> some View {
+        HStack {
             Image(systemName: "calendar.badge.clock")
                 .foregroundColor(userPreferences.accentColor)
             Text(getName(for: event.title ?? ""))
@@ -279,8 +406,6 @@ struct ScheduleView: View, UserPreferencesProvider {
         .padding(3)
         .background(getEntryBackgroundColor())
         .cornerRadius(8)
-        .frame(height: eventHeight)
-        .frame(width: dayColumnWidth, alignment: .leading)
     }
 
     private func timelineColumn(hourHeight: CGFloat) -> some View {
@@ -429,4 +554,24 @@ struct ScheduleView: View, UserPreferencesProvider {
             }
         }
     }
+}
+
+// MARK: - Helper Structures
+
+struct EventItem: Identifiable {
+    var id: UUID
+    var startDate: Date
+    var endDate: Date
+    var contentView: AnyView
+    var positionY: CGFloat
+    var height: CGFloat
+}
+
+struct PositionedEventItem: Identifiable {
+    var id: UUID
+    var contentView: AnyView
+    var positionY: CGFloat
+    var xOffset: CGFloat
+    var width: CGFloat
+    var height: CGFloat
 }
