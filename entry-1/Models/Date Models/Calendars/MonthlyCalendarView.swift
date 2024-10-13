@@ -59,9 +59,6 @@ struct CalendarView: View {
                 .datePickerStyle(.wheel)
             }
         }
-//        .onAppear {
-//            print("DATES MODEL DATES: \(datesModel.dates)")
-//        }
     }
     
     private func monthHeaderView() -> some View {

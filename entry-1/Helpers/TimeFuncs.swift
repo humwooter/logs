@@ -46,13 +46,19 @@ func formattedDateString(from components: DateComponents) -> String? {
     }
 }
 
+func formattedTimeShort(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "h:mm"
+    return formatter.string(from: date)
+}
+
 func formattedTime(time: Date) -> String {
     let formatter = DateFormatter()
     formatter.timeStyle = .short
     return formatter.string(from: time)
 }
 
-func formattedTime_long(date: Date) -> String {
+func formattedTimeLong(date: Date) -> String {
     let calendar = Calendar.current
     let today = calendar.startOfDay(for: Date())
     let startOfDay = calendar.startOfDay(for: date)

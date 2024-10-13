@@ -18,72 +18,128 @@ struct ScheduleView: View, UserPreferencesProvider {
     @State private var entries: [Date: [Entry]] = [:]
     @State private var reminders: [Date: [EKReminder]] = [:]
     @State private var events: [Date: [EKEvent]] = [:]
+    @Binding var showCalendar: Bool
 
     // Predefined sizes
     let timeLabelWidth: CGFloat = 70
-    let hourHeight: CGFloat = 90
-    let minDayColumnWidth: CGFloat = 200 // Minimum width for day columns
+    let hourHeight: CGFloat = 120
+    let minDayColumnWidth: CGFloat = 150 // Minimum width for day columns
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 5) {
+                    calendarView()
+                    .padding(.bottom, showCalendar ? 5 : 0)
+                
                 // Schedule View
                 scheduleView()
             }
+            .padding(.horizontal)
+//            .padding(.vertical, 5)
             .background(userPreferences.backgroundView(colorScheme: colorScheme))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    // Weekly calendar view in the navigation bar
-                    ScrollableWeeklyScheduleView(
-                        datesModel: datesModel,
-                        selectionColor: userPreferences.accentColor,
-                        backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(getEntryBackgroundColor()))).opacity(0.05)
-                    )
-                    .environmentObject(userPreferences)
-                    .frame(maxWidth: .infinity)
-                    .onChange(of: datesModel.dates) { dates in
-                        let newSelectedDates = dates.values.filter { $0.isSelected }
-                            .compactMap { Calendar.current.date(from: $0.date) }
-                            .sorted() // Ensure dates are in ascending order
+//            .toolbar {
+//                ToolbarItem(placement: .principal) {
+//                    // Weekly calendar view in the navigation bar
+//                    ScrollableWeeklyScheduleView(
+//                        datesModel: datesModel,
+//                        selectionColor: userPreferences.accentColor,
+//                        backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(getEntryBackgroundColor()))).opacity(0.05)
+//                    )
+//                    .environmentObject(userPreferences)
+//                    .frame(maxWidth: .infinity)
+//                    
+//        
+//                }
+//            }
+            .onAppear {
+                print("SELECTED DATES: \(selectedDates)")
+//                        // Ensure today's date is selected
+//                        if !selectedDates.contains(where: { Calendar.current.isDateInToday($0) }) {
+//                            datesModel.select(date: Date())
+//                        }
 
-                        for date in newSelectedDates {
-                            fetchEntries(for: date)
-                            fetchReminders(for: date)
-                            fetchEvents(for: date)
-                        }
-
-                        // Remove data for dates that are no longer selected
-                        let allDates = Set(entries.keys).union(reminders.keys).union(events.keys)
-                        let deselectedDates = allDates.subtracting(newSelectedDates)
-
-                        for date in deselectedDates {
-                            entries[date] = nil
-                            reminders[date] = nil
-                            events[date] = nil
-                        }
-                    }
-                    .onAppear {
-                        for date in selectedDates {
-                            fetchEntries(for: date)
-                            fetchReminders(for: date)
-                            fetchEvents(for: date)
-                        }
-                    }
+                for date in selectedDates {
+                    fetchEntries(for: date)
+                    fetchReminders(for: date)
+                    fetchEvents(for: date)
                 }
+            }
+
+            .onChange(of: datesModel.dates) { dates in
+                let newSelectedDates = dates.values.filter { $0.isSelected }
+                    .compactMap { Calendar.current.date(from: $0.date) }
+                    .sorted() // Ensure dates are in ascending order
+
+                // Fetch data for newly selected dates
+                for date in newSelectedDates {
+                    fetchEntries(for: date)
+                    fetchReminders(for: date)
+                    fetchEvents(for: date)
+                }
+
+                // Remove data for dates that are no longer selected
+                let allDates = Set(entries.keys).union(reminders.keys).union(events.keys)
+                let deselectedDates = allDates.subtracting(newSelectedDates)
+
+                for date in deselectedDates {
+                    entries[date] = nil
+                    reminders[date] = nil
+                    events[date] = nil
+                }
+                
+                print("SELECTED DATES: \(selectedDates)")
+
             }
         }
     }
 
     // Computed property for selected dates
     private var selectedDates: [Date] {
-        datesModel.dates.values.filter { $0.isSelected }
-            .compactMap { Calendar.current.date(from: $0.date) }
-            .sorted() // Ensure dates are in ascending order
+        Array(Set(datesModel.dates.values.filter { $0.isSelected }
+            .compactMap { Calendar.current.date(from: $0.date)})) // Normalize to start of day
+            .sorted() // Convert back to an array and ensure dates are in ascending order
     }
+
 
     // MARK: - ViewBuilder Functions
 
+    @ViewBuilder
+    func calendarView() -> some View {
+        Section {
+            VStack {
+                if showCalendar {
+                    if userPreferences.calendarPreference == "Weekly" {
+                        ScrollableWeeklyCalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))
+                            .environmentObject(userPreferences)
+                            .padding()
+                    } else {
+                        CalendarView(datesModel: datesModel, selectionColor: userPreferences.accentColor, backgroundColor: Color(UIColor.fontColor(forBackgroundColor: UIColor(entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)))).opacity(0.05))
+                            .environmentObject(userPreferences)
+                            .padding()
+                    }
+                }
+            }
+                .background(getSectionColor(colorScheme: colorScheme).cornerRadius(10))
+        } header: {
+            HStack {
+                Text("CALENDAR").foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
+                Spacer()
+                Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
+                    .contentTransition(.symbolEffect(.replace.offUp))
+            }
+            .padding(.horizontal)
+
+            .onTapGesture {
+                showCalendar.toggle()
+            }
+        }.padding(.top)
+
+        .onAppear {
+            datesModel.addTodayIfNotExists()
+        }
+    }
+    
     @ViewBuilder
     private func scheduleView() -> some View {
         GeometryReader { geometry in
@@ -128,6 +184,43 @@ struct ScheduleView: View, UserPreferencesProvider {
         }
     }
 
+    private func currentTimeIndicator(
+        currentDate: Date,
+        hourHeight: CGFloat,
+        totalWidth: CGFloat
+    ) -> some View {
+        guard selectedDates.contains(where: { Calendar.current.isDateInToday($0) }) else {
+            return AnyView(EmptyView())
+        }
+
+        let xPosition = timeLabelWidth - 65 // Adjust if needed based on actual text width
+        let yPosition = yPositionForCurrentTime(currentDate: currentDate, hourHeight: hourHeight)
+
+        return AnyView(
+            HStack(alignment: .center, spacing: 0) {
+                // Text with rounded rectangle
+                Text(formattedTimeShort(currentDate))
+                    .bold()
+                    .foregroundColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.accentColor))))
+                    .padding(.horizontal, 9) // Horizontal padding for spacing
+                    .padding(.vertical, 4)    // Vertical padding for text
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(userPreferences.accentColor)
+                    )
+                    .fixedSize() // Ensures text and background size naturally
+
+                // Line extending to the right
+                Rectangle()
+                    .fill(userPreferences.accentColor)
+                    .frame(height: 2)
+                    .layoutPriority(1) // Ensures the line extends and takes up the remaining space
+            }
+            .offset(x: xPosition, y: yPosition)
+        )
+    }
+    
+    
     @ViewBuilder
     private func dayColumns(calculatedDayColumnWidth: CGFloat, hourHeight: CGFloat) -> some View {
         ForEach(selectedDates, id: \.self) { date in
@@ -138,6 +231,17 @@ struct ScheduleView: View, UserPreferencesProvider {
             )
         }
     }
+    
+    private func dayColumnHeader(
+        for date: Date,
+        dayColumnWidth: CGFloat) -> some View {
+            Text(formattedDateString(for: date))
+                .font(.caption)
+                .foregroundColor(getIdealHeaderTextColor())
+                .frame(height: 20)
+                .frame(width: dayColumnWidth)
+            
+        }
 
     private func dayColumnView(
         for date: Date,
@@ -145,11 +249,7 @@ struct ScheduleView: View, UserPreferencesProvider {
         hourHeight: CGFloat
     ) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(formattedDateString(for: date))
-                .font(.caption)
-                .foregroundColor(getIdealHeaderTextColor())
-                .frame(height: 20)
-                .frame(width: dayColumnWidth)
+            dayColumnHeader(for: date, dayColumnWidth: dayColumnWidth)
             ZStack(alignment: .topLeading) {
                 VStack(spacing: 0) {
                     ForEach(0..<24) { hour in
@@ -168,6 +268,50 @@ struct ScheduleView: View, UserPreferencesProvider {
             }
         }
         .frame(width: dayColumnWidth, alignment: .leading)
+        .overlay(
+            Rectangle()
+                .fill(Color.gray)
+                .frame(width: 1), // Thickness of the border
+            alignment: .trailing // Position the border on the right edge
+        )
+    }
+    
+   
+
+    private func timelineColumn(hourHeight: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            ForEach(0..<24) { hour in
+                hourRow(hour: hour, hourHeight: hourHeight)
+            }
+            // Add padding at the bottom
+            Rectangle()
+                .fill(Color.clear)
+                .frame(height: hourHeight) // Extra space at the bottom
+        }
+        .frame(width: timeLabelWidth, alignment: .leading)
+    }
+
+    private func hourRow(hour: Int, hourHeight: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            Text(formatHour(hour: hour))
+                .frame(width: timeLabelWidth - 10, alignment: .leading)
+                .padding(.leading, 8)
+                .foregroundColor(getTextColor())
+            Spacer()
+        }
+        .frame(height: hourHeight)
+    }
+
+    private func hourBlock(hour: Int, hourHeight: CGFloat) -> some View {
+        Rectangle()
+            .fill(hour % 2 == 0 ? Color.gray.opacity(0.1) : Color.clear)
+            .frame(height: hourHeight)
+            .overlay(
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(Color.gray),
+                alignment: .top
+            )
     }
 
     private func overlayDetails(
@@ -188,6 +332,54 @@ struct ScheduleView: View, UserPreferencesProvider {
                     )
             }
         }
+    }
+    
+    private func entryRow(entry: Entry) -> some View {
+        HStack {
+            if entry.stampIndex != -1 {
+                Image(systemName: entry.stampIcon)
+                    .foregroundColor(getTextColor(entryBackgroundColor: entry.stampIndex == -1 ?  getEntryBackgroundColor() : Color(entry.color)))
+            }
+
+            Text(entryTitle(for: entry))
+                .font(.caption)
+                .foregroundColor(getTextColor(entryBackgroundColor: entry.stampIndex == -1 ?  getEntryBackgroundColor() : Color(entry.color)))
+        }
+        .padding(3)
+        .background(entry.stampIndex == -1 ? getEntryBackgroundColor() : Color(entry.color))
+        .cornerRadius(8)
+    }
+
+    
+    private func reminderRow(reminder: EKReminder) -> some View {
+        Group {
+            if let dueDate = reminder.dueDateComponents?.date {
+                HStack {
+                    Image(systemName: reminder.isCompleted ? "bell.slash.fill" : "bell.fill")
+                        .foregroundColor(userPreferences.reminderColor)
+                    Text(getName(for: reminder.title))
+                        .font(.caption)
+                        .foregroundColor(getTextColor())
+                    
+                }
+                .padding(3)
+                .background(getEntryBackgroundColor())
+                .cornerRadius(8)
+            }
+        }
+    }
+
+    private func eventRow(event: EKEvent) -> some View {
+        HStack {
+            Image(systemName: "calendar.badge.clock")
+                .foregroundColor(userPreferences.accentColor)
+            Text(getName(for: event.title ?? ""))
+                .font(.caption)
+                .foregroundColor(getTextColor())
+        }
+        .padding(3)
+        .background(getEntryBackgroundColor())
+        .cornerRadius(8)
     }
 
     private func createEventItems(
@@ -362,109 +554,8 @@ struct ScheduleView: View, UserPreferencesProvider {
         return formatter.string(from: date)
     }
 
-    private func entryRow(entry: Entry) -> some View {
-        HStack {
-            if entry.stampIndex != -1 {
-                Image(systemName: entry.stampIcon)
-                    .foregroundColor(Color(entry.color))
-            }
 
-            Text(entryTitle(for: entry))
-                .font(.caption)
-                .foregroundColor(getTextColor())
-        }
-        .padding(3)
-        .background(getEntryBackgroundColor())
-        .cornerRadius(8)
-    }
 
-    private func reminderRow(reminder: EKReminder) -> some View {
-        Group {
-            if let dueDate = reminder.dueDateComponents?.date {
-                HStack {
-                    Image(systemName: "bell.fill")
-                        .foregroundColor(userPreferences.reminderColor)
-                    Text(getName(for: reminder.title))
-                        .font(.caption)
-                        .foregroundColor(getTextColor())
-                }
-                .padding(3)
-                .background(getEntryBackgroundColor())
-                .cornerRadius(8)
-            }
-        }
-    }
-
-    private func eventRow(event: EKEvent) -> some View {
-        HStack {
-            Image(systemName: "calendar.badge.clock")
-                .foregroundColor(userPreferences.accentColor)
-            Text(getName(for: event.title ?? ""))
-                .font(.caption)
-                .foregroundColor(getTextColor())
-        }
-        .padding(3)
-        .background(getEntryBackgroundColor())
-        .cornerRadius(8)
-    }
-
-    private func timelineColumn(hourHeight: CGFloat) -> some View {
-        VStack(spacing: 0) {
-            ForEach(0..<24) { hour in
-                hourRow(hour: hour, hourHeight: hourHeight)
-            }
-            // Add padding at the bottom
-            Rectangle()
-                .fill(Color.clear)
-                .frame(height: hourHeight) // Extra space at the bottom
-        }
-        .frame(width: timeLabelWidth, alignment: .leading)
-    }
-
-    private func hourRow(hour: Int, hourHeight: CGFloat) -> some View {
-        HStack(spacing: 0) {
-            Text(formatHour(hour: hour))
-                .frame(width: timeLabelWidth - 10, alignment: .leading)
-                .padding(.leading, 8)
-                .foregroundColor(getTextColor())
-        }
-        .frame(height: hourHeight)
-    }
-
-    private func hourBlock(hour: Int, hourHeight: CGFloat) -> some View {
-        Rectangle()
-            .fill(hour % 2 == 0 ? Color.gray.opacity(0.1) : Color.clear)
-            .frame(height: hourHeight)
-            .overlay(
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(Color.gray),
-                alignment: .top
-            )
-    }
-
-    private func currentTimeIndicator(
-        currentDate: Date,
-        hourHeight: CGFloat,
-        totalWidth: CGFloat
-    ) -> some View {
-        guard selectedDates.contains(where: { Calendar.current.isDateInToday($0) }) else {
-            return AnyView(EmptyView())
-        }
-
-        let xPosition = timeLabelWidth
-        let indicatorWidth = totalWidth - timeLabelWidth
-
-        return AnyView(
-            Rectangle()
-                .fill(userPreferences.accentColor)
-                .frame(width: indicatorWidth, height: 2)
-                .offset(
-                    x: xPosition,
-                    y: yPositionForCurrentTime(currentDate: currentDate, hourHeight: hourHeight)
-                )
-        )
-    }
 
     // MARK: - Utility Functions
 

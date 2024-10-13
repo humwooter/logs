@@ -209,10 +209,10 @@ struct EntryDetailView: View { //used in LogDetailView
                     Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(getTextColor().opacity(0.5))
                 if let timeLastUpdated = entry.lastUpdated {
-                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                    if formattedTimeLong(date: timeLastUpdated) != formattedTimeLong(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
-                            Text(formattedTime_long(date: timeLastUpdated))
+                            Text(formattedTimeLong(date: timeLastUpdated))
                         }
                         .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
                     }

@@ -144,3 +144,46 @@ class DatesModel: ObservableObject {
            }
        }
 }
+
+
+extension DatesModel {
+    // Method to select a specific date
+    func select(date: Date) {
+        // Convert date to components
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        
+        // Convert date to formatted string
+        let formattedDate = dateFormatter.string(from: calendar.date(from: dateComponents)!)
+        
+        // Check if the date already exists
+        if let logDate = dates[formattedDate] {
+            // If it exists, update isSelected to true
+            dates[formattedDate] = LogDate(date: logDate.date, isSelected: true, hasLog: logDate.hasLog)
+        } else {
+            // If the date doesn't exist, add it as a new LogDate and select it
+            let newLogDate = LogDate(date: dateComponents, isSelected: true)
+            dates[formattedDate] = newLogDate
+        }
+        
+        // Notify observers of the change
+        objectWillChange.send()
+    }
+
+    // Method to deselect a specific date
+    func deselect(date: Date) {
+        // Convert date to components
+        let dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        
+        // Convert date to formatted string
+        let formattedDate = dateFormatter.string(from: calendar.date(from: dateComponents)!)
+        
+        // Check if the date exists and is selected
+        if let logDate = dates[formattedDate], logDate.isSelected {
+            // Deselect the date by updating isSelected to false
+            dates[formattedDate] = LogDate(date: logDate.date, isSelected: false, hasLog: logDate.hasLog)
+        }
+        
+        // Notify observers of the change
+        objectWillChange.send()
+    }
+}

@@ -20,7 +20,7 @@ extension UserPreferencesProvider {
     
     // Shortens a name to a 15-character prefix and adds "..."
     func getName(for name: String) -> String {
-        return name.prefix(25) + "..."
+        return name.prefix(10) + "..."
     }
     
     // Formats hour in short with AM/PM
@@ -77,6 +77,18 @@ extension UserPreferencesProvider {
         let background1 = userPreferences.backgroundColors.first ?? Color.clear
         let background2 = userPreferences.backgroundColors[1]
         let entryBackground = userPreferences.entryBackgroundColor
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme // Assuming this is available in UserPreferences
+        )
+    }
+    
+    func getTextColor(entryBackgroundColor: Color) -> Color {
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        let entryBackground = entryBackgroundColor
         return calculateTextColor(
             basedOn: background1,
             background2: background2,

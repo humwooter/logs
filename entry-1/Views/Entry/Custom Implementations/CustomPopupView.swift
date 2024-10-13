@@ -127,7 +127,8 @@ struct EntryNamePopup: View {
     var body: some View {
         VStack {
             Section {
-                TextField("", text: $entryName, prompt: Text("Enter name")                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5)))                .font(.customHeadline)
+                TextField("", text: $entryName, prompt: Text("Enter name")                   
+                    .foregroundStyle(getIdealTextColor(userPreferences: userPreferences, colorScheme: colorScheme).opacity(0.5)))                .font(.customHeadline)
 
                     .textFieldStyle(PlainTextFieldStyle())
                     .frame(maxWidth: .infinity)
@@ -140,7 +141,7 @@ struct EntryNamePopup: View {
     }
 }
 
-struct DateEditPopupView: View {
+struct DateEditPopupView: View, UserPreferencesProvider {
     @Binding var selectedDate: Date
     @EnvironmentObject var userPreferences: UserPreferences
     @Environment(\.colorScheme) var colorScheme
@@ -149,7 +150,7 @@ struct DateEditPopupView: View {
         List {
             DatePicker("Entry Date", selection: $selectedDate)
                 .accentColor(userPreferences.accentColor)
-                .listRowBackground(getSectionColor())
+                .listRowBackground(getSectionColor(colorScheme: colorScheme))
                 .foregroundStyle(getTextColor())
                 .datePickerStyle(.compact)
                 .font(.customHeadline)
@@ -160,30 +161,9 @@ struct DateEditPopupView: View {
        
 
     }
-    
-    func getTextColor() -> Color {
-        let background1 = userPreferences.backgroundColors.first ?? Color.clear
-        let background2 = userPreferences.backgroundColors[1]
-        let entryBackground = getSectionColor()
-        
-        return calculateTextColor(
-            basedOn: background1,
-            background2: background2,
-            entryBackground: entryBackground,
-            colorScheme: colorScheme
-        )
-
-    }
-    
-    func getSectionColor() -> Color {
-        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
-            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-        }
-        return userPreferences.entryBackgroundColor
-    }
 }
 
-struct ReminderPopupView: View {
+struct ReminderPopupView: View, UserPreferencesProvider {
     @Binding var isPresented: Bool
     @Binding var reminderTitle: String
     @Binding var selectedReminderDate: Date
@@ -203,7 +183,7 @@ struct ReminderPopupView: View {
         if reminderManager.hasReminderAccess {
             List {
                 reminderSections()
-                    .listRowBackground(getSectionColor())
+                    .listRowBackground(getSectionColor(colorScheme: colorScheme))
                     .foregroundStyle(getTextColor())
             }
             .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
@@ -246,12 +226,14 @@ struct ReminderPopupView: View {
             DatePicker("Date", selection: $selectedReminderDate, displayedComponents: .date)
             DatePicker("Time", selection: $selectedReminderTime, displayedComponents: .hourAndMinute)
 
+        } header: {
+            Text("Due Date")
         }
         .accentColor(userPreferences.accentColor)
         .foregroundStyle(getTextColor())
 
       
-                Picker("Recurrence", selection: $reminderManager.selectedRecurrence) {
+                Picker("Repeat", selection: $selectedRecurrence) {
                     ForEach(reminderManager.recurrenceOptions, id: \.self) { option in
                         Text(option).tag(option)
                             .foregroundStyle(getTextColor())
@@ -292,25 +274,132 @@ struct ReminderPopupView: View {
             }
         }
     }
+}
 
-    func getSectionColor() -> Color {
-        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
-            return getDefaultEntryBackgroundColor(colorScheme: colorScheme)
+
+
+struct EventPopupView: View, UserPreferencesProvider {
+    @Binding var isPresented: Bool
+    @Binding var eventTitle: String
+    @Binding var selectedEventStartDate: Date
+    @Binding var selectedEventEndDate: Date
+    @Binding var eventNotes: String
+
+    @Binding var eventId: String?
+    @Binding var showingEventSheet: Bool
+    @Binding var showDeleteEventAlert: Bool
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var userPreferences: UserPreferences
+
+    @ObservedObject var eventManager: EventManager
+
+    var body: some View {
+        if eventManager.hasEventAccess {
+            List {
+                eventSections()
+                    .listRowBackground(getSectionColor(colorScheme: colorScheme))
+                    .foregroundStyle(getTextColor())
+            }
+            .alert("Are you sure you want to delete this event?", isPresented: $showDeleteEventAlert) {
+                Button("Delete", role: .destructive) {
+                    if let eventId = eventId {
+                        eventManager.deleteEvent(eventId: eventId) { result in
+                            switch result {
+                            case .success:
+                                print("Event deleted successfully.")
+                            case .failure(let error):
+                                print("Failed to delete event: \(error)")
+                            }
+                        }
+                    }
+                    showingEventSheet = false
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This action cannot be undone.")
+            }
+            .scrollContentBackground(.hidden)
+            .font(.customHeadline)
+            .padding()
+        } else {
+            Text("Event Permissions Disabled")
+                .foregroundColor(.gray)
         }
-        return userPreferences.entryBackgroundColor
     }
 
-    func getTextColor() -> Color {
-        let background1 = userPreferences.backgroundColors.first ?? Color.clear
-        let background2 = userPreferences.backgroundColors[1]
-        let entryBackground = userPreferences.entryBackgroundColor
+    @ViewBuilder
+    func eventSections() -> some View {
+        Section {
+            TextField("Title", text: $eventTitle, prompt: Text("Enter event name")
+                .foregroundStyle(getTextColor().opacity(0.5)))
+                .textFieldStyle(PlainTextFieldStyle())
+                .frame(maxWidth: .infinity)
+        }
+        .foregroundStyle(getTextColor())
 
-        return calculateTextColor(
-            basedOn: background1,
-            background2: background2,
-            entryBackground: entryBackground,
-            colorScheme: colorScheme
-        )
+        Section {
+            DatePicker("Start", selection: $selectedEventStartDate, displayedComponents: [.date, .hourAndMinute])
+            DatePicker("End", selection: $selectedEventEndDate, displayedComponents: [.date, .hourAndMinute])
+        } header: {
+            Text("Event Time")
+        }
+        .accentColor(userPreferences.accentColor)
+        .foregroundStyle(getTextColor())
+
+        Section {
+            TextEditor(text: $eventNotes)
+                .frame(height: 100)
+        } header: {
+            Text("Notes")
+        }
+        .foregroundStyle(getTextColor())
+
+        if eventManager.eventExists(with: eventId ?? "") {
+            Section {
+                Button {
+                    if let eventId = self.eventId, !eventId.isEmpty {
+                        eventManager.createOrUpdateEvent(eventId: eventId, title: eventTitle, startDate: selectedEventStartDate, endDate: selectedEventEndDate, notes: eventNotes) { result in
+                            switch result {
+                            case .success:
+                                print("Event updated successfully.")
+                                self.eventId = ""
+                            case .failure(let error):
+                                print("Failed to update the event: \(error)")
+                            }
+                        }
+                        showingEventSheet = false
+                    }
+                } label: {
+                    Label("Update", systemImage: "arrow.clockwise")
+                        .foregroundColor(.blue)
+                }
+                
+                Button {
+                    showDeleteEventAlert = true
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .foregroundColor(.red)
+                }
+            }
+        } else {
+            Section {
+                Button {
+                    eventManager.createOrUpdateEvent(title: eventTitle, startDate: selectedEventStartDate, endDate: selectedEventEndDate, notes: eventNotes) { result in
+                        switch result {
+                        case .success(let newEventId):
+                            print("Event created successfully with ID: \(newEventId)")
+                            self.eventId = newEventId
+                        case .failure(let error):
+                            print("Failed to create the event: \(error)")
+                        }
+                    }
+                    showingEventSheet = false
+                } label: {
+                    Label("Create Event", systemImage: "plus.circle")
+                        .foregroundColor(.green)
+                }
+            }
+        }
     }
 }
 

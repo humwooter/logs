@@ -14,7 +14,7 @@ struct RemindersView: View {
     ) var entries: FetchedResults<Entry>
     @Environment(\.colorScheme) var colorScheme
 
-    @State private var reminders: [EKReminder] = []
+    @State private var reminders: [String: EKReminder] = [:]
     private let eventStore = EKEventStore()
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -22,82 +22,81 @@ struct RemindersView: View {
     @ObservedObject var reminderManager = ReminderManager()
 
     var body: some View {
-            List {
-                ForEach(reminders.filter {$0.isCompleted == false}, id: \.calendarItemIdentifier) { reminder in
-                    if let entry = entries.first(where: { $0.reminderId == reminder.calendarItemIdentifier }) {
-                        if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                            Section {
-                                reminderView(reminder: reminder, entry: entry)
-                            }
-                            .listRowBackground( UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
-                            .swipeActions(edge: .leading) {
-                                if let reminderId = entry.reminderId {
-                                    Button(action: {
-                                        completeReminder(reminderId: reminderId) { success, error in
-                                            if success {
-                                                print("Reminder marked as completed.")
-                                                if !reminder.hasRecurrenceRules {
-                                                    entry.reminderId = ""
-                                                } else {
-                                                    reminder.isCompleted = true
-                                                }
-                                                do {
-                                                    try coreDataManager.viewContext.save()
-                                                } catch {
-                                                    
-                                                }
-                                                // Optionally, update the UI or refresh the list to reflect the completion.
-                                            } else if let error = error {
-                                                print("Failed to complete the reminder: \(error.localizedDescription)")
+        List {
+            ForEach(reminders.values.filter { !$0.isCompleted }, id: \.calendarItemIdentifier) { reminder in
+                if let entry = entries.first(where: { $0.reminderId == reminder.calendarItemIdentifier }) {
+                    if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                        Section {
+                            reminderView(reminder: reminder, entry: entry)
+                        }
+                        .listRowBackground(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
+                        .swipeActions(edge: .leading) {
+                            if let reminderId = entry.reminderId {
+                                Button(action: {
+                                    completeReminder(reminderId: reminderId) { success, error in
+                                        if success {
+                                            print("Reminder marked as completed.")
+                                            if !reminder.hasRecurrenceRules {
+                                                entry.reminderId = ""
                                             } else {
-                                                print("Reminder not found or another issue occurred.")
-                                            }
-                                        }                                    }) {
-                                        Label("Complete", systemImage: "checkmark.circle.fill")
-                                    }
-                                        .tint(userPreferences.accentColor)
-                                }
-                            }
-       
+                                                reminder.isCompleted = true
+                                                if let updatedReminder = fetchReminder(with: reminderId) { reminders[reminderId] = updatedReminder } // Update the UI to reflect the completion.
 
-                            .onAppear {
-                                if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                                    if !reminderExists(with: reminderId) {
-                                        entry.reminderId = ""
-                                    } else {
-                                        reminderIsComplete(reminderId: reminderId) { isCompleted in
-                                            DispatchQueue.main.async {
-                                                if isCompleted {
-                                                    entry.reminderId = ""
-                                                } else {
-                                                    print("The reminder is not completed or does not exist.")
-                                                }
+                                            }
+                                            do {
+                                                try coreDataManager.viewContext.save()
+                                            } catch {
+                                                print("Failed to save viewContext: \(error)")
+                                            }
+                                        } else if let error = error {
+                                            print("Failed to complete the reminder: \(error.localizedDescription)")
+                                        } else {
+                                            print("Reminder not found or another issue occurred.")
+                                        }
+                                    }
+                                }) {
+                                    Label("Complete", systemImage: "checkmark.circle.fill")
+                                }
+                                .tint(userPreferences.accentColor)
+                            }
+                        }
+                        .onAppear {
+                            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+                                if !reminderExists(with: reminderId) {
+                                    entry.reminderId = ""
+                                } else {
+                                    reminderIsComplete(reminderId: reminderId) { isCompleted in
+                                        DispatchQueue.main.async {
+                                            if isCompleted {
+                                                entry.reminderId = ""
+                                            } else {
+                                                print("The reminder is not completed or does not exist.")
                                             }
                                         }
-                                        do {
-                                            try coreDataManager.viewContext.save()
-                                        } catch {
-                                            print("Failed to save viewContext: \(error)")
-                                        }
+                                    }
+                                    do {
+                                        try coreDataManager.viewContext.save()
+                                    } catch {
+                                        print("Failed to save viewContext: \(error)")
                                     }
                                 }
                             }
                         }
                     }
                 }
-                .onDelete { indexSet in
-                     deleteReminders(from: indexSet, reminders: reminders)
-                 }
             }
-            
-            .scrollContentBackground(.hidden)
-            .onAppear(perform: loadReminders)
-            .navigationTitle("Reminders")
+            .onDelete { indexSet in
+                deleteReminders(from: indexSet, reminders: reminders)
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .onAppear(perform: loadReminders)
+        .navigationTitle("Reminders")
     }
-    
-    func deleteReminders(from indexSet: IndexSet, reminders: [EKReminder]) {
+
+    func deleteReminders(from indexSet: IndexSet, reminders: [String: EKReminder]) {
         indexSet.forEach { index in
-            let reminder = reminders[index]
+            let reminder = Array(reminders.values)[index]
             
             // Delete the reminder from the EventStore
             reminderManager.deleteReminder(reminder: reminder)
@@ -118,28 +117,17 @@ struct RemindersView: View {
         }
     }
 
-
-//    private func loadReminders() {
-//        reminders = entries.compactMap { entry in
-//            guard let reminderId = entry.reminderId else { return nil }
-//            return fetchReminder(with: reminderId)
-//        }
-//        reminders.sort { ($0.dueDateComponents?.date ?? Date()) < ($1.dueDateComponents?.date ?? Date()) }
-//    }
+    private func loadReminders() {
+        reminders = Dictionary(uniqueKeysWithValues: entries.compactMap { entry in
+            guard let reminderId = entry.reminderId, let reminder = fetchReminder(with: reminderId) else { return nil }
+            return (reminderId, reminder)
+        })
+    }
 
     private func fetchReminder(with identifier: String) -> EKReminder? {
         eventStore.calendarItem(withIdentifier: identifier) as? EKReminder
     }
-    
-    private func formattedDueDate(_ date: Date) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .short
-        return dateFormatter.string(from: date)
-    }
-    
 
-    
     @ViewBuilder
     private func reminderView(reminder: EKReminder, entry: Entry) -> some View {
         HStack(alignment: .center) {
@@ -189,7 +177,6 @@ struct RemindersView: View {
                     Text(daysUntilDue < 0 ? "days overdue" : "days left")
                         .font(.caption)
                         .foregroundColor(daysUntilDue < 0 ? .red : userPreferences.reminderColor)
-
                 }
             } else {
                 VStack {
@@ -205,80 +192,6 @@ struct RemindersView: View {
         .padding()
     }
 
-    private func overdueInformation(for date: Date?) -> String {
-        guard let date = date else {
-            return "No due date"
-        }
-        let currentDate = Date()
-        let calendar = Calendar.current
-
-        if currentDate > date {
-            let daysOverdue = calendar.dateComponents([.day], from: date, to: currentDate).day ?? 0
-            return daysOverdue == 0 ? "Overdue today" : "\(daysOverdue) day(s) overdue"
-        } else {
-            let daysUntilDue = calendar.dateComponents([.day], from: currentDate, to: date).day ?? 0
-            return daysUntilDue == 0 ? "Due today" : "Due in \(daysUntilDue) day(s)"
-        }
-    }
-
-
-
-//    @ViewBuilder
-//    private func reminderView(reminder: EKReminder, entry: Entry) -> some View {
-//        VStack(alignment: .leading, spacing: 10) {
-//            // Reminder Title and Date
-//            HStack {
-//                VStack(alignment: .leading, spacing: 10) {
-//                    HStack {
-//                        Text(reminder.title ?? "Untitled Reminder")
-//                            .font(.custom(userPreferences.fontName, size: userPreferences.fontSize)).bold()
-//                            .foregroundColor(getTextColor(entry: entry))
-//                        Spacer()
-//                        if reminder.isCompleted {
-//                            Image(systemName: "checkmark.circle.fill")
-//                                .foregroundColor(.green)
-//                                .font(.caption)
-//                        }
-//                    }
-//                    
-//                    if let dueDate = reminder.dueDateComponents?.date {
-//                        Text("Due: \(dueDate, style: .date) \(dueDate, style: .time)")
-//                            .font(.customHeadline)
-//                            .foregroundColor(getTextColor(entry: entry).opacity(0.3))
-//                    }
-//                    
-//                    // Display recurrence information
-//                    if let recurrenceRule = reminder.recurrenceRules?.first {
-//                                        HStack {
-//                                            Image(systemName: "repeat")
-//                                            Text("\(mapRecurrenceRuleToString(recurrenceRule))")
-//                                            Spacer()
-//                                        }
-//                                                .foregroundStyle(userPreferences.accentColor)
-//                                                .font(.sectionHeaderSize)
-//                                    }
-//                
-//                }
-//            }
-//
-//            .padding(.top, 5)
-//        }
-//        .padding()
-//    }
-    
-    private func loadReminders() {
-        reminders = entries.compactMap { entry in
-            guard let reminderId = entry.reminderId else { return nil }
-            return fetchReminder(with: reminderId)
-        }
-        reminders.sort { firstReminder, secondReminder in
-            let firstDaysUntilDue = daysUntilDueDate(firstReminder.dueDateComponents?.date)
-            let secondDaysUntilDue = daysUntilDueDate(secondReminder.dueDateComponents?.date)
-            return firstDaysUntilDue < secondDaysUntilDue
-        }
-    }
-
-    
     private func daysUntilDueDate(_ date: Date?) -> Int {
         guard let date = date else {
             // If there's no due date, we can assign a high number to sort it at the end
@@ -291,8 +204,6 @@ struct RemindersView: View {
         let components = calendar.dateComponents([.day], from: startOfCurrentDate, to: startOfDueDate)
         return components.day ?? 0
     }
-
-
 
     private func mapRecurrenceRuleToString(_ rule: EKRecurrenceRule) -> String {
         switch rule.frequency {
@@ -307,15 +218,6 @@ struct RemindersView: View {
             return "Monthly"
         default:
             return "Custom"
-        }
-    }
-    
-    // Original functions for color handling
-    func getSectionColor(colorScheme: ColorScheme) -> Color {
-        if isClear(for: UIColor(userPreferences.entryBackgroundColor)) {
-            return entry_1.getDefaultEntryBackgroundColor(colorScheme: colorScheme)
-        } else {
-            return userPreferences.entryBackgroundColor
         }
     }
 
@@ -334,9 +236,5 @@ struct RemindersView: View {
             entryBackground: entryBackground,
             colorScheme: colorScheme
         )
-    }
-
-    func getIdealHeaderTextColor() -> Color {
-        return Color(UIColor.fontColor(forBackgroundColor: UIColor.averageColor(of: UIColor(userPreferences.backgroundColors.first ?? Color.clear), and: UIColor(userPreferences.backgroundColors[1])), colorScheme: colorScheme))
     }
 }

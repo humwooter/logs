@@ -332,7 +332,8 @@ struct NewEntryView: View {
                 showingReminderSheet = true
 
             } label: {
-                Label("Set Reminder", systemImage: "bell.fill")
+                Label(!reminderManager.reminderExists(with: reminderId ?? "") ? "Add Reminder" :
+                        "Edit Reminder", systemImage: "bell.fill")
             }
             
             Button {

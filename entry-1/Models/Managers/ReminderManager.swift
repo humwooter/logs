@@ -203,10 +203,11 @@ class ReminderManager: ObservableObject {
 
             let filteredReminders = reminders.filter { reminder in
                 guard let dueDate = reminder.dueDateComponents?.date else { return false }
+                print("DUE DATE: \(dueDate)")
                 return (dueDate >= startDate && dueDate < endDate)
             }
 
-            completion(.success(filteredReminders))
+            completion(.success(reminders))
         }
     }
 

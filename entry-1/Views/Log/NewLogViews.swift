@@ -230,8 +230,8 @@ struct LogsView: View {
                             }
                         }
             case .schedule:
-                ScheduleView()
-                    .environmentObject(coreDataManager)
+                ScheduleView(showCalendar: $showCalendar)
+                    .environmentObject(userPreferences)
                     .environmentObject(userPreferences)
             }
         }

@@ -73,7 +73,7 @@ struct ScrollableWeeklyCalendarView: View {
 
     private func weekViewContainer() -> some View {
         VStack {
-            weekdayHeaderView().padding(.bottom)
+            weekdayHeaderView()
             LazyVGrid(columns: columns, spacing: 5) {
                 ForEach(0..<7) { dayOffset in
                     if let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: weekStart(for: currentPage)) {
@@ -196,8 +196,6 @@ extension Calendar {
     }
 }
 
-
-
 struct ScrollableWeeklyScheduleView: View {
     @ObservedObject var datesModel: DatesModel
     let selectionColor: Color
@@ -211,18 +209,20 @@ struct ScrollableWeeklyScheduleView: View {
 
     let dateStringManager = DateStrings()
 
-    let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7) // 7 columns with spacing
+    let columns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
 
     var body: some View {
         VStack {
             weekViewContainer()
         }
         .frame(maxWidth: .infinity, alignment: .center)
+//        .onAppear {
+//            selectCurrentDayIfNeeded()
+//        }
     }
 
     private func weekViewContainer() -> some View {
         VStack {
-//            weekdayHeaderView().padding(.bottom)
             LazyVGrid(columns: columns) {
                 ForEach(0..<7) { dayOffset in
                     if let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: weekStart(for: currentPage)) {
@@ -255,17 +255,6 @@ struct ScrollableWeeklyScheduleView: View {
         }
     }
 
-    private func weekdayHeaderView() -> some View {
-        LazyVGrid(columns: columns) {
-            ForEach(["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"], id: \.self) { day in
-                Text(day)
-                    .font(.customHeadline)
-                    .frame(maxWidth: .infinity)
-                    .foregroundStyle(getTextColor().opacity(0.3))
-            }
-        }
-    }
-
     @ViewBuilder
     private func dayButton(_ day: DateComponents, isSelected: Bool, formattedDate: String) -> some View {
         let monthDates = dateStringManager.dates(forMonthYear: dateStringManager.monthYear(from: formattedDate)!)
@@ -281,7 +270,6 @@ struct ScrollableWeeklyScheduleView: View {
                 .strokeBorder(unselectedColor.opacity(0.6), lineWidth: 1)
         }
         .clipShape(Circle())
-        
         .foregroundStyle(isSelected ? Color(UIColor.fontColor(forBackgroundColor: UIColor(selectionColor))) : getTextColor())
         .onTapGesture {
             if datesModel.doesDateExist(dayDate: day) {
@@ -296,7 +284,16 @@ struct ScrollableWeeklyScheduleView: View {
          let calendar = Calendar.current
          let currentWeekStart = calendar.startOfWeek(for: Date())
          return calendar.date(byAdding: .weekOfYear, value: pageOffset, to: currentWeekStart)!
-     }
+    }
+
+//    private func selectCurrentDayIfNeeded() {
+//        let today = Date()
+//        let todayComponents = Calendar.current.dateComponents([.year, .month, .day], from: today)
+//        
+//        if !datesModel.isDateSelected(today) {
+//            datesModel.addDate(dayDate: todayComponents, isSelected: true)
+//        }
+//    }
 
     func getTextColor() -> Color {
         let background1 = userPreferences.backgroundColors.first ?? Color.clear
@@ -311,4 +308,3 @@ struct ScrollableWeeklyScheduleView: View {
         )
     }
 }
-

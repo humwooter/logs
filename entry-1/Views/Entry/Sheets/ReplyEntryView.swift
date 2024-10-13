@@ -533,7 +533,8 @@ struct ReplyEntryView: View {
                 showingReminderSheet = true
 
             } label: {
-                Label("Set Reminder", systemImage: "bell.fill")
+                Label(!reminderManager.reminderExists(with: reminderId ?? "") ? "Add Reminder" :
+                        "Edit Reminder", systemImage: "bell.fill")
             }
             
             Button {
@@ -765,10 +766,10 @@ struct ReplyEntryView: View {
                 Text("\(entry.isPinned && formattedDate(entry.time) != formattedDate(Date()) ? formattedDateShort(from: entry.time) : formattedTime(time: entry.time))")
                 .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                 if let timeLastUpdated = entry.lastUpdated {
-                    if formattedTime_long(date: timeLastUpdated) != formattedTime_long(date: entry.time), userPreferences.showMostRecentEntryTime {
+                    if formattedTimeLong(date: timeLastUpdated) != formattedTimeLong(date: entry.time), userPreferences.showMostRecentEntryTime {
                         HStack {
                             Image(systemName: "arrow.right")
-                            Text(formattedTime_long(date: timeLastUpdated))
+                            Text(formattedTimeLong(date: timeLastUpdated))
                         }
                         .foregroundStyle(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.label)))).opacity(0.4)
                     }
