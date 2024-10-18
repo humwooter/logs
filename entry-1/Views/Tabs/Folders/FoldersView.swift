@@ -223,7 +223,7 @@ struct FoldersView: View {
 
     private func deleteFolderPermanently(folder: Folder) {
         markEntriesAsRemoved(for: folder)
-//        coreDataManager.removeFolder(folder: folder, context: coreDataManager.viewContext)
+        coreDataManager.removeFolder(folder: folder, context: coreDataManager.viewContext)
     }
 
     private func markEntriesAsRemoved(for folder: Folder) {

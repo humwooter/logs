@@ -165,6 +165,11 @@ struct NewEntryView: View, EntryCreationProvider {
                             vibration_heavy.impactOccurred()
                             
                             finalizeCreation()
+                            if let reminderId = reminderId, !reminderId.isEmpty {
+                                createOrUpdateReminder()                            }
+                            if let eventId = eventId, !eventId.isEmpty {
+                                saveEvent()
+                            }
                             presentationMode.wrappedValue.dismiss()
                             focusField = false
                             keyboardHeight = 0
@@ -346,6 +351,7 @@ struct NewEntryView: View, EntryCreationProvider {
             case .success(let savedReminderId):
                 self.reminderId = savedReminderId
                 print("Reminder saved with ID: \(savedReminderId)")
+                self.reminderId = savedReminderId
                 // Optionally, update any related data here
             case .failure(let error):
                 print("Failed to save reminder: \(error)")
@@ -412,33 +418,6 @@ struct NewEntryView: View, EntryCreationProvider {
                         Label("Edit Date", systemImage: "calendar")
                     }
                 }
-            }
-
-            // Menu for Event and Reminder Management
-            Menu("Manage Events & Reminders") {
-                ControlGroup {
-                    // Add/Edit Event
-                    Button {
-                        showingEventSheet = true
-                    } label: {
-                        if let eventId = eventId, !eventId.isEmpty {
-                            Label(eventId.isEmpty ? "Add Event" :
-                                    "Edit Event", systemImage: "calendar.badge.clock")
-                        }
-                    }
-
-                    // Add/Edit Reminder
-                    Button {
-                        showingReminderSheet = true
-                    } label: {
-                        Label(self.reminderId?.isEmpty == true ? "Add Reminder" :
-                                "Edit Reminder", systemImage: "bell.fill")
-                    }
-                }
-            }
-
-            // Menu for Tag and Folder Management
-            Menu("Manage Tags & Folders") {
                 ControlGroup {
                     // Add Tag
                     Button {
@@ -455,6 +434,46 @@ struct NewEntryView: View, EntryCreationProvider {
                     }
                 }
             }
+
+            // Menu for Event and Reminder Management
+            Menu("Manage Events & Reminders") {
+                ControlGroup {
+                    // Add/Edit Event
+                    Button {
+                        showingEventSheet = true
+                    } label: {
+                            Label(eventId?.isEmpty == true ? "Add Event" :
+                                    "Edit Event", systemImage: "calendar.badge.clock")
+                    }
+
+                    // Add/Edit Reminder
+                    Button {
+                        showingReminderSheet = true
+                    } label: {
+                        Label(self.reminderId?.isEmpty == true ? "Add Reminder" :
+                                "Edit Reminder", systemImage: "bell.fill")
+                    }
+                }
+            }
+
+            // Menu for Tag and Folder Management
+//            Menu("Manage Tags & Folders") {
+//                ControlGroup {
+//                    // Add Tag
+//                    Button {
+//                        showTagSelection = true
+//                    } label: {
+//                        Label("Add tag", systemImage: "number")
+//                    }
+//
+//                    // Add to Folder
+//                    Button {
+//                        showFolderSelection = true
+//                    } label: {
+//                        Label("Add to folder", systemImage: "folder.fill")
+//                    }
+//                }
+//            }
 
         }
         .font(.customHeadline)

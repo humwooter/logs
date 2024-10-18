@@ -66,31 +66,11 @@ struct IconPicker: View {
 
         } header:{
             HStack {
-//                if isEditingStampName {
-//                    TextField("Stamp Name", text: $buttonName, prompt:
-//                                Text( "Enter Stamp Name").foregroundStyle(accentColor))
-//                        .focused($focusField)
-//
-//                    Spacer()
-//                    Image(systemName: "checkmark").foregroundStyle(.green)
-//                        .onTapGesture {
-//                            withAnimation {
-//                                isEditingStampName = false
-//                            }
-//                        }
-//                } else {
-//                    if buttonName.isEmpty {
                         Text("Stamp \(buttonIndex + 1)")
                     .foregroundStyle(foregroundStyle.opacity(0.5))
-//                    } else {
-//                        Text(buttonName)
-//                    }
+
                     Spacer()
-//                    Image(systemName: "pencil").foregroundStyle(accentColor)
-//                        .onTapGesture {
-//                            isEditingStampName.toggle()
-//                        }
-//                }
+
             }
             .font(.customHeadline)
         }
@@ -191,7 +171,8 @@ struct FontPicker: View {
     @Binding var accentColor: Color
     var inputCategories: [String: [String]]
     @State private var searchText = ""
-    
+    @Environment(\.presentationMode) var presentationMode
+
     @Binding var topColor_background: Color
     @Binding var bottomColor_background: Color
     @State var defaultTopColor: Color
@@ -211,55 +192,135 @@ struct FontPicker: View {
             Slider(value: $selectedFontSize, in: 5...30, step: 0.5, label: { Text("Font Size") })
         }
     }
-    
     func fontListView() -> some View {
-        List {
-            ForEach(inputCategories.keys.sorted(), id: \.self) { category in
-                let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }
-                if (!filteredFonts.isEmpty) {
+        NavigationStack {
+            ScrollView {
+                ForEach(inputCategories.keys.sorted(), id: \.self) { category in
+                    let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }
                     
-                    Section(header: Text(category).bold().foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)) {
-                        ForEach(filteredFonts, id: \.self) { font in
-                            
-                            HStack {
-                                Text(font)
-                                    .font(Font.custom(font, size: selectedFontSize))
-                                Spacer()
-                                if selectedFont == font {
-                                    Image(systemName: "checkmark").foregroundColor(accentColor)
-                                }
-                                
-                                
-                            }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                if (selectedFont != font) {
-                                    vibration_medium.prepare()
-                                    vibration_medium.impactOccurred()
-                                    self.selectedFont = font
-//                                    self.presentationMode.wrappedValue.dismiss()
-                                }
+                    if !filteredFonts.isEmpty {
+                        // Display the category header
+                        Text(category)
+                            .bold()
+                            .font(.headline)
+                            .padding(.top, 10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 10) // Left padding for alignment
+                            .foregroundStyle(
+                                Color(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray)))
+                                    .opacity(0.4)
+                            )
+                        
+                        // Display fonts for the category
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                            ForEach(filteredFonts, id: \.self) { font in
+                                fontRowView(font: font)
                             }
                         }
+                        .padding(.horizontal, 10) // Horizontal padding for the entire grid
                     }
                 }
             }
-            .accentColor(accentColor)
-
-        }
-        .background {
+            .background {
                 ZStack {
                     Color(UIColor.systemGroupedBackground)
-                    LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
+                    LinearGradient(colors: [topColor_background, bottomColor_background], startPoint: .top, endPoint: .bottom)
                         .ignoresSafeArea()
                 }
+            }
+            .scrollContentBackground(.hidden)
+            .navigationTitle("Font Picker")
+            .searchable(text: $searchText)
+            .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
         }
-        .scrollContentBackground(.hidden)
-        .navigationTitle("Font Type")
-        .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
-        .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
     }
-    
+
+    @ViewBuilder
+    func fontRowView(font: String) -> some View {
+        HStack {
+            Text(font)
+                .font(Font.custom(font, size: selectedFontSize))
+            Spacer()
+            if selectedFont == font {
+                Image(systemName: "checkmark").foregroundColor(accentColor)
+            }
+        }
+        .contentShape(Rectangle())
+        .padding()
+        .background(
+            Color(UIColor.systemGroupedBackground)
+                .cornerRadius(8)
+        )
+        .onTapGesture {
+            if selectedFont != font {
+                vibration_medium.prepare()
+                vibration_medium.impactOccurred()
+                self.selectedFont = font
+            }
+        }
+    }
+
+//    func fontListView() -> some View {
+//        NavigationStack {
+//            List {
+//                ForEach(inputCategories.keys.sorted(), id: \.self) { category in
+//                    let filteredFonts = inputCategories[category]!.filter { searchText.isEmpty ? true : $0.lowercased().contains(searchText.lowercased()) }
+//                    if (!filteredFonts.isEmpty) {
+//                        
+//                        Section(header: Text(category).bold().foregroundStyle(UIColor.foregroundColor(background: UIColor(topColor_background ?? Color.gray))).opacity(0.4)) {
+//                            ForEach(filteredFonts, id: \.self) { font in
+//                                
+//                                HStack {
+//                                    Text(font)
+//                                        .font(Font.custom(font, size: selectedFontSize))
+//                                    Spacer()
+//                                    if selectedFont == font {
+//                                        Image(systemName: "checkmark").foregroundColor(accentColor)
+//                                    }
+//                                    
+//                                    
+//                                }
+//                                .contentShape(Rectangle())
+//                                .onTapGesture {
+//                                    if (selectedFont != font) {
+//                                        vibration_medium.prepare()
+//                                        vibration_medium.impactOccurred()
+//                                        self.selectedFont = font
+//                                        //                                    self.presentationMode.wrappedValue.dismiss()
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//                
+//            }
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarLeading) {
+//                    Button {
+//                        vibration_heavy.impactOccurred()
+//                        presentationMode.wrappedValue.dismiss()
+//                    } label: {
+//                        Image(systemName: "chevron.left")
+//                            .font(.customHeadline)
+//                    }
+//                }
+//                
+//            }
+//            .accentColor(accentColor)
+//            .background {
+//                ZStack {
+//                    Color(UIColor.systemGroupedBackground)
+//                    LinearGradient(colors: [topColor_background, bottomColor_background],  startPoint: .top, endPoint: .bottom)
+//                        .ignoresSafeArea()
+//                }
+//            }
+//            .scrollContentBackground(.hidden)
+//            .navigationTitle("Font Type")
+//            .searchable(text: $searchText).font(.system(size: UIFont.systemFontSize))
+//            .searchBarTextColor(isClear(for: UIColor(topColor_background)) ? defaultTopColor : topColor_background)
+//        }
+//    }
 }
 
 

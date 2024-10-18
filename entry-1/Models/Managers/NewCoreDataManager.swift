@@ -40,6 +40,27 @@ final class CoreDataManager: ObservableObject {
     
   }()
     
+    
+    func removeFolder(folder: Folder, context: NSManagedObjectContext) {
+        do {
+            folder.isRemoved = true
+            try context.save()
+        } catch {
+            print("Failed to delete folder: \(error)")
+        }
+    }
+    
+    
+    func deleteFolder(folder: Folder, context: NSManagedObjectContext) {
+        context.performAndWait {
+            context.delete(folder)
+            do {
+                try context.save()
+            } catch {
+                print("Failed to delete folder: \(error)")
+            }
+        }
+    }
 
 
     func save(context: NSManagedObjectContext) {

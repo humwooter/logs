@@ -78,10 +78,14 @@ struct ThemeSheet: View {
                 EditUserThemeView(userTheme: $selectedTheme)
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
+                    .accentColor(userPreferences.accentColor)
+
             }
             .sheet(isPresented: $editCurrentTheme) {
                 CurrentThemeEditView()
                     .environmentObject(userPreferences)
+                    .accentColor(userPreferences.accentColor)
+
             }
             .fileImporter(
                 isPresented: $showDocumentPicker,

@@ -118,7 +118,6 @@ struct CurrentThemeEditView: View {
             
             ColorPicker("Accent Color", selection: $accentColor)
             FontPicker(selectedFont:  $fontName, selectedFontSize: $fontSize, accentColor: $accentColor, inputCategories: fontCategories, topColor_background: $backgroundColor_top, bottomColor_background: $backgroundColor_bottom, defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme))
-                .foregroundStyle(accentColor)
             HStack {
                 Text("Line Spacing")
                 Slider(value: $lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })
