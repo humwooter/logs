@@ -45,7 +45,8 @@ struct EditingEntryView: View {
     @State private var previousMediaData: Data?
     @State var imageHeight: CGFloat = 0
     @State private var isTextButtonBarVisible: Bool = false
-    @StateObject private var reminderManager = ReminderManager()
+    @StateObject  var reminderManager: ReminderManager
+    @StateObject  var eventManager: EventManager
 
 
     @State private var selectedDate : Date = Date()
@@ -69,6 +70,11 @@ struct EditingEntryView: View {
     @State private var hasReminderAccess = false
     @State private var dateUpdated = false
     @State var repliedEntryBackgroundColor: Color = Color.clear
+    
+    @State private var showingEventSheet = false
+    @State private var eventId: String = ""
+    @State private var showDeleteEventAlert = false
+
 
     // Define your recurrence options
 
@@ -80,6 +86,8 @@ struct EditingEntryView: View {
     let availableTags = ["Work", "Personal", "Urgent", "Ideas", "To-Do"]
     @State private var currentTags: [Tag: Bool] = [:]
     @StateObject var tagViewModel: TagViewModel
+    
+    
 
     var body : some View {
         NavigationStack {
@@ -89,6 +97,9 @@ struct EditingEntryView: View {
      buttonBars()
             }
             .onAppear {
+//                if let reminderId = entry.reminderId {
+//                    reminderId = entry.reminderId
+//                }
 //                tagViewModel.initializeCurrentTags(with: entry.tagNames ?? "")
                 selectedTagsName = entry.tagNames ?? []
                 entryName = entry.title ?? ""
@@ -121,7 +132,9 @@ struct EditingEntryView: View {
                 ImagePicker(selectedImage: $selectedImage, sourceType: .camera).ignoresSafeArea()
                 
             }
-            .navigationBarTitle("Editing Entry")
+            .navigationBarTitle(entryName.isEmpty ? "Editing Entry" : entryName)
+//            .navigationBarTitle("Editing Entry")
+            .navigationBarTitleDisplayMode(.inline)
             .foregroundColor(UIColor.foregroundColor(background: UIColor(userPreferences.backgroundColors.first ?? Color(UIColor.systemGroupedBackground))))
 
             .toolbar {
@@ -219,16 +232,38 @@ struct EditingEntryView: View {
                     showDeleteReminderAlert: $showDeleteReminderAlert,
                     reminderManager: reminderManager
                 )
-                .onAppear {
-                    if let reminderId = entry.reminderId {
-                        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
-                    } else {
-                        entry.reminderId = UUID().uuidString
-                    }
-                    reminderManager.requestReminderAccess { _ in }
-                }
+//                .onAppear {
+//                    if let reminderId = entry.reminderId {
+//                        reminderManager.fetchAndInitializeReminderDetails(reminderId: reminderId)
+//                    } else {
+//                        entry.reminderId = UUID().uuidString
+//                    }
+//                }
             }
         )
+//        .overlay(
+//            CustomPopupView(isPresented: $showingEventSheet, title: "Event", onSave: {
+//                // Dismiss the view
+////                showingReminderSheet = false
+//                // Then save the reminder
+//                if eventId.isEmpty {
+//                    eventId = UUID().uuidString
+//                }
+//            }) {
+//                EventPopupView(
+//                    isPresented: $showingEventSheet,
+//                    eventTitle: $eventManager.eventTitle,
+//                    selectedEventStartDate: $eventManager.selectedEventStartDate,
+//                    selectedEventEndDate: $eventManager.selectedEventEndDate,
+//                    eventNotes: $eventManager.eventNotes,
+//                    eventId: $eventId,
+//                    showingEventSheet: $showingEventSheet,
+//                    showDeleteEventAlert: $showDeleteEventAlert,
+//                    eventManager: eventManager
+//                )
+//            }
+//        )
+
         
         .overlay(
             CustomPopupView(isPresented: $showTagSelection, title: "Select Tags", onSave: {
@@ -313,7 +348,7 @@ struct EditingEntryView: View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
                 
@@ -403,8 +438,10 @@ struct EditingEntryView: View {
                         .padding(.horizontal)
             }
             else {
-                Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
-                    .padding(.horizontal)
+                if (entry.stampIcon != "") {
+                    Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
+                        .padding(.horizontal)
+                }
             }
         }
         .font(.buttonSize)
@@ -460,14 +497,21 @@ struct EditingEntryView: View {
     }
 
     
+    private func saveEvent() {
+        // Call the EventManager to create or update the event
+        eventManager.createOrUpdateEvent(eventId: eventId) { result in
+            switch result {
+            case .success(let savedEventId):
+                print("Event saved with ID: \(savedEventId)")
+                // Optionally, update any related data here
+            case .failure(let error):
+                print("Failed to save event: \(error)")
+            }
+        }
+    }
+
     private func saveReminder() {
-          reminderManager.createOrUpdateReminder(
-            reminderId: entry.reminderId, // or the specific ID if editing an existing reminder
-              title: reminderManager.reminderTitle,
-              dueDate: reminderManager.selectedReminderDate,
-              recurrence: reminderManager.selectedRecurrence,
-              notes: "" // Any notes you want to add
-          ) { result in
+        reminderManager.createOrUpdateReminder(reminderId: entry.reminderId) { result in
               switch result {
               case .success(let reminderId):
                   // Handle successful save, e.g., save reminderId to your data model

@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-
+import EventKit
 
 
 struct EntryDetailView: View { //used in LogDetailView
@@ -34,6 +34,8 @@ struct EntryDetailView: View { //used in LogDetailView
 @State var isPinned = false
     @State var repliedEntryBackgroundColor: Color = Color.clear // for replied entry
     @State var filterOption: EntryDateFilters? = nil
+    @StateObject private var reminderManager = ReminderManager()
+    @StateObject private var eventManager = EventManager()
 
     
     var entryViewModel: EntryViewModel {
@@ -48,7 +50,7 @@ struct EntryDetailView: View { //used in LogDetailView
                         entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing, userPreferences: userPreferences)
                     }
                     .sheet(isPresented: $isEditing) { //added this here
-                        EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
+                        EditingEntryView(entry: entry, isEditing: $isEditing, reminderManager: reminderManager, eventManager: eventManager, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                                 .foregroundColor(userPreferences.accentColor)
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
@@ -92,7 +94,7 @@ struct EntryDetailView: View { //used in LogDetailView
             
             }
             .sheet(isPresented: $isEditing) { //added this here
-                EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
+                EditingEntryView(entry: entry, isEditing: $isEditing, reminderManager: reminderManager, eventManager: eventManager, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                         .foregroundColor(userPreferences.accentColor)
                         .presentationDragIndicator(.hidden)
                         .environmentObject(userPreferences)
@@ -193,7 +195,7 @@ struct EntryDetailView: View { //used in LogDetailView
                 Image(systemName: entry.stampIcon).tag(entry.stampIcon)
                     .foregroundColor(UIColor.backgroundColor(entry: entry, colorScheme: colorScheme, userPreferences: userPreferences))
             }
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId), isInList {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId), isInList {
                 Spacer()
                 Image(systemName: "bell.fill").tag("bell.fill").foregroundColor(userPreferences.reminderColor)
             }
@@ -222,11 +224,11 @@ struct EntryDetailView: View { //used in LogDetailView
             Image(systemName: entry.stampIcon ?? "").foregroundStyle(Color(entry.color))
             Spacer()
             
-            if entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) {
-                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
-            }
+//            if entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) {
+//                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
+//            }
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId) {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
@@ -429,20 +431,20 @@ struct EntryDetailView: View { //used in LogDetailView
                 .foregroundColor(.red)
         }
         
-        
-        
-        Button(action: {
-            entry.shouldSyncWithCloudKit.toggle()
-            
-            // Save the flag change in local storage first
-            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
-
-            // Save the entry in the appropriate store
-            CoreDataManager.shared.saveEntry(entry)
-        }) {
-            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
-            Image(systemName: "cloud.fill")
-        }
+//        
+//        
+//        Button(action: {
+//            entry.shouldSyncWithCloudKit.toggle()
+//            
+//            // Save the flag change in local storage first
+//            CoreDataManager.shared.save(context: CoreDataManager.shared.viewContext)
+//
+//            // Save the entry in the appropriate store
+//            CoreDataManager.shared.saveEntry(entry)
+//        }) {
+//            Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
+//            Image(systemName: "cloud.fill")
+//        }
 
         
     }

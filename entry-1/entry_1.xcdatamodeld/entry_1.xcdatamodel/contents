@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23173.10" systemVersion="24A5264n" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Entry" representedClassName="Entry" syncable="YES">
-        <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
+        <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName=""/>
         <attribute name="content" optional="YES" attributeType="String"/>
         <attribute name="entryReplyId" optional="YES" attributeType="String"/>
+        <attribute name="eventId" optional="YES" attributeType="String"/>
         <attribute name="folderId" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDrafted" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -20,6 +21,7 @@
         <attribute name="oldId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="pageNum_pdf" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="previousContent" optional="YES" attributeType="String"/>
+        <attribute name="prompt" optional="YES" attributeType="String"/>
         <attribute name="reminderId" optional="YES" attributeType="String"/>
         <attribute name="shouldSyncWithCloudKit" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="stampIcon" optional="YES" attributeType="String"/>
@@ -37,9 +39,11 @@
         </fetchIndex>
     </entity>
     <entity name="Folder" representedClassName="Folder" syncable="YES">
+        <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="entryCount" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="folderType" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isRemoved" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="parentId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
@@ -52,16 +56,18 @@
     <entity name="Tag" representedClassName="Tag" syncable="YES">
         <attribute name="entryIds" optional="YES" attributeType="Transformable"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isStamp" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="numEntries" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="stampIconName" optional="YES" attributeType="String"/>
     </entity>
     <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES">
-        <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
+        <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
         <attribute name="font" optional="YES" attributeType="String"/>
         <attribute name="fontsize" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="UserStamp" representedClassName="UserStamp" syncable="YES">
-        <attribute name="color" optional="YES" attributeType="Transformable"/>
+        <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName=""/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="imageName" optional="YES" attributeType="String"/>
         <attribute name="index" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -69,22 +75,18 @@
         <attribute name="name" optional="YES" attributeType="String"/>
     </entity>
     <entity name="UserTheme" representedClassName="UserTheme" syncable="YES">
-        <attribute name="accentColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
-        <attribute name="bottomColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
-        <attribute name="entryBackgroundColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
+        <attribute name="accentColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
+        <attribute name="bottomColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
+        <attribute name="entryBackgroundColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
         <attribute name="fontName" optional="YES" attributeType="String"/>
         <attribute name="fontSize" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="lineSpacing" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="pinColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
-        <attribute name="reminderColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
-        <attribute name="topColor" optional="YES" attributeType="Transformable" valueTransformerName="ColorTransformer"/>
+        <attribute name="pinColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
+        <attribute name="reminderColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
+        <attribute name="topColor" optional="YES" attributeType="Transformable" valueTransformerName="" customClassName="UIColor"/>
     </entity>
-    <configuration name="Cloud" usedWithCloudKit="YES">
-        <memberEntity name="Entry"/>
-        <memberEntity name="Log"/>
-        <memberEntity name="UserStamp"/>
-    </configuration>
+    <configuration name="Cloud" usedWithCloudKit="YES"/>
     <configuration name="Documents" usedWithCloudKit="YES"/>
 </model>

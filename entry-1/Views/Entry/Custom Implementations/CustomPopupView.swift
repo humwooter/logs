@@ -186,9 +186,14 @@ struct ReminderPopupView: View, UserPreferencesProvider {
                     .listRowBackground(getSectionColor(colorScheme: colorScheme))
                     .foregroundStyle(getTextColor())
             }
+//            .onAppear {
+//                if !reminderManager.hasReminderAccess {
+//                    reminderManager.checkReminderAccess()
+//                }
+//            }
             .alert("Are you sure you want to delete this reminder?", isPresented: $showDeleteReminderAlert) {
                 Button("Delete", role: .destructive) {
-                    if let reminderId = reminderId {
+                    if  let reminderId = reminderId, !reminderId.isEmpty {
                         reminderManager.deleteReminder(reminderId: reminderId) { result in
                             switch result {
                             case .success:
@@ -216,7 +221,8 @@ struct ReminderPopupView: View, UserPreferencesProvider {
     @ViewBuilder
     func reminderSections() -> some View {
         Section {
-            TextField("Title", text: $reminderTitle, prompt: Text("Enter name")                .foregroundStyle(getTextColor().opacity(0.5)))
+            TextField("Title", text: $reminderTitle, prompt: Text("Enter name")               
+                .foregroundStyle(getTextColor().opacity(0.5)))
                 .textFieldStyle(PlainTextFieldStyle())
                 .frame(maxWidth: .infinity)
         }
@@ -248,8 +254,8 @@ struct ReminderPopupView: View, UserPreferencesProvider {
         if reminderManager.reminderExists(with: reminderId ?? "") {
             Section {
                 Button {
-                    if let reminderId = self.reminderId, !reminderId.isEmpty {
-                        reminderManager.createOrUpdateReminder(reminderId: reminderId, title: reminderTitle, dueDate: selectedReminderDate, recurrence: selectedRecurrence, notes: reminderNotes) { result in
+                    if let reminderId = reminderId, !reminderId.isEmpty {
+                        reminderManager.createOrUpdateReminder(reminderId: reminderId) { result in
                             switch result {
                             case .success:
                                 print("Reminder completed successfully.")
@@ -302,7 +308,7 @@ struct EventPopupView: View, UserPreferencesProvider {
             }
             .alert("Are you sure you want to delete this event?", isPresented: $showDeleteEventAlert) {
                 Button("Delete", role: .destructive) {
-                    if let eventId = eventId {
+                    if let eventId = eventId, !eventId.isEmpty {
                         eventManager.deleteEvent(eventId: eventId) { result in
                             switch result {
                             case .success:
@@ -357,8 +363,8 @@ struct EventPopupView: View, UserPreferencesProvider {
         if eventManager.eventExists(with: eventId ?? "") {
             Section {
                 Button {
-                    if let eventId = self.eventId, !eventId.isEmpty {
-                        eventManager.createOrUpdateEvent(eventId: eventId, title: eventTitle, startDate: selectedEventStartDate, endDate: selectedEventEndDate, notes: eventNotes) { result in
+                    if  let eventId = eventId, !eventId.isEmpty {
+                        eventManager.createOrUpdateEvent(eventId: eventId) { result in
                             switch result {
                             case .success:
                                 print("Event updated successfully.")
@@ -384,7 +390,7 @@ struct EventPopupView: View, UserPreferencesProvider {
         } else {
             Section {
                 Button {
-                    eventManager.createOrUpdateEvent(title: eventTitle, startDate: selectedEventStartDate, endDate: selectedEventEndDate, notes: eventNotes) { result in
+                    eventManager.createOrUpdateEvent(eventId: eventId) { result in
                         switch result {
                         case .success(let newEventId):
                             print("Event created successfully with ID: \(newEventId)")
@@ -402,10 +408,6 @@ struct EventPopupView: View, UserPreferencesProvider {
         }
     }
 }
-
-import Foundation
-import SwiftUI
-import CoreData
 
 struct FolderSelectionView: View {
     @Binding var isPresented: Bool

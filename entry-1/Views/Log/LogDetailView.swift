@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import CoreData
 import UniformTypeIdentifiers
+import EventKit
 
 struct LogDetailView: View {
     @EnvironmentObject var coreDataManager: CoreDataManager
@@ -17,6 +18,7 @@ struct LogDetailView: View {
     @Environment(\.colorScheme) var colorScheme
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
+//    var eventStore: EKEventStore
     let logDay: String
     
     @State private var isEditing = false
@@ -27,6 +29,7 @@ struct LogDetailView: View {
         self.logDay = logDay
         self._isShowingReplyCreationView = isShowingReplyCreationView
         self._replyEntryId = replyEntryId
+
         
         // Convert logDay to a Date object
         guard let logDate = dateFromString(logDay) else {

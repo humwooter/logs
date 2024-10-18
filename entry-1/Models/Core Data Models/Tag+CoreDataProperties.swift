@@ -17,6 +17,8 @@ extension Tag {
 
     @NSManaged public var id: UUID?
     @NSManaged public var name: String?
+    @NSManaged public var isStamp: Bool
+    @NSManaged public var stampIconName: String?
     @NSManaged public var numEntries: Int16
     @NSManaged public var entryIds: [String]
 

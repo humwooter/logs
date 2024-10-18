@@ -114,17 +114,17 @@ class EntryViewModel: ObservableObject {
                     .foregroundColor(.red)
             }
             
-            if userPreferences.enableCloudMirror {
-                Button(action: {
-                    entry.shouldSyncWithCloudKit.toggle()
-                    
-                    self.coreDataManager.save(context: self.coreDataManager.viewContext)
-                    self.coreDataManager.saveEntry(entry)
-                }) {
-                    Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
-                    Image(systemName: "cloud.fill")
-                }
-            }
+//            if userPreferences.enableCloudMirror {
+//                Button(action: {
+//                    entry.shouldSyncWithCloudKit.toggle()
+//                    
+//                    self.coreDataManager.save(context: self.coreDataManager.viewContext)
+//                    self.coreDataManager.saveEntry(entry)
+//                }) {
+//                    Text(entry.shouldSyncWithCloudKit && coreDataManager.isEntryInCloudStorage(entry) ? "Unsync" : "Sync")
+//                    Image(systemName: "cloud.fill")
+//                }
+//            }
         }
         
     }

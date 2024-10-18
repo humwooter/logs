@@ -75,6 +75,22 @@ func formattedTimeLong(date: Date) -> String {
     }
 }
 
+func formattedDateTweetStyle(_ date: Date) -> String {
+    let formatter = DateFormatter()
+    
+    // Set the format for the time (4:44 PM)
+    formatter.dateFormat = "h:mm a"
+    let timeString = formatter.string(from: date)
+    
+    // Set the format for the date (10/11/24)
+    formatter.dateFormat = "MM/dd/yy"
+    let dateString = formatter.string(from: date)
+    
+    // Combine the two with the separator " · "
+    return "\(timeString) · \(dateString)"
+}
+
+
 func formattedDateShort(from date: Date) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "MMM d" // "Oct 19" format

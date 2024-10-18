@@ -568,6 +568,8 @@ import UIKit
 //    }
 //}
 
+import EventKit
+
 
 struct LogParentView : View {
     @EnvironmentObject var userPreferences: UserPreferences
@@ -599,6 +601,7 @@ struct LogParentView : View {
               }
           )
       }
+//    @State var eventStore: EKEventStore
 
     var body: some View {
         

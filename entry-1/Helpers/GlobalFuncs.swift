@@ -12,8 +12,7 @@ import EventKit
 import AVKit
 
 
-func requestReminderAccess(completion: @escaping (Bool) -> Void) {
-    let eventStore = EKEventStore()
+func requestReminderAccess(eventStore: EKEventStore, completion: @escaping (Bool) -> Void) {
     eventStore.requestAccess(to: .reminder) { granted, error in
         DispatchQueue.main.async {
             completion(granted)

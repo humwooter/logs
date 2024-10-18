@@ -20,6 +20,7 @@ extension UserPreferencesProvider {
     
     // Shortens a name to a 15-character prefix and adds "..."
     func getName(for name: String) -> String {
+        return name
         return name.prefix(10) + "..."
     }
     
@@ -82,6 +83,23 @@ extension UserPreferencesProvider {
             background2: background2,
             entryBackground: entryBackground,
             colorScheme: colorScheme // Assuming this is available in UserPreferences
+        )
+    }
+    
+    func getTextColorForEntry(entry: Entry) -> Color {
+        // Retrieve the background colors from user preferences
+        let background1 = userPreferences.backgroundColors.first ?? Color.clear
+        let background2 = userPreferences.backgroundColors[1]
+        var entryBackground = userPreferences.entryBackgroundColor
+        if entry.stampIndex != -1 {
+            entryBackground = Color(entry.color)
+        }
+        // Call the calculateTextColor function with these values
+        return calculateTextColor(
+            basedOn: background1,
+            background2: background2,
+            entryBackground: entryBackground,
+            colorScheme: colorScheme
         )
     }
     

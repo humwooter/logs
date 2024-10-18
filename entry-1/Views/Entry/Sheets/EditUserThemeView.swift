@@ -101,6 +101,7 @@ struct EditUserThemeView: View {
                 bottomColor_background: $theme.bottomColor,
                 defaultTopColor: getDefaultBackgroundColor(colorScheme: colorScheme)
             )
+            .foregroundStyle(theme.accentColor)
             HStack {
                 Text("Line Spacing")
                 Slider(value: $theme.lineSpacing, in: 0...15, step: 1, label: { Text("Line Spacing") })

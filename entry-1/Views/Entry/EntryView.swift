@@ -14,8 +14,7 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-
-
+import EventKit
 
 
 struct EntryView: View {
@@ -102,6 +101,7 @@ struct EntryView: View {
             }
             .scrollContentBackground(.hidden)
             .navigationTitle(entry_1.currentDate())
+            
             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             .navigationBarItems(trailing:
                                     HStack {
@@ -119,7 +119,7 @@ struct EntryView: View {
                 updateFetchRequests()
             })
             .sheet(isPresented: $isShowingEntryCreationView) {
-                NewEntryView(tagViewModel: TagViewModel(coreDataManager: coreDataManager))
+                NewEntryView(tagViewModel: TagViewModel(coreDataManager: coreDataManager), reminderManager: ReminderManager(), eventManager: EventManager())
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
                     .foregroundColor(userPreferences.accentColor)
@@ -129,7 +129,7 @@ struct EntryView: View {
             }
             .sheet(isPresented: $isShowingReplyCreationView) {
                 if let repliedId = repliedEntryId {
-                    ReplyEntryView(replyEntryId: repliedId, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
+                    ReplyEntryView(replyEntryId: repliedId, reminderManager: ReminderManager(), tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                         .environmentObject(coreDataManager)
                         .environmentObject(userPreferences)
                         .foregroundColor(userPreferences.accentColor)
@@ -281,124 +281,63 @@ struct EntryView: View {
         }
     }
     
- 
-    
+
     @ViewBuilder
     func sortedEntriesView() -> some View {
-
         switch selectedSortOption {
         case .timeAscending:
-            let sortedEntries = entries.sorted { $0.time > $1.time }
+            let timeAscendingEntries = entries.sorted { $0.time > $1.time }
+            entriesListView(for: timeAscendingEntries)
 
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
         case .timeDescending:
-            let sortedEntries = syncedEntries + entries.sorted { $0.time < $1.time }
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                    
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
+            let timeDescendingEntries = entries.sorted { $0.time < $1.time }
+            entriesListView(for: timeDescendingEntries)
+
         case .image:
-            let sortedEntries = syncedEntries + entries.sorted { $0.stampIcon > $1.stampIcon }
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                    
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
+            let imageSortedEntries = entries.sorted { $0.stampIcon > $1.stampIcon }
+            entriesListView(for: imageSortedEntries)
+
         case .wordCount:
-            let sortedEntries = syncedEntries + entries.sorted { $0.content.count > $1.content.count }
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                    
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
-            
+            let wordCountSortedEntries = entries.sorted { $0.content.count > $1.content.count }
+            entriesListView(for: wordCountSortedEntries)
+
         case .hasPin:
-            let sortedEntries = syncedEntries + entries.sorted {
-                      if $0.isPinned != $1.isPinned {
-                          return $0.isPinned && !$1.isPinned
-                      } else {
-                          return $0.time > $1.time
-                      }
-                  }
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                    
+            let pinnedEntries = entries.sorted {
+                if $0.isPinned != $1.isPinned {
+                    return $0.isPinned && !$1.isPinned
+                } else {
+                    return $0.time > $1.time
                 }
             }
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
+            entriesListView(for: pinnedEntries)
+
         case .isShown:
-            let sortedEntries = syncedEntries + entries.filter { $0.isShown }.sorted { $0.time > $1.time }
-            
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
+            let shownEntries = entries.filter { $0.isShown }.sorted { $0.time > $1.time }
+            entriesListView(for: shownEntries)
+
         case .isHidden:
-            let sortedEntries = syncedEntries + entries.filter { $0.isHidden == false }.sorted { $0.time > $1.time }
-            
-            ForEach(sortedEntries) { entry in
-                if (!entry.isFault && !entry.isRemoved) {
-                    EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
-                        .environmentObject(userPreferences)
-                        .environmentObject(coreDataManager)
-                        .id("\(entry.id)")
-                }
-            }
-            
-            .onDelete { indexSet in
-                deleteEntries(from: indexSet, entries: sortedEntries)
-            }
+            let visibleEntries = entries.filter { !$0.isHidden }.sorted { $0.time > $1.time }
+            entriesListView(for: visibleEntries)
         }
     }
-//    
+
+    
+    
+    
+    @ViewBuilder
+    func entriesListView(for sortedEntries: [Entry]) -> some View {
+        ForEach(sortedEntries) { entry in
+            if (!entry.isFault && !entry.isRemoved) {
+                EntryRowView(entry: entry, isShowingEntryCreationView: $isShowingEntryCreationView, isShowingReplyCreationView: $isShowingReplyCreationView, isShowingEntryEditView: $isShowingEntryEditView, repliedEntryId: $repliedEntryId)
+                    .environmentObject(userPreferences)
+                    .environmentObject(coreDataManager)
+                    .id("\(entry.id)")
+            }
+        }
+        .onDelete { indexSet in
+            deleteEntries(from: indexSet, entries: sortedEntries)
+        }
+    }
+
+//
 }

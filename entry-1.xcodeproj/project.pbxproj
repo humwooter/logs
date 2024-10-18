@@ -303,6 +303,9 @@
 		4AF545E42BDA1722007D8AFF /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF545E32BDA1722007D8AFF /* NotificationView.swift */; };
 		4AFCF99C2B1619A000088460 /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFCF99B2B1619A000088460 /* TextView.swift */; };
 		4AFF169F2BBA12BE00750DF6 /* DatesModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */; };
+		4AFF9F812CBC4FF900858F39 /* RevisedScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF9F802CBC4FF500858F39 /* RevisedScheduleView.swift */; };
+		4AFF9F832CBF852A00858F39 /* Sticky.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF9F822CBF852600858F39 /* Sticky.swift */; };
+		4AFF9F852CC2F34700858F39 /* EntrySheetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFF9F842CC2F32C00858F39 /* EntrySheetProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -355,7 +358,7 @@
 		34C43AFD2A976B6E005C1296 /* GifView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GifView.swift; sourceTree = "<group>"; };
 		34C43B972A9B19AA005C1296 /* entry_ 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_ 2.xcdatamodel"; sourceTree = "<group>"; };
 		34C43B9A2A9DA51F005C1296 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
-		34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
+		34FD30232A8CE22C006A70B8 /* entry_124.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_124.xcdatamodel; sourceTree = "<group>"; };
 		34FD30252A8DDF13006A70B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		4A09A62F2C7D78FA0029BF1F /* TagViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagViews.swift; sourceTree = "<group>"; };
 		4A0FF6D92AFADBCD0078F319 /* ImageViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewer.swift; sourceTree = "<group>"; };
@@ -521,7 +524,7 @@
 		4AEE319E2C82F88A00D6BE8F /* EntryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryFilter.swift; sourceTree = "<group>"; };
 		4AEE31AB2C852D7100D6BE8F /* entry_1 (tagNames=string).xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_1 (tagNames=string).xcdatamodel"; sourceTree = "<group>"; };
 		4AEE31AC2C852DCB00D6BE8F /* tagNamesMappingModel(string to list).xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = "tagNamesMappingModel(string to list).xcmappingmodel"; sourceTree = "<group>"; };
-		4AEE31B12C852FA400D6BE8F /* entry_1 (tagNames=list).xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "entry_1 (tagNames=list).xcdatamodel"; sourceTree = "<group>"; };
+		4AEE31B12C852FA400D6BE8F /* entry_1.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = entry_1.xcdatamodel; sourceTree = "<group>"; };
 		4AEE31B22C85300900D6BE8F /* tagNamesMappingModel(String->List).xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = "tagNamesMappingModel(String->List).xcmappingmodel"; sourceTree = "<group>"; };
 		4AEE31B62C85384700D6BE8F /* MigrationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManager.swift; sourceTree = "<group>"; };
 		4AEE31B92C85492E00D6BE8F /* ColorTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTransformer.swift; sourceTree = "<group>"; };
@@ -529,6 +532,9 @@
 		4AF545E32BDA1722007D8AFF /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		4AFCF99B2B1619A000088460 /* TextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextView.swift; sourceTree = "<group>"; };
 		4AFF169E2BBA12BE00750DF6 /* DatesModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatesModel.swift; sourceTree = "<group>"; };
+		4AFF9F802CBC4FF500858F39 /* RevisedScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevisedScheduleView.swift; sourceTree = "<group>"; };
+		4AFF9F822CBF852600858F39 /* Sticky.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sticky.swift; sourceTree = "<group>"; };
+		4AFF9F842CC2F32C00858F39 /* EntrySheetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntrySheetProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -691,6 +697,8 @@
 		4A1B567B2C7318B6000FECA7 /* Log Tabs */ = {
 			isa = PBXGroup;
 			children = (
+				4AFF9F822CBF852600858F39 /* Sticky.swift */,
+				4AFF9F802CBC4FF500858F39 /* RevisedScheduleView.swift */,
 				4A83B97E2CB9AED700B09016 /* NewScheduleView.swift */,
 				4A6E139E2CB07B8700DB5787 /* ScheduleView.swift */,
 			);
@@ -727,6 +735,7 @@
 		4A38938B2CB32B04007D5066 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				4AFF9F842CC2F32C00858F39 /* EntrySheetProvider.swift */,
 				4A38938C2CB32B0D007D5066 /* UserPreferencesProvider.swift */,
 			);
 			path = Protocols;
@@ -1424,6 +1433,7 @@
 				4AAF710B2B738DB400C94555 /* PDFKitView.swift in Sources */,
 				4A8280CE2C707C25005AC7BD /* HorizontalPicker.swift in Sources */,
 				4A789B872C7853270044AC11 /* NewFolderView.swift in Sources */,
+				4AFF9F832CBF852A00858F39 /* Sticky.swift in Sources */,
 				4A7264412AECEB400099EA84 /* CustomDataImageView.swift in Sources */,
 				4A5E53152B8D9ED400F4521D /* EntryView.swift in Sources */,
 				4A72642F2AEBAC920099EA84 /* TimeFuncs.swift in Sources */,
@@ -1435,6 +1445,8 @@
 				4A81FD532C337B98004EC3D2 /* SyncManager.swift in Sources */,
 				4AB0ABA02BB13A6800EF3548 /* ReminderFuncs.swift in Sources */,
 				4A1B56802C7359BF000FECA7 /* WeeklyCalendarView.swift in Sources */,
+				4AFF9F812CBC4FF900858F39 /* RevisedScheduleView.swift in Sources */,
+				4AFF9F852CC2F34700858F39 /* EntrySheetProvider.swift in Sources */,
 				34A808692A8B070000B9BB5C /* SettingsView.swift in Sources */,
 				4AC45F582ADF71CD00246AEF /* Documents.swift in Sources */,
 				4A72643C2AEBB0AE0099EA84 /* RecentlyDeletedView.swift in Sources */,
@@ -1651,7 +1663,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "entry-1/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Logs;
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app uses your calendar to create events and reminders based on your activities.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses your camera to enable you to take and upload photos directly to your entries.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "This app uses Face ID for secure and convenient authentication";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses speech recognition to help you input text hands-free.";
@@ -1702,7 +1713,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "entry-1/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Logs;
-				INFOPLIST_KEY_NSCalendarsUsageDescription = "This app uses your calendar to create events and reminders based on your activities.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses your camera to enable you to take and upload photos directly to your entries.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "This app uses Face ID for secure and convenient authentication";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses speech recognition to help you input text hands-free.";
@@ -1909,11 +1919,11 @@
 				4A9982CE2B401BDF00AEA8BC /* entry_ 4.xcdatamodel */,
 				4AA29F682ADB7930009FDD36 /* entry_ 3.xcdatamodel */,
 				34C43B972A9B19AA005C1296 /* entry_ 2.xcdatamodel */,
-				34FD30232A8CE22C006A70B8 /* entry_1.xcdatamodel */,
+				34FD30232A8CE22C006A70B8 /* entry_124.xcdatamodel */,
 				4AEE31AB2C852D7100D6BE8F /* entry_1 (tagNames=string).xcdatamodel */,
-				4AEE31B12C852FA400D6BE8F /* entry_1 (tagNames=list).xcdatamodel */,
+				4AEE31B12C852FA400D6BE8F /* entry_1.xcdatamodel */,
 			);
-			currentVersion = 4AEE31B12C852FA400D6BE8F /* entry_1 (tagNames=list).xcdatamodel */;
+			currentVersion = 4AEE31B12C852FA400D6BE8F /* entry_1.xcdatamodel */;
 			path = entry_1.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

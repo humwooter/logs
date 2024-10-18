@@ -38,6 +38,8 @@ public class Entry: NSManagedObject, Codable {
         
         stampIcon = try values.decodeIfPresent(String.self, forKey: .stampIcon) ?? ""
         entryReplyId = try values.decodeIfPresent(String.self, forKey: .entryReplyId) ?? ""
+        prompt = try values.decodeIfPresent(String.self, forKey: .prompt) ?? ""
+
         logId = try values.decodeIfPresent(UUID.self, forKey: .logId)
 
         stampIndex = try values.decodeIfPresent(Int16.self, forKey: .stampIndex) ?? -1
@@ -63,6 +65,9 @@ public class Entry: NSManagedObject, Codable {
         try container.encodeIfPresent(eventId, forKey: .eventId)
 
         try container.encodeIfPresent(content, forKey: .content)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(prompt, forKey: .prompt)
+
         try container.encodeIfPresent(time, forKey: .time)
         try container.encodeIfPresent(stampIndex, forKey: .stampIndex)
         
@@ -85,7 +90,7 @@ public class Entry: NSManagedObject, Codable {
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, logId, tagNames, eventId
+        case id, time, content, color, stampIcon, stampIndex, mediaFilename, isHidden, isPinned, isShown, isRemoved, isDrafted, pageNum_pdf, reminderId, entryReplyId, logId, tagNames, eventId, prompt, title
     }
 }
 

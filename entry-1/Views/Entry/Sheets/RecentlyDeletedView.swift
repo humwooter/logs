@@ -36,6 +36,7 @@ struct RecentlyDeletedView: View {
     
     @State private var selectedEntries = Set<Entry>()
     @Binding var replyEntryId: String?
+    @State var reminderManager: ReminderManager
 
     let dateStrings = DateStrings()
 
@@ -127,7 +128,7 @@ struct RecentlyDeletedView: View {
                 .font(.customHeadline)
                 .foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
             Spacer()
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
             if (entry.isPinned) {

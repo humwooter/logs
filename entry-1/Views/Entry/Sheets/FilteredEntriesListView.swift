@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import EventKit
+
 
 struct FilteredEntriesListView: View { //for general main search
     @EnvironmentObject var userPreferences: UserPreferences
@@ -24,6 +26,8 @@ struct FilteredEntriesListView: View { //for general main search
     
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
+    @StateObject  var reminderManager: ReminderManager
+
 //    @State private var entries: [Entry] = []
     
 //    init(searchModel: SearchModel) {
@@ -51,7 +55,7 @@ struct FilteredEntriesListView: View { //for general main search
             ForEach(Array(entries.enumerated()), id: \.element.id) { index, entry in
                 if index < currentLoadedCount {
                     VStack(spacing: 5) {
-                        entryHeaderView(entry: entry)
+                        entryHeaderView(entry: entry as! Entry)
                             .foregroundStyle(getIdealHeaderTextColor())
                             .padding(.horizontal)
                             .padding(.top, 10)
@@ -102,7 +106,7 @@ struct FilteredEntriesListView: View { //for general main search
                 .foregroundStyle(getIdealHeaderTextColor().opacity(0.5))
             
             Spacer()
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId) {
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
             if (entry.isPinned) {

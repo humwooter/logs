@@ -20,6 +20,7 @@ extension Entry {
     
     @NSManaged public var content: String
     @NSManaged public var title: String?
+    @NSManaged public var prompt: String?
     @NSManaged public var previousContent: String?
     @NSManaged public var time: Date
     @NSManaged public var lastUpdated: Date?
@@ -51,6 +52,37 @@ extension Entry {
     
     
 
+    
+    
+    func activateButton(index: Int, coreDataManager: CoreDataManager, userPreferences: UserPreferences) {
+        let mainContext = coreDataManager.viewContext
+        mainContext.performAndWait {
+            
+            if (index == self.stampIndex) {
+                    self.stampIndex = -1
+                self.stampIcon = ""
+                self.color = UIColor.clear
+            }
+            else {
+                self.stampIndex = Int16(index)
+                self.stampIcon = userPreferences.stamps[index].imageName
+                self.stampName = userPreferences.stamps[index].name
+
+                self.color = UIColor(userPreferences.stamps[index].color)
+                
+                print("SUCCESFULLY UPDATED")
+            }
+
+            do {
+                try mainContext.save()
+            } catch {
+                print("Failed to save mainContext: \(error)")
+            }
+            print("ENTRY INDEX: \(self.stampIndex)")
+            print("UPDATED ENTRY ICON: \(self.stampIcon)")
+        }
+    }
+    
     
     func deleteImage(coreDataManager: CoreDataManager) {
         print("in delete image")

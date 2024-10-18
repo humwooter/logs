@@ -16,6 +16,7 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
+import EventKit
 
 
 class DayChange: ObservableObject {
@@ -74,7 +75,8 @@ struct TextView : View {
 //    @Binding var isShowingEntryEditView: Bool
 
     @StateObject  var entryViewModel: EntryViewModel
-
+    @ObservedObject  var reminderManager: ReminderManager
+    @ObservedObject  var eventManager: EventManager
     
     var body : some View {
         
@@ -87,31 +89,33 @@ struct TextView : View {
                                 entryViewModel.entryContextMenuButtons(entry: entry, isShowingEntryEditView: $isEditing, userPreferences: userPreferences)
                             }
                             .onAppear {
-                                if let reminderId = entry.reminderId, !reminderId.isEmpty {
-                                    if !reminderExists(with: reminderId) {
-                                        entry.reminderId = ""
-                                    } else {
-                                        reminderIsComplete(reminderId: reminderId) { isCompleted in
-                                            DispatchQueue.main.async {
-                                                if isCompleted {
-                                                    entry.reminderId = ""
-                                                } else {
-                                                    print("The reminder is not completed or does not exist.")
-                                                }
-                                            }
-                                        }
-                                        do {
-                                            try coreDataManager.viewContext.save()
-                                        } catch {
-                                            print("Failed to save viewContext: \(error)")
-                                        }
-                                    }
-                                }
+                                updateReminders()
+//                                if let reminderId = entry.reminderId, !reminderId.isEmpty {
+//                                    if !reminderManager.reminderExists(with: reminderId) {
+//                                        print("reminder does not exist so resetting")
+//                                        entry.reminderId = ""
+//                                    } else {
+//                                        reminderManager.reminderIsComplete(reminderId: reminderId, eventStore: eventStore) { isCompleted in
+//                                            DispatchQueue.main.async {
+//                                                if isCompleted {
+//                                                    entry.reminderId = ""
+//                                                } else {
+//                                                    print("The reminder is not completed or does not exist.")
+//                                                }
+//                                            }
+//                                        }
+//                                        do {
+//                                            try coreDataManager.viewContext.save()
+//                                        } catch {
+//                                            print("Failed to save viewContext: \(error)")
+//                                        }
+//                                    }
+//                                }
                             }
                     }
         
                     .sheet(isPresented: $isEditing) {
-                        EditingEntryView(entry: entry, isEditing: $isEditing, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
+                        EditingEntryView(entry: entry, isEditing: $isEditing, reminderManager: reminderManager, eventManager: eventManager, tagViewModel: TagViewModel(coreDataManager: coreDataManager))
                                 .foregroundColor(userPreferences.accentColor)
                                 .presentationDragIndicator(.hidden)
                                 .environmentObject(userPreferences)
@@ -202,15 +206,16 @@ struct TextView : View {
 
     
     func updateReminders() {
-        if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
-            if !reminderExists(with: reminderId) {
+        if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderManager.reminderExists(with: reminderId) {
+            if !reminderManager.reminderExists(with: reminderId) {
                 entry.reminderId = ""
                 print("reminder doesn't exist")
             }
-            reminderIsComplete(reminderId: reminderId) { isCompleted in
+            reminderManager.reminderIsComplete(reminderId: reminderId, eventStore: eventStore) { isCompleted in
                 DispatchQueue.main.async {
                     if isCompleted {
                         entry.reminderId = ""
+                        print("reminder is completed so reminderid is reset")
                     } else {
                         print("The reminder is not completed or does not exist.")
                     }
@@ -252,11 +257,16 @@ struct TextView : View {
             Image(systemName: entry.stampIcon).foregroundStyle(Color(entry.color))
             Spacer()
             
-            if coreDataManager.isEntryInCloudStorage(entry) {
-                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
+//            if coreDataManager.isEntryInCloudStorage(entry) {
+//                Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.3))
+//            }
+            
+            if let eventId = entry.eventId, !eventId.isEmpty {
+                
+                Label("", systemImage: "clock").foregroundColor(userPreferences.reminderColor)
             }
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, reminderExists(with: reminderId) {
+            if let reminderId = entry.reminderId, !reminderId.isEmpty {
                 
                 Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
             }
@@ -266,12 +276,13 @@ struct TextView : View {
 
             }
             
-            Image(systemName: entry.isHidden ? "chevron.up" : "chevron.down").foregroundColor(userPreferences.accentColor)
+            Image(systemName: entry.isHidden ? "chevron.up" : "chevron.left").foregroundColor(userPreferences.accentColor)
                 .contentTransition(.symbolEffect(.replace.offUp))
         }
         .font(.sectionHeaderSize)
 //        .font(.system(size: UIFont.systemFontSize))
         .onTapGesture {
+            print("ENTRY: \(entry)")
             vibration_light.impactOccurred()
                 entry.isShown.toggle()
                 coreDataManager.save(context: coreDataManager.viewContext)

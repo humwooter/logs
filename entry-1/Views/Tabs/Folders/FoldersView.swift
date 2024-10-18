@@ -44,6 +44,7 @@ struct FoldersView: View {
     @Binding var isShowingReplyCreationView: Bool
     @Binding var replyEntryId: String?
     @ObservedObject var searchModel: SearchModel
+    @State var reminderManager: ReminderManager
 
     private var filteredFolders: [Folder] {
         folders.filter { folder in
@@ -105,7 +106,7 @@ struct FoldersView: View {
 
     @ViewBuilder
     private func recentlyDeletedLink() -> some View {
-        NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
+        NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, reminderManager: reminderManager).environmentObject(coreDataManager).environmentObject(userPreferences)) {
             HStack {
                 Text("Recently Deleted").foregroundStyle(getTextColor())
                 Spacer()
@@ -222,7 +223,7 @@ struct FoldersView: View {
 
     private func deleteFolderPermanently(folder: Folder) {
         markEntriesAsRemoved(for: folder)
-        coreDataManager.removeFolder(folder: folder, context: coreDataManager.viewContext)
+//        coreDataManager.removeFolder(folder: folder, context: coreDataManager.viewContext)
     }
 
     private func markEntriesAsRemoved(for folder: Folder) {

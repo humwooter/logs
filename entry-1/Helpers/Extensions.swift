@@ -539,26 +539,46 @@ extension Color {
 
     
     func toHex() -> String {
-        let uic = UIColor(self)
-        guard let components = uic.cgColor.components, components.count >= 3 else {
-            return "808080"  // Default grey hex
+          let uiColor = UIColor(self)
+          
+          // Ensure the color has valid components
+          guard let components = uiColor.cgColor.components, components.count >= 3 else {
+              return "808080"  // Default grey hex in case of issues
+          }
+          
+          let red = components[0]
+          let green = components[1]
+          let blue = components[2]
+          
+          // If the color includes alpha, check and append it to the hex value
+          let alpha = components.count >= 4 ? components[3] : 1.0
+          
+          if alpha != 1.0 {
+              // Return RGBA format with alpha channel if needed
+              return String(format: "%02lX%02lX%02lX%02lX",
+                            lroundf(Float(red * 255)),
+                            lroundf(Float(green * 255)),
+                            lroundf(Float(blue * 255)),
+                            lroundf(Float(alpha * 255)))
+          } else {
+              // Return regular RGB hex format
+              return String(format: "%02lX%02lX%02lX",
+                            lroundf(Float(red * 255)),
+                            lroundf(Float(green * 255)),
+                            lroundf(Float(blue * 255)))
+          }
+      }
+    
+    
+    var components: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+            let uiColor = UIColor(self)
+            var red: CGFloat = 0
+            var green: CGFloat = 0
+            var blue: CGFloat = 0
+            var alpha: CGFloat = 0
+            uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+            return (red, green, blue, alpha)
         }
-        let r = Float(components[0])
-        let g = Float(components[1])
-        let b = Float(components[2])
-        var a = Float(1.0)
-
-        if components.count >= 4 {
-            a = Float(components[3])
-        }
-
-        if a != Float(1.0) {
-            return String(format: "%02lX%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255), lroundf(a * 255))
-        } else {
-            return String(format: "%02lX%02lX%02lX", lroundf(r * 255), lroundf(g * 255), lroundf(b * 255))
-        }
-    }
-
     
     
     static func oppositeColor(of color: Color) -> Color {

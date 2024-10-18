@@ -98,6 +98,10 @@ struct NotEditingView: View {
                 tagsView()
                 }
                 .blur(radius: !entry.isHidden ? 0 : 7)
+//                
+//                entryFooterView()
+//                    .font(.sectionHeaderSize)
+//                    .foregroundStyle(getIdealHeaderTextColor().opacity(0.2))
             }
         }
     }
@@ -110,11 +114,13 @@ struct NotEditingView: View {
                 Divider()
                 
                 FlexibleTagGridView(tags: tags)
-                    .padding(.vertical)
+//                    .padding(.vertical)
             }
         }
         .foregroundStyle(textColor.opacity(0.4))
     }
+    
+ 
     
     @ViewBuilder
     func entryView() -> some View {
@@ -188,10 +194,10 @@ struct NotEditingView: View {
                 Label("", systemImage: "cloud.fill").foregroundStyle(.cyan.opacity(0.5))
             }
             
-            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
-                
-                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
-            }
+//            if let reminderId = entry.reminderId, !reminderId.isEmpty, entry_1.reminderExists(with: reminderId) {
+//                
+//                Label("", systemImage: "bell.fill").foregroundColor(userPreferences.reminderColor)
+//            }
 
             if (entry.isPinned) {
                 Label("", systemImage: "pin.fill").foregroundColor(userPreferences.pinColor)
@@ -313,6 +319,26 @@ struct NotEditingView: View {
         .padding(.top, 5)
     }
     
+    
+    @ViewBuilder
+    func entryFooterView() -> some View {
+//        HStack {
+//            if let reminderId = entry.reminderId, !reminderId.isEmpty {
+//                
+//                Image(systemName: "bell.fill").padding(.vertical, 3).padding(.leading, 5)
+//                    .font(.caption)
+//            }
+//            
+//            if let eventId = entry.eventId, !eventId.isEmpty {
+//                
+//                Image(systemName: "clock").padding(.vertical, 3).padding(.leading, 5)
+//                    .font(.caption)
+//            }
+//            
+//            Spacer()
+//
+//        }
+    }
     
     func getTextColor() -> Color {
         let background1 = userPreferences.backgroundColors.first ?? Color.clear

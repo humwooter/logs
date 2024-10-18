@@ -1,32 +1,58 @@
-//
 //  EventManager.swift
 //  entry-1
 //
 //  Created by Katyayani G. Raman on 7/1/24.
 //
-
 import Foundation
 import EventKit
 
+/// Manages events using EventKit
 class EventManager: ObservableObject {
-    private let eventStore = EKEventStore()
+    /// The Event Store instance for accessing events
+//    @Published var eventStore: EKEventStore
+
+    // MARK: - Published Properties
     
+    /// Indicates whether the app has access to events
     @Published var hasEventAccess: Bool = false
+    
+    /// The title of the event
+    @Published var eventTitle: String = ""
+    
+    /// The start date of the event
+    @Published var selectedEventStartDate: Date = Date()
+    
+    /// The end date of the event
+    @Published var selectedEventEndDate: Date = Date()
+    
+    /// Notes for the event
+    @Published var eventNotes: String = ""
+    
+    /// Available calendars for events
+    @Published var calendars: [EKCalendar] = []
+    
+    /// The selected calendar for the event
+    @Published var selectedCalendar: EKCalendar?
+    
+    // MARK: - Initialization
     
     init() {
         checkEventAccess()
     }
     
-    // check the current access status for events
+    // MARK: - Access Control
+    
+    /// Checks the current authorization status for events
     private func checkEventAccess() {
         switch EKEventStore.authorizationStatus(for: .event) {
         case .authorized:
             hasEventAccess = true
+            fetchEventCalendars()
         case .notDetermined:
             requestEventAccess { granted in
-                // handle the result of the access request
                 if granted {
                     self.hasEventAccess = true
+                    self.fetchEventCalendars()
                 } else {
                     self.hasEventAccess = false
                 }
@@ -36,35 +62,51 @@ class EventManager: ObservableObject {
         }
     }
     
-    // request access to the user's calendar events
+    /// Requests access to events
     func requestEventAccess(completion: @escaping (Bool) -> Void) {
         eventStore.requestAccess(to: .event) { [weak self] granted, _ in
             DispatchQueue.main.async {
                 self?.hasEventAccess = granted
+                if granted {
+                    self?.fetchEventCalendars()
+                }
                 completion(granted)
             }
         }
     }
     
-    // create a new event or update an existing one
-    func createOrUpdateEvent(eventId: String? = nil, title: String, startDate: Date, endDate: Date, notes: String?, completion: @escaping (Result<String, Error>) -> Void) {
+    // MARK: - Calendar Management
+    
+    /// Fetches available calendars for events
+    func fetchEventCalendars() {
+        calendars = eventStore.calendars(for: .event)
+        if let defaultCalendar = eventStore.defaultCalendarForNewEvents {
+            selectedCalendar = defaultCalendar
+        } else {
+            selectedCalendar = calendars.first
+        }
+    }
+    
+    // MARK: - Event Creation and Updating
+    
+    /// Creates or updates an event
+    func createOrUpdateEvent(eventId: String? = nil, completion: @escaping (Result<String, Error>) -> Void) {
         guard hasEventAccess else {
             completion(.failure(EventError.accessDenied))
             return
         }
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
+        DispatchQueue.global(qos: .userInitiated).async {
             let event = self.fetchOrCreateEvent(with: eventId)
-            event.title = title
-            event.startDate = startDate
-            event.endDate = endDate
-            event.notes = notes
-            event.calendar = self.eventStore.defaultCalendarForNewEvents
+            event.title = self.eventTitle
+            event.startDate = self.selectedEventStartDate
+            event.endDate = self.selectedEventEndDate
+            event.notes = self.eventNotes
+            event.calendar = self.selectedCalendar ?? entry_1.eventStore.defaultCalendarForNewEvents
             
             do {
-                try self.eventStore.save(event, span: .thisEvent, commit: true)
+                // Save the event
+                try entry_1.eventStore.save(event, span: .thisEvent, commit: true)
                 DispatchQueue.main.async {
                     completion(.success(event.eventIdentifier))
                 }
@@ -76,41 +118,30 @@ class EventManager: ObservableObject {
         }
     }
     
-    // fetch an existing event by its identifier
-    func fetchEvent(eventId: String, completion: @escaping (Result<EKEvent, Error>) -> Void) {
-        guard hasEventAccess else {
-            completion(.failure(EventError.accessDenied))
-            return
-        }
-        
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            if let event = self.eventStore.event(withIdentifier: eventId) {
-                DispatchQueue.main.async {
-                    completion(.success(event))
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(.failure(EventError.eventNotFound))
-                }
-            }
+    /// Fetches an existing event or creates a new one if it doesn't exist
+    private func fetchOrCreateEvent(with identifier: String?) -> EKEvent {
+        if let identifier = identifier, let existingEvent = eventStore.event(withIdentifier: identifier) {
+            return existingEvent
+        } else {
+            let newEvent = EKEvent(eventStore: eventStore)
+            newEvent.calendar = selectedCalendar ?? eventStore.defaultCalendarForNewEvents
+            return newEvent
         }
     }
     
+    // MARK: - Event Fetching
+    
+    /// Fetches events within a specified date range
     func fetchEvents(startDate: Date, endDate: Date, completion: @escaping (Result<[EKEvent], Error>) -> Void) {
         guard hasEventAccess else {
             completion(.failure(EventError.accessDenied))
             return
         }
-
-        let predicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: nil)
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            let events = self.eventStore.events(matching: predicate)
-            
+        let predicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let events = entry_1.eventStore.events(matching: predicate)
             DispatchQueue.main.async {
                 if events.isEmpty {
                     completion(.failure(EventError.eventNotFound))
@@ -120,21 +151,20 @@ class EventManager: ObservableObject {
             }
         }
     }
-
     
-    // delete an existing event
+    // MARK: - Event Deletion
+    
+    /// Deletes an event by its identifier
     func deleteEvent(eventId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         guard hasEventAccess else {
             completion(.failure(EventError.accessDenied))
             return
         }
         
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            if let event = self.eventStore.event(withIdentifier: eventId) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let event = entry_1.eventStore.event(withIdentifier: eventId) {
                 do {
-                    try self.eventStore.remove(event, span: .thisEvent, commit: true)
+                    try entry_1.eventStore.remove(event, span: .thisEvent, commit: true)
                     DispatchQueue.main.async {
                         completion(.success(()))
                     }
@@ -151,7 +181,9 @@ class EventManager: ObservableObject {
         }
     }
     
-    // check if an event exists
+    // MARK: - Utility Methods
+    
+    /// Checks if an event exists with the given identifier
     func eventExists(with identifier: String) -> Bool {
         if let _ = eventStore.event(withIdentifier: identifier) {
             return true
@@ -159,40 +191,8 @@ class EventManager: ObservableObject {
             return false
         }
     }
-    
-    // return the calendar an event belongs to
-    func getCalendar(for eventId: String, completion: @escaping (Result<EKCalendar, Error>) -> Void) {
-        guard hasEventAccess else {
-            completion(.failure(EventError.accessDenied))
-            return
-        }
-        
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self = self else { return }
-            
-            if let event = self.eventStore.event(withIdentifier: eventId) {
-                DispatchQueue.main.async {
-                    completion(.success(event.calendar))
-                }
-            } else {
-                DispatchQueue.main.async {
-                    completion(.failure(EventError.eventNotFound))
-                }
-            }
-        }
-    }
-    
-    // fetch or create a new event based on the identifier
-    private func fetchOrCreateEvent(with identifier: String?) -> EKEvent {
-        if let identifier = identifier, let existingEvent = eventStore.event(withIdentifier: identifier) {
-            return existingEvent
-        } else {
-            return EKEvent(eventStore: eventStore)
-        }
-    }
 }
 
-// custom error enum for event management
 enum EventError: Error {
     case accessDenied
     case eventNotFound

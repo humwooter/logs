@@ -31,12 +31,13 @@ struct ThemeSheet: View {
     @EnvironmentObject var userPreferences: UserPreferences
     @EnvironmentObject var coreDataManager: CoreDataManager
     @Environment(\.displayScale) var displayScale
-
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
+
     @FetchRequest(
-          entity: UserTheme.entity(),
-          sortDescriptors: []
-      ) var savedThemes: FetchedResults<UserTheme>
+        entity: UserTheme.entity(),
+        sortDescriptors: []
+    ) var savedThemes: FetchedResults<UserTheme>
     
     @State var selectedTheme: UserTheme?
     @State private var editTheme = false
@@ -44,60 +45,59 @@ struct ThemeSheet: View {
     @State private var showDocumentPicker = false
 
     private var isEditThemeActive: Binding<Bool> {
-           Binding<Bool>(
-               get: {
-                   selectedTheme != nil && editTheme
-               },
-               set: { newValue in
-                   // This setter can be used to control editTheme and selectedTheme state
-                   if !newValue {
-                       editTheme = false
-                       selectedTheme = nil
-                   }
-               }
-           )
-       }
- 
-    
-    
-    var body: some View {
-        ScrollView {
-            customThemesView()
-            defaultThemesView()
-        }
-        .background {
-            userPreferences.backgroundView(colorScheme: colorScheme)
-        }
-        .scrollContentBackground(.hidden)
-        .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
-        .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
-        .accentColor(userPreferences.accentColor)
-        .sheet(isPresented: isEditThemeActive) {
-            EditUserThemeView(userTheme: $selectedTheme)
-                .environmentObject(coreDataManager)
-                .environmentObject(userPreferences)
-        }
-        .sheet(isPresented: $editCurrentTheme) {
-            CurrentThemeEditView()
-                .environmentObject(userPreferences)
-        }
-        .fileImporter(
-            
-            isPresented: $showDocumentPicker,
-                    allowedContentTypes: [UTType(filenameExtension: "themePkg")!],
-                    allowsMultipleSelection: false
-                ) { result in
-                    handleImport(result: result)
+        Binding<Bool>(
+            get: {
+                selectedTheme != nil && editTheme
+            },
+            set: { newValue in
+                if !newValue {
+                    editTheme = false
+                    selectedTheme = nil
                 }
-                .toolbar {
-                    Button(action: { showDocumentPicker = true }) {
-                        Label("Import Theme", systemImage: "square.and.arrow.down")
-                    }
-                }
+            }
+        )
     }
     
- 
-    
+    var body: some View {
+        GeometryReader { geometry in
+            let screenWidth = geometry.size.width
+            let columnsCount = screenWidth > 600 ? 3 : 2  // Adjust based on width
+        
+            ScrollView {
+                customThemesView(columnsCount: columnsCount)
+                defaultThemesView(columnsCount: columnsCount)
+            }
+            .background {
+                userPreferences.backgroundView(colorScheme: colorScheme)
+            }
+            .scrollContentBackground(.hidden)
+            .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
+            .font(.custom(String(userPreferences.fontName), size: CGFloat(Float(userPreferences.fontSize))))
+            .accentColor(userPreferences.accentColor)
+            .sheet(isPresented: isEditThemeActive) {
+                EditUserThemeView(userTheme: $selectedTheme)
+                    .environmentObject(coreDataManager)
+                    .environmentObject(userPreferences)
+            }
+            .sheet(isPresented: $editCurrentTheme) {
+                CurrentThemeEditView()
+                    .environmentObject(userPreferences)
+            }
+            .fileImporter(
+                isPresented: $showDocumentPicker,
+                allowedContentTypes: [UTType(filenameExtension: "themePkg")!],
+                allowsMultipleSelection: false
+            ) { result in
+                handleImport(result: result)
+            }
+            .toolbar {
+                Button(action: { showDocumentPicker = true }) {
+                    Label("Import Theme", systemImage: "square.and.arrow.down")
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     func currentThemeView() -> some View {
         let currentTheme = Theme(
@@ -131,6 +131,38 @@ struct ThemeSheet: View {
             }
         }
     }
+
+    @ViewBuilder
+    func customThemesView(columnsCount: Int) -> some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: columnsCount), spacing: 20) {
+            currentThemeView()
+            ForEach(savedThemes, id: \.id) { userTheme in
+                let theme = userTheme.toTheme()
+                themeView(theme: theme, userTheme: userTheme, isCurrentTheme: false)
+
+            }.onAppear {
+                print("ALL SAVED THEMES")
+                print(savedThemes)
+            }
+        }
+        .padding()
+    }
+
+    @ViewBuilder
+    func defaultThemesView(columnsCount: Int) -> some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: columnsCount), spacing: 20) {
+            ForEach(refinedThemes) { theme in
+                themeView(theme: theme, userTheme: nil, isCurrentTheme: false)
+                    .contextMenu {
+                        Button("Apply") {
+                            userPreferences.applyTheme(theme)
+                        }
+                    }
+            }
+        }
+        .padding()
+    }
+    
     
     @ViewBuilder
     func customThemesView() -> some View {
@@ -161,10 +193,12 @@ struct ThemeSheet: View {
     
     @ViewBuilder
     func defaultThemesView() -> some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
+        let columnsCount = calculateColumns()
+        
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: calculateColumns()), spacing: 20) {
             ForEach(refinedThemes) { theme in
                 themeView(theme: theme, userTheme: nil, isCurrentTheme: false)
-                        .contextMenu {
+                    .contextMenu {
                         Button("Apply") {
                             userPreferences.applyTheme(theme)
                         }
@@ -173,9 +207,63 @@ struct ThemeSheet: View {
         }
         .padding()
     }
+
+    func calculateColumns() -> Int {
+        // Using UIScreen width to avoid layout issues caused by GeometryReader
+        let screenWidth = UIScreen.main.bounds.width
+        return screenWidth > 600 ? 3 : 2  // Adjust the threshold as needed
+    }
+    
+    
+    @ViewBuilder
+    func themeDetailsButton(theme: Theme) -> some View {
+        Button("Copy Theme Details to Clipboard") {
+            let themeFormula = """
+            Theme(
+                name: "\(theme.name)",
+                accentColor: Color(red: \(theme.accentColor.components.red), green: \(theme.accentColor.components.green), blue: \(theme.accentColor.components.blue)),
+                topColor: Color(red: \(theme.topColor.components.red), green: \(theme.topColor.components.green), blue: \(theme.topColor.components.blue)),
+                bottomColor: Color(red: \(theme.bottomColor.components.red), green: \(theme.bottomColor.components.green), blue: \(theme.bottomColor.components.blue)),
+                entryBackgroundColor: Color(red: \(theme.entryBackgroundColor.components.red), green: \(theme.entryBackgroundColor.components.green), blue: \(theme.entryBackgroundColor.components.blue), opacity: \(theme.entryBackgroundColor.components.alpha)),
+                pinColor: Color(red: \(theme.pinColor.components.red), green: \(theme.pinColor.components.green), blue: \(theme.pinColor.components.blue)),
+                reminderColor: Color(red: \(theme.reminderColor.components.red), green: \(theme.reminderColor.components.green), blue: \(theme.reminderColor.components.blue)),
+                fontName: "\(theme.fontName)",
+                fontSize: \(theme.fontSize),
+                lineSpacing: \(theme.lineSpacing)
+            )
+            """
+            
+            let themeDetails = """
+            Theme Name: \(theme.name)
+            
+            Top Color: \(theme.topColor.description) (#\(theme.topColor.toHex()))
+            Bottom Color: \(theme.bottomColor.description) (#\(theme.bottomColor.toHex()))
+            Accent Color: \(theme.accentColor.description) (#\(theme.accentColor.toHex()))
+            Entry Background Color: \(theme.entryBackgroundColor.description) (#\(theme.entryBackgroundColor.toHex()))
+            Pin Color: \(theme.pinColor.description) (#\(theme.pinColor.toHex()))
+            Reminder Color: \(theme.reminderColor.description) (#\(theme.reminderColor.toHex()))
+            
+            Font Name: \(theme.fontName)
+            Font Size: \(theme.fontSize)
+            Line Spacing: \(theme.lineSpacing)
+            
+            Swift Theme Formula:
+            \(themeFormula)
+            """
+            
+            // Copy the theme details to clipboard
+            UIPasteboard.general.string = themeDetails
+        }
+    }
+
+
     
     @ViewBuilder func menuButtons(theme: Theme, userTheme: UserTheme?, isCurrentTheme: Bool) -> some View {
+        
+    
         if !isCurrentTheme {
+            themeDetailsButton(theme: theme)
+
             Button {
                 userPreferences.applyTheme(theme)
             } label: {
@@ -184,6 +272,8 @@ struct ThemeSheet: View {
         }
         
         if let userTheme = userTheme {
+            themeDetailsButton(theme: userTheme.toTheme())
+
             Button {
                 selectedTheme = userTheme
                 editTheme = true
@@ -259,7 +349,26 @@ struct ThemeSheet: View {
                 
                 
                 VStack(alignment: .leading, spacing: 8) {
-                    
+                    HStack {
+                        Menu {
+                            menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
+                        } label: {
+                            VStack(alignment: .leading) {
+                                HStack {
+                                    Text(label).opacity(label == "current" ? 1 : 0.5)
+                                    Spacer()
+                                    Image(systemName: "ellipsis").bold()
+                                }
+
+                            }
+                            .font(.customCaption)
+                        }
+                    }
+                    .foregroundStyle(getBackgroundTextColor().opacity(0.8))
+                    .padding(.horizontal)
+                    Divider().padding(.horizontal)
+                        .foregroundStyle(getBackgroundTextColor().opacity(0.8))
+
                     // Small cube for entry background
                     RoundedRectangle(cornerRadius: 10)
                         .fill(getEntryBackground(entryBackgroundColor: theme.entryBackgroundColor))
@@ -304,6 +413,8 @@ struct ThemeSheet: View {
                     }
                     .font(.custom(theme.fontName, size: theme.fontSize))
                     .padding(.horizontal)
+                    
+//
                 }
             }
             .frame(CGSize.superLargeIconSize())  // Entire square block
@@ -311,27 +422,7 @@ struct ThemeSheet: View {
                 menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
             }
             
-            HStack {
-                Menu {
-                    menuButtons(theme: theme, userTheme: userTheme, isCurrentTheme: isCurrentTheme)
-                } label: {
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(themeName).bold()
-                            Spacer()
-                            Image(systemName: "ellipsis")
-                        }
-                        HStack {
-                       Text(label)
-                                .foregroundStyle(getIdealHeaderTextColor().opacity(0.3))
-                            Spacer()
-                        }
-                    }
-                    .font(.customCaption)
-                }
-            }
-            .foregroundStyle(getIdealHeaderTextColor().opacity(0.6))
-            .padding(.horizontal)
+       
         }
 
 //        .padding(.horizontal)

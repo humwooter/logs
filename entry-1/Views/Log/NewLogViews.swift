@@ -103,6 +103,7 @@ struct LogsView: View {
             }
             .font(.customHeadline)
             .navigationTitle("Logs")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationBarTitleTextColor(Color(UIColor.fontColor(forBackgroundColor: UIColor(userPreferences.backgroundColors.first ?? Color.clear), colorScheme: colorScheme)))
             
             .navigationBarItems(trailing: navigationButtons())
@@ -121,6 +122,7 @@ struct LogsView: View {
     func searchNavigationButton() -> some View {
         Button(action: { selectedOption = .search }) {
             Label("Search", systemImage: "magnifyingglass")
+                .font(.customHeadline)
         }
     }
     
@@ -144,7 +146,7 @@ struct LogsView: View {
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
-                    .font(.title2)
+                    .font(.customHeadline)
                     .foregroundColor(userPreferences.accentColor)
             }
         }
@@ -161,11 +163,11 @@ struct LogsView: View {
                         updateFetchRequests()
                     }
             case .folders:
-                FoldersView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, searchModel: searchModel)
+                FoldersView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, searchModel: searchModel, reminderManager: ReminderManager())
                     .environmentObject(coreDataManager)
                     .environmentObject(userPreferences)
             case .reminders:
-                RemindersView()
+                RemindersView(reminderManager: ReminderManager())
                     .environmentObject(userPreferences)
                     .environmentObject(coreDataManager)
             case .search:
@@ -230,7 +232,7 @@ struct LogsView: View {
                             }
                         }
             case .schedule:
-                ScheduleView(showCalendar: $showCalendar)
+                ScheduleView(showCalendar: $showCalendar, eventManager: EventManager(), reminderManager: ReminderManager())
                     .environmentObject(userPreferences)
                     .environmentObject(userPreferences)
             }
@@ -265,7 +267,7 @@ struct LogsView: View {
                           secondaryButton: .cancel())
                 }
             
-            NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId).environmentObject(coreDataManager).environmentObject(userPreferences)) {
+            NavigationLink(destination: RecentlyDeletedView(isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, reminderManager: ReminderManager()).environmentObject(coreDataManager).environmentObject(userPreferences)) {
                 HStack {
                     Text("Recently Deleted").foregroundStyle(getTextColor())
                     Spacer()
@@ -295,7 +297,7 @@ struct LogsView: View {
             HStack {
                 Text("Calendar").foregroundStyle(getIdealHeaderTextColor()).opacity(0.4)
                 Spacer()
-                Label("", systemImage: showCalendar ? "chevron.up" : "chevron.down").foregroundStyle(userPreferences.accentColor)
+                Label("", systemImage: showCalendar ? "chevron.up" : "chevron.left").foregroundStyle(userPreferences.accentColor)
                     .contentTransition(.symbolEffect(.replace.offUp))
             }
             .onTapGesture {
@@ -427,7 +429,7 @@ struct LogsView: View {
 
     @ViewBuilder
     func filteredEntriesListView() -> some View {
-        FilteredEntriesListView(searchModel: searchModel, entryFilter: EntryFilter(searchText: $searchModel.searchText, filters: $searchModel.tokens), isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId)
+        FilteredEntriesListView(searchModel: searchModel, entryFilter: EntryFilter(searchText: $searchModel.searchText, filters: $searchModel.tokens), isShowingReplyCreationView: $isShowingReplyCreationView, replyEntryId: $replyEntryId, reminderManager: ReminderManager())
             .environmentObject(userPreferences)
             .environmentObject(coreDataManager)
             .scrollContentBackground(.hidden)

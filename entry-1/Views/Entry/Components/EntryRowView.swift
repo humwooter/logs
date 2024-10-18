@@ -14,7 +14,7 @@ import Photos
 import CoreHaptics
 import PhotosUI
 import FLAnimatedImage
-
+import EventKit
 
 struct EntryRowView: View {
     // data management
@@ -38,13 +38,14 @@ struct EntryRowView: View {
 
     // haptic feedback engine
     @State private var engine: CHHapticEngine?
+    
 //    @State var textColor = Color.white
 
     
     
     var body: some View {
         if !entry.isFault {
-            TextView(entry: entry, entryViewModel: EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView,  replyEntryId: $repliedEntryId))
+            TextView(entry: entry, entryViewModel: EntryViewModel(isShowingReplyCreationView: $isShowingReplyCreationView,  replyEntryId: $repliedEntryId), reminderManager: ReminderManager(), eventManager: EventManager())
                 .environmentObject(userPreferences)
                 .environmentObject(coreDataManager)
 //                .listRowBackground(calculateTextColor(basedOn: userPreferences.backgroundColors.first ?? Color.clear, background2: userPreferences.backgroundColors[1], entryBackground: userPreferences.entryBackgroundColor, colorScheme: colorScheme))
@@ -68,7 +69,8 @@ struct EntryRowView: View {
             if userPreferences.stamps[index].isActive {
                 Button(action: {
                     withAnimation(.smooth) {
-                        activateButton(entry: entry, index: index)
+//                        activateButton(entry: entry, index: index)
+                        entry.activateButton(index: index, coreDataManager: coreDataManager, userPreferences: userPreferences)
                     }
                 }) {
                     Label("", systemImage: userPreferences.stamps[index].imageName)
@@ -103,9 +105,9 @@ struct EntryRowView: View {
 
             do {
                 try mainContext.save()
-                if entry.shouldSyncWithCloudKit {
-                    CoreDataManager.shared.saveEntry(entry)
-                }
+//                if entry.shouldSyncWithCloudKit {
+////                    CoreDataManager.shared.saveEntry(entry)
+//                }
 
 //                coreDataManager.saveEntry(entry)
             } catch {
